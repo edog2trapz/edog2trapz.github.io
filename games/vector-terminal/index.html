@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vector Terminal</title>
+<meta name="theme-color" content="#020805">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* Vector Terminal: AI Trading Arena, remastered. Layout: top status bar, left tickers, centre chart + order desk, right rivals/news/hacks, bottom tape. */
+:root{
+  --bg:#020805; --panel:#04120b; --panel2:#071a10; --line:#0f3a24; --line2:#1a5c39;
+  --g:#39ff8a; --c:#00e5ff; --m:#ff2bd6; --red:#ff4d6a; --amber:#ffcc4d;
+  --text:#c9ffe0; --dim:#4f8f6c;
+  --mono:"Share Tech Mono", ui-monospace, Consolas, monospace; --display:"Orbitron", "Share Tech Mono", monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.crt{position:fixed;inset:0;z-index:40;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 62%,rgba(0,0,0,.6) 100%)}
+#app{height:100%;display:grid;grid-template-rows:54px 1fr 28px}
+.num{font-variant-numeric:tabular-nums}
+.up{color:var(--g)} .dn{color:var(--red)}
+
+#top{display:flex;align-items:stretch;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line2);background:linear-gradient(#041a0e,#020805)}
+.brand{display:flex;flex-direction:column;justify-content:center;padding-right:8px;min-width:170px}
+.brand b{font-family:var(--display);font-weight:900;font-size:17px;color:var(--g);letter-spacing:.08em;text-shadow:0 0 12px #39ff8a88}
+.brand span{font-size:11px;color:var(--dim);letter-spacing:.14em}
+.st{border:1px solid var(--line2);background:var(--panel);padding:2px 10px;display:flex;flex-direction:column;justify-content:center;min-width:110px}
+.st small{font-size:10.5px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+.st b{font-size:16px;font-weight:400;white-space:nowrap}
+.heat .bar{height:4px;background:#0008;margin-top:2px}
+.heat .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--red));transition:width .3s}
+.ctrl{margin-left:auto;display:flex;gap:4px;align-items:center}
+.ctrl button{border:1px solid var(--line2);padding:0 10px;height:100%;color:var(--dim)}
+.ctrl button.on,.ctrl button:hover{color:var(--g);border-color:var(--g)}
+
+#main{display:grid;grid-template-columns:250px 1fr 300px;min-height:0}
+.col{min-height:0;overflow-y:auto;border-right:1px solid var(--line)}
+.col:last-child{border-right:0;border-left:1px solid var(--line)}
+h3{margin:0;padding:8px 12px 6px;font-size:12px;letter-spacing:.16em;color:var(--g);font-weight:400;text-transform:uppercase;border-bottom:1px solid var(--line)}
+h3::before{content:"// ";color:var(--dim)}
+.tk{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;text-align:left}
+.tk:hover{background:var(--panel2)}
+.tk.on{background:var(--panel2);box-shadow:inset 3px 0 0 var(--g)}
+.tk b{font-size:15px;font-weight:400}
+.tk .nm{font-size:11px;color:var(--dim);grid-column:1}
+.tk .pr{text-align:right;font-size:15px}
+.tk .ch{text-align:right;font-size:12px}
+.tk canvas{grid-column:1/-1;width:100%;height:28px;display:block}
+.tk .own{grid-column:1/-1;font-size:11px;color:var(--c)}
+
+#center{display:grid;grid-template-rows:auto 1fr auto;min-width:0;min-height:0}
+.chead{display:flex;align-items:baseline;gap:12px;padding:8px 14px;border-bottom:1px solid var(--line)}
+.chead .sym{font-family:var(--display);font-size:22px;color:var(--text);letter-spacing:.06em}
+.chead .px{font-size:22px}
+.chead .reg{margin-left:auto;font-size:12px;color:var(--dim)}
+#chartWrap{position:relative;min-height:0}
+#chart{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+#tip{position:absolute;pointer-events:none;background:#020805ee;border:1px solid var(--line2);padding:4px 8px;font-size:12px;white-space:nowrap}
+.desk{border-top:1px solid var(--line2);padding:10px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;background:var(--panel)}
+.desk .grp small{display:block;font-size:11px;color:var(--dim);letter-spacing:.12em;margin-bottom:4px}
+.desk .row{display:flex;gap:4px;flex-wrap:wrap}
+.b{border:1px solid var(--line2);padding:7px 10px;font-size:13px;white-space:nowrap}
+.b:hover:not(:disabled){border-color:var(--g);color:var(--g)}
+.b.buy{border-color:var(--g);color:var(--g)} .b.buy:hover:not(:disabled){background:var(--g);color:#001a0a}
+.b.sell{border-color:var(--red);color:var(--red)} .b.sell:hover:not(:disabled){background:var(--red);color:#200008}
+.b.hack{border-color:var(--m);color:var(--m)} .b.hack:hover:not(:disabled){background:var(--m);color:#14000f}
+.b:disabled{opacity:.35;cursor:default}
+.pos{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.4}
+.pos b{color:var(--text);font-weight:400}
+
+.lb{padding:4px 0}
+.lbr{display:grid;grid-template-columns:22px 1fr auto;gap:6px;padding:5px 12px;align-items:center;font-size:13px}
+.lbr.me{background:#39ff8a14;box-shadow:inset 3px 0 0 var(--g)}
+.lbr .rk{color:var(--dim)}
+.lbr small{display:block;font-size:10.5px;color:var(--dim)}
+.lbr .fz{color:var(--m);font-size:10.5px}
+.feed{padding:4px 0;max-height:240px;overflow-y:auto}
+.nw{padding:6px 12px;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.35;animation:in .3s}
+.nw .d{color:var(--dim);font-size:11px}
+.nw.big{color:var(--amber)} .nw.hack{color:var(--m)} .nw.bad{color:var(--red)}
+@keyframes in{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.hacks{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px}
+.hacks .b{white-space:normal;text-align:left;line-height:1.2}
+.hacks .b small{display:block;font-size:10.5px;opacity:.75}
+.intel{margin:0 12px 10px;padding:8px;border:1px dashed var(--m);color:var(--m);font-size:12px;line-height:1.35}
+
+#tape{display:flex;align-items:center;overflow:hidden;border-top:1px solid var(--line2);background:#010503;white-space:nowrap;font-size:12.5px}
+#tape .in{display:inline-block;padding-left:100%;animation:tape 40s linear infinite}
+#tape span{margin-right:28px}
+@keyframes tape{to{transform:translateX(-100%)}}
+
+.ov{position:fixed;inset:0;z-index:30;background:#020805ee;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.box{border:1px solid var(--g);background:var(--panel);box-shadow:0 0 0 1px var(--g),0 0 40px #39ff8a33;max-width:640px;width:100%;padding:24px 26px}
+.box h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,6vw,52px);margin:0;color:var(--g);text-shadow:0 0 18px #39ff8a88;letter-spacing:.05em}
+.box h2{font-family:var(--display);font-size:24px;margin:0 0 6px;color:var(--g)}
+.box p{color:#8fc9a6;line-height:1.5;margin:10px 0}
+.box ul{color:#8fc9a6;line-height:1.55;padding-left:18px;margin:8px 0}
+.box b{color:var(--text);font-weight:400}
+.box .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.box .b{padding:10px 16px;font-size:15px}
+.res td{padding:4px 10px 4px 0;font-size:14px}
+.res tr.me td{color:var(--g)}
+.grade{font-family:var(--display);font-size:64px;line-height:1;float:right;color:var(--amber);text-shadow:0 0 20px #ffcc4d88}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);top:62px;z-index:35;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.toast{background:#020805f2;border:1px solid var(--g);padding:7px 14px;font-size:13px;animation:in .2s}
+.toast.bad{border-color:var(--red);color:var(--red)} .toast.hack{border-color:var(--m);color:var(--m)}
+.back{color:var(--dim);font-size:12px;text-decoration:none;display:inline-block;margin-bottom:10px}
+.back:hover{color:var(--g)}
+@media (max-width:980px){
+  html,body{overflow:auto}
+  #app{height:auto;min-height:100%;grid-template-rows:auto auto 28px}
+  #top{flex-wrap:wrap}
+  #main{grid-template-columns:1fr}
+  .col{border:0;border-bottom:1px solid var(--line);max-height:none}
+  #center{grid-row:1;min-height:70vh}
+  .desk{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="crt" aria-hidden="true"></div>
+<div id="app">
+  <header id="top">
+    <div class="brand"><b>VECTOR TERMINAL</b><span>AI TRADING ARENA</span></div>
+    <div class="st"><small>Season · Day</small><b class="num" id="sDay">1 · 1/40</b></div>
+    <div class="st"><small>Net worth</small><b class="num" id="sNet">$10,000</b></div>
+    <div class="st"><small>Return</small><b class="num" id="sRet">+0.00%</b></div>
+    <div class="st"><small>Cash</small><b class="num" id="sCash">$10,000</b></div>
+    <div class="st"><small>Rank</small><b class="num" id="sRank">#1 / 7</b></div>
+    <div class="st heat" title="SEC suspicion. Hacks raise it; at 100% you get raided."><small>SEC heat</small><b class="num" id="sHeat">0%</b><div class="bar"><i id="heatBar"></i></div></div>
+    <div class="ctrl"><button id="bPause" title="Pause (Space)">❚❚</button><button data-sp="1" class="on">1×</button><button data-sp="2">2×</button><button data-sp="4">4×</button><button id="bSnd" title="Sound">🔊</button></div>
+  </header>
+  <div id="main">
+    <aside class="col"><h3>Markets</h3><div id="tickers"></div></aside>
+    <section id="center">
+      <div class="chead"><span class="sym" id="cSym">$VCTR</span><span class="px num" id="cPx"></span><span class="num" id="cCh"></span><span class="reg" id="cReg"></span></div>
+      <div id="chartWrap"><canvas id="chart"></canvas><div id="tip" hidden></div></div>
+      <div class="desk">
+        <div class="grp"><small>BUY (B)</small><div class="row">
+          <button class="b buy" data-buy=".1">10%</button><button class="b buy" data-buy=".25">25%</button><button class="b buy" data-buy=".5">50%</button><button class="b buy" data-buy="1">MAX</button></div></div>
+        <div class="grp"><small>SELL (S)</small><div class="row">
+          <button class="b sell" data-sell=".25">25%</button><button class="b sell" data-sell=".5">50%</button><button class="b sell" data-sell="1">ALL</button></div></div>
+        <div class="grp"><small>SHORT · bet it falls</small><div class="row">
+          <button class="b sell" data-short=".25">SHORT 25%</button><button class="b" id="bCover">COVER</button></div></div>
+        <div class="pos" id="pos" style="grid-column:1/-1"></div>
+      </div>
+    </section>
+    <aside class="col">
+      <h3>Leaderboard</h3><div class="lb" id="lb"></div>
+      <h3>Hacks</h3><div class="hacks" id="hacks"></div><div id="intel"></div>
+      <h3>Newsfeed</h3><div class="feed" id="feed"></div>
+    </aside>
+  </div>
+  <footer id="tape"><div class="in" id="tapeIn"></div></footer>
+</div>
+<div id="toasts"></div>
+<div class="ov" id="ov"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+const money = (n, d) => (n < 0 ? '−$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits:d || 0, maximumFractionDigits:d || 0 });
+const pxf = n => n >= 1000 ? n.toFixed(0) : n >= 100 ? n.toFixed(1) : n.toFixed(2);
+const pct = n => (n >= 0 ? '+' : '−') + Math.abs(n * 100).toFixed(2) + '%';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+
+/* ---------------- data ---------------- */
+const TICKERS = [
+  { k:'VCTR', name:'Vector Dynamics', vol:.026, drift:.0011, base:120, cap:4e7, col:'#39ff8a' },
+  { k:'HMST', name:'Hamster Power Co.', vol:.017, drift:.0016, base:48, cap:2.5e7, col:'#ffcc4d' },
+  { k:'SHRMP', name:'Shrimp Holdings', vol:.048, drift:.0004, base:9.5, cap:6e6, col:'#ff6a8a' },
+  { k:'GLDX', name:'Gold Index', vol:.008, drift:.0004, base:1800, cap:2e8, col:'#c9a227' },
+  { k:'ZRBX', name:'Zorblax Aerospace', vol:.035, drift:.0008, base:64, cap:1.2e7, col:'#00e5ff' },
+];
+const NEWS = [
+  { t:'{N} beats earnings by a mile', k:'any', e:[.06, .14] },
+  { t:'{N} CEO arrested for "creative accounting"', k:'any', e:[-.18, -.08] },
+  { t:'Hamster union strikes for longer wheel breaks', k:'HMST', e:[-.15, -.07] },
+  { t:'Record hamster wheel output reported', k:'HMST', e:[.06, .12] },
+  { t:'Shrimp meme goes viral, retail piles in', k:'SHRMP', e:[.18, .45] },
+  { t:'Shrimp farm flooded. Shrimp unbothered, investors not', k:'SHRMP', e:[-.3, -.12] },
+  { t:'Vector Dynamics unveils a quantum chip', k:'VCTR', e:[.08, .2] },
+  { t:'Vector Dynamics recalls 2 million laptops', k:'VCTR', e:[-.16, -.06] },
+  { t:'Zorblax rocket reaches orbit', k:'ZRBX', e:[.1, .25] },
+  { t:'Zorblax rocket reaches orbit, then the ocean', k:'ZRBX', e:[-.25, -.1] },
+  { t:'Central bank hikes rates. Everyone panics', k:'all', e:[-.07, -.03] },
+  { t:'Central bank cuts rates. Party time', k:'all', e:[.03, .07] },
+  { t:'Global crisis: investors flee to gold', k:'GLDX', e:[.04, .09], also:-.04 },
+  { t:'Gold vault found to contain mostly painted rocks', k:'GLDX', e:[-.08, -.04] },
+  { t:'Analyst upgrades {N} to "very buy"', k:'any', e:[.03, .08] },
+  { t:'Short-seller report: {N} is "a vibe, not a business"', k:'any', e:[-.12, -.05] },
+];
+const BOTS = [
+  { k:'random', name:'R4ND0M', desc:'Random Bot · flips coins (original)', col:'#9aa3ad' },
+  { k:'hodl', name:'HODL-9000', desc:'Buy & Hold · never sells (original)', col:'#ffcc4d' },
+  { k:'ma', name:'M.A. CROSS', desc:'Moving Average · trend follower (original)', col:'#00e5ff' },
+  { k:'mom', name:'M0M3NTUM', desc:'Buys whatever just pumped', col:'#ff8a3d' },
+  { k:'contra', name:'C0NTRA', desc:'Buys the dip, sells the rip', col:'#c56cf0' },
+  { k:'whale', name:'LEVIATHAN', desc:'Huge trades that move markets', col:'#ff2bd6' },
+];
+const DAYS = 40, TPD = 8, FEE = .001;
+
+/* ---------------- state ---------------- */
+const SAVE = 'vterm.progress';
+let prog = { season:1, best:null, wins:0 };
+try { prog = Object.assign(prog, JSON.parse(localStorage.getItem(SAVE)) || {}); } catch (e){}
+let G = null, sel = 'VCTR', speed = 1, paused = true, sound = true, hover = null;
+
+function newSeason(){
+  const s = prog.season, hard = 1 + (s - 1) * .12;
+  const T = {};
+  for (const t of TICKERS){
+    const p0 = t.base * rnd(.8, 1.2);
+    const hist = []; let p = p0;
+    for (let i = 0; i < 30; i++){ const o = p; let h = p, l = p; for (let k = 0; k < TPD; k++){ p *= Math.exp(t.drift / TPD + t.vol * hard / Math.sqrt(TPD) * gauss()); h = Math.max(h, p); l = Math.min(l, p); } hist.push({ o, h, l, c:p, v:rnd(.5, 1.5), pre:true }); }
+    T[t.k] = { ...t, vol:t.vol * hard, p, hist, cur:{ o:p, h:p, l:p, c:p, v:0 }, regime:0, regT:rnd(6, 14), shock:0, shockT:0, pressure:0 };
+  }
+  const mk = b => ({ ...b, cash:10000, pos:{}, frozen:0, mem:{}, hold:{}, trades:0 });
+  G = { day:1, tick:0, T, cash:10000, pos:{}, cost:{}, heat:0, raidLock:0, bots:BOTS.map(mk), marks:[], feed:[], next:null, intel:false, start:10000, over:false, hacksUsed:0 };
+  for (const t of TICKERS) G.pos[t.k] = 0;
+  for (const b of G.bots) for (const t of TICKERS) b.pos[t.k] = 0;
+  queueNews();
+  news(`Season ${s} opens. Six AI traders are online. Beat them all.`, 'big');
+}
+const price = k => G.T[k].p;
+function worth(cash, pos){ let v = cash; for (const k in pos) v += pos[k] * price(k); return v; }
+const myWorth = () => worth(G.cash, G.pos);
+
+/* ---------------- market ---------------- */
+function queueNews(){
+  const n = pick(NEWS);
+  const k = n.k === 'any' ? pick(TICKERS).k : n.k;
+  G.next = { at:G.day * TPD + G.tick + Math.round(rnd(1.5, 4) * TPD), n, k, e:rnd(n.e[0], n.e[1]) };
+}
+function fireNews(){
+  const x = G.next, nm = x.k === 'all' ? 'The market' : G.T[x.k].name;
+  const txt = x.n.t.replace('{N}', nm);
+  const tag = x.k === 'all' ? 'ALL' : '$' + x.k;
+  if (x.k === 'all'){ for (const k in G.T) shock(k, x.e); }
+  else { shock(x.k, x.e); if (x.n.also) for (const k in G.T) if (k !== x.k) shock(k, x.n.also); }
+  news(`[${tag}] ${txt} (${pct(x.e)})`, Math.abs(x.e) > .1 ? 'big' : '');
+  if (Math.abs(x.e) > .1) beep(x.e > 0 ? 880 : 220, .15);
+  G.intel = false; queueNews();
+}
+function shock(k, e){ const t = G.T[k]; t.shock += e; t.shockT = 3; }
+function tickMarket(){
+  for (const k in G.T){
+    const t = G.T[k];
+    let r = t.drift / TPD + t.regime * t.vol * .35 / TPD + t.vol / Math.sqrt(TPD) * gauss();
+    if (t.shockT > 0){ r += t.shock / 3; t.shockT--; if (!t.shockT) t.shock = 0; }
+    r += clamp(t.pressure, -.12, .12); t.pressure *= .5;
+    t.p = Math.max(.05, t.p * Math.exp(r));
+    const c = t.cur; c.h = Math.max(c.h, t.p); c.l = Math.min(c.l, t.p); c.c = t.p; c.v += Math.abs(r) * 40 + rnd(.05, .2);
+  }
+}
+function closeDay(){
+  for (const k in G.T){
+    const t = G.T[k];
+    t.hist.push(t.cur); if (t.hist.length > 140) t.hist.shift();
+    t.cur = { o:t.p, h:t.p, l:t.p, c:t.p, v:0 };
+    if (--t.regT <= 0){ t.regime = pick([-1, -1, 0, 1, 1, 1]); t.regT = rnd(6, 16); }
+  }
+  for (const b of G.bots) botDay(b);
+  if (G.heat > 0) G.heat = Math.max(0, G.heat - 1.5);
+  if (G.raidLock > 0) G.raidLock--;
+  marginCheck();
+}
+
+/* ---------------- trading ---------------- */
+function trade(who, k, shares, quiet){
+  if (!shares) return 0;
+  const t = G.T[k], p = t.p, val = Math.abs(shares) * p, fee = val * FEE;
+  if (who === 'me'){
+    if (shares > 0){ G.cash -= val + fee; G.cost[k] = ((G.cost[k] || 0) * Math.max(0, G.pos[k]) + val) / Math.max(1e-9, Math.max(0, G.pos[k]) + shares); }
+    else G.cash += val - fee;
+    G.pos[k] += shares;
+    if (Math.abs(G.pos[k]) < 1e-9) G.pos[k] = 0;
+    G.marks.push({ k, i:t.hist.length, p, s:shares > 0 ? 1 : -1, me:true });
+    if (!quiet) beep(shares > 0 ? 660 : 330, .07);
+  } else {
+    const b = who;
+    if (shares > 0) b.cash -= val + fee; else b.cash += val - fee;
+    b.pos[k] += shares; b.trades++;
+    G.marks.push({ k, i:t.hist.length, p, s:shares > 0 ? 1 : -1, col:b.col });
+  }
+  t.pressure += Math.sign(shares) * val / t.cap * (who === 'me' ? 30 : who.k === 'whale' ? 120 : 40);
+  if (G.marks.length > 600) G.marks.splice(0, 100);
+  return shares;
+}
+function buy(f){
+  const k = sel, p = price(k);
+  if (G.pos[k] < 0){ toast('Cover your short first.', 'bad'); return; }
+  const n = Math.floor(Math.max(0, G.cash) * f / (p * (1 + FEE)) * 1000) / 1000;
+  if (n * p < 1){ toast('Not enough cash.', 'bad'); return; }
+  trade('me', k, n); ui();
+}
+function sell(f){
+  const k = sel; if (G.pos[k] <= 0){ toast(G.pos[k] < 0 ? 'That is a short. Use COVER.' : 'You do not own any.', 'bad'); return; }
+  trade('me', k, -G.pos[k] * f); ui();
+}
+function short(f){
+  const k = sel; if (G.pos[k] > 0){ toast('Sell your shares before shorting.', 'bad'); return; }
+  const shortVal = -Math.min(0, G.pos[k]) * price(k), cap = myWorth() * 1.0;
+  const room = cap - shortVal; if (room < 10){ toast('Short limit reached (100% of net worth).', 'bad'); return; }
+  const n = Math.min(room, myWorth() * f) / price(k);
+  trade('me', k, -n); toast(`Shorted ${n.toFixed(2)} $${k}. You win if it falls.`); ui();
+}
+function cover(){ const k = sel; if (G.pos[k] >= 0){ toast('No short to cover.', 'bad'); return; } trade('me', k, -G.pos[k]); ui(); }
+function marginCheck(){
+  let sv = 0; for (const k in G.pos) if (G.pos[k] < 0) sv += -G.pos[k] * price(k);
+  if (sv > 0 && myWorth() < sv * .3){
+    for (const k in G.pos) if (G.pos[k] < 0) trade('me', k, -G.pos[k], true);
+    news('MARGIN CALL. Your broker force-closed every short.', 'bad'); toast('💥 MARGIN CALL: all shorts liquidated', 'bad'); beep(150, .4);
+  }
+}
+
+/* ---------------- bots ---------------- */
+function bInvest(b, k, frac){ const n = Math.max(0, b.cash) * frac / (price(k) * (1 + FEE)); if (n * price(k) > 5) trade(b, k, n); }
+function bSell(b, k, frac){ if (b.pos[k] > 0) trade(b, k, -b.pos[k] * frac); }
+const ma = (k, n) => { const h = G.T[k].hist; const s = h.slice(-n); return s.reduce((a, c) => a + c.c, 0) / s.length; };
+const chg1 = k => { const h = G.T[k].hist; return h[h.length - 1].c / h[h.length - 2].c - 1; };
+function botDay(b){
+  if (b.frozen > 0){ b.frozen--; return; }
+  const ks = Object.keys(G.T), sk = 1 + (prog.season - 1) * .1;
+  switch (b.k){
+    case 'random':
+      for (const k of ks) if (Math.random() < .3){ Math.random() < .5 ? bInvest(b, k, pick([.1, .25, .5])) : bSell(b, k, pick([.25, .5, 1])); }
+      break;
+    case 'hodl':
+      if (!b.mem.done){ b.mem.done = 1; for (let i = 0; i < ks.length; i++) bInvest(b, ks[i], 1 / (ks.length - i)); }
+      break;
+    case 'ma':
+      for (const k of ks){ const f = ma(k, 5), s2 = ma(k, Math.round(20 / sk)), up = f > s2; if (up && b.mem[k] !== 1){ bInvest(b, k, .3); b.mem[k] = 1; } else if (!up && b.mem[k] === 1){ bSell(b, k, 1); b.mem[k] = 0; } }
+      break;
+    case 'mom': {
+      const s = ks.slice().sort((x, y) => chg1(y) - chg1(x));
+      for (const k of s.slice(-2)) bSell(b, k, 1);
+      if (chg1(s[0]) > .01) bInvest(b, s[0], .45 * sk);
+      break; }
+    case 'contra': {
+      const s = ks.slice().sort((x, y) => chg1(x) - chg1(y));
+      if (chg1(s[0]) < -.02) bInvest(b, s[0], .35 * sk);
+      for (const k of ks) if (b.pos[k] > 0 && chg1(k) > .03) bSell(b, k, .6);
+      break; }
+    case 'whale':
+      for (const k of ks){ if (b.hold[k] > 0 && --b.hold[k] <= 0) bSell(b, k, 1); }
+      if (Math.random() < .2){ const k = pick(ks.filter(x => !(b.hold[x] > 0))); if (k){ bInvest(b, k, .55); b.hold[k] = Math.round(rnd(3, 7)); if (Math.random() < .5) news(`🐋 Rumour: LEVIATHAN is loading up on $${k}.`); } }
+      break;
+  }
+}
+
+/* ---------------- hacks ---------------- */
+const hackCost = m => Math.round(Math.max(250, myWorth() * .035) * m);
+const HACKS = [
+  { k:'intel', icon:'🛰', name:'Intercept news', m:1, heat:14, d:'See the next headline before it hits.' },
+  { k:'pump', icon:'📈', name:'Pump $', m:1.6, heat:28, d:'Bots flood the selected stock with buys.' },
+  { k:'ddos', icon:'🧨', name:'DDoS a rival', m:1.2, heat:20, d:'Freeze the richest rival for 8 days.' },
+  { k:'scrub', icon:'🧽', name:'Scrub logs', m:2, heat:-40, d:'Lower SEC heat by 40.' },
+];
+function hack(k){
+  const h = HACKS.find(x => x.k === k), c = hackCost(h.m);
+  if (G.raidLock > 0){ toast(`Your rigs are seized for ${G.raidLock} more days.`, 'bad'); return; }
+  if (G.cash < c){ toast(`Need ${money(c)} cash.`, 'bad'); return; }
+  if (k === 'intel' && G.intel){ toast('You already have the next headline.', 'bad'); return; }
+  G.cash -= c; G.hacksUsed++;
+  if (k === 'intel'){ G.intel = true; news('🛰 Newswire intercepted. Next headline decrypted.', 'hack'); }
+  if (k === 'pump'){ shock(sel, rnd(.08, .16)); news(`📈 Botnet pumped $${sel}. Ride it, then get out.`, 'hack'); }
+  if (k === 'ddos'){ const tgt = G.bots.filter(b => b.frozen <= 0).sort((a, b2) => worth(b2.cash, b2.pos) - worth(a.cash, a.pos))[0]; if (tgt){ tgt.frozen = 8; news(`🧨 ${tgt.name} is offline. It cannot trade for 8 days.`, 'hack'); } }
+  if (k === 'scrub') news('🧽 Logs scrubbed. The SEC lost interest. For now.', 'hack');
+  G.heat = clamp(G.heat + h.heat, 0, 100);
+  beep(1200, .05); setTimeout(() => beep(1500, .05), 60);
+  if (G.heat >= 100) raid();
+  ui();
+}
+function raid(){
+  const fine = Math.max(0, myWorth() * .25);
+  G.cash -= fine; G.heat = 35; G.raidLock = 10;
+  news(`🚨 SEC RAID. Fined ${money(fine)}. Hacking rigs seized for 10 days.`, 'bad');
+  toast('🚨 SEC RAID: fined 25% of net worth', 'bad'); beep(180, .5);
+  overlayRaid();
+}
+
+/* ---------------- loop ---------------- */
+let acc = 0, last = performance.now();
+function frame(now){
+  const dt = Math.min(.25, (now - last) / 1000); last = now;
+  if (G && !paused && !G.over){
+    acc += dt * speed;
+    const step = .42;
+    while (acc >= step){
+      acc -= step;
+      tickMarket(); G.tick++;
+      if (G.next && G.day * TPD + G.tick >= G.next.at) fireNews();
+      if (G.tick >= TPD){ G.tick = 0; closeDay(); G.day++; if (G.day > DAYS){ endSeason(); break; } }
+    }
+    uiT += dt; if (uiT > .2){ uiT = 0; ui(); }
+  }
+  draw();
+  requestAnimationFrame(frame);
+}
+let uiT = 0;
+
+/* ---------------- rendering ---------------- */
+const cv = $('#chart'), g = cv.getContext('2d');
+const sparks = {};
+function sizeChart(){ const r = $('#chartWrap').getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); cv.width = r.width * d; cv.height = r.height * d; g.setTransform(d, 0, 0, d, 0, 0); }
+addEventListener('resize', sizeChart);
+function draw(){
+  if (!G) return;
+  const r = $('#chartWrap').getBoundingClientRect(), W = r.width, H = r.height;
+  if (!W || !H) return;
+  g.fillStyle = '#020805'; g.fillRect(0, 0, W, H);
+  const t = G.T[sel], N = Math.max(20, Math.min(70, Math.floor((W - 70) / 11)));
+  const hist = t.hist.slice(-N + 1).concat([t.cur]), base = t.hist.length - (hist.length - 1);
+  let lo = Infinity, hi = -Infinity, vmax = 0;
+  for (const c of hist){ lo = Math.min(lo, c.l); hi = Math.max(hi, c.h); vmax = Math.max(vmax, c.v); }
+  const pad = (hi - lo) * .12 || 1; lo -= pad; hi += pad;
+  const L = 10, R = W - 64, T0 = 14, B = H - 54, VB = H - 6, cw = (R - L) / N;
+  const y = v => T0 + (hi - v) / (hi - lo) * (B - T0);
+  g.strokeStyle = '#0f3a24'; g.lineWidth = 1; g.font = '11px "Share Tech Mono", monospace'; g.fillStyle = '#4f8f6c'; g.textAlign = 'left';
+  for (let i = 0; i <= 5; i++){ const v = lo + (hi - lo) * i / 5, yy = y(v); g.beginPath(); g.moveTo(L, yy); g.lineTo(R, yy); g.stroke(); g.fillText(pxf(v), R + 6, yy + 4); }
+  for (let i = 0; i < hist.length; i += 10){ const x = L + i * cw; g.beginPath(); g.moveTo(x, T0); g.lineTo(x, B); g.stroke(); }
+  // MA line
+  g.strokeStyle = '#00e5ff88'; g.lineWidth = 1.5; g.beginPath();
+  const all = t.hist.concat([t.cur]);
+  hist.forEach((c, i) => { const j = base + i, s = all.slice(Math.max(0, j - 9), j + 1); const m = s.reduce((a, q) => a + q.c, 0) / s.length; const x = L + (i + .5) * cw; i ? g.lineTo(x, y(m)) : g.moveTo(x, y(m)); });
+  g.stroke();
+  // candles + volume
+  hist.forEach((c, i) => {
+    const x = L + (i + .5) * cw, upc = c.c >= c.o, col = upc ? '#39ff8a' : '#ff4d6a';
+    g.strokeStyle = col; g.fillStyle = upc ? '#39ff8a' : '#ff4d6a'; g.globalAlpha = c.pre ? .55 : 1;
+    g.beginPath(); g.moveTo(x, y(c.h)); g.lineTo(x, y(c.l)); g.stroke();
+    const bh = Math.max(1, Math.abs(y(c.o) - y(c.c)));
+    g.fillRect(x - cw * .35, Math.min(y(c.o), y(c.c)), cw * .7, bh);
+    g.globalAlpha = .35; g.fillRect(x - cw * .35, VB - c.v / (vmax || 1) * 40, cw * .7, c.v / (vmax || 1) * 40); g.globalAlpha = 1;
+    if (i === hist.length - 1){ g.shadowColor = col; g.shadowBlur = 14; g.fillRect(x - cw * .35, Math.min(y(c.o), y(c.c)), cw * .7, bh); g.shadowBlur = 0; }
+  });
+  // markers
+  for (const m of G.marks){ if (m.k !== sel) continue; const i = m.i - base; if (i < 0 || i >= hist.length) continue; const x = L + (i + .5) * cw, yy = y(m.p);
+    if (m.me){ g.fillStyle = m.s > 0 ? '#39ff8a' : '#ff4d6a'; g.beginPath(); if (m.s > 0){ g.moveTo(x, yy + 6); g.lineTo(x - 6, yy + 16); g.lineTo(x + 6, yy + 16); } else { g.moveTo(x, yy - 6); g.lineTo(x - 6, yy - 16); g.lineTo(x + 6, yy - 16); } g.fill(); }
+    else { g.fillStyle = m.col; g.globalAlpha = .7; g.beginPath(); g.arc(x + (Math.random() - .5) * 0, yy, 2.5, 0, 7); g.fill(); g.globalAlpha = 1; } }
+  // average cost line
+  if (G.pos[sel] > 0 && G.cost[sel]){ const yy = y(G.cost[sel]); if (yy > T0 && yy < B){ g.setLineDash([4, 4]); g.strokeStyle = '#ffcc4d99'; g.beginPath(); g.moveTo(L, yy); g.lineTo(R, yy); g.stroke(); g.setLineDash([]); g.fillStyle = '#ffcc4d'; g.fillText('avg cost', L + 4, yy - 4); } }
+  // last price tag
+  const ly = y(t.p); g.strokeStyle = '#39ff8a66'; g.setLineDash([2, 3]); g.beginPath(); g.moveTo(L, ly); g.lineTo(R, ly); g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#39ff8a'; g.fillRect(R + 2, ly - 9, 60, 18); g.fillStyle = '#001a0a'; g.fillText(pxf(t.p), R + 6, ly + 4);
+  // crosshair
+  if (hover){ const i = clamp(Math.floor((hover.x - L) / cw), 0, hist.length - 1), c = hist[i];
+    g.strokeStyle = '#c9ffe055'; g.beginPath(); g.moveTo(hover.x, T0); g.lineTo(hover.x, B); g.moveTo(L, hover.y); g.lineTo(R, hover.y); g.stroke();
+    const tip = $('#tip'); tip.hidden = false; const dayN = base + i - 29;
+    tip.innerHTML = `${dayN > 0 ? 'Day ' + dayN : 'Pre-season'}${i === hist.length - 1 ? ' (live)' : ''}<br>O ${pxf(c.o)} H ${pxf(c.h)}<br>L ${pxf(c.l)} C <span class="${c.c >= c.o ? 'up' : 'dn'}">${pxf(c.c)}</span>`;
+    tip.style.left = Math.min(hover.x + 14, W - 150) + 'px'; tip.style.top = Math.max(4, hover.y - 70) + 'px'; }
+  else $('#tip').hidden = true;
+}
+cv.addEventListener('mousemove', e => { const r = cv.getBoundingClientRect(); hover = { x:e.clientX - r.left, y:e.clientY - r.top }; });
+cv.addEventListener('mouseleave', () => { hover = null; });
+function drawSpark(k){
+  const c = sparks[k]; if (!c) return;
+  const r = c.getBoundingClientRect(), d = 2; if (!r.width) return;
+  c.width = r.width * d; c.height = r.height * d; const x = c.getContext('2d'); x.scale(d, d);
+  const h = G.T[k].hist.slice(-30).map(q => q.c).concat([G.T[k].p]);
+  const lo = Math.min(...h), hi = Math.max(...h), W = r.width, H = r.height;
+  const up = h[h.length - 1] >= h[0];
+  x.strokeStyle = up ? '#39ff8a' : '#ff4d6a'; x.lineWidth = 1.4; x.beginPath();
+  h.forEach((v, i) => { const px = i / (h.length - 1) * W, py = H - 2 - (v - lo) / ((hi - lo) || 1) * (H - 4); i ? x.lineTo(px, py) : x.moveTo(px, py); });
+  x.stroke(); x.lineTo(W, H); x.lineTo(0, H); x.closePath(); x.fillStyle = up ? '#39ff8a14' : '#ff4d6a14'; x.fill();
+}
+
+/* ---------------- UI ---------------- */
+function buildStatic(){
+  $('#tickers').innerHTML = TICKERS.map((t, i) => `<button class="tk" data-k="${t.k}"><b>$${t.k} <small style="color:var(--dim);font-size:10px">${i + 1}</small></b><span class="pr num" data-pr></span><span class="nm">${esc(t.name)}</span><span class="ch num" data-ch></span><canvas></canvas><span class="own" data-own></span></button>`).join('');
+  for (const el of document.querySelectorAll('.tk')) sparks[el.dataset.k] = el.querySelector('canvas');
+  $('#hacks').innerHTML = HACKS.map(h => `<button class="b hack" data-hack="${h.k}" title="${esc(h.d)}">${h.icon} ${h.name}${h.k === 'pump' ? '<span data-pumpk></span>' : ''}<small data-hc="${h.k}"></small></button>`).join('');
+}
+function ui(){
+  if (!G) return;
+  const nw = myWorth(), ret = nw / G.start - 1;
+  $('#sDay').textContent = `${prog.season} · ${Math.min(G.day, DAYS)}/${DAYS}`;
+  $('#sNet').textContent = money(nw); $('#sNet').className = 'num ' + (ret >= 0 ? 'up' : 'dn');
+  $('#sRet').textContent = pct(ret); $('#sRet').className = 'num ' + (ret >= 0 ? 'up' : 'dn');
+  $('#sCash').textContent = money(G.cash);
+  $('#sHeat').textContent = Math.round(G.heat) + '%' + (G.raidLock ? ' · SEIZED' : ''); $('#heatBar').style.width = G.heat + '%';
+  const board = standings(); const me = board.findIndex(x => x.me);
+  $('#sRank').textContent = `#${me + 1} / ${board.length}`; $('#sRank').className = 'num ' + (me === 0 ? 'up' : '');
+  for (const el of document.querySelectorAll('.tk')){
+    const k = el.dataset.k, t = G.T[k], prev = t.hist[t.hist.length - 1].c, ch = t.p / prev - 1;
+    el.classList.toggle('on', k === sel);
+    el.querySelector('[data-pr]').textContent = pxf(t.p);
+    const c = el.querySelector('[data-ch]'); c.textContent = pct(ch); c.className = 'ch num ' + (ch >= 0 ? 'up' : 'dn');
+    const p = G.pos[k]; el.querySelector('[data-own]').textContent = p > 0 ? `holding ${p.toFixed(2)} · ${money(p * t.p)}` : p < 0 ? `SHORT ${(-p).toFixed(2)} · ${money(p * t.p)}` : '';
+  }
+  if (G.tick === 0 || !ui.sparkDay || ui.sparkDay !== G.day){ ui.sparkDay = G.day; for (const k in G.T) drawSpark(k); }
+  const t = G.T[sel], prev = t.hist[t.hist.length - 1].c, ch = t.p / prev - 1;
+  $('#cSym').textContent = '$' + sel; $('#cPx').textContent = pxf(t.p); $('#cPx').className = 'px num ' + (ch >= 0 ? 'up' : 'dn');
+  $('#cCh').textContent = pct(ch); $('#cCh').className = 'num ' + (ch >= 0 ? 'up' : 'dn');
+  $('#cReg').textContent = `${t.name} · trend: ${t.regime > 0 ? 'BULL ▲' : t.regime < 0 ? 'BEAR ▼' : 'SIDEWAYS'} · volatility ${(t.vol * 100).toFixed(1)}%`;
+  const p = G.pos[sel], val = p * t.p, pl = p > 0 && G.cost[sel] ? (t.p / G.cost[sel] - 1) : null;
+  $('#pos').innerHTML = p > 0 ? `Position: <b>${p.toFixed(3)} $${sel}</b> worth <b>${money(val)}</b>${pl !== null ? ` · avg cost ${pxf(G.cost[sel])} · <span class="${pl >= 0 ? 'up' : 'dn'}">${pct(pl)}</span>` : ''}`
+    : p < 0 ? `Short position: <b>${(-p).toFixed(3)} $${sel}</b> (owe ${money(-val)}). You profit if the price falls. Margin call below 30% cover.`
+    : `No position in $${sel}. Cash ${money(G.cash)}. Fee 0.1% per trade. Keys: <b>B</b> buy 25% · <b>S</b> sell all · <b>1–5</b> switch stock · <b>Space</b> pause.`;
+  $('#lb').innerHTML = board.map((x, i) => `<div class="lbr${x.me ? ' me' : ''}"><span class="rk">${i + 1}</span><span><span style="color:${x.col}">${esc(x.name)}</span><small>${esc(x.desc)}</small>${x.frozen > 0 ? `<span class="fz">OFFLINE ${x.frozen}d</span>` : ''}</span><span class="num ${x.ret >= 0 ? 'up' : 'dn'}">${pct(x.ret)}</span></div>`).join('');
+  for (const h of HACKS){ const b = document.querySelector(`[data-hack="${h.k}"]`), c = hackCost(h.m); b.disabled = G.cash < c || G.raidLock > 0; b.querySelector(`[data-hc]`).textContent = `${money(c)} · ${h.heat > 0 ? '+' : ''}${h.heat} heat`; }
+  const pk = document.querySelector('[data-pumpk]'); if (pk) pk.textContent = sel;
+  $('#intel').innerHTML = G.intel && G.next ? `<div class="intel">🛰 DECRYPTED · in ${Math.max(0, Math.ceil((G.next.at - (G.day * TPD + G.tick)) / TPD * 10) / 10)} days:<br>[${G.next.k === 'all' ? 'ALL' : '$' + G.next.k}] ${esc(G.next.n.t.replace('{N}', G.next.k === 'all' ? 'The market' : G.T[G.next.k].name))} (${pct(G.next.e)})</div>` : '';
+  $('#bPause').textContent = paused ? '▶' : '❚❚'; $('#bPause').classList.toggle('on', paused);
+  $('#tapeIn').innerHTML = Object.values(G.T).map(t => { const c2 = t.p / t.hist[t.hist.length - 1].c - 1; return `<span>$${t.k} ${pxf(t.p)} <span class="${c2 >= 0 ? 'up' : 'dn'}">${c2 >= 0 ? '▲' : '▼'} ${pct(c2)}</span></span>`; }).join('') + G.feed.slice(0, 4).map(f => `<span style="color:var(--dim)">${esc(f.t)}</span>`).join('');
+}
+function standings(){
+  const rows = G.bots.map(b => { const w = worth(b.cash, b.pos); return { name:b.name, desc:b.desc, col:b.col, ret:w / 10000 - 1, w, frozen:b.frozen }; });
+  rows.push({ name:'YOU', desc:'human · unpredictable', col:'#39ff8a', ret:myWorth() / G.start - 1, w:myWorth(), me:true });
+  return rows.sort((a, b) => b.w - a.w);
+}
+function news(t, kind){
+  if (!G) return;
+  G.feed.unshift({ t, d:G.day, kind });
+  if (G.feed.length > 40) G.feed.pop();
+  $('#feed').innerHTML = G.feed.map(f => `<div class="nw ${f.kind || ''}"><span class="d">DAY ${f.d}</span> ${esc(f.t)}</div>`).join('');
+}
+function toast(m, kind){ const el = document.createElement('div'); el.className = 'toast ' + (kind || ''); el.textContent = m; $('#toasts').appendChild(el); while ($('#toasts').children.length > 3) $('#toasts').firstChild.remove(); setTimeout(() => el.remove(), 2600); }
+
+/* ---------------- overlays ---------------- */
+function overlayStart(){
+  const s = prog.season;
+  $('#ov').hidden = false;
+  $('#ov').innerHTML = `<div class="box"><a class="back" href="../../index.html">&lt; back to 2trapz games</a><h1>VECTOR TERMINAL</h1><p style="color:var(--c);margin-top:4px">AI TRADING ARENA · SEASON ${s}</p>
+    <p>Six AI traders get <b>$10,000</b> each, and so do you. You have <b>${DAYS} trading days</b> to finish with the most money.</p>
+    <ul><li>Pick a stock on the left. <b>Buy</b> when you think it will rise, <b>sell</b> to lock in profit, <b>short</b> if you think it will crash.</li>
+    <li>Watch the <b>newsfeed</b>: earnings, scandals, viral shrimp. Headlines move prices hard.</li>
+    <li>Your rivals include the three original bots (Random, Buy & Hold, Moving Average) plus a momentum chaser, a dip buyer and a whale that moves whole markets.</li>
+    <li>Fight dirty with <b>hacks</b>: steal headlines early, pump a stock, knock a rival offline. Every hack raises <b>SEC heat</b>. At 100% you get raided.</li></ul>
+    ${s > 1 ? `<p>Each season the markets get wilder and the bots get sharper.</p>` : ''}
+    ${prog.best !== null ? `<p>Best return: <b class="${prog.best >= 0 ? 'up' : 'dn'}">${pct(prog.best)}</b> · seasons won: <b>${prog.wins}</b></p>` : ''}
+    <div class="row"><button class="b buy" id="go">&gt; START SEASON ${s}</button>${s > 1 ? '<button class="b" id="reset">Reset to season 1</button>' : ''}</div></div>`;
+  $('#go').onclick = () => { audio(); newSeason(); $('#ov').hidden = true; paused = false; sizeChart(); buildStatic(); ui(); };
+  if ($('#reset')) $('#reset').onclick = () => { prog.season = 1; saveProg(); overlayStart(); };
+}
+function overlayRaid(){
+  paused = true;
+  $('#ov').hidden = false;
+  $('#ov').innerHTML = `<div class="box" style="border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 0 40px #ff4d6a44"><h2 style="color:var(--red)">🚨 SEC RAID</h2><p>Agents kicked in the door of your server room. You were fined <b>25% of your net worth</b> and your hacking rigs are seized for <b>10 days</b>.</p><p>Heat reset to 35%. Maybe scrub the logs next time.</p><div class="row"><button class="b" id="ok">Back to trading</button></div></div>`;
+  $('#ok').onclick = () => { $('#ov').hidden = true; paused = false; };
+}
+function endSeason(){
+  G.over = true; paused = true; ui();
+  const board = standings(), me = board.findIndex(x => x.me), ret = board[me].ret, won = me === 0;
+  const grade = won && ret > .5 ? 'S' : won ? 'A' : me <= 1 ? 'B' : me <= 3 ? 'C' : 'D';
+  if (prog.best === null || ret > prog.best) prog.best = ret;
+  if (won){ prog.wins++; prog.season++; }
+  saveProg();
+  beep(won ? 880 : 220, .3); if (won) setTimeout(() => beep(1320, .3), 200);
+  $('#ov').hidden = false;
+  $('#ov').innerHTML = `<div class="box"><span class="grade">${grade}</span><h2>${won ? 'SEASON WON' : 'SEASON OVER'}</h2><p>You finished <b>#${me + 1} of ${board.length}</b> with <b>${money(board[me].w)}</b> (<span class="${ret >= 0 ? 'up' : 'dn'}">${pct(ret)}</span>).${G.hacksUsed ? ` Hacks used: ${G.hacksUsed}.` : ' No hacks used: clean as a whistle.'}</p>
+    <table class="res">${board.map((x, i) => `<tr class="${x.me ? 'me' : ''}"><td>#${i + 1}</td><td style="color:${x.col}">${esc(x.name)}</td><td class="num">${money(x.w)}</td><td class="num ${x.ret >= 0 ? 'up' : 'dn'}">${pct(x.ret)}</td></tr>`).join('')}</table>
+    <p>${won ? `Season ${prog.season} unlocked: wilder markets, sharper bots.` : 'Beat every bot to unlock the next season.'}</p>
+    <div class="row"><button class="b buy" id="again">&gt; ${won ? 'NEXT SEASON' : 'RETRY SEASON'}</button><a class="b" href="../../index.html" style="text-decoration:none">Exit to 2trapz games</a></div></div>`;
+  $('#again').onclick = () => { newSeason(); $('#ov').hidden = true; paused = false; buildStatic(); ui(); };
+}
+function saveProg(){ try { localStorage.setItem(SAVE, JSON.stringify(prog)); } catch (e){} }
+
+/* ---------------- sound ---------------- */
+let AC = null;
+function audio(){ if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e){} } if (AC && AC.state === 'suspended') AC.resume(); }
+function beep(f, d){ if (!AC || !sound) return; try { const t = AC.currentTime, o = AC.createOscillator(), gn = AC.createGain(); o.type = 'square'; o.frequency.value = f; gn.gain.setValueAtTime(.04, t); gn.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(gn); gn.connect(AC.destination); o.start(t); o.stop(t + d); } catch (e){} }
+
+/* ---------------- input ---------------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || !G) return; audio();
+  if (b.dataset.k){ sel = b.dataset.k; ui(); }
+  else if (b.dataset.buy) buy(+b.dataset.buy);
+  else if (b.dataset.sell) sell(+b.dataset.sell);
+  else if (b.dataset.short) short(+b.dataset.short);
+  else if (b.id === 'bCover') cover();
+  else if (b.dataset.hack) hack(b.dataset.hack);
+  else if (b.dataset.sp){ speed = +b.dataset.sp; for (const x of document.querySelectorAll('[data-sp]')) x.classList.toggle('on', x === b); }
+  else if (b.id === 'bPause'){ if (!G.over && $('#ov').hidden) paused = !paused; ui(); }
+  else if (b.id === 'bSnd'){ sound = !sound; b.textContent = sound ? '🔊' : '🔇'; }
+});
+document.addEventListener('keydown', e => {
+  if (!G || !$('#ov').hidden) return;
+  const k = e.key.toLowerCase();
+  if (k === ' '){ e.preventDefault(); paused = !paused; ui(); }
+  else if (k === 'b') buy(.25);
+  else if (k === 's') sell(1);
+  else if (/^[1-5]$/.test(k)){ sel = TICKERS[+k - 1].k; ui(); }
+});
+
+overlayStart();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

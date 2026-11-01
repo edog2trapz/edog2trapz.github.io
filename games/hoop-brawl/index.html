@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hoop Brawl — 1v1 / 2v2 Basketball</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&display=swap');
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 0%, #2A1B4A, #14102A 70%); font-family:'Nunito',sans-serif; padding:20px 10px;
+  }
+  #stage { position:relative; width:100%; max-width:900px; aspect-ratio:900/450; border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.5); border:3px solid #FF7A1A; }
+  #game-canvas { width:100%; height:100%; display:block; background:#1B1230; }
+  #overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-start; flex-direction:column; background:linear-gradient(180deg,#1B1230,#2A1B4A); color:#fff; padding:26px 20px; text-align:center; overflow-y:auto; }
+  .big-title { font-family:'Bangers',cursive; font-size:42px; color:#FF7A1A; text-shadow:3px 3px 0 #7A2E00; margin:0 0 4px; }
+  .sub-title { font-size:13px; color:#D9C4A6; margin-bottom:16px; }
+  .menu-btn { background:#FF7A1A; color:#1B1230; border:none; border-radius:999px; font-weight:800; font-size:15px; padding:13px 30px; cursor:pointer; margin:6px; box-shadow:0 6px 0 #A6480A; }
+  .menu-btn:hover { filter:brightness(1.08); }
+  .menu-btn:active { transform:translateY(3px); box-shadow:0 3px 0 #A6480A; }
+  .menu-btn.secondary { background:#3A2A5C; color:#fff; box-shadow:0 6px 0 #201638; }
+  .mode-row, .char-grid, .result-row { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:14px; }
+  .mode-card { background:#2A1B4A; border:2px solid #4A3A7A; border-radius:16px; padding:14px 16px; cursor:pointer; width:160px; }
+  .mode-card:hover { border-color:#FF7A1A; transform:translateY(-2px); }
+  .mode-card .emoji { font-size:28px; }
+  .mode-card .name { font-weight:800; margin-top:6px; font-size:12px; }
+  .char-card { background:#2A1B4A; border:2px solid #4A3A7A; border-radius:14px; padding:10px; width:128px; cursor:pointer; }
+  .char-card:hover { border-color:#FFD23F; transform:translateY(-2px); }
+  .char-swatch { width:50px; height:50px; border-radius:50%; margin:0 auto 5px; display:flex; align-items:center; justify-content:center; font-size:22px; border:3px solid; }
+  .char-name { font-weight:800; font-size:12px; }
+  .char-ability { font-size:8.5px; color:#D9C4A6; margin-top:4px; min-height:88px; text-align:left; }
+  .char-ability b { color:#FFD23F; display:block; font-size:9px; margin-top:4px; }
+  .char-ability b.sec { color:#7EC8FF; }
+  #controls-bar { max-width:900px; width:100%; text-align:center; color:#D9C4A6; font-size:10.5px; margin-top:12px; font-weight:700; line-height:1.6; }
+  .score-line { font-size:18px; font-weight:800; margin-bottom:6px; }
+  .winner-line { font-family:'Bangers',cursive; font-size:28px; color:#FFD23F; margin-bottom:14px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="game-canvas" width="900" height="450"></canvas>
+  <div id="overlay"></div>
+</div>
+<div id="controls-bar"></div>
+
+<script>
+/* ============================== CONSTANTS ============================== */
+const CANVAS_W = 900, CANVAS_H = 450, GROUND_Y = 380;
+const GRAVITY = 0.55, GRAVITY_BALL = 0.42, JUMP_VELOCITY = -12.5, MOVE_SPEED = 4;
+const PLAYER_H = 58, MARGIN = 26, BALL_RADIUS = 12;
+const STEAL_RANGE = 46, DUNK_RANGE = 55, THREE_PT_DIST = 300;
+const MATCH_SECONDS = 90, PRACTICE_SECONDS = 240;
+
+const P1_KEYS = { left:"a", right:"d", jump:"w", action:"s", special:"q", special2:"e", pass:"f" };
+const P2_KEYS = { left:"arrowleft", right:"arrowright", jump:"arrowup", action:"arrowdown", special:"enter", special2:"/", pass:"'" };
+
+const DUMMY_CHAR = { id:"dummy", name:"Training Dummy", color:"#8a8a8a", accent:"#5a5a5a", emoji:"🎯",
+  primary:{ name:"—", desc:"Does not act." }, secondary:{ name:"—", desc:"Does not act." } };
+
+const CHARACTERS = [
+  { id:"enoch", name:"Enoch", color:"#4B3B66", accent:"#FFD700", emoji:"⚡",
+    primary:{ name:"Death Ray", desc:"Beam stuns every foe in its path and knocks the ball loose." },
+    secondary:{ name:"EMP Pulse", desc:"Instantly cancels a nearby foe's charging ability and stuns them briefly." } },
+  { id:"bao", name:"Bao", color:"#E8C468", accent:"#8B5A2B", emoji:"🥟",
+    primary:{ name:"Bun Bomb", desc:"Lobs a dazing, staggering bun at foes." },
+    secondary:{ name:"Deadzone", desc:"Arms for 6s — teleport-steals any shot taken at his hoop from his half." } },
+  { id:"mateo", name:"Mateo", color:"#2E7A94", accent:"#F4D93E", emoji:"🛵",
+    primary:{ name:"E-Bike Explode", desc:"Rides in and detonates, blasting nearby foes and the ball away." },
+    secondary:{ name:"Kickstart", desc:"Forward dash that usually blows right past defenders." } },
+  { id:"rook", name:"Rook", color:"#9C9C9C", accent:"#5A5A5A", emoji:"🏀",
+    primary:{ name:"Speed Burst", desc:"Temporary huge speed boost." },
+    secondary:{ name:"Crossover Drive", desc:"Forward dash that usually blows right past defenders." } },
+  { id:"slammer", name:"Slammer", color:"#C1443A", accent:"#7A1F17", emoji:"💥",
+    primary:{ name:"Mega Dunk", desc:"Teleports to the hoop for a guaranteed slam (needs the ball)." },
+    secondary:{ name:"Backboard Smash", desc:"Violently swats a nearby in-flight ball away — total denial." } },
+  { id:"ice", name:"Ice", color:"#8FD3E8", accent:"#2E7A94", emoji:"❄️",
+    primary:{ name:"Freeze Zone", desc:"Freezes every foe caught nearby in place." },
+    secondary:{ name:"Cryo Pull", desc:"Freezes a nearby in-flight ball and slowly reels it in." } },
+  { id:"edison", name:"Edison", color:"#1F6FEB", accent:"#0B3D91", emoji:"🌀",
+    primary:{ name:"Curly Shot", desc:"Spiraling shot that blasts the first foe it touches away (needs the ball)." },
+    secondary:{ name:"Curveball", desc:"Bends a nearby in-flight ball's path toward him." } },
+  { id:"haze", name:"Haze", color:"#4B5563", accent:"#1F2937", emoji:"💨",
+    primary:{ name:"Smoke Screen", desc:"Smoke patches invert controls and flip anyone but Haze who touches them." },
+    secondary:{ name:"Smoke Dash", desc:"Forward dash past defenders, leaving a small inverting puff behind." } },
+  { id:"kage", name:"Kage", color:"#2D2A4A", accent:"#0F0C29", emoji:"🥷",
+    primary:{ name:"Shadow Clone", desc:"Summons an AI clone teammate for 15s. Can be passed to!" },
+    secondary:{ name:"Substitution", desc:"Instantly swaps places with his active clone." } },
+  { id:"vex", name:"Vex", color:"#7C3AED", accent:"#4C1D95", emoji:"🎭",
+    primary:{ name:"Hollow Mask", desc:"Guaranteed makes & steals, and can't be stolen from — then leaves him slowed and shaky once it breaks." },
+    secondary:{ name:"Cero", desc:"While masked and holding the ball: a blast that hurls the nearest foe back." } },
+  { id:"jamison", name:"Jamison", color:"#B45309", accent:"#78350F", emoji:"🍯",
+    primary:{ name:"Jamison's Jam", desc:"Traps the nearest foe in sticky jam for 3 seconds." },
+    secondary:{ name:"Preserves", desc:"Cleanses every negative effect on himself instantly." } },
+  { id:"jett", name:"Jett", color:"#0EA5E9", accent:"#075985", emoji:"🔒",
+    primary:{ name:"Locked Up", desc:"No ball + ball in the air: teleport-intercept it. Holding the ball: teleport behind your foe." },
+    secondary:{ name:"Blink Steal", desc:"Teleports beside the ball carrier for a heavily-favored steal attempt." } },
+  { id:"zael", name:"Zael", color:"#E8DCC8", accent:"#8B5FBF", emoji:"🖤",
+    primary:{ name:"(evolves)", desc:"Base: Deflect the ball/projectiles. 1st form: Cero Spear (auto-scores with ball, blasts+stuns without). Final form: Meteor Beams trap the nearest foe." },
+    secondary:{ name:"Transform", desc:"Advances his transformation. At final form: fly to dunk with the ball, or fly up to snatch it from the air." } },
+  { id:"ronin", name:"Ronin", color:"#7A1F2B", accent:"#1A1A1A", emoji:"⚔️",
+    primary:{ name:"Iaido Slash", desc:"A blink-strike that blasts and stuns whoever's in front of him." },
+    secondary:{ name:"Parry Stance", desc:"Briefly negates the next hit, blast, freeze, or trap against him." } },
+  { id:"nova", name:"Nova", color:"#312E81", accent:"#A78BFA", emoji:"☄️",
+    primary:{ name:"Starfall", desc:"Drops a meteor on the nearest foe — blast, stun, and shockwave." },
+    secondary:{ name:"Warp Step", desc:"Instant short-range blink in the direction he's facing." } },
+];
+
+/* ============================== APP STATE ============================== */
+let screen = "title";
+let mode = null;
+let charSelectStep = "p1";
+let p1Char = null, p2Char = null;
+let match = null;
+let keysDown = new Set();
+let audioCtx = null;
+
+/* ============================== AUDIO ============================== */
+function ensureAudio(){ if (!audioCtx){ try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } }
+function beep(freq, dur, type, gain){
+  if (!audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    osc.type = type||"square"; osc.frequency.value = freq;
+    g.gain.value = gain!==undefined?gain:0.08;
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+dur);
+    osc.stop(audioCtx.currentTime+dur);
+  } catch(e){}
+}
+function sfxShoot(){ beep(320,0.08,"triangle",0.06); }
+function sfxScore(){ beep(660,0.1,"square",0.08); setTimeout(function(){beep(880,0.15,"square",0.08);},90); }
+function sfxSteal(){ beep(200,0.08,"sawtooth",0.07); }
+function sfxSpecial(){ beep(120,0.25,"sawtooth",0.1); }
+function sfxSpecial2(){ beep(500,0.1,"sine",0.07); }
+function sfxPass(){ beep(440,0.06,"sine",0.05); }
+function sfxBuzzer(){ beep(150,0.5,"square",0.12); }
+
+/* ============================== HELPERS ============================== */
+const clamp = (n,lo,hi)=>Math.max(lo,Math.min(hi,n));
+function roundRectPath(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function formatTime(s){ const m=Math.floor(s/60), sec=s%60; return m+":"+String(sec).padStart(2,"0"); }
+function allEntities(){ return match.teamA.concat(match.teamB); }
+function enemiesOf(e){ return e.team==="A" ? match.teamB : match.teamA; }
+function teammatesOf(e){ return (e.team==="A"?match.teamA:match.teamB).filter(function(x){return x!==e;}); }
+function nearestEnemy(e){
+  const foes = enemiesOf(e);
+  let best=null;
+  foes.forEach(function(f){ if(!best || Math.abs(f.x-e.x)<Math.abs(best.x-e.x)) best=f; });
+  return best;
+}
+function nearestTeammate(e){
+  const mates = teammatesOf(e);
+  let best=null;
+  mates.forEach(function(f){ if(!best || Math.abs(f.x-e.x)<Math.abs(best.x-e.x)) best=f; });
+  return best;
+}
+function teamHoop(team){ return team==="A" ? match.rightHoop : match.leftHoop; }
+function defendedHoop(team){ return team==="A" ? match.leftHoop : match.rightHoop; }
+function inHalf(x, team){ return team==="A" ? x<=CANVAS_W/2 : x>=CANVAS_W/2; }
+function locked(p){ return p.stunTimer>0 || p.frozenTimer>0 || p.trappedTimer>0 || p.channelTimer>0 || p.bikeAnim>0 || p.megaDunkTimer>0 || !!p.shotMeter; }
+function speedMult(p){ if (p.slowTimer>0) return 0.5; if (p.speedBoostTimer>0) return 1.7; return 1; }
+function getZone(pos){ if (pos>=38 && pos<=54) return "green"; if ((pos>=22&&pos<38)||(pos>54&&pos<=70)) return "yellow"; return "red"; }
+function isBallAirborne(){ return !match.ball.heldBy && match.ball.y < GROUND_Y-BALL_RADIUS-4; }
+function tryParry(target){
+  if (target.parryTimer>0){
+    target.parryTimer=0;
+    spawnFloatText(target.x, target.footY-PLAYER_H-20, "PARRIED!", "#C1443A");
+    spawnParticles(target.x, target.footY-PLAYER_H*0.5, 14, "#C1443A", 3);
+    return true;
+  }
+  return false;
+}
+
+/* ============================== MENUS (DOM) ============================== */
+function needsP2(){ return mode==="2p1v1" || mode==="cpuco2v2" || mode==="versus2v2" || mode==="bosssquad2v2"; }
+function renderMenu(){
+  const overlay = document.getElementById("overlay");
+  const canvas = document.getElementById("game-canvas");
+  const controls = document.getElementById("controls-bar");
+  if (screen==="playing"){
+    overlay.style.display="none"; canvas.style.display="block";
+    let s = "🔵 P1 ("+p1Char.name+"): A/D move · W jump · S shoot/steal · Q special · E secondary · F pass · Esc pause<br/>";
+    if (needsP2()) s += "🔴 P2 ("+p2Char.name+"): ←/→ move · ↑ jump · ↓ shoot/steal · Enter special · / secondary · ' pass";
+    else if (mode==="practice") s += "🎯 Training Dummy — stands still, take your time";
+    else s += "🤖 CPU is auto-controlled";
+    if (mode==="cpuco2v2") s += "&nbsp;&nbsp;(2 AI opponents)";
+    if (mode==="versus2v2") s += "&nbsp;&nbsp;(each team has an AI teammate)";
+    if (mode==="boss1v1") s += "&nbsp;&nbsp;(👹 boss difficulty)";
+    if (mode==="bosssquad2v2") s += "&nbsp;&nbsp;(👹👹 boss squad)";
+    controls.innerHTML = s;
+    return;
+  }
+  canvas.style.display="none"; overlay.style.display="flex"; controls.innerHTML="";
+
+  if (screen==="title"){
+    overlay.innerHTML =
+      '<div class="big-title">🏀 HOOP BRAWL</div>' +
+      '<div class="sub-title">1v1 / 2v2 Basketball Showdown — primary + secondary special moves</div>' +
+      '<button class="menu-btn" onclick="goMode()">Play</button>';
+  } else if (screen==="mode"){
+    overlay.innerHTML =
+      '<div class="big-title" style="font-size:26px">Choose Mode</div>' +
+      '<div class="mode-row">' +
+      '<div class="mode-card" onclick="pickMode(\'cpu1v1\')"><div class="emoji">🤖</div><div class="name">1v1 vs CPU</div></div>' +
+      '<div class="mode-card" onclick="pickMode(\'boss1v1\')"><div class="emoji">👹</div><div class="name">1v1 vs BOSS</div></div>' +
+      '<div class="mode-card" onclick="pickMode(\'practice\')"><div class="emoji">🎯</div><div class="name">Practice vs Dummy</div></div>' +
+      '<div class="mode-card" onclick="pickMode(\'2p1v1\')"><div class="emoji">🎮</div><div class="name">1v1 Local 2P</div></div>' +
+      '<div class="mode-card" onclick="pickMode(\'cpuco2v2\')"><div class="emoji">👥</div><div class="name">2v2 Co-op vs AI</div></div>' +
+      '<div class="mode-card" onclick="pickMode(\'bosssquad2v2\')"><div class="emoji">👹👹</div><div class="name">2v2 vs Boss Squad</div></div>' +
+      '<div class="mode-card" onclick="pickMode(\'versus2v2\')"><div class="emoji">⚔️</div><div class="name">2v2 Versus (+AI teammates)</div></div>' +
+      '</div>' +
+      '<button class="menu-btn secondary" onclick="goTitle()">Back</button>';
+  } else if (screen==="charSelect"){
+    const who = charSelectStep==="p1" ? "Player 1" : "Player 2";
+    overlay.innerHTML =
+      '<div class="big-title" style="font-size:22px">'+who+', pick your baller</div>' +
+      '<div class="char-grid">' +
+      CHARACTERS.map(function(c){
+        return '<div class="char-card" onclick="chooseCharacter(\''+c.id+'\')">' +
+          '<div class="char-swatch" style="background:'+c.color+';border-color:'+c.accent+'">'+c.emoji+'</div>' +
+          '<div class="char-name">'+c.name+'</div>' +
+          '<div class="char-ability">' +
+            '<b>'+c.primary.name+'</b>'+c.primary.desc+
+            '<b class="sec">'+c.secondary.name+'</b>'+c.secondary.desc+
+          '</div>' +
+          '</div>';
+      }).join("") +
+      '</div>' +
+      '<button class="menu-btn secondary" onclick="goMode()">Back</button>';
+  } else if (screen==="gameover"){
+    const teamAName = match.teamA.map(function(e){return e.char.name;}).join(" & ");
+    const teamBName = match.teamB.map(function(e){return e.char.name;}).join(" & ");
+    const teamAEmoji = match.teamA.map(function(e){return e.char.emoji;}).join(" ");
+    const teamBEmoji = match.teamB.map(function(e){return e.char.emoji;}).join(" ");
+    const winnerText = match.scoreA>match.scoreB ? (teamAName+" wins!") : match.scoreB>match.scoreA ? (teamBName+" wins!") : "It's a tie!";
+    overlay.innerHTML =
+      '<div class="big-title" style="font-size:28px">Game Over</div>' +
+      '<div class="winner-line">'+winnerText+'</div>' +
+      '<div class="score-line">'+teamAEmoji+' '+match.scoreA+' &nbsp;\u2013&nbsp; '+match.scoreB+' '+teamBEmoji+'</div>' +
+      '<div class="result-row">' +
+      '<button class="menu-btn" onclick="rematch()">Rematch</button>' +
+      '<button class="menu-btn secondary" onclick="goCharSelectFresh()">New Characters</button>' +
+      '<button class="menu-btn secondary" onclick="goTitle()">Main Menu</button>' +
+      '</div>';
+  }
+}
+function goTitle(){ screen="title"; renderMenu(); }
+function goMode(){ ensureAudio(); screen="mode"; renderMenu(); }
+function pickMode(m){ mode=m; charSelectStep="p1"; screen="charSelect"; renderMenu(); }
+function goCharSelectFresh(){ charSelectStep="p1"; screen="charSelect"; renderMenu(); }
+function chooseCharacter(id){
+  const char = CHARACTERS.find(function(c){ return c.id===id; });
+  if (charSelectStep==="p1"){
+    p1Char = char;
+    if (needsP2()){ charSelectStep="p2"; renderMenu(); return; }
+    startMatch();
+  } else {
+    p2Char = char;
+    startMatch();
+  }
+}
+function rematch(){ startMatch(); }
+
+/* ============================== MATCH SETUP ============================== */
+function makeEntity(charObj, team, x, facing, controls, isAI){
+  return {
+    char:charObj, team:team, x:x, footY:GROUND_Y, vy:0, onGround:true, facing:facing,
+    special:0, special2:0,
+    stunTimer:0, frozenTimer:0, trappedTimer:0, slowTimer:0, speedBoostTimer:0, invertedTimer:0,
+    channelTimer:0, pendingBeam:false, bikeAnim:0, megaDunkTimer:0,
+    deadzoneArmed:false, deadzoneArmTimer:0,
+    maskTimer:0, maskMissDebuff:0,
+    dashTimer:0, dashPhasing:false,
+    deflectTimer:0, parryTimer:0, formLevel:0,
+    shotMeter:null, lastStealAttempt:0,
+    controls:controls||null, isAI:!!isAI, isBoss:false, isDummy:false,
+    isClone:false, cloneOwner:null, cloneExpiresAt:0
+  };
+}
+function randomCharExcluding(ids){
+  const pool = CHARACTERS.filter(function(c){ return ids.indexOf(c.id)===-1; });
+  return pool.length ? pool[Math.floor(Math.random()*pool.length)] : CHARACTERS[Math.floor(Math.random()*CHARACTERS.length)];
+}
+function buildTeams(){
+  const used = [];
+  if (mode==="cpu1v1"){
+    const p1 = makeEntity(p1Char,"A",220,1,P1_KEYS,false); used.push(p1Char.id);
+    const cpu1 = makeEntity(randomCharExcluding(used),"B",680,-1,null,true);
+    match.teamA=[p1]; match.teamB=[cpu1];
+  } else if (mode==="boss1v1"){
+    const p1 = makeEntity(p1Char,"A",220,1,P1_KEYS,false); used.push(p1Char.id);
+    const boss = makeEntity(randomCharExcluding(used),"B",680,-1,null,true); boss.isBoss=true;
+    match.teamA=[p1]; match.teamB=[boss];
+  } else if (mode==="practice"){
+    const p1 = makeEntity(p1Char,"A",220,1,P1_KEYS,false);
+    const dummy = makeEntity(DUMMY_CHAR,"B",680,-1,null,false); dummy.isDummy=true;
+    match.teamA=[p1]; match.teamB=[dummy];
+  } else if (mode==="2p1v1"){
+    const p1 = makeEntity(p1Char,"A",220,1,P1_KEYS,false);
+    const p2 = makeEntity(p2Char,"B",680,-1,P2_KEYS,false);
+    match.teamA=[p1]; match.teamB=[p2];
+  } else if (mode==="cpuco2v2"){
+    const p1 = makeEntity(p1Char,"A",170,1,P1_KEYS,false);
+    const p2 = makeEntity(p2Char,"A",260,1,P2_KEYS,false);
+    used.push(p1Char.id,p2Char.id);
+    const ai1c = randomCharExcluding(used); used.push(ai1c.id);
+    const ai1 = makeEntity(ai1c,"B",640,-1,null,true);
+    const ai2 = makeEntity(randomCharExcluding(used),"B",730,-1,null,true);
+    match.teamA=[p1,p2]; match.teamB=[ai1,ai2];
+  } else if (mode==="bosssquad2v2"){
+    const p1 = makeEntity(p1Char,"A",170,1,P1_KEYS,false);
+    const p2 = makeEntity(p2Char,"A",260,1,P2_KEYS,false);
+    used.push(p1Char.id,p2Char.id);
+    const b1c = randomCharExcluding(used); used.push(b1c.id);
+    const boss1 = makeEntity(b1c,"B",640,-1,null,true); boss1.isBoss=true;
+    const boss2 = makeEntity(randomCharExcluding(used),"B",730,-1,null,true); boss2.isBoss=true;
+    match.teamA=[p1,p2]; match.teamB=[boss1,boss2];
+  } else if (mode==="versus2v2"){
+    const p1 = makeEntity(p1Char,"A",220,1,P1_KEYS,false); used.push(p1Char.id);
+    const ai1c = randomCharExcluding(used); used.push(ai1c.id);
+    const ai1 = makeEntity(ai1c,"A",150,1,null,true);
+    const p2 = makeEntity(p2Char,"B",680,-1,P2_KEYS,false); used.push(p2Char.id);
+    const ai2 = makeEntity(randomCharExcluding(used),"B",750,-1,null,true);
+    match.teamA=[p1,ai1]; match.teamB=[p2,ai2];
+  }
+}
+function startMatch(){
+  const duration = mode==="practice" ? PRACTICE_SECONDS : MATCH_SECONDS;
+  match = {
+    teamA:[], teamB:[],
+    ball:{ x:CANVAS_W/2, y:180, vx:1.5, vy:-2, heldBy:null, shotBy:null, shotFromX:0,
+           curl:false, curlPhase:0, curlOwner:null, curlHit:false, curlHoop:null, guaranteedMake:false,
+           frozenPull:null, homing:null, passTo:null, passTimer:0 },
+    leftHoop:{ x:60, rimY:150 }, rightHoop:{ x:840, rimY:150 },
+    projectiles:[], particles:[], floatTexts:[], smokeClouds:[], shockwaves:[], skyBeams:[], beam:null,
+    shakeFrames:0, shakeMag:0, flashAlpha:0, flashColor:"#fff",
+    freezeFrames:0, pendingReset:false,
+    paused:false, pauseStart:0,
+    countdownEnd: Date.now()+3000,
+    matchEndAt: Date.now()+3000+duration*1000,
+    timeLeft: duration,
+    scoreA:0, scoreB:0
+  };
+  buildTeams();
+  screen="playing";
+  renderMenu();
+}
+function togglePause(){
+  if (!match || screen!=="playing") return;
+  if (match.paused){
+    const delta = Date.now()-match.pauseStart;
+    match.countdownEnd += delta;
+    match.matchEndAt += delta;
+    allEntities().forEach(function(e){ if (e.isClone) e.cloneExpiresAt += delta; });
+    match.paused = false;
+  } else {
+    match.paused = true;
+    match.pauseStart = Date.now();
+  }
+}
+function resetBallToCenter(){
+  const b = match.ball;
+  b.heldBy=null; b.x=CANVAS_W/2; b.y=170;
+  b.vx=(Math.random()<0.5?-1:1)*1.8; b.vy=-2;
+  b.shotBy=null; b.curl=false; b.curlHit=false; b.guaranteedMake=false;
+  b.frozenPull=null; b.homing=null; b.passTo=null;
+}
+function spawnFloatText(x,y,text,color){ match.floatTexts.push({ x:x,y:y,text:text,color:color,life:50,maxLife:50 }); }
+function spawnParticles(x,y,count,color,speed){
+  speed = speed||4;
+  for (let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2, sp=Math.random()*speed+1;
+    match.particles.push({ x:x,y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-1, life:30+Math.random()*20, maxLife:50, color:color, r:2+Math.random()*3 });
+  }
+}
+function spawnShockwave(x,y,color,maxR){ match.shockwaves.push({ x:x,y:y,r:10,maxR:maxR,color:color,life:1 }); }
+function shake(mag){ match.shakeFrames=14; match.shakeMag=mag; }
+function flashScreen(color,amount){ match.flashColor=color; match.flashAlpha=amount; }
+
+/* ============================== ACTIONS ============================== */
+function intentLeft(p){ if (locked(p)) return; const dir = p.invertedTimer>0?1:-1; p.x=clamp(p.x+MOVE_SPEED*speedMult(p)*dir, MARGIN, CANVAS_W-MARGIN); p.facing=dir; }
+function intentRight(p){ if (locked(p)) return; const dir = p.invertedTimer>0?-1:1; p.x=clamp(p.x+MOVE_SPEED*speedMult(p)*dir, MARGIN, CANVAS_W-MARGIN); p.facing=dir; }
+function tryJump(p){ if (locked(p) || !p.onGround) return; p.vy=JUMP_VELOCITY; p.onGround=false; }
+function startDash(p){ p.dashTimer=16; p.dashPhasing=Math.random()<0.8; }
+
+function handleAction(p){
+  if (p.shotMeter){ releaseShot(p); return; }
+  if (locked(p)) return;
+  if (match.ball.heldBy===p){
+    const hoop = teamHoop(p.team);
+    const nearHoop = Math.abs(p.x-hoop.x) < DUNK_RANGE;
+    const airborne = p.footY < GROUND_Y-26;
+    if (nearHoop && airborne){ doDunk(p, hoop, false); return; }
+    p.shotMeter = { pos:0, hoop:hoop, startX:p.x, startY:p.footY-PLAYER_H*0.8 };
+  } else if (match.ball.heldBy && match.ball.heldBy!==p && enemiesOf(p).indexOf(match.ball.heldBy)!==-1){
+    const holder = match.ball.heldBy;
+    if (Math.abs(holder.x-p.x) < STEAL_RANGE && Date.now()-p.lastStealAttempt>500){
+      p.lastStealAttempt = Date.now();
+      if (holder.maskTimer>0){
+        spawnFloatText(p.x, p.footY-PLAYER_H-20, "CAN'T STEAL!", "#7C3AED");
+      } else {
+        const chance = p.maskTimer>0 ? 1 : 0.35;
+        if (Math.random()<chance){
+          match.ball.heldBy = p;
+          spawnFloatText(p.x, p.footY-PLAYER_H-20, "STEAL!", "#4C9F70");
+          sfxSteal();
+        } else {
+          spawnFloatText(p.x, p.footY-PLAYER_H-20, "miss", "#9CA3AF");
+        }
+      }
+    }
+  }
+}
+function handlePass(p){
+  if (locked(p) || match.ball.heldBy!==p) return;
+  const mate = nearestTeammate(p);
+  if (!mate) return;
+  const startX=p.x, startY=p.footY-PLAYER_H*0.65;
+  match.ball.heldBy=null;
+  const dx = mate.x-startX;
+  const T = clamp(Math.abs(dx)/10, 10, 30);
+  match.ball.x=startX; match.ball.y=startY;
+  match.ball.vx=dx/T; match.ball.vy=-4;
+  match.ball.shotBy=null; match.ball.curl=false; match.ball.guaranteedMake=false;
+  match.ball.passTo=mate; match.ball.passTimer=45;
+  sfxPass();
+}
+function launchBall(shooter, hoop, startX, startY, willMake, zone, isCurl){
+  const enemies = enemiesOf(shooter);
+  for (let i=0;i<enemies.length;i++){
+    const foe = enemies[i];
+    if (foe.char.id==="bao" && foe.deadzoneArmed && !locked(foe) && hoop===defendedHoop(foe.team) && inHalf(startX, foe.team)){
+      foe.deadzoneArmed=false; foe.deadzoneArmTimer=0;
+      foe.x = clamp(startX, MARGIN, CANVAS_W-MARGIN);
+      foe.footY = GROUND_Y; foe.vy=0; foe.onGround=true;
+      match.ball.heldBy = foe; match.ball.vx=0; match.ball.vy=0; match.ball.curl=false;
+      spawnFloatText(foe.x, foe.footY-PLAYER_H-30, "DEADZONE!", "#B983FF");
+      spawnParticles(foe.x, foe.footY-PLAYER_H*0.5, 24, "#B983FF", 4);
+      spawnShockwave(foe.x, foe.footY-PLAYER_H*0.5, "#B983FF", 70);
+      sfxSteal();
+      return;
+    }
+  }
+  match.ball.heldBy = null;
+  let targetX = hoop.x, targetY = hoop.rimY;
+  if (!willMake){ targetX += (Math.random()<0.5?-1:1)*(26+Math.random()*30); targetY += (Math.random()*20-6); }
+  const dx = targetX-startX, dy = targetY-startY;
+  const T = clamp(Math.abs(dx)/(isCurl?8:9), isCurl?30:26, isCurl?60:55);
+  match.ball.x = startX; match.ball.y = startY;
+  match.ball.vx = dx/T; match.ball.vy = (dy - 0.5*GRAVITY_BALL*T*T)/T;
+  match.ball.shotBy = shooter; match.ball.shotFromX = startX;
+  match.ball.guaranteedMake = willMake && zone==="green" && !isCurl;
+  match.ball.homing = null; match.ball.frozenPull = null; match.ball.passTo = null;
+  if (isCurl){
+    match.ball.curl=true; match.ball.curlPhase=0; match.ball.curlOwner=shooter; match.ball.curlHit=false; match.ball.curlHoop=hoop;
+    spawnFloatText(startX, startY-20, "CURLY SHOT!", "#FFD23F");
+  } else if (zone==="green"){
+    spawnFloatText(startX, startY-20, "GREEN!", "#4ADE80");
+  }
+  sfxShoot();
+}
+function releaseShot(p){
+  const sm = p.shotMeter; p.shotMeter=null;
+  const pos = Math.min(100, sm.pos);
+  let zone = getZone(pos);
+  let makeChance = zone==="green"?1 : zone==="yellow"?0.55 : 0.18;
+  if (p.maskTimer>0){ zone="green"; makeChance=1; }
+  if (p.maskMissDebuff>0){ makeChance*=0.35; }
+  const willMake = Math.random()<makeChance;
+  launchBall(p, sm.hoop, sm.startX, sm.startY, willMake, zone, false);
+}
+function doDunk(p, hoop, isMega){
+  match.ball.heldBy=null; match.ball.curl=false;
+  match.ball.x=hoop.x; match.ball.y=hoop.rimY;
+  awardScore(p, 2);
+  spawnFloatText(hoop.x, hoop.rimY-40, isMega?"MEGA DUNK!":"DUNK!", "#FFD23F");
+  spawnParticles(hoop.x, hoop.rimY, 24, "#FF7A1A", 5);
+  spawnShockwave(hoop.x, hoop.rimY, "#FF7A1A", 60);
+  shake(isMega?16:10);
+  if (isMega) flashScreen("#FFD23F",0.3);
+}
+function guaranteedScore(p){
+  match.ball.heldBy=null; match.ball.curl=false;
+  awardScore(p, 2);
+  spawnParticles(p.x, p.footY-PLAYER_H*0.5, 20, "#6EE7B7", 5);
+}
+function catchBallFromAir(p){
+  p.x = clamp(match.ball.x, MARGIN, CANVAS_W-MARGIN);
+  p.footY = Math.min(GROUND_Y, match.ball.y+PLAYER_H*0.5);
+  p.onGround = p.footY>=GROUND_Y;
+  match.ball.heldBy=p; match.ball.vx=0; match.ball.vy=0;
+  match.ball.curl=false; match.ball.frozenPull=null; match.ball.homing=null; match.ball.passTo=null;
+  spawnFloatText(p.x, p.footY-PLAYER_H-30, "CAUGHT!", "#4ADE80");
+  spawnParticles(p.x, p.footY-PLAYER_H*0.5, 16, "#4ADE80", 3);
+}
+function awardScore(p, points){
+  if (p.team==="A") match.scoreA += points; else match.scoreB += points;
+  spawnFloatText(p.x, p.footY-PLAYER_H-30, "+"+points, p.team==="A"?"#7EC8FF":"#FF8080");
+  spawnParticles(p.x, p.footY-PLAYER_H*0.5, 10, "#FFD23F", 3);
+  sfxScore();
+  match.freezeFrames = 45;
+  match.pendingReset = true;
+}
+function blastPlayer(e, dir, dist, color){
+  dist = dist||140; color = color||"#FFD23F";
+  if (tryParry(e)) return;
+  e.x = clamp(e.x+dir*dist, MARGIN, CANVAS_W-MARGIN);
+  e.vy = -11; e.onGround=false;
+  if (match.ball.heldBy===e){ match.ball.heldBy=null; match.ball.vx=dir*7; match.ball.vy=-9; }
+  spawnFloatText(e.x, e.footY-PLAYER_H-30, "BLASTED!", color);
+  spawnParticles(e.x, e.footY-PLAYER_H*0.5, 24, color, 5);
+  spawnShockwave(e.x, e.footY-PLAYER_H*0.5, color, 90);
+  shake(10);
+  flashScreen(color, 0.35);
+}
+function explodeBike(p){
+  spawnParticles(p.x, p.footY-PLAYER_H*0.5, 50, "#FF7A1A", 7);
+  spawnParticles(p.x, p.footY-PLAYER_H*0.5, 20, "#5A3B0B", 4);
+  spawnShockwave(p.x, p.footY-PLAYER_H*0.5, "#FF7A1A", 220);
+  enemiesOf(p).forEach(function(foe){
+    if (Math.abs(foe.x-p.x) < 220){ blastPlayer(foe, foe.x>=p.x?1:-1, 140, "#FFD23F"); }
+  });
+  if (!match.ball.heldBy && Math.hypot(match.ball.x-p.x, match.ball.y-(p.footY-PLAYER_H*0.5))<220){
+    match.ball.vx += (match.ball.x>=p.x?1:-1)*7; match.ball.vy=-10;
+  }
+  shake(18);
+  flashScreen("#FF7A1A", 0.4);
+}
+function fireDeathRay(p){
+  match.beam = { y: p.footY-PLAYER_H*0.6, timer:14, color:p.char.accent };
+  enemiesOf(p).forEach(function(foe){
+    if (tryParry(foe)) return;
+    foe.stunTimer = 90;
+    if (match.ball.heldBy===foe){ match.ball.heldBy=null; match.ball.vx=(foe.facing*-1)*3; match.ball.vy=-8; }
+    spawnFloatText(foe.x, foe.footY-PLAYER_H-30, "ZAPPED!", "#F43F5E");
+    spawnParticles(foe.x, foe.footY-PLAYER_H*0.5, 20, "#F43F5E", 4);
+  });
+  spawnShockwave(p.x, p.footY-PLAYER_H*0.5, "#F43F5E", 300);
+  shake(8);
+  flashScreen("#F43F5E", 0.25);
+}
+
+/* ============================== PRIMARY ABILITIES ============================== */
+function tryActivateSpecial(p){
+  if (p.special<100 || locked(p)) return;
+  p.special = 0;
+  const ok = activateAbility(p);
+  if (ok===false){ p.special=100; } else { sfxSpecial(); }
+}
+function activateAbility(p){
+  const opp = nearestEnemy(p);
+  switch (p.char.id){
+    case "enoch":
+      p.channelTimer = 20; p.pendingBeam = true;
+      break;
+    case "bao":
+      match.projectiles.push({ type:"bao", x:p.x+p.facing*20, y:p.footY-PLAYER_H*0.7, vx:p.facing*7, vy:-7, owner:p, life:120 });
+      break;
+    case "mateo":
+      p.bikeAnim = 24;
+      break;
+    case "rook":
+      p.speedBoostTimer = 180;
+      spawnFloatText(p.x, p.footY-PLAYER_H-20, "SPEED BURST!", "#FFD23F");
+      break;
+    case "slammer":
+      if (match.ball.heldBy!==p){ spawnFloatText(p.x, p.footY-PLAYER_H-20, "NEED BALL!", "#9CA3AF"); return false; }
+      p.megaDunkTimer = 12;
+      break;
+    case "ice": {
+      const near = enemiesOf(p).filter(function(foe){ return Math.abs(foe.x-p.x) < 180; });
+      near.forEach(function(foe){
+        if (tryParry(foe)) return;
+        foe.frozenTimer=72; spawnFloatText(foe.x, foe.footY-PLAYER_H-20, "FROZEN!", "#60A5FA");
+      });
+      spawnParticles(p.x, p.footY-PLAYER_H*0.5, 30, "#8FD3E8", 3);
+      spawnShockwave(p.x, p.footY-PLAYER_H*0.5, "#8FD3E8", 180);
+      shake(6);
+      break;
+    }
+    case "edison":
+      if (match.ball.heldBy!==p){ spawnFloatText(p.x, p.footY-PLAYER_H-20, "NEED BALL!", "#9CA3AF"); return false; }
+      launchBall(p, teamHoop(p.team), p.x, p.footY-PLAYER_H*0.8, true, "green", true);
+      break;
+    case "haze":
+      for (let i=0;i<5;i++){
+        const x = MARGIN+40 + Math.random()*(CANVAS_W-2*MARGIN-80);
+        match.smokeClouds.push({ x:x, r:55, life:480, owner:p });
+      }
+      spawnFloatText(p.x, p.footY-PLAYER_H-30, "SMOKE SCREEN!", "#9CA3AF");
+      spawnParticles(p.x, p.footY-PLAYER_H*0.5, 20, "#6B8E4E", 3);
+      break;
+    case "kage": {
+      const existing = teammatesOf(p).find(function(t){ return t.isClone && t.cloneOwner===p; });
+      if (existing){ spawnFloatText(p.x, p.footY-PLAYER_H-20, "CLONE ACTIVE!", "#9CA3AF"); return false; }
+      const cx = clamp(p.x + (p.team==="A"?40:-40), MARGIN, CANVAS_W-MARGIN);
+      const clone = makeEntity(p.char, p.team, cx, p.facing, null, true);
+      clone.isClone = true; clone.cloneOwner = p; clone.cloneExpiresAt = Date.now()+15000;
+      (p.team==="A"?match.teamA:match.teamB).push(clone);
+      spawnFloatText(p.x, p.footY-PLAYER_H-30, "CLONE!", "#B983FF");
+      spawnParticles(p.x, p.footY-PLAYER_H*0.5, 20, "#B983FF", 4);
+      spawnShockwave(p.x, p.footY-PLAYER_H*0.5, "#B983FF", 70);
+      break;
+    }
+    case "vex":
+      p.maskTimer = 300;
+      spawnFloatText(p.x, p.footY-PLAYER_H-30, "HOLLOW MASK!", "#FFD23F");
+      spawnParticles(p.x, p.footY-PLAYER_H*0.5, 18, "#7C3AED", 3);
+      break;
+    case "jamison":
+      if (opp && Math.abs(opp.x-p.x) < 260 && !locked(opp)){
+        if (tryParry(opp)) break;
+        opp.trappedTimer = 180;
+        spawnFloatText(opp.x, opp.footY-PLAYER_H-30, "JAMMED!", "#8B5FBF");
+        spawnParticles(opp.x, opp.footY-PLAYER_H*0.5, 22, "#8B5FBF", 3);
+        spawnShockwave(opp.x, opp.footY-PLAYER_H*0.5, "#8B5FBF", 60);
+      } else {
+        spawnFloatText(p.x, p.footY-PLAYER_H-20, "NO TARGET!", "#9CA3AF");
+        return false;
+      }
+      break;
+    case "jett":
+      if (match.ball.heldBy===p){
+        if (!opp) return false;
+        p.x = clamp(opp.x - opp.facing*30, MARGIN, CANVAS_W-MARGIN);
+        spawnFloatText(p.x, p.footY-PLAYER_H-20, "LOCKED UP!", "#0EA5E9");
+        spawnParticles(p.x, p.footY-PLAYER_H*0.5, 16, "#0EA5E9", 3);
+      } else if (isBallAirborne()){
+        catchBallFromAir(p);
+      } else {
+        spawnFloatText(p.x, p.footY-PLAYER_H-20, "NOT IN AIR!", "#9CA3AF");
+        return false;
+      }
+      break;
+    case "zael":
+      if (p.formLevel===0){
+        p.deflectTimer = 20;
+        spawnFloatText(p.x, p.footY-PLAYER_H-20, "DEFLECT!", "#E8DCC8");
+      } else if (p.formLevel===1){
+        if (match.ball.heldBy===p){
+          guaranteedScore(p);
+          spawnFloatText(p.x, p.footY-PLAYER_H-30, "CERO SPEAR!", "#6EE7B7");
+        } else {
+          if (!opp) return false;
+          if (tryParry(opp)) break;
+          const dir = opp.x>=p.x?1:-1;
+          blastPlayer(opp, dir, 150, "#2E1A47");
+          opp.stunTimer = Math.max(opp.stunTimer, 35);
+          spawnFloatText(p.x, p.footY-PLAYER_H-30, "CERO SPEAR!", "#6EE7B7");
+        }
+      } else {
+        if (!opp) return false;
+        if (tryParry(opp)) break;
+        opp.trappedTimer = 120;
+        spawnFloatText(opp.x, opp.footY-PLAYER_H-30, "METEOR TRAP!", "#8B5FBF");
+        spawnParticles(opp.x, opp.footY-PLAYER_H*0.5, 30, "#8B5FBF", 5);
+        spawnShockwave(opp.x, opp.footY-PLAYER_H*0.5, "#8B5FBF", 150);
+        for (let i=0;i<4;i++){ match.skyBeams.push({ x:opp.x+(Math.random()*80-40), timer:24, delay:i*4 }); }
+        shake(14); flashScreen("#8B5FBF",0.3);
+      }
+      break;
+    case "ronin": {
+      if (opp && Math.abs(opp.x-p.x) < 90){
+        if (!tryParry(opp)){
+          blastPlayer(opp, opp.x>=p.x?1:-1, 110, "#7A1F2B");
+          opp.stunTimer = Math.max(opp.stunTimer, 25);
+        }
+        p.x = clamp(p.x + p.facing*40, MARGIN, CANVAS_W-MARGIN);
+        spawnFloatText(p.x, p.footY-PLAYER_H-20, "IAIDO!", "#7A1F2B");
+      } else {
+        p.x = clamp(p.x + p.facing*70, MARGIN, CANVAS_W-MARGIN);
+        spawnFloatText(p.x, p.footY-PLAYER_H-20, "SLASH!", "#7A1F2B");
+      }
+      spawnParticles(p.x, p.footY-PLAYER_H*0.5, 14, "#7A1F2B", 3);
+      break;
+    }
+    case "nova": {
+      if (!opp) return false;
+      if (tryParry(opp)){ break; }
+      blastPlayer(opp, opp.x>=p.x?1:-1, 130, "#8B5FBF");
+      opp.stunTimer = Math.max(opp.stunTimer, 40);
+      spawnParticles(opp.x, opp.footY-100, 20, "#A78BFA", 4);
+      match.skyBeams.push({ x:opp.x, timer:20, delay:0 });
+      spawnFloatText(p.x, p.footY-PLAYER_H-20, "STARFALL!", "#A78BFA");
+      break;
+    }
+  }
+  return true;
+}
+
+/* ============================== SECONDARY ABILITIES ============================== */
+function tryActivateSecondary(p){
+  if (p.special2<100 || locked(p)) return;
+  p.special2 = 0;
+  const ok = activateSecondary(p);
+  if (ok===false){ p.special2=100; } else { sfxSpecial2(); }
+}
+function activateSecondary(p){
+  const opp = nearestEnemy(p);
+  switch (p.char.id){
+    case "enoch": {
+      if (opp && Math.abs(opp.x-p.x)<150 && (opp.channelTimer>0||opp.bikeAnim>0||opp.megaDunkTimer>0||opp.shotMeter)){
+        opp.channelTimer=0; opp.pendingBeam=false; opp.bikeAnim=0; opp.megaDunkTimer=0; opp.shotMeter=null;
+        opp.stunTimer = Math.max(opp.stunTimer,30);
+        spawnFloatText(opp.x, opp.footY-PLAYER_H-20, "EMP!", "#FFD700");
+        spawnParticles(opp.x, opp.footY-PLAYER_H*0.5, 16, "#FFD700", 3);
+      } else { spawnFloatText(p.x, p.footY-PLAYER_H-20, "NO CAST!", "#9CA3AF"); return false; }
+      break;
+    }
+    case "bao":
+      p.deadzoneArmed=true; p.deadzoneArmTimer=360;
+      spawnFloatText(p.x, p.footY-PLAYER_H-20, "DEADZONE ARMED!", "#B983FF");
+      break;
+    case "mateo": startDash(p); spawnFloatText(p.x,p.footY-PLAYER_H-20,"KICKSTART!","#F4D93E"); break;
+    case "rook": startDash(p); spawnFloatText(p.x,p.footY-PLAYER_H-20,"CROSSOVER!","#fff"); break;
+    case "slammer": {
+      if (!match.ball.heldBy){
+        const dist = Math.hypot(match.ball.x-p.x, match.ball.y-(p.footY-PLAYER_H*0.5));
+        if (dist<200){
+          match.ball.vx=(Math.random()<0.5?-1:1)*10; match.ball.vy=-10;
+          match.ball.curl=false; match.ball.homing=null; match.ball.frozenPull=null; match.ball.guaranteedMake=false; match.ball.shotBy=null;
+          spawnFloatText(p.x, p.footY-PLAYER_H-20, "SMASH!", "#C1443A");
+          spawnParticles(match.ball.x, match.ball.y, 18, "#C1443A", 5);
+          shake(8);
+        } else { spawnFloatText(p.x,p.footY-PLAYER_H-20,"NO TARGET!","#9CA3AF"); return false; }
+      } else { spawnFloatText(p.x,p.footY-PLAYER_H-20,"NO TARGET!","#9CA3AF"); return false; }
+      break;
+    }
+    case "ice": {
+      if (!match.ball.heldBy && !match.ball.frozenPull){
+        const dist = Math.hypot(match.ball.x-p.x, match.ball.y-(p.footY-PLAYER_H*0.5));
+        if (dist<260){
+          match.ball.frozenPull={ owner:p, timer:110 }; match.ball.curl=false; match.ball.homing=null; match.ball.passTo=null;
+          spawnFloatText(p.x,p.footY-PLAYER_H-20,"CRYO PULL!","#8FD3E8");
+          spawnParticles(match.ball.x, match.ball.y, 16, "#8FD3E8", 2);
+        } else { spawnFloatText(p.x,p.footY-PLAYER_H-20,"OUT OF RANGE!","#9CA3AF"); return false; }
+      } else { spawnFloatText(p.x,p.footY-PLAYER_H-20,"NO TARGET!","#9CA3AF"); return false; }
+      break;
+    }
+    case "edison": {
+      if (!match.ball.heldBy && !match.ball.homing){
+        match.ball.homing={ owner:p, timer:110 }; match.ball.frozenPull=null; match.ball.passTo=null;
+        spawnFloatText(p.x,p.footY-PLAYER_H-20,"CURVEBALL!","#1F6FEB");
+        spawnParticles(match.ball.x, match.ball.y, 16, "#1F6FEB", 2);
+      } else { spawnFloatText(p.x,p.footY-PLAYER_H-20,"NO TARGET!","#9CA3AF"); return false; }
+      break;
+    }
+    case "haze":
+      startDash(p);
+      match.smokeClouds.push({ x:p.x, r:40, life:300, owner:p });
+      spawnFloatText(p.x,p.footY-PLAYER_H-20,"SMOKE DASH!","#6B8E4E");
+      break;
+    case "kage": {
+      const clone = teammatesOf(p).find(function(t){ return t.isClone && t.cloneOwner===p; });
+      if (!clone){ spawnFloatText(p.x,p.footY-PLAYER_H-20,"NO CLONE!","#9CA3AF"); return false; }
+      const tx=p.x; p.x=clone.x; clone.x=tx;
+      spawnFloatText(p.x,p.footY-PLAYER_H-20,"SUBSTITUTE!","#B983FF");
+      spawnParticles(p.x,p.footY-PLAYER_H*0.5,14,"#B983FF",3);
+      spawnParticles(clone.x,clone.footY-PLAYER_H*0.5,14,"#B983FF",3);
+      break;
+    }
+    case "vex": {
+      if (!(p.maskTimer>0 && match.ball.heldBy===p)){ spawnFloatText(p.x,p.footY-PLAYER_H-20,"NEED MASK & BALL!","#9CA3AF"); return false; }
+      if (!opp) return false;
+      if (tryParry(opp)) break;
+      const dir = opp.x>=p.x?1:-1;
+      blastPlayer(opp, dir, 180, "#2E1A47");
+      spawnFloatText(p.x,p.footY-PLAYER_H-30,"CERO!","#7C3AED");
+      spawnParticles(p.x,p.footY-PLAYER_H*0.5,20,"#7C3AED",5);
+      break;
+    }
+    case "jamison":
+      p.stunTimer=0; p.frozenTimer=0; p.trappedTimer=0; p.slowTimer=0; p.invertedTimer=0;
+      spawnFloatText(p.x,p.footY-PLAYER_H-20,"CLEANSED!","#B45309");
+      spawnParticles(p.x,p.footY-PLAYER_H*0.5,14,"#B45309",2);
+      break;
+    case "jett": {
+      const target = (match.ball.heldBy && enemiesOf(p).indexOf(match.ball.heldBy)!==-1) ? match.ball.heldBy : null;
+      if (!target){ spawnFloatText(p.x,p.footY-PLAYER_H-20,"NO TARGET!","#9CA3AF"); return false; }
+      p.x = clamp(target.x + (p.x<target.x?-1:1)*40, MARGIN, CANVAS_W-MARGIN);
+      if (target.maskTimer>0){ spawnFloatText(p.x,p.footY-PLAYER_H-20,"MASK BLOCKS STEAL!","#7C3AED"); }
+      else if (Math.random()<0.7){ match.ball.heldBy=p; spawnFloatText(p.x,p.footY-PLAYER_H-20,"LOCKDOWN STEAL!","#0EA5E9"); sfxSteal(); }
+      else { spawnFloatText(p.x,p.footY-PLAYER_H-20,"RESISTED!","#9CA3AF"); }
+      spawnParticles(p.x,p.footY-PLAYER_H*0.5,14,"#0EA5E9",3);
+      break;
+    }
+    case "zael":
+      if (p.formLevel<2){
+        p.formLevel++;
+        const c = p.formLevel===1?"#6EE7B7":"#2E1A47";
+        spawnFloatText(p.x,p.footY-PLAYER_H-30,"TRANSFORM!","#fff");
+        spawnParticles(p.x,p.footY-PLAYER_H*0.5,30,c,6);
+        spawnShockwave(p.x,p.footY-PLAYER_H*0.5,c,160);
+        shake(10); flashScreen(c,0.3);
+      } else {
+        if (match.ball.heldBy===p){
+          p.vy=-14; p.onGround=false;
+          guaranteedScore(p);
+          spawnFloatText(p.x,p.footY-PLAYER_H-30,"FLIGHT DUNK!","#8B5FBF");
+        } else if (isBallAirborne()){
+          p.vy=-10;
+          catchBallFromAir(p);
+        } else {
+          spawnFloatText(p.x,p.footY-PLAYER_H-20,"NOTHING TO CATCH!","#9CA3AF");
+          return false;
+        }
+      }
+      break;
+    case "ronin":
+      p.parryTimer = 24;
+      spawnFloatText(p.x,p.footY-PLAYER_H-20,"PARRY STANCE!","#1A1A1A");
+      spawnParticles(p.x,p.footY-PLAYER_H*0.5,10,"#1A1A1A",2);
+      break;
+    case "nova":
+      p.x = clamp(p.x + p.facing*160, MARGIN, CANVAS_W-MARGIN);
+      spawnFloatText(p.x,p.footY-PLAYER_H-20,"WARP STEP!","#A78BFA");
+      spawnParticles(p.x,p.footY-PLAYER_H*0.5,16,"#A78BFA",3);
+      break;
+  }
+  return true;
+}
+
+/* ============================== PHYSICS UPDATE ============================== */
+function updatePlayerTimers(p){
+  if (p.stunTimer>0) p.stunTimer--;
+  if (p.frozenTimer>0) p.frozenTimer--;
+  if (p.trappedTimer>0) p.trappedTimer--;
+  if (p.slowTimer>0) p.slowTimer--;
+  if (p.speedBoostTimer>0) p.speedBoostTimer--;
+  if (p.invertedTimer>0) p.invertedTimer--;
+  if (p.deflectTimer>0) p.deflectTimer--;
+  if (p.parryTimer>0) p.parryTimer--;
+  if (p.maskMissDebuff>0) p.maskMissDebuff--;
+  if (p.deadzoneArmTimer>0){ p.deadzoneArmTimer--; if (p.deadzoneArmTimer===0) p.deadzoneArmed=false; }
+  if (p.maskTimer>0){
+    p.maskTimer--;
+    if (p.maskTimer===0){ p.slowTimer=Math.max(p.slowTimer,200); p.maskMissDebuff=200; spawnFloatText(p.x,p.footY-PLAYER_H-20,"MASK BROKEN!","#9CA3AF"); }
+  }
+  if (p.channelTimer>0){
+    p.channelTimer--;
+    if (p.channelTimer===0 && p.pendingBeam){ fireDeathRay(p); p.pendingBeam=false; }
+  }
+  if (p.bikeAnim>0){
+    p.bikeAnim--;
+    if (p.bikeAnim===0){ explodeBike(p); }
+  }
+  if (p.megaDunkTimer>0){
+    p.megaDunkTimer--;
+    if (p.megaDunkTimer===0){
+      const hoop = teamHoop(p.team);
+      p.x = clamp(hoop.x + (p.team==="A"?-40:40), MARGIN, CANVAS_W-MARGIN);
+      p.footY = GROUND_Y-70; p.vy=0; p.onGround=false;
+      doDunk(p, hoop, true);
+    }
+  }
+  if (p.dashTimer>0){
+    p.x = clamp(p.x + p.facing*10, MARGIN, CANVAS_W-MARGIN);
+    p.dashTimer--;
+    if (p.dashTimer===0) p.dashPhasing=false;
+  }
+  if (p.shotMeter){
+    p.shotMeter.pos += 100/40;
+    if (p.shotMeter.pos>=100) releaseShot(p);
+  }
+  p.vy += GRAVITY; p.footY += p.vy;
+  if (p.footY>=GROUND_Y){ p.footY=GROUND_Y; p.vy=0; p.onGround=true; } else { p.onGround=false; }
+  p.special = Math.min(100, p.special + 100/(15*60));
+  p.special2 = Math.min(100, p.special2 + 100/(10*60));
+}
+function separateAll(){
+  const ents = allEntities();
+  for (let i=0;i<ents.length;i++){
+    for (let j=i+1;j<ents.length;j++){
+      const a=ents[i], b=ents[j];
+      if (!a.onGround || !b.onGround) continue;
+      if ((a.dashTimer>0&&a.dashPhasing) || (b.dashTimer>0&&b.dashPhasing)) continue;
+      const d=b.x-a.x, minSep=34;
+      if (Math.abs(d)<minSep){
+        const push=(minSep-Math.abs(d))/2;
+        if (d>=0){ a.x-=push; b.x+=push; } else { a.x+=push; b.x-=push; }
+        a.x = clamp(a.x, MARGIN, CANVAS_W-MARGIN);
+        b.x = clamp(b.x, MARGIN, CANVAS_W-MARGIN);
+      }
+    }
+  }
+}
+function cleanupClones(){
+  ["A","B"].forEach(function(team){
+    const arr = team==="A" ? match.teamA : match.teamB;
+    for (let i=arr.length-1;i>=0;i--){
+      const e = arr[i];
+      if (e.isClone && Date.now()>e.cloneExpiresAt){
+        if (match.ball.heldBy===e){ match.ball.heldBy=null; match.ball.vx=(Math.random()<0.5?-1:1)*3; match.ball.vy=-6; }
+        spawnParticles(e.x, e.footY-PLAYER_H*0.5, 16, "#B983FF", 3);
+        arr.splice(i,1);
+      }
+    }
+  });
+}
+function runDeflectCheck(){
+  const ball = match.ball;
+  if (ball.heldBy) return;
+  const deflectors = allEntities().filter(function(e){ return e.deflectTimer>0; });
+  for (let i=0;i<deflectors.length;i++){
+    const z = deflectors[i];
+    if (ball.shotBy && ball.shotBy.team===z.team) continue;
+    const hy = z.footY-PLAYER_H*0.5;
+    if (Math.hypot(z.x-ball.x, hy-ball.y) < 45){
+      ball.vx=-ball.vx*1.1; ball.vy=-6; ball.guaranteedMake=false; ball.curl=false; ball.shotBy=null;
+      ball.homing=null; ball.frozenPull=null; ball.passTo=null;
+      spawnFloatText(z.x, z.footY-PLAYER_H-20, "DEFLECTED!", "#9CA3AF");
+      spawnParticles(z.x, hy, 14, "#9CA3AF", 3);
+      z.deflectTimer=0;
+      break;
+    }
+  }
+}
+function runPickupCheck(){
+  const ball = match.ball;
+  if (ball.heldBy) return;
+  const ents = allEntities();
+  for (let i=0;i<ents.length;i++){
+    const pl = ents[i];
+    if (ball.heldBy) break;
+    if (pl.stunTimer>0 || pl.frozenTimer>0 || pl.trappedTimer>0 || pl.isDummy) continue;
+    const handY = pl.footY-PLAYER_H*0.5;
+    if (Math.hypot(pl.x-ball.x, handY-ball.y) < 34){
+      ball.heldBy=pl; ball.vx=0; ball.vy=0;
+      ball.curl=false; ball.homing=null; ball.frozenPull=null; ball.passTo=null;
+    }
+  }
+}
+function updateBall(){
+  const ball = match.ball;
+  if (ball.heldBy){
+    ball.x = ball.heldBy.x + ball.heldBy.facing*18;
+    ball.y = ball.heldBy.footY - PLAYER_H*0.65;
+    return;
+  }
+
+  if (ball.frozenPull){
+    const owner = ball.frozenPull.owner;
+    const hx=owner.x, hy=owner.footY-PLAYER_H*0.5;
+    ball.x += (hx-ball.x)*0.06; ball.y += (hy-ball.y)*0.06;
+    ball.vx=0; ball.vy=0;
+    ball.frozenPull.timer--;
+    if (ball.frozenPull.timer<=0) ball.frozenPull=null;
+    runDeflectCheck(); runPickupCheck();
+    return;
+  }
+
+  if (ball.homing){
+    const owner = ball.homing.owner;
+    const hx=owner.x, hy=owner.footY-PLAYER_H*0.5;
+    ball.vx += (hx-ball.x)*0.012; ball.vy += (hy-ball.y)*0.012;
+    ball.homing.timer--;
+    if (ball.homing.timer<=0) ball.homing=null;
+  }
+  if (ball.passTo){
+    const t = ball.passTo;
+    const hx=t.x, hy=t.footY-PLAYER_H*0.5;
+    ball.vx += (hx-ball.x)*0.01; ball.vy += (hy-ball.y)*0.01;
+    ball.passTimer--;
+    if (ball.passTimer<=0) ball.passTo=null;
+  }
+  if (ball.curl){
+    ball.curlPhase += 0.3;
+    if (Math.abs(ball.x-ball.curlHoop.x) > 60){ ball.x += Math.sin(ball.curlPhase)*4; }
+    if (!ball.curlHit){
+      const ents = allEntities();
+      for (let i=0;i<ents.length;i++){
+        const e = ents[i];
+        if (e===ball.curlOwner || e.team===ball.curlOwner.team) continue;
+        const hy = e.footY-PLAYER_H*0.5;
+        if (Math.hypot(e.x-ball.x, hy-ball.y) < 30){
+          ball.curlHit = true;
+          const dir = ball.x<e.x?1:-1;
+          blastPlayer(e, dir, 140, "#FFD23F");
+          ball.curl = false;
+          ball.vx = dir*6; ball.vy=-6;
+          break;
+        }
+      }
+    }
+  }
+
+  ball.vy += GRAVITY_BALL;
+  ball.x += ball.vx; ball.y += ball.vy;
+  if (ball.x<BALL_RADIUS){ ball.x=BALL_RADIUS; ball.vx=-ball.vx*0.6; }
+  if (ball.x>CANVAS_W-BALL_RADIUS){ ball.x=CANVAS_W-BALL_RADIUS; ball.vx=-ball.vx*0.6; }
+  if (ball.y<BALL_RADIUS){ ball.y=BALL_RADIUS; ball.vy=-ball.vy*0.5; }
+
+  const lh=match.leftHoop, rh=match.rightHoop;
+  if (ball.vx<0 && ball.x-BALL_RADIUS<=lh.x-18 && ball.x>lh.x-40 && ball.y>lh.rimY-55 && ball.y<lh.rimY+8){ ball.x=lh.x-18+BALL_RADIUS; ball.vx=-ball.vx*0.5; }
+  if (ball.vx>0 && ball.x+BALL_RADIUS>=rh.x+18 && ball.x<rh.x+40 && ball.y>rh.rimY-55 && ball.y<rh.rimY+8){ ball.x=rh.x+18-BALL_RADIUS; ball.vx=-ball.vx*0.5; }
+
+  if (ball.y>GROUND_Y-BALL_RADIUS){
+    ball.y=GROUND_Y-BALL_RADIUS; ball.vy=-ball.vy*0.5;
+    if (Math.abs(ball.vy)<1) ball.vy=0;
+    ball.vx*=0.9; ball.curl=false;
+  }
+
+  [lh,rh].forEach(function(hoop){
+    const win = ball.guaranteedMake ? 24 : 16;
+    if (ball.vy>0 && Math.abs(ball.x-hoop.x)<win && ball.y>hoop.rimY-8 && ball.y<hoop.rimY+18){
+      const scoringTeam = hoop===lh ? "B" : "A";
+      const teamArr = scoringTeam==="A" ? match.teamA : match.teamB;
+      let scorer = (ball.shotBy && ball.shotBy.team===scoringTeam) ? ball.shotBy : null;
+      if (!scorer){
+        teamArr.forEach(function(e){ if(!scorer || Math.abs(e.x-hoop.x)<Math.abs(scorer.x-hoop.x)) scorer=e; });
+      }
+      if (scorer){
+        const points = (ball.shotBy===scorer && Math.abs(ball.shotFromX-hoop.x)>THREE_PT_DIST) ? 3 : 2;
+        awardScore(scorer, points);
+        ball.vy=2; ball.vx=0; ball.x=hoop.x; ball.y=hoop.rimY+20; ball.curl=false;
+      }
+    }
+  });
+
+  runDeflectCheck();
+  runPickupCheck();
+}
+function updateProjectiles(){
+  match.projectiles = match.projectiles.filter(function(pr){
+    pr.vy += GRAVITY_BALL*0.5;
+    pr.x += pr.vx; pr.y += pr.vy;
+    pr.life--;
+
+    const deflectors = allEntities().filter(function(e){ return e.deflectTimer>0 && enemiesOf(e).indexOf(pr.owner)!==-1; });
+    for (let i=0;i<deflectors.length;i++){
+      const z = deflectors[i];
+      if (Math.hypot(z.x-pr.x, (z.footY-PLAYER_H*0.5)-pr.y) < 40){
+        spawnFloatText(z.x, z.footY-PLAYER_H-20, "DEFLECTED!", "#9CA3AF");
+        spawnParticles(pr.x, pr.y, 14, "#9CA3AF", 3);
+        z.deflectTimer=0;
+        return false;
+      }
+    }
+
+    const enemies = enemiesOf(pr.owner);
+    for (let i=0;i<enemies.length;i++){
+      const foe = enemies[i];
+      if (Math.hypot(foe.x-pr.x, (foe.footY-PLAYER_H*0.5)-pr.y) < 30){
+        if (tryParry(foe)) return false;
+        foe.slowTimer = 150; foe.stunTimer = Math.max(foe.stunTimer, 20);
+        spawnFloatText(foe.x, foe.footY-PLAYER_H-20, "DAZED!", "#E8C468");
+        spawnParticles(pr.x, pr.y, 26, "#E8C468", 3);
+        return false;
+      }
+    }
+    if (pr.y > GROUND_Y-10){ spawnParticles(pr.x, GROUND_Y, 10, "#E8C468", 2); return false; }
+    if (pr.life<=0 || pr.x<0 || pr.x>CANVAS_W) return false;
+    return true;
+  });
+}
+function updateParticles(){
+  match.particles = match.particles.filter(function(pt){
+    pt.vy += 0.15; pt.x += pt.vx; pt.y += pt.vy; pt.life--;
+    return pt.life>0;
+  });
+}
+function updateFloatTexts(){
+  match.floatTexts = match.floatTexts.filter(function(f){ f.y -= 0.6; f.life--; return f.life>0; });
+}
+function updateBeam(){
+  if (match.beam){ match.beam.timer--; if (match.beam.timer<=0) match.beam=null; }
+}
+function updateSmoke(){
+  match.smokeClouds = match.smokeClouds.filter(function(c){ c.life--; return c.life>0; });
+  match.smokeClouds.forEach(function(c){
+    allEntities().forEach(function(e){
+      if (e===c.owner) return;
+      const cy = GROUND_Y-70;
+      if (Math.hypot(e.x-c.x, (e.footY-PLAYER_H*0.5)-cy) < c.r){
+        if (e.invertedTimer<=0) spawnFloatText(e.x, e.footY-PLAYER_H-20, "INVERTED!", "#8B5FBF");
+        e.invertedTimer = 90;
+      }
+    });
+  });
+}
+function updateShockwaves(){
+  match.shockwaves = match.shockwaves.filter(function(sw){ sw.r+=7; sw.life=1-(sw.r/sw.maxR); return sw.r<sw.maxR; });
+}
+function updateSkyBeams(){
+  match.skyBeams.forEach(function(b){ if (b.delay>0) b.delay--; else b.timer--; });
+  match.skyBeams = match.skyBeams.filter(function(b){ return b.delay>0 || b.timer>0; });
+}
+
+/* ============================== AI ============================== */
+function moveTowards(e, targetX){
+  if (Math.abs(e.x-targetX) < 4) return;
+  if (e.x<targetX) intentRight(e); else intentLeft(e);
+}
+function aiAttemptShot(e, hoop){
+  const near = Math.abs(e.x-hoop.x) < DUNK_RANGE;
+  if (near){
+    if (e.onGround){ tryJump(e); }
+    else if (e.footY < GROUND_Y-26){ doDunk(e, hoop, false); }
+    return;
+  }
+  const r = Math.random();
+  const gT = e.isBoss?0.65:0.4, yT = e.isBoss?0.9:0.75;
+  let zone = r<gT?"green":r<yT?"yellow":"red";
+  let makeChance = zone==="green"?1 : zone==="yellow"?(e.isBoss?0.8:0.55) : (e.isBoss?0.4:0.18);
+  if (e.maskTimer>0){ zone="green"; makeChance=1; }
+  if (e.maskMissDebuff>0){ makeChance*=0.35; }
+  const willMake = Math.random()<makeChance;
+  launchBall(e, hoop, e.x, e.footY-PLAYER_H*0.8, willMake, zone, false);
+}
+function updateAI(e){
+  if (locked(e)) return;
+  const ball = match.ball;
+  const myHoop = teamHoop(e.team);
+  const AGG = e.isBoss ? 2.2 : 1;
+  if (ball.heldBy===e){
+    const dist = Math.abs(e.x-myHoop.x);
+    if (dist < DUNK_RANGE){
+      aiAttemptShot(e, myHoop);
+    } else if (dist < 420){
+      if (dist>140) moveTowards(e, myHoop.x);
+      if (Math.random() < Math.min(0.9, 0.045*AGG)) aiAttemptShot(e, myHoop);
+      if (Math.random() < 0.006) handlePass(e);
+    } else {
+      moveTowards(e, myHoop.x);
+    }
+  } else if (ball.heldBy && enemiesOf(e).indexOf(ball.heldBy)!==-1){
+    moveTowards(e, ball.heldBy.x);
+    if (Math.abs(e.x-ball.heldBy.x)<STEAL_RANGE && Math.random()<Math.min(0.9,0.05*AGG)) handleAction(e);
+  } else if (ball.heldBy && teammatesOf(e).indexOf(ball.heldBy)!==-1){
+    moveTowards(e, (myHoop.x+e.x)/2);
+  } else {
+    moveTowards(e, ball.x);
+  }
+  if (Math.random()<0.008*AGG) tryJump(e);
+
+  if (e.special>=100 && Math.random()<Math.min(0.9,0.02*AGG)){
+    const foe = nearestEnemy(e);
+    const near = foe && Math.abs(foe.x-e.x) < 260;
+    let ok = true;
+    if (e.char.id==="slammer" || e.char.id==="edison") ok = ball.heldBy===e;
+    else if (e.char.id==="kage") ok = !teammatesOf(e).some(function(t){ return t.isClone && t.cloneOwner===e; });
+    else if (e.char.id==="jamison" || e.char.id==="ice" || e.char.id==="mateo" || e.char.id==="enoch" || e.char.id==="ronin" || e.char.id==="nova") ok = near;
+    else if (e.char.id==="jett") ok = near || ball.heldBy===e;
+    if (ok) tryActivateSpecial(e);
+  }
+  if (e.special2>=100 && Math.random()<Math.min(0.9,0.02*AGG)){
+    const foe = nearestEnemy(e);
+    const near = foe && Math.abs(foe.x-e.x) < 260;
+    const ballFlightNear = !ball.heldBy && Math.hypot(ball.x-e.x, ball.y-(e.footY-PLAYER_H*0.5))<220;
+    let ok = true;
+    switch (e.char.id){
+      case "slammer": case "ice": case "edison": ok = ballFlightNear; break;
+      case "kage": ok = teammatesOf(e).some(function(t){ return t.isClone && t.cloneOwner===e; }); break;
+      case "vex": ok = e.maskTimer>0 && ball.heldBy===e; break;
+      case "jamison": ok = e.stunTimer>0||e.frozenTimer>0||e.trappedTimer>0||e.slowTimer>0||e.invertedTimer>0; break;
+      case "jett": ok = !!(ball.heldBy && enemiesOf(e).indexOf(ball.heldBy)!==-1); break;
+      case "enoch": ok = near && foe && (foe.channelTimer>0||foe.bikeAnim>0||foe.megaDunkTimer>0||!!foe.shotMeter); break;
+      default: ok = true;
+    }
+    if (ok) tryActivateSecondary(e);
+  }
+}
+
+/* ============================== MAIN LOOP ============================== */
+function update(){
+  if (match.freezeFrames>0){
+    match.freezeFrames--;
+    if (match.freezeFrames===0 && match.pendingReset){ resetBallToCenter(); match.pendingReset=false; }
+    return;
+  }
+  const now = Date.now();
+  if (now < match.countdownEnd) return;
+  match.timeLeft = Math.max(0, Math.ceil((match.matchEndAt-now)/1000));
+  if (match.timeLeft<=0){ endMatch(); return; }
+
+  allEntities().forEach(function(e){
+    if (e.controls){
+      if (keysDown.has(e.controls.left)) intentLeft(e);
+      if (keysDown.has(e.controls.right)) intentRight(e);
+    } else if (e.isAI){
+      updateAI(e);
+    }
+  });
+  allEntities().forEach(updatePlayerTimers);
+  cleanupClones();
+  separateAll();
+  updateBall();
+  updateProjectiles();
+  updateParticles();
+  updateFloatTexts();
+  updateBeam();
+  updateSmoke();
+  updateShockwaves();
+  updateSkyBeams();
+  if (match.shakeFrames>0) match.shakeFrames--;
+  if (match.flashAlpha>0) match.flashAlpha = Math.max(0, match.flashAlpha-0.04);
+}
+function endMatch(){ sfxBuzzer(); screen="gameover"; renderMenu(); }
+
+/* ============================== DRAWING ============================== */
+const ctx = document.getElementById("game-canvas").getContext("2d");
+function drawCourt(){
+  const grad = ctx.createLinearGradient(0,0,0,GROUND_Y);
+  grad.addColorStop(0,"#241A3E"); grad.addColorStop(1,"#33224F");
+  ctx.fillStyle=grad; ctx.fillRect(0,0,CANVAS_W,GROUND_Y);
+  const floorGrad = ctx.createLinearGradient(0,GROUND_Y,0,CANVAS_H);
+  floorGrad.addColorStop(0,"#C98A4B"); floorGrad.addColorStop(1,"#A66C36");
+  ctx.fillStyle=floorGrad; ctx.fillRect(0,GROUND_Y,CANVAS_W,CANVAS_H-GROUND_Y);
+  ctx.strokeStyle="rgba(0,0,0,0.15)"; ctx.lineWidth=2;
+  for (let x=20;x<CANVAS_W;x+=40){ ctx.beginPath(); ctx.moveTo(x,GROUND_Y); ctx.lineTo(x,CANVAS_H); ctx.stroke(); }
+  ctx.strokeStyle="rgba(255,255,255,0.5)"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(CANVAS_W/2,GROUND_Y); ctx.lineTo(CANVAS_W/2,CANVAS_H); ctx.stroke();
+  ctx.beginPath(); ctx.arc(CANVAS_W/2, CANVAS_H-20, 30, 0, Math.PI*2); ctx.stroke();
+}
+function drawHoop(hoop, side){
+  const poleX = hoop.x + (side==="left" ? -30 : 30);
+  ctx.strokeStyle="#5A3B0B"; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(poleX, GROUND_Y); ctx.lineTo(poleX, hoop.rimY-40); ctx.stroke();
+  const bx = side==="left" ? hoop.x-30 : hoop.x+22;
+  ctx.fillStyle="rgba(255,255,255,0.88)"; ctx.strokeStyle="#333"; ctx.lineWidth=1.5;
+  ctx.fillRect(bx, hoop.rimY-45, 8, 60); ctx.strokeRect(bx, hoop.rimY-45, 8, 60);
+  ctx.strokeStyle="#FF3B1F"; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(hoop.x-16, hoop.rimY); ctx.lineTo(hoop.x+16, hoop.rimY); ctx.stroke();
+  ctx.strokeStyle="rgba(255,255,255,0.85)"; ctx.lineWidth=1;
+  for (let i=-16;i<=16;i+=8){ ctx.beginPath(); ctx.moveTo(hoop.x+i, hoop.rimY); ctx.lineTo(hoop.x+i*0.4, hoop.rimY+22); ctx.stroke(); }
+}
+function drawPlayer(p){
+  ctx.save();
+  ctx.globalAlpha = p.isClone ? 0.62 : 1;
+
+  if (p.isBoss){
+    ctx.beginPath();
+    ctx.arc(p.x, p.footY-PLAYER_H*0.5, 30+Math.sin(Date.now()/150)*3, 0, Math.PI*2);
+    ctx.strokeStyle="#C1443A"; ctx.lineWidth=3; ctx.globalAlpha=0.55; ctx.stroke();
+    ctx.globalAlpha = p.isClone?0.62:1;
+  }
+
+  ctx.fillStyle="rgba(0,0,0,0.25)";
+  ctx.beginPath(); ctx.ellipse(p.x, GROUND_Y+6, 20, 6, 0, 0, Math.PI*2); ctx.fill();
+
+  let bodyColor = p.char.color, accentColor = p.char.accent;
+  if (p.char.id==="zael"){
+    if (p.formLevel===1){ bodyColor="#2E1A47"; accentColor="#6EE7B7"; }
+    else if (p.formLevel===2){ bodyColor="#0F0C29"; accentColor="#8B5FBF"; }
+  }
+
+  const bodyTop = p.footY-PLAYER_H;
+  const flipped = p.invertedTimer>0;
+  if (flipped){
+    ctx.save();
+    ctx.translate(p.x, p.footY-PLAYER_H/2);
+    ctx.scale(1,-1);
+    ctx.translate(-p.x, -(p.footY-PLAYER_H/2));
+  }
+
+  if (p.char.id==="zael" && p.formLevel===2){
+    ctx.fillStyle = accentColor; ctx.globalAlpha *= 0.7;
+    ctx.beginPath(); ctx.moveTo(p.x-14,bodyTop+18); ctx.lineTo(p.x-34,bodyTop+6); ctx.lineTo(p.x-14,bodyTop+34); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(p.x+14,bodyTop+18); ctx.lineTo(p.x+34,bodyTop+6); ctx.lineTo(p.x+14,bodyTop+34); ctx.fill();
+    ctx.globalAlpha = p.isClone?0.62:1;
+  }
+
+  roundRectPath(ctx, p.x-15, bodyTop+14, 30, PLAYER_H-14, 8);
+  ctx.fillStyle = bodyColor; ctx.fill();
+  ctx.strokeStyle = accentColor; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(p.x-15, bodyTop+14+((PLAYER_H-14)*0.55), 30, 9);
+
+  ctx.beginPath(); ctx.arc(p.x, bodyTop, 13, 0, Math.PI*2);
+  ctx.fillStyle="#F2C79A"; ctx.fill(); ctx.strokeStyle=accentColor; ctx.lineWidth=2; ctx.stroke();
+
+  ctx.font="15px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText(p.char.emoji, p.x, bodyTop+14+((PLAYER_H-14)*0.28));
+
+  ctx.font="bold 11px Nunito, sans-serif"; ctx.fillStyle="#fff"; ctx.textBaseline="alphabetic";
+  ctx.fillText(p.char.name+(p.isBoss?" 👹":"")+(p.isClone?" (Clone)":""), p.x, p.footY+20);
+
+  if (flipped) ctx.restore();
+
+  if (p.maskTimer>0){ ctx.font="16px sans-serif"; ctx.textAlign="center"; ctx.fillText("🎭", p.x, bodyTop-64); }
+  if (p.deflectTimer>0 || p.parryTimer>0){ ctx.font="14px sans-serif"; ctx.textAlign="center"; ctx.fillText("🛡️", p.x, bodyTop-64); }
+
+  let statusEmoji = "";
+  if (p.stunTimer>0) statusEmoji="⚡";
+  else if (p.frozenTimer>0) statusEmoji="❄️";
+  else if (p.trappedTimer>0) statusEmoji="🟣";
+  else if (p.invertedTimer>0) statusEmoji="🙃";
+  else if (p.slowTimer>0) statusEmoji="🌀";
+  else if (p.speedBoostTimer>0) statusEmoji="💨";
+  if (statusEmoji){ ctx.font="15px sans-serif"; ctx.textAlign="center"; ctx.fillText(statusEmoji, p.x, bodyTop-48); }
+
+  if (!p.isDummy){
+    const meterW=30;
+    const my1 = bodyTop-33, my2 = bodyTop-26;
+    ctx.strokeStyle="rgba(255,255,255,0.5)"; ctx.lineWidth=1;
+    ctx.strokeRect(p.x-meterW/2,my1,meterW,4);
+    ctx.strokeRect(p.x-meterW/2,my2,meterW,4);
+    const full1 = p.special>=100, full2 = p.special2>=100;
+    ctx.fillStyle = full1 ? "#FFD23F" : "#7EC8FF";
+    if (full1) ctx.globalAlpha = (p.isClone?0.62:1) * (0.6+0.4*Math.sin(Date.now()/120));
+    ctx.fillRect(p.x-meterW/2,my1,meterW*(p.special/100),4);
+    ctx.globalAlpha = p.isClone?0.62:1;
+    ctx.fillStyle = full2 ? "#FFD23F" : "#4ADE80";
+    if (full2) ctx.globalAlpha = (p.isClone?0.62:1) * (0.6+0.4*Math.sin(Date.now()/120+1));
+    ctx.fillRect(p.x-meterW/2,my2,meterW*(p.special2/100),4);
+    ctx.globalAlpha = p.isClone?0.62:1;
+  }
+
+  if (p.shotMeter){
+    const bx=p.x-40, by=bodyTop-84, bw=80, bh=10;
+    ctx.fillStyle="#C1443A"; ctx.fillRect(bx,by,bw,bh);
+    ctx.fillStyle="#F2B441"; ctx.fillRect(bx+bw*0.22,by,bw*0.48,bh);
+    ctx.fillStyle="#4ADE80"; ctx.fillRect(bx+bw*0.38,by,bw*0.16,bh);
+    const ix = bx+bw*(Math.min(100,p.shotMeter.pos)/100);
+    ctx.fillStyle="#fff"; ctx.fillRect(ix-1.5,by-3,3,bh+6);
+  }
+
+  if (p.channelTimer>0 || p.bikeAnim>0){
+    ctx.beginPath();
+    ctx.arc(p.x, bodyTop, 22+Math.sin(Date.now()/40)*4, 0, Math.PI*2);
+    ctx.strokeStyle = accentColor; ctx.lineWidth=3; ctx.globalAlpha=0.7; ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawBall(){
+  const b = match.ball;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(b.x,b.y,BALL_RADIUS,0,Math.PI*2);
+  ctx.fillStyle="#F2941B"; ctx.fill(); ctx.strokeStyle="#5A3B0B"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(b.x-BALL_RADIUS,b.y); ctx.lineTo(b.x+BALL_RADIUS,b.y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(b.x,b.y-BALL_RADIUS); ctx.lineTo(b.x,b.y+BALL_RADIUS); ctx.stroke();
+  if (b.curl){ ctx.strokeStyle="rgba(255,210,63,0.6)"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(b.x,b.y,BALL_RADIUS+5,0,Math.PI*2); ctx.stroke(); }
+  if (b.frozenPull){ ctx.strokeStyle="rgba(143,211,232,0.7)"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(b.x,b.y,BALL_RADIUS+5,0,Math.PI*2); ctx.stroke(); }
+  if (b.homing){ ctx.strokeStyle="rgba(31,111,235,0.7)"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(b.x,b.y,BALL_RADIUS+5,0,Math.PI*2); ctx.stroke(); }
+  ctx.restore();
+}
+function drawProjectiles(){
+  match.projectiles.forEach(function(pr){
+    ctx.font="24px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText("🥟", pr.x, pr.y);
+  });
+}
+function drawParticles(){
+  match.particles.forEach(function(pt){
+    ctx.globalAlpha = Math.max(0, pt.life/pt.maxLife);
+    ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);
+    ctx.fillStyle = pt.color; ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+}
+function drawShockwaves(){
+  match.shockwaves.forEach(function(sw){
+    ctx.globalAlpha = Math.max(0, sw.life);
+    ctx.strokeStyle = sw.color; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.arc(sw.x,sw.y,sw.r,0,Math.PI*2); ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+}
+function drawSkyBeams(){
+  match.skyBeams.forEach(function(b){
+    if (b.delay>0) return;
+    ctx.globalAlpha = Math.max(0, b.timer/24);
+    ctx.fillStyle = "#B983FF";
+    ctx.fillRect(b.x-6, 0, 12, GROUND_Y);
+    ctx.globalAlpha = 1;
+  });
+}
+function drawFloatTexts(){
+  match.floatTexts.forEach(function(f){
+    ctx.globalAlpha = Math.max(0, f.life/f.maxLife);
+    ctx.font="bold 15px Nunito, sans-serif"; ctx.textAlign="center";
+    ctx.fillStyle = f.color;
+    ctx.fillText(f.text, f.x, f.y);
+    ctx.globalAlpha = 1;
+  });
+}
+function drawBeam(){
+  if (!match.beam) return;
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = match.beam.color || "#F43F5E";
+  ctx.fillRect(0, match.beam.y-5, CANVAS_W, 10);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, match.beam.y-2, CANVAS_W, 4);
+  ctx.restore();
+}
+function drawSmoke(){
+  match.smokeClouds.forEach(function(c){
+    const alpha = Math.min(0.5, c.life/60);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#6B8E4E";
+    for (let k=0;k<3;k++){
+      const ox = Math.sin(Date.now()/400+k+c.x)*10, oy = Math.cos(Date.now()/500+k)*6;
+      ctx.beginPath(); ctx.arc(c.x+ox, GROUND_Y-70+oy, c.r*0.6, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  });
+}
+function drawHUD(){
+  ctx.textAlign="center"; ctx.fillStyle="#fff"; ctx.font="bold 24px Bangers, sans-serif";
+  ctx.fillText(formatTime(match.timeLeft), CANVAS_W/2, 32);
+
+  ctx.textAlign="left";
+  ctx.font="bold 12px Nunito, sans-serif"; ctx.fillStyle="#7EC8FF";
+  ctx.fillText(match.teamA.map(function(e){return e.char.emoji;}).join(" "), 20, 20);
+  ctx.font="bold 26px Bangers, sans-serif"; ctx.fillStyle="#fff";
+  ctx.fillText(String(match.scoreA), 20, 46);
+
+  ctx.textAlign="right";
+  ctx.font="bold 12px Nunito, sans-serif"; ctx.fillStyle="#FF8080";
+  ctx.fillText(match.teamB.map(function(e){return e.char.emoji;}).join(" "), CANVAS_W-20, 20);
+  ctx.font="bold 26px Bangers, sans-serif"; ctx.fillStyle="#fff";
+  ctx.fillText(String(match.scoreB), CANVAS_W-20, 46);
+}
+function drawPauseOverlay(){
+  ctx.fillStyle="rgba(0,0,0,0.55)"; ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+  ctx.textAlign="center"; ctx.fillStyle="#FFD23F"; ctx.font="bold 50px Bangers, sans-serif";
+  ctx.fillText("PAUSED", CANVAS_W/2, CANVAS_H/2-8);
+  ctx.font="bold 13px Nunito, sans-serif"; ctx.fillStyle="#fff";
+  ctx.fillText("Press Esc to resume", CANVAS_W/2, CANVAS_H/2+22);
+}
+function draw(inCountdown){
+  ctx.save();
+  if (match.shakeFrames>0){ ctx.translate((Math.random()-0.5)*match.shakeMag, (Math.random()-0.5)*match.shakeMag); }
+  drawCourt();
+  drawHoop(match.leftHoop, "left");
+  drawHoop(match.rightHoop, "right");
+  drawSmoke();
+  drawBeam();
+  allEntities().forEach(drawPlayer);
+  drawBall();
+  drawProjectiles();
+  drawSkyBeams();
+  drawShockwaves();
+  drawParticles();
+  drawFloatTexts();
+  drawHUD();
+  ctx.restore();
+
+  if (match.flashAlpha>0){
+    ctx.fillStyle = match.flashColor; ctx.globalAlpha = match.flashAlpha;
+    ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+    ctx.globalAlpha = 1;
+  }
+
+  if (inCountdown){
+    const remain = Math.ceil((match.countdownEnd-Date.now())/1000);
+    ctx.textAlign="center"; ctx.fillStyle="#FFD23F"; ctx.font="bold 70px Bangers, sans-serif";
+    ctx.fillText(remain>0 ? String(remain) : "GO!", CANVAS_W/2, CANVAS_H/2);
+  }
+}
+
+/* ============================== INPUT ============================== */
+document.addEventListener("keydown", function(e){
+  if (screen!=="playing" || !match) return;
+  if (e.key==="Escape"){ togglePause(); return; }
+  if (match.paused) return;
+  const key = e.key.toLowerCase();
+  const allKeys = [
+    P1_KEYS.left,P1_KEYS.right,P1_KEYS.jump,P1_KEYS.action,P1_KEYS.special,P1_KEYS.special2,P1_KEYS.pass,
+    P2_KEYS.left,P2_KEYS.right,P2_KEYS.jump,P2_KEYS.action,P2_KEYS.special,P2_KEYS.special2,P2_KEYS.pass
+  ];
+  if (allKeys.indexOf(key)!==-1) e.preventDefault();
+  keysDown.add(key);
+  if (e.repeat) return;
+  allEntities().forEach(function(ent){
+    if (!ent.controls) return;
+    const K = ent.controls;
+    if (key===K.jump) tryJump(ent);
+    if (key===K.action) handleAction(ent);
+    if (key===K.special) tryActivateSpecial(ent);
+    if (key===K.special2) tryActivateSecondary(ent);
+    if (key===K.pass) handlePass(ent);
+  });
+});
+document.addEventListener("keyup", function(e){ keysDown.delete(e.key.toLowerCase()); });
+
+/* ============================== LOOP ============================== */
+function loop(){
+  requestAnimationFrame(loop);
+  if (screen!=="playing" || !match) return;
+  if (match.paused){ draw(false); drawPauseOverlay(); return; }
+  const inCountdown = Date.now() < match.countdownEnd;
+  if (!inCountdown) update();
+  draw(inCountdown);
+}
+
+/* ============================== INIT ============================== */
+renderMenu();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

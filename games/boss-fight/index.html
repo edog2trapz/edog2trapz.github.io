@@ -1,0 +1,905 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Boss Fight</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+canvas { display: block; }
+#ui { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; }
+#abilities { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: all; }
+.ability-btn {
+  width: 64px; height: 64px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; transition: border-color 0.2s; user-select: none;
+}
+.ability-btn:hover { border-color: rgba(255,200,100,0.8); }
+.ability-btn.on-cooldown { border-color: rgba(100,100,100,0.4); opacity: 0.5; }
+.ability-btn .key { font-size: 14px; font-weight: bold; }
+.ability-btn .name { font-size: 8px; color: #aaa; text-align: center; }
+.ability-btn .cd { font-size: 8px; color: #f80; }
+#phase-banner { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 28px; color: #f00; text-shadow: 0 0 20px #f00, 0 0 40px #f00;
+  font-weight: bold; pointer-events: none; opacity: 0; transition: opacity 0.5s;
+  white-space: nowrap; letter-spacing: 3px; }
+#domain-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center, rgba(80,0,120,0.95) 0%, rgba(0,0,0,0.98) 100%);
+  opacity: 0; pointer-events: none; transition: opacity 1s; z-index: 5; }
+#domain-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  color: #d000ff; font-size: 36px; font-weight: bold; opacity: 0;
+  text-shadow: 0 0 30px #d000ff, 0 0 60px #ff00ff; letter-spacing: 6px;
+  pointer-events: none; z-index: 6; text-align: center; }
+#game-over { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  text-align: center; display: none; z-index: 10; }
+#game-over h1 { font-size: 48px; color: #f00; text-shadow: 0 0 20px #f00; }
+#game-over p { color: #aaa; margin: 10px 0; }
+#game-over button { background: #300; color: #f88; border: 2px solid #f00; padding: 12px 32px;
+  font-size: 18px; cursor: pointer; border-radius: 4px; margin-top: 10px; }
+#victory { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  text-align: center; display: none; z-index: 10; }
+#victory h1 { font-size: 48px; color: #ff0; text-shadow: 0 0 20px #ff0; }
+#controls-hint { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+  color: rgba(255,255,255,0.35); font-size: 11px; pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <div id="phase-banner">PHASE 2 — THE EYE AWAKENS</div>
+  <div id="domain-overlay"></div>
+  <div id="domain-text">UNLIMITED VOID<br><span style="font-size:18px;letter-spacing:2px">— Gojo's Domain Expansion —</span></div>
+  <div id="abilities">
+    <div class="ability-btn" id="btn-1"><span class="key">1</span><span class="name">⚔ Slash</span><span class="cd" id="cd-1"></span></div>
+    <div class="ability-btn" id="btn-2"><span class="key">2</span><span class="name">🔥 Fireball</span><span class="cd" id="cd-2"></span></div>
+    <div class="ability-btn" id="btn-3"><span class="key">3</span><span class="name">🛡 Shield</span><span class="cd" id="cd-3"></span></div>
+    <div class="ability-btn" id="btn-4"><span class="key">4</span><span class="name">⚡ Dash</span><span class="cd" id="cd-4"></span></div>
+    <div class="ability-btn" id="btn-5"><span class="key">5</span><span class="name">💥 Ultimate</span><span class="cd" id="cd-5"></span></div>
+    <div class="ability-btn" id="btn-6"><span class="key">6</span><span class="name">🌀 Void</span><span class="cd" id="cd-6"></span></div>
+  </div>
+  <div id="controls-hint">WASD / Arrow keys to move — 1-6 for abilities — Click to target</div>
+</div>
+<div id="game-over"><h1>💀 DEFEATED 💀</h1><p id="death-msg">The Void consumed you.</p><button onclick="restartGame()">RISE AGAIN</button></div>
+<div id="victory"><h1>⚡ VICTORY ⚡</h1><p style="color:#ff0;font-size:20px">You defeated the Ancient Eye!</p><button onclick="restartGame()" style="background:#330;color:#ff0;border:2px solid #ff0;padding:12px 32px;font-size:18px;cursor:pointer;border-radius:4px;margin-top:10px">Play Again</button></div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth || 800;
+canvas.height = window.innerHeight || 600;
+const W = canvas.width, H = canvas.height;
+
+let gameActive = true;
+let animId;
+
+const keys = {};
+window.addEventListener('keydown', e => { keys[e.key] = true; handleAbilityKey(e.key); });
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+canvas.addEventListener('click', e => { mouseX = e.clientX; mouseY = e.clientY; });
+let mouseX = W/2, mouseY = H/2;
+
+// ---- PARTICLES ----
+let particles = [];
+function spawnParticles(x, y, count, color, speed, life, size) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = speed * (0.5 + Math.random());
+    particles.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, life, maxLife: life, color, size: size*(0.5+Math.random()) });
+  }
+}
+function updateParticles() {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.vx *= 0.95; p.vy *= 0.95;
+    p.life--;
+    const alpha = p.life / p.maxLife;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+// ---- SCREEN SHAKE ----
+let shakeIntensity = 0;
+let shakeX = 0, shakeY = 0;
+function shake(intensity) { shakeIntensity = Math.max(shakeIntensity, intensity); }
+
+// ---- PROJECTILES ----
+let projectiles = [];
+let enemyProjectiles = [];
+
+// ---- PLAYER ----
+const player = {
+  x: W/2, y: H - 160,
+  w: 32, h: 48,
+  hp: 300, maxHp: 300,
+  speed: 4,
+  vx: 0, vy: 0,
+  invincible: 0,
+  dashing: 0,
+  shielded: 0,
+  color: '#4af',
+  frame: 0,
+  abilityColor: '#4af'
+};
+
+// ---- ABILITIES ----
+const abilities = [
+  { name: 'Slash', key: '1', cooldown: 0, maxCooldown: 30, color: '#fff' },
+  { name: 'Fireball', key: '2', cooldown: 0, maxCooldown: 60, color: '#f80' },
+  { name: 'Shield', key: '3', cooldown: 0, maxCooldown: 180, color: '#4af' },
+  { name: 'Dash Strike', key: '4', cooldown: 0, maxCooldown: 90, color: '#0ff' },
+  { name: 'Ultimate', key: '5', cooldown: 0, maxCooldown: 600, color: '#ff0' },
+  { name: 'Void Slash', key: '6', cooldown: 0, maxCooldown: 480, color: '#d0f' },
+];
+
+function handleAbilityKey(key) {
+  if (!gameActive) return;
+  if (key === '1') useAbility(0);
+  if (key === '2') useAbility(1);
+  if (key === '3') useAbility(2);
+  if (key === '4') useAbility(3);
+  if (key === '5') useAbility(4);
+  if (key === '6') useAbility(5);
+}
+
+function useAbility(i) {
+  const ab = abilities[i];
+  if (ab.cooldown > 0) return;
+  ab.cooldown = ab.maxCooldown;
+  const dx = boss.x - player.x, dy = boss.y - player.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const nx = dx/dist, ny = dy/dist;
+
+  if (i === 0) { // Slash
+    projectiles.push({ x: player.x, y: player.y, vx: nx*14, vy: ny*14, damage: 15, color: '#fff', size: 8, type: 'slash', life: 60 });
+    projectiles.push({ x: player.x, y: player.y, vx: (nx*0.9-ny*0.2)*14, vy: (ny*0.9+nx*0.2)*14, damage: 10, color: '#ccc', size: 5, type: 'slash', life: 60 });
+    projectiles.push({ x: player.x, y: player.y, vx: (nx*0.9+ny*0.2)*14, vy: (ny*0.9-nx*0.2)*14, damage: 10, color: '#ccc', size: 5, type: 'slash', life: 60 });
+    spawnParticles(player.x, player.y, 10, '#fff', 5, 20, 3);
+  }
+  if (i === 1) { // Fireball
+    projectiles.push({ x: player.x, y: player.y, vx: nx*10, vy: ny*10, damage: 45, color: '#f80', size: 16, type: 'fire', life: 100, glow: true });
+    spawnParticles(player.x, player.y, 20, '#f80', 6, 30, 4);
+  }
+  if (i === 2) { // Shield
+    player.shielded = 200;
+    player.invincible = 200;
+    spawnParticles(player.x, player.y, 30, '#4af', 3, 40, 4);
+  }
+  if (i === 3) { // Dash Strike
+    player.vx = nx * 22;
+    player.vy = ny * 22;
+    player.dashing = 20;
+    player.invincible = Math.max(player.invincible, 20);
+    projectiles.push({ x: player.x, y: player.y, vx: nx*15, vy: ny*15, damage: 60, color: '#0ff', size: 12, type: 'dash', life: 40 });
+    spawnParticles(player.x, player.y, 25, '#0ff', 8, 25, 5);
+  }
+  if (i === 4) { // Ultimate beam
+    for (let i = 0; i < 8; i++) {
+      const a = Math.random() * Math.PI * 2;
+      projectiles.push({ x: player.x, y: player.y, vx: Math.cos(a)*12, vy: Math.sin(a)*12, damage: 80, color: '#ff0', size: 18, type: 'ultimate', life: 80, glow: true });
+    }
+    projectiles.push({ x: player.x, y: player.y, vx: nx*18, vy: ny*18, damage: 150, color: '#ff0', size: 24, type: 'beam', life: 60, glow: true });
+    shake(20);
+    spawnParticles(player.x, player.y, 60, '#ff0', 10, 50, 6);
+    spawnParticles(player.x, player.y, 30, '#fff', 8, 40, 3);
+  }
+  if (i === 5) { // Void Slash
+    for (let j = 0; j < 12; j++) {
+      const a = (j/12)*Math.PI*2;
+      projectiles.push({ x: boss.x, y: boss.y, vx: Math.cos(a)*6, vy: Math.sin(a)*6, damage: 50, color: '#d0f', size: 10, type: 'void', life: 60, glow: true, outward: true });
+    }
+    boss.hp -= 200;
+    shake(15);
+    spawnParticles(boss.x, boss.y, 80, '#d0f', 12, 60, 5);
+    spawnParticles(boss.x, boss.y, 40, '#f0f', 8, 40, 3);
+  }
+}
+
+// ---- BOSS ----
+const boss = {
+  x: W/2, y: 220,
+  hp: 3000, maxHp: 3000,
+  phase: 1,
+  baseRadius: 80,
+  radius: 80,
+  angle: 0,
+  pulseAngle: 0,
+  tentacles: [],
+  eyes: [],
+  attackTimer: 0,
+  attackCooldown: 120,
+  moveAngle: 0,
+  vx: 0, vy: 0,
+  laserActive: false,
+  laserTimer: 0,
+  laserTarget: { x: 0, y: 0 },
+  domainActive: false,
+  domainTimer: 0,
+  enrageTimer: 0,
+  color: '#1a0030',
+  glowColor: '#800080',
+};
+
+function getPhase() {
+  const hpPct = boss.hp / boss.maxHp;
+  if (hpPct > 0.75) return 1;
+  if (hpPct > 0.50) return 2;
+  if (hpPct > 0.25) return 3;
+  return 4;
+}
+
+function initBoss() {
+  boss.tentacles = [];
+  boss.eyes = [];
+  const phase = getPhase();
+  const eyeCount = [1, 3, 6, 9][phase - 1];
+  for (let i = 0; i < eyeCount; i++) {
+    const a = (i / eyeCount) * Math.PI * 2;
+    const r = boss.radius * 0.45;
+    boss.eyes.push({ angle: a, r: r + Math.random()*10, pupilAngle: 0, size: 14 + Math.random()*10, glow: Math.random() });
+  }
+  const tentCount = [2, 5, 8, 14][phase - 1];
+  for (let i = 0; i < tentCount; i++) {
+    boss.tentacles.push({
+      baseAngle: (i / tentCount) * Math.PI * 2,
+      length: 120 + Math.random()*80,
+      segments: 8,
+      phase: Math.random()*Math.PI*2,
+      speed: 0.02 + Math.random()*0.03,
+      thickness: 6 + Math.random()*6
+    });
+  }
+}
+
+let phaseShown = 0;
+function checkPhase() {
+  const p = getPhase();
+  if (p !== boss.phase) {
+    boss.phase = p;
+    initBoss();
+    showPhaseBanner(`PHASE ${p} — ${['','THE EYE AWAKENS','THE VOID SPREADS','DOMAIN EXPANSION','FINAL FORM'][p]}`);
+    shake(30);
+    spawnParticles(boss.x, boss.y, 80, boss.glowColor, 15, 80, 8);
+    boss.radius = boss.baseRadius * (0.9 + p * 0.15);
+    boss.attackCooldown = Math.max(40, 120 - p * 25);
+    if (p >= 4) { boss.glowColor = '#ff0000'; }
+    else if (p >= 3) { boss.glowColor = '#ff6600'; }
+    else if (p >= 2) { boss.glowColor = '#8800ff'; }
+  }
+}
+
+let phaseBannerTimeout;
+function showPhaseBanner(text) {
+  const el = document.getElementById('phase-banner');
+  el.textContent = text;
+  el.style.opacity = 1;
+  clearTimeout(phaseBannerTimeout);
+  phaseBannerTimeout = setTimeout(() => { el.style.opacity = 0; }, 2500);
+}
+
+function triggerDomain() {
+  boss.domainActive = true;
+  boss.domainTimer = 600;
+  document.getElementById('domain-overlay').style.opacity = 1;
+  document.getElementById('domain-text').style.opacity = 1;
+  setTimeout(() => {
+    document.getElementById('domain-overlay').style.opacity = 0;
+    document.getElementById('domain-text').style.opacity = 0;
+    boss.domainActive = false;
+  }, 4000);
+  shake(40);
+  // Rain projectiles
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      const a = Math.random()*Math.PI*2;
+      const fromX = W/2 + Math.cos(a)*300, fromY = H/2 + Math.sin(a)*300;
+      const dx = player.x - fromX, dy = player.y - fromY;
+      const d = Math.sqrt(dx*dx+dy*dy);
+      enemyProjectiles.push({ x: fromX, y: fromY, vx: (dx/d)*5, vy: (dy/d)*5, damage: 40, color: '#d0f', size: 12, life: 200, type: 'domain' });
+    }, i * 120);
+  }
+}
+
+function bossAttack() {
+  const phase = getPhase();
+  const roll = Math.random();
+
+  if (phase >= 4 && roll < 0.15 && !boss.domainActive) {
+    triggerDomain();
+    return;
+  }
+
+  if (phase >= 3 && roll < 0.3) { // Death laser
+    boss.laserActive = true;
+    boss.laserTimer = 90;
+    boss.laserTarget = { x: player.x, y: player.y };
+  }
+
+  if (phase >= 2 && roll < 0.5) { // Tentacle slam orbs
+    const count = 3 + phase;
+    for (let i = 0; i < count; i++) {
+      const a = (i/count)*Math.PI*2;
+      enemyProjectiles.push({ x: boss.x, y: boss.y, vx: Math.cos(a)*4, vy: Math.sin(a)*4, damage: 25, color: '#800', size: 10, life: 180, type: 'orb' });
+    }
+  }
+
+  // Basic shots always
+  const dx = player.x - boss.x, dy = player.y - boss.y;
+  const d = Math.sqrt(dx*dx+dy*dy);
+  const speed = 5 + phase;
+  for (let i = 0; i < phase; i++) {
+    const spread = (i - (phase-1)/2) * 0.15;
+    enemyProjectiles.push({
+      x: boss.x, y: boss.y,
+      vx: (dx/d + Math.sin(spread))*speed,
+      vy: (dy/d + Math.cos(spread) - 1)*speed,
+      damage: 20 + phase*5, color: `hsl(${280+i*30},100%,60%)`, size: 8, life: 200, type: 'basic'
+    });
+  }
+
+  if (phase >= 4) { // Eye beams from all eyes
+    boss.eyes.forEach(eye => {
+      const ex = boss.x + Math.cos(eye.angle)*eye.r;
+      const ey = boss.y + Math.sin(eye.angle)*eye.r;
+      const ddx = player.x - ex, ddy = player.y - ey;
+      const dd = Math.sqrt(ddx*ddx+ddy*ddy);
+      enemyProjectiles.push({ x: ex, y: ey, vx: (ddx/dd)*7, vy: (ddy/dd)*7, damage: 15, color: '#f00', size: 6, life: 180, type: 'eyebeam' });
+    });
+  }
+}
+
+// ---- DRAW BOSS ----
+function drawBoss(t) {
+  const phase = getPhase();
+  const bx = boss.x, by = boss.y, br = boss.radius;
+  boss.pulseAngle += 0.04;
+  const pulse = 1 + Math.sin(boss.pulseAngle) * 0.06;
+
+  // Draw tentacles
+  boss.tentacles.forEach(tent => {
+    const baseX = bx + Math.cos(tent.baseAngle) * br * 0.8;
+    const baseY = by + Math.sin(tent.baseAngle) * br * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    let cx = baseX, cy = baseY;
+    for (let s = 0; s < tent.segments; s++) {
+      const a = tent.baseAngle + Math.sin(t * tent.speed + tent.phase + s * 0.5) * 1.2;
+      const segLen = tent.length / tent.segments;
+      const nx = cx + Math.cos(a) * segLen;
+      const ny = cy + Math.sin(a) * segLen * 0.7;
+      ctx.lineTo(nx, ny);
+      cx = nx; cy = ny;
+    }
+    const alpha = 0.7 + Math.sin(t * 0.05 + tent.phase) * 0.3;
+    ctx.strokeStyle = phase >= 4 ? `rgba(255,50,50,${alpha})` : phase >= 3 ? `rgba(200,100,0,${alpha})` : `rgba(120,0,200,${alpha})`;
+    ctx.lineWidth = tent.thickness;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    // Glow
+    ctx.strokeStyle = phase >= 4 ? `rgba(255,100,100,0.2)` : `rgba(180,50,255,0.2)`;
+    ctx.lineWidth = tent.thickness * 3;
+    ctx.stroke();
+  });
+
+  // Main body glow layers
+  for (let layer = 5; layer >= 0; layer--) {
+    const layerR = br * pulse + layer * 12;
+    const alpha = (0.08 - layer * 0.01);
+    ctx.beginPath();
+    ctx.arc(bx, by, layerR, 0, Math.PI*2);
+    ctx.fillStyle = `hsla(${280 + phase*20},100%,50%,${alpha})`;
+    ctx.fill();
+  }
+
+  // Main body
+  const bodyGrad = ctx.createRadialGradient(bx - br*0.2, by - br*0.2, 0, bx, by, br*pulse);
+  const c1 = phase >= 4 ? '#3a0000' : phase >= 3 ? '#2a1000' : phase >= 2 ? '#1a0025' : '#0a0015';
+  const c2 = phase >= 4 ? '#800000' : phase >= 3 ? '#602000' : phase >= 2 ? '#400060' : '#200040';
+  bodyGrad.addColorStop(0, c1);
+  bodyGrad.addColorStop(0.6, c2);
+  bodyGrad.addColorStop(1, '#000');
+  ctx.beginPath();
+  ctx.arc(bx, by, br*pulse, 0, Math.PI*2);
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+
+  // Veins/texture
+  for (let v = 0; v < 8 + phase * 4; v++) {
+    const va = (v / (8+phase*4)) * Math.PI*2 + t*0.01;
+    ctx.beginPath();
+    ctx.moveTo(bx + Math.cos(va)*20, by + Math.sin(va)*20);
+    ctx.quadraticCurveTo(
+      bx + Math.cos(va+0.5)*(br*0.6),
+      by + Math.sin(va+0.5)*(br*0.6),
+      bx + Math.cos(va+0.3)*(br*0.85),
+      by + Math.sin(va+0.3)*(br*0.85)
+    );
+    ctx.strokeStyle = phase >= 4 ? 'rgba(255,50,0,0.2)' : 'rgba(150,0,255,0.2)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Eyes
+  boss.eyes.forEach((eye, idx) => {
+    const eAngle = eye.angle + boss.angle * 0.3;
+    const ex = bx + Math.cos(eAngle) * eye.r * pulse;
+    const ey = by + Math.sin(eAngle) * eye.r * pulse;
+    const es = eye.size;
+
+    // Eye glow
+    const eyeGlowR = es * 2;
+    const eyeGrad = ctx.createRadialGradient(ex, ey, 0, ex, ey, eyeGlowR);
+    const eyeColor = phase >= 4 ? '255,0,0' : phase >= 3 ? '255,150,0' : '200,0,255';
+    eyeGrad.addColorStop(0, `rgba(${eyeColor},0.4)`);
+    eyeGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(ex, ey, eyeGlowR*2, 0, Math.PI*2);
+    ctx.fillStyle = eyeGrad;
+    ctx.fill();
+
+    // Sclera
+    ctx.beginPath();
+    ctx.ellipse(ex, ey, es, es*0.75, eAngle, 0, Math.PI*2);
+    ctx.fillStyle = '#f0ede8';
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Iris
+    const dx = player.x - ex, dy2 = player.y - ey;
+    const a = Math.atan2(dy2, dx);
+    const pupilDist = es * 0.2;
+    const irisX = ex + Math.cos(a)*pupilDist;
+    const irisY = ey + Math.sin(a)*pupilDist;
+    const irisColor = phase >= 4 ? '#800000' : phase >= 3 ? '#803000' : '#400060';
+    ctx.beginPath();
+    ctx.arc(irisX, irisY, es*0.52, 0, Math.PI*2);
+    ctx.fillStyle = irisColor;
+    ctx.fill();
+
+    // Pupil
+    ctx.beginPath();
+    ctx.arc(irisX, irisY, es*0.28, 0, Math.PI*2);
+    ctx.fillStyle = '#000';
+    ctx.fill();
+
+    // Pupil shine
+    ctx.beginPath();
+    ctx.arc(irisX - es*0.08, irisY - es*0.08, es*0.07, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fill();
+
+    // Eye glow ring
+    ctx.beginPath();
+    ctx.ellipse(ex, ey, es, es*0.75, eAngle, 0, Math.PI*2);
+    ctx.strokeStyle = phase >= 4 ? 'rgba(255,0,0,0.7)' : 'rgba(200,0,255,0.7)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+
+  // Laser
+  if (boss.laserActive) {
+    const lx2 = boss.laserTarget.x, ly2 = boss.laserTarget.y;
+    // Charge circle
+    const chargeAlpha = (90 - boss.laserTimer) / 90;
+    ctx.beginPath();
+    ctx.arc(bx, by, 30*chargeAlpha, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(255,0,0,${chargeAlpha*0.5})`;
+    ctx.fill();
+    if (boss.laserTimer < 30) {
+      // Fire laser
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(lx2, ly2);
+      ctx.strokeStyle = `rgba(255,50,50,${(30-boss.laserTimer)/30})`;
+      ctx.lineWidth = 20;
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(255,200,200,${(30-boss.laserTimer)/30*0.7})`;
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      // Check hit player
+      const pdx = player.x - bx, pdy = player.y - by;
+      const ldx = lx2 - bx, ldy = ly2 - by;
+      const llen = Math.sqrt(ldx*ldx+ldy*ldy);
+      const proj = (pdx*ldx + pdy*ldy) / (llen*llen);
+      const closestX = bx + proj*ldx, closestY = by + proj*ldy;
+      const distToLine = Math.sqrt((player.x-closestX)**2+(player.y-closestY)**2);
+      if (distToLine < 30 && proj > 0 && proj < 1 && player.invincible <= 0) {
+        damagePlayer(12, 'Laser burn!');
+      }
+    }
+    boss.laserTimer--;
+    if (boss.laserTimer <= 0) boss.laserActive = false;
+  }
+
+  // HP bar
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(40, 20, W - 80, 22);
+  const hpPct = Math.max(0, boss.hp / boss.maxHp);
+  const hpColor = hpPct > 0.5 ? '#a00' : hpPct > 0.25 ? '#f80' : '#f00';
+  ctx.fillStyle = hpColor;
+  ctx.fillRect(40, 20, (W - 80) * hpPct, 22);
+  ctx.strokeStyle = `rgba(255,0,0,0.5)`;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(40, 20, W - 80, 22);
+  ctx.fillStyle = '#fff';
+  ctx.font = '12px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText(`ANCIENT EYE — PHASE ${phase} — ${Math.round(hpPct*100)}%`, W/2, 36);
+  ctx.textAlign = 'left';
+
+  // Phase label dots
+  for (let p = 1; p <= 4; p++) {
+    const px = 40 + (W-80)*((4-p)/4);
+    ctx.beginPath();
+    ctx.moveTo(px, 16);
+    ctx.lineTo(px, 46);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+// ---- DRAW PLAYER ----
+function drawPlayer(t) {
+  const { x, y, w, h, shielded, invincible, dashing } = player;
+  const alpha = invincible > 0 ? (Math.sin(t*0.5) > 0 ? 0.4 : 1) : 1;
+  ctx.globalAlpha = alpha;
+
+  // Body glow
+  if (shielded > 0) {
+    ctx.beginPath();
+    ctx.arc(x, y, 40, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(68,170,255,0.2)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x, y, 36, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(68,170,255,0.8)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+
+  // Legs
+  ctx.fillStyle = '#234';
+  ctx.fillRect(x - 10, y + 8, 9, 18);
+  ctx.fillRect(x + 1, y + 8, 9, 18);
+
+  // Body
+  const bodyGrad = ctx.createLinearGradient(x-w/2, y-h/2, x+w/2, y+h/2);
+  bodyGrad.addColorStop(0, '#3a6fa8');
+  bodyGrad.addColorStop(1, '#1a3f68');
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.roundRect(x - w/2, y - h/2, w, h * 0.65, 4);
+  ctx.fill();
+
+  // Armor details
+  ctx.fillStyle = '#5af';
+  ctx.fillRect(x - w/2 + 2, y - h/2 + 4, w - 4, 4);
+  ctx.fillRect(x - 4, y - h/2 + 10, 8, 6);
+
+  // Head
+  ctx.fillStyle = '#f5c878';
+  ctx.beginPath();
+  ctx.arc(x, y - h/2 - 6, 14, 0, Math.PI*2);
+  ctx.fill();
+
+  // Helmet
+  ctx.fillStyle = '#2a5a88';
+  ctx.beginPath();
+  ctx.arc(x, y - h/2 - 6, 14, -Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = '#4af';
+  ctx.fillRect(x - 10, y - h/2 - 4, 20, 3);
+
+  // Eyes
+  ctx.fillStyle = '#4af';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - h/2 - 6, 3, 0, Math.PI*2);
+  ctx.arc(x + 4, y - h/2 - 6, 3, 0, Math.PI*2);
+  ctx.fill();
+
+  // Sword arm
+  const swingAngle = Math.sin(t * 0.1) * 0.3;
+  ctx.save();
+  ctx.translate(x + w/2 - 2, y - 4);
+  ctx.rotate(swingAngle - 0.3);
+  ctx.fillStyle = '#aac';
+  ctx.fillRect(-3, -28, 5, 30);
+  ctx.fillStyle = '#dde';
+  ctx.fillRect(-1, -28, 2, 28);
+  // Guard
+  ctx.fillStyle = '#888';
+  ctx.fillRect(-8, -2, 14, 4);
+  ctx.restore();
+
+  // Trail if dashing
+  if (dashing > 0) {
+    for (let i = 1; i <= 5; i++) {
+      ctx.globalAlpha = 0.1 * i * alpha;
+      ctx.fillStyle = '#0ff';
+      ctx.beginPath();
+      ctx.arc(x - player.vx * i * 0.8, y - player.vy * i * 0.8, 12, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  ctx.globalAlpha = 1;
+
+  // HP bar
+  const hpPct = Math.max(0, player.hp / player.maxHp);
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(x - 30, y + h/2 + 6, 60, 8);
+  ctx.fillStyle = hpPct > 0.5 ? '#0f0' : hpPct > 0.25 ? '#ff0' : '#f00';
+  ctx.fillRect(x - 30, y + h/2 + 6, 60 * hpPct, 8);
+  ctx.strokeStyle = '#fff3';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - 30, y + h/2 + 6, 60, 8);
+}
+
+function damagePlayer(dmg, msg) {
+  if (player.invincible > 0) return;
+  if (player.shielded > 0) { dmg = Math.floor(dmg * 0.2); }
+  player.hp -= dmg;
+  player.invincible = 40;
+  shake(8);
+  spawnParticles(player.x, player.y, 15, '#f44', 6, 25, 4);
+  if (player.hp <= 0) {
+    player.hp = 0;
+    endGame(false, msg || 'Destroyed by the Ancient Eye.');
+  }
+}
+
+function damageBoss(dmg) {
+  boss.hp -= dmg;
+  if (boss.hp <= 0) {
+    boss.hp = 0;
+    endGame(true);
+    return;
+  }
+  shake(5);
+  spawnParticles(boss.x, boss.y, 10, '#f80', 8, 20, 4);
+  checkPhase();
+}
+
+function endGame(victory, msg) {
+  gameActive = false;
+  cancelAnimationFrame(animId);
+  if (victory) {
+    document.getElementById('victory').style.display = 'block';
+    spawnParticles(W/2, H/2, 200, '#ff0', 15, 100, 6);
+  } else {
+    document.getElementById('game-over').style.display = 'block';
+    document.getElementById('death-msg').textContent = msg || 'The Void consumed you.';
+  }
+}
+
+window.restartGame = function() {
+  document.getElementById('game-over').style.display = 'none';
+  document.getElementById('victory').style.display = 'none';
+  document.getElementById('domain-overlay').style.opacity = 0;
+  document.getElementById('domain-text').style.opacity = 0;
+  player.hp = player.maxHp;
+  player.x = W/2; player.y = H - 160;
+  player.invincible = 0; player.shielded = 0; player.dashing = 0;
+  boss.hp = boss.maxHp;
+  boss.phase = 1;
+  boss.radius = boss.baseRadius;
+  boss.laserActive = false;
+  boss.domainActive = false;
+  boss.glowColor = '#800080';
+  abilities.forEach(a => a.cooldown = 0);
+  particles = [];
+  projectiles = [];
+  enemyProjectiles = [];
+  initBoss();
+  gameActive = true;
+  gameLoop(0);
+};
+
+// ---- BACKGROUND ----
+function drawBackground(t) {
+  const phase = getPhase();
+  // Stars
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  // Void nebula BG
+  const nebGrad = ctx.createRadialGradient(W/2, H/3, 0, W/2, H/3, W*0.7);
+  const c = phase >= 4 ? '100,0,0' : phase >= 3 ? '60,20,0' : phase >= 2 ? '40,0,80' : '20,0,40';
+  nebGrad.addColorStop(0, `rgba(${c},0.4)`);
+  nebGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = nebGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  for (let i = 0; i < 80; i++) {
+    const sx = ((i * 137 + t * 0.02) % W);
+    const sy = ((i * 89) % H);
+    const sr = 0.5 + Math.sin(i + t*0.05) * 0.5;
+    ctx.fillStyle = `rgba(255,255,255,${0.3+sr*0.4})`;
+    ctx.beginPath();
+    ctx.arc(sx, sy, sr, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Ground
+  const groundGrad = ctx.createLinearGradient(0, H-60, 0, H);
+  groundGrad.addColorStop(0, phase >= 4 ? '#200000' : '#050010');
+  groundGrad.addColorStop(1, '#000');
+  ctx.fillStyle = groundGrad;
+  ctx.fillRect(0, H-60, W, 60);
+
+  // Rune circles
+  ctx.save();
+  ctx.translate(W/2, H/2);
+  for (let r = 0; r < 3; r++) {
+    const rr = 200 + r * 80;
+    ctx.beginPath();
+    ctx.arc(0, 0, rr, 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(${phase >= 4 ? '255,0,0' : '150,0,255'},${0.06 - r*0.015})`;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([8, 16]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.restore();
+}
+
+let frame = 0;
+function gameLoop(t) {
+  if (!gameActive) return;
+  animId = requestAnimationFrame(gameLoop);
+  frame++;
+
+  // Screen shake
+  shakeX = (Math.random()-0.5) * shakeIntensity;
+  shakeY = (Math.random()-0.5) * shakeIntensity;
+  shakeIntensity *= 0.85;
+  ctx.save();
+  ctx.translate(shakeX, shakeY);
+
+  drawBackground(frame);
+
+  // Move player
+  const spd = player.dashing > 0 ? player.speed * 0.5 : player.speed;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) player.vx = -spd;
+  else if (keys['ArrowRight'] || keys['d'] || keys['D']) player.vx = spd;
+  else player.vx *= 0.8;
+  if (keys['ArrowUp'] || keys['w'] || keys['W']) player.vy = -spd;
+  else if (keys['ArrowDown'] || keys['s'] || keys['S']) player.vy = spd;
+  else player.vy *= 0.8;
+
+  if (player.dashing > 0) { player.dashing--; }
+  player.x = Math.max(20, Math.min(W-20, player.x + player.vx));
+  player.y = Math.max(60, Math.min(H-100, player.y + player.vy));
+  if (player.invincible > 0) player.invincible--;
+  if (player.shielded > 0) player.shielded--;
+
+  // Move boss
+  boss.angle += 0.008 + getPhase() * 0.003;
+  const phase = getPhase();
+  const bspeed = 0.6 + phase * 0.4;
+  boss.moveAngle += 0.012 + phase * 0.005;
+  boss.vx += (Math.cos(boss.moveAngle) * 1.2 - boss.vx * 0.05);
+  boss.vy += (Math.sin(boss.moveAngle * 0.7) * 0.8 - boss.vy * 0.05);
+  boss.vx = Math.max(-bspeed*3, Math.min(bspeed*3, boss.vx));
+  boss.vy = Math.max(-bspeed*2, Math.min(bspeed*2, boss.vy));
+  // Keep boss in upper area
+  if (boss.y < 120) boss.vy += 1;
+  if (boss.y > H/2) boss.vy -= 1;
+  if (boss.x < 100) boss.vx += 1;
+  if (boss.x > W-100) boss.vx -= 1;
+  boss.x += boss.vx;
+  boss.y += boss.vy;
+
+  // Boss attack
+  boss.attackTimer++;
+  if (boss.attackTimer >= boss.attackCooldown) {
+    boss.attackTimer = 0;
+    bossAttack();
+  }
+
+  // Enrage over time
+  boss.enrageTimer++;
+  if (boss.enrageTimer % 1800 === 0) {
+    boss.attackCooldown = Math.max(25, boss.attackCooldown - 5);
+  }
+
+  // Update player projectiles
+  projectiles = projectiles.filter(p => p.life > 0);
+  projectiles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.life--;
+    const dx = p.x - boss.x, dy = p.y - boss.y;
+    if (Math.sqrt(dx*dx+dy*dy) < boss.radius) {
+      damageBoss(p.damage);
+      spawnParticles(p.x, p.y, 12, p.color, 5, 20, 3);
+      p.life = 0;
+    }
+    // Draw
+    if (p.glow) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI*2);
+      ctx.fillStyle = p.color.replace(')', ',0.15)').replace('rgb','rgba').replace('#','rgba(') || 'rgba(255,200,0,0.15)';
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+    if (p.type === 'slash') {
+      ctx.strokeStyle = '#fff8';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  });
+
+  // Update enemy projectiles
+  enemyProjectiles = enemyProjectiles.filter(p => p.life > 0);
+  enemyProjectiles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.life--;
+    const dx = p.x - player.x, dy = p.y - player.y;
+    if (Math.sqrt(dx*dx+dy*dy) < 20) {
+      damagePlayer(p.damage);
+      spawnParticles(p.x, p.y, 8, '#f44', 4, 15, 3);
+      p.life = 0;
+    }
+    // Glow ring
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * 1.8, 0, Math.PI*2);
+    ctx.fillStyle = p.type === 'domain' ? 'rgba(200,0,255,0.15)' : 'rgba(150,0,100,0.15)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  });
+
+  drawBoss(frame);
+  drawPlayer(frame);
+  updateParticles();
+
+  // Cooldown UI
+  abilities.forEach((ab, i) => {
+    if (ab.cooldown > 0) ab.cooldown--;
+    const btn = document.getElementById(`btn-${i+1}`);
+    const cdEl = document.getElementById(`cd-${i+1}`);
+    if (ab.cooldown > 0) {
+      btn.classList.add('on-cooldown');
+      cdEl.textContent = Math.ceil(ab.cooldown/60) + 's';
+    } else {
+      btn.classList.remove('on-cooldown');
+      cdEl.textContent = 'READY';
+    }
+  });
+
+  // Boss contact damage
+  const bDx = player.x - boss.x, bDy = player.y - boss.y;
+  if (Math.sqrt(bDx*bDx+bDy*bDy) < boss.radius + 20) {
+    damagePlayer(2);
+  }
+
+  ctx.restore();
+}
+
+initBoss();
+showPhaseBanner('PHASE 1 — THE ANCIENT EYE');
+gameLoop(0);
+
+// Ability button clicks
+for (let i = 0; i < 6; i++) {
+  document.getElementById(`btn-${i+1}`).addEventListener('click', () => useAbility(i));
+}
+</script>
+</body>
+</html>

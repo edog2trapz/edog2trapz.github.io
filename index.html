@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2trapz games</title>
+<meta name="description" content="2trapz games: free browser games. No downloads, no sign-up. Just run.">
+<meta name="theme-color" content="#020805">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23020805'/><text x='50' y='68' font-family='monospace' font-weight='900' font-size='54' text-anchor='middle' fill='%2339ff8a'>2t</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script>
+/* =====================================================================
+   EDIT YOUR SITE HERE
+   ---------------------------------------------------------------------
+   To add a game:
+     1. Make a folder in games/ (for example games/my-new-game/)
+     2. Put the game's HTML file in it, named index.html
+     3. Copy one of the entries below and change it to match
+   slug   = the folder name inside games/
+   colors = the two ends of the card's cover gradient
+   isNew  = true shows a NEW tag on the card
+   ===================================================================== */
+const SITE_NAME = '2trapz games';
+const TAGLINE = 'free browser games // no downloads // no sign-up // just run';
+const GAMES = [
+  { slug:'power-hungry', title:'Power Hungry', icon:'♚', genre:'Strategy', colors:['#3b2a8c', '#e8b64c'], players:'1 player', isNew:true,
+    desc:'Seize a nation, wage real-time wars on a living world map, hunt down your nemesis, then conquer the stars until the universe runs dry.' },
+  { slug:'vector-terminal', title:'Vector Terminal', icon:'📈', genre:'Strategy', colors:['#02110a', '#39ff8a'], players:'1 player', isNew:true,
+    desc:'AI Trading Arena, remastered. Out-trade six AI bots across 40 days of news-driven markets, then hack your way to the top before the SEC catches on.' },
+  { slug:'stick-brawl', title:'Stick Brawl', icon:'🥋', genre:'Fighting', colors:['#7f1d1d', '#f97316'], players:'',
+    desc:'Stick-figure fighting with flashy special moves and full Bankai-style transformations.' },
+  { slug:'eelectric', title:'Eelectric.io', icon:'⚡', genre:'Arcade', colors:['#0b3a5a', '#5ee6ff'], players:'',
+    desc:'You are an electric eel. Eat, grow, and fry everything in the water.' },
+  { slug:'bucket-splash', title:'Bucket Splash', icon:'🪣', genre:'Party', colors:['#0d5c8a', '#7fe0ff'], players:'',
+    desc:'Sprint, shove and drench your rivals with hot and cold taps, add-ins and a mega splash.' },
+  { slug:'sack-lewis-2', title:'Sack Lewis II', icon:'🏛️', genre:'Arcade', colors:['#6a1912', '#e3a93b'], players:'',
+    desc:'Ancient Rome. Catch Lewis, a monkey, a snake and a rooster, stuff them in a sack and sew it shut before the Senate loses patience.' },
+  { slug:'shrimp-quest', title:'Shrimp Quest', icon:'🦐', genre:'RPG', colors:['#0f4c5c', '#ff8a6a'], players:'',
+    desc:'A handheld-style creature-battling adventure across the seafloor.' },
+  { slug:'shrimp-tycoon', title:'Shrimp Tycoon', icon:'💰', genre:'Tycoon', colors:['#14532d', '#ffb37a'], players:'',
+    desc:'Breed high-pattern shrimp, keep the tank spotless and play the market.' },
+  { slug:'penguin-polar-rush', title:'Penguin Polar Rush', icon:'🐧', genre:'Racing', colors:['#1e3a8a', '#e0f2fe'], players:'1–4 players',
+    desc:'Belly-slide racing for up to four players on one keyboard, across Antarctica, the Arctic and a Svalbard blizzard.' },
+  { slug:'find-nemo', title:'Find Nemo', icon:'🐠', genre:'Adventure', colors:['#0c4a6e', '#fb923c'], players:'',
+    desc:'Cross the reef, the jellyfish, the abyss and Sydney Harbour to bring your son home.' },
+  { slug:'dao-hunter', title:'Dao Hunter', icon:'☯️', genre:'Action', colors:['#111827', '#c4b5fd'], players:'',
+    desc:'Roam open 3D hills, find high ground and dispel every wave of the Dao before your qi runs out.' },
+  { slug:'primordial', title:'Primordial: Evolve', icon:'🧬', genre:'Survival', colors:['#064e3b', '#a3e635'], players:'',
+    desc:'Start as something tiny. Hunt, survive and evolve into ever bigger, nastier forms.' },
+  { slug:'outpost-zero', title:'Outpost Zero', icon:'🛰️', genre:'Shooter', colors:['#232619', '#e8552d'], players:'',
+    desc:'Hold the base, explore the ruins, pick your archetype and call down the Hellstorm.' },
+  { slug:'hoop-brawl', title:'Hoop Brawl', icon:'🏀', genre:'Sports', colors:['#7c2d12', '#fbbf24'], players:'1v1 · 2v2',
+    desc:'1v1 and 2v2 basketball where special moves, parries and boss fights are all legal.' },
+  { slug:'boss-fight', title:'Boss Fight', icon:'👹', genre:'Action', colors:['#3b0764', '#f43f5e'], players:'',
+    desc:'Six abilities. One enormous tentacled boss. Good luck.' },
+];
+</script>
+<style>
+:root{
+  --bg:#020805; --panel:#04120b; --panel2:#071a10; --line:#0f3a24; --line2:#1a5c39;
+  --g:#39ff8a; --g2:#1fd36a; --c:#00e5ff; --m:#ff2bd6; --amber:#ffcc4d;
+  --text:#c9ffe0; --dim:#4f8f6c; --mono:"Share Tech Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; --display:"Orbitron", "Share Tech Mono", monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono)}
+body{min-height:100vh;overflow-x:hidden}
+::selection{background:var(--g);color:#001a0a}
+a{color:inherit}
+#rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.22;pointer-events:none}
+.crt{position:fixed;inset:0;z-index:50;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.65) 100%);
+  animation:flicker 6s infinite steps(1)}
+@keyframes flicker{0%,100%{opacity:1}47%{opacity:.92}48%{opacity:1}83%{opacity:.95}}
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 20px}
+header{padding:40px 0 20px}
+.prompt{color:var(--dim);font-size:15px;min-height:1.4em}
+.prompt b{color:var(--g)} .prompt i{color:var(--c);font-style:normal}
+.cursor{display:inline-block;width:.6em;height:1.05em;background:var(--g);vertical-align:-.15em;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.logo{position:relative;font-family:var(--display);font-weight:900;font-size:clamp(46px,9vw,108px);line-height:.95;margin:14px 0 0;letter-spacing:.04em;
+  color:var(--g);text-shadow:0 0 8px #39ff8acc,0 0 30px #39ff8a66,0 0 70px #39ff8a33}
+.logo .dim{color:var(--text);text-shadow:0 0 10px #00e5ff99}
+.logo::before,.logo::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;overflow:hidden;pointer-events:none}
+.logo::before{color:var(--c);text-shadow:none;transform:translate(3px,0);clip-path:inset(0 0 70% 0);opacity:.8;animation:glitchA 3.2s infinite steps(1)}
+.logo::after{color:var(--m);text-shadow:none;transform:translate(-3px,0);clip-path:inset(60% 0 0 0);opacity:.8;animation:glitchB 2.7s infinite steps(1)}
+@keyframes glitchA{0%,88%,100%{transform:translate(0,0);clip-path:inset(0 0 100% 0)}89%{transform:translate(5px,-2px);clip-path:inset(10% 0 60% 0)}92%{transform:translate(-4px,1px);clip-path:inset(40% 0 30% 0)}95%{transform:translate(3px,0);clip-path:inset(70% 0 5% 0)}}
+@keyframes glitchB{0%,85%,100%{transform:translate(0,0);clip-path:inset(100% 0 0 0)}86%{transform:translate(-6px,2px);clip-path:inset(55% 0 20% 0)}90%{transform:translate(4px,-1px);clip-path:inset(15% 0 70% 0)}93%{transform:translate(-2px,0);clip-path:inset(80% 0 2% 0)}}
+.tag{color:var(--c);font-size:17px;margin:14px 0 0;min-height:1.4em;letter-spacing:.04em}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:14px}
+.stats span{border:1px solid var(--line2);background:#03140bcc;padding:4px 10px;color:var(--dim)}
+.stats b{color:var(--g)}
+.stats .ok b{color:var(--g);animation:pulse 2s infinite}
+@keyframes pulse{50%{text-shadow:0 0 10px var(--g)}}
+.bar{position:sticky;top:0;z-index:20;background:#020805e8;backdrop-filter:blur(6px);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
+.bar .wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{flex:1 1 240px;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);padding:0 12px}
+.search span{color:var(--g)}
+.search input{flex:1;background:none;border:0;color:var(--text);font:inherit;font-size:16px;padding:10px 0;outline:none;min-width:0;caret-color:var(--g)}
+.search input::placeholder{color:var(--dim)}
+.search:focus-within{border-color:var(--g);box-shadow:0 0 0 1px var(--g),0 0 18px #39ff8a33}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:transparent;border:1px solid var(--line2);color:var(--dim);padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;text-transform:lowercase}
+.chip:hover{color:var(--g);border-color:var(--g)}
+.chip.on{background:var(--g);border-color:var(--g);color:#001a0a;box-shadow:0 0 14px #39ff8a66}
+.rand{background:transparent;border:1px solid var(--m);color:var(--m);padding:9px 14px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;text-shadow:0 0 8px #ff2bd688}
+.rand:hover{background:var(--m);color:#14000f;text-shadow:none;box-shadow:0 0 18px #ff2bd677}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+h2.sec{font-family:var(--mono);font-weight:400;font-size:16px;letter-spacing:.12em;margin:30px 0 12px;color:var(--g);text-transform:uppercase}
+h2.sec::before{content:"// ";color:var(--dim)}
+h2.sec small{color:var(--dim);margin-left:8px;letter-spacing:.04em;text-transform:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;padding-bottom:20px}
+.card{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line2);text-decoration:none;overflow:hidden;
+  transition:transform .15s,border-color .15s,box-shadow .15s;animation:boot .5s both}
+@keyframes boot{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card:hover{transform:translateY(-4px);border-color:var(--g);box-shadow:0 0 0 1px var(--g),0 0 28px #39ff8a44,0 18px 40px #000c}
+.tbar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--panel2);border-bottom:1px solid var(--line2);font-size:12px;color:var(--dim)}
+.tbar i{width:9px;height:9px;border-radius:50%;background:#1d3b2b}
+.tbar i:nth-child(1){background:#ff5f56aa}.tbar i:nth-child(2){background:#ffbd2eaa}.tbar i:nth-child(3){background:#27c93faa}
+.tbar span{margin-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbar .new{margin-left:auto;color:#14000f;background:var(--m);padding:0 6px;font-size:11px;letter-spacing:.1em;box-shadow:0 0 10px #ff2bd688}
+.cover{position:relative;height:140px;display:grid;place-items:center;overflow:hidden}
+.cover::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px 4px),linear-gradient(90deg,#00000055,transparent 30%,transparent 70%,#00000055);mix-blend-mode:multiply}
+.cover::after{content:"";position:absolute;left:0;right:0;height:40%;top:-40%;background:linear-gradient(transparent,#39ff8a33,transparent);opacity:0}
+.card:hover .cover::after{opacity:1;animation:sweep 1.1s linear infinite}
+@keyframes sweep{to{top:100%}}
+.cover .tint{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#020805 100%)}
+.icon{position:relative;z-index:1;font-size:70px;line-height:1;filter:drop-shadow(0 0 14px #ffffff55) drop-shadow(0 8px 10px #000a);transition:transform .2s}
+.card:hover .icon{animation:jit .35s steps(2) infinite}
+@keyframes jit{0%{transform:translate(0,0) scale(1.1)}50%{transform:translate(2px,-1px) scale(1.1)}100%{transform:translate(-2px,1px) scale(1.1)}}
+.genre{position:absolute;z-index:2;left:10px;bottom:8px;color:var(--g);font-size:12px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 0 6px #000}
+.body{padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.body h3{margin:0;font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.06em;color:var(--text);text-transform:uppercase}
+.body p{margin:0;color:#8fc9a6;font-size:14px;line-height:1.45;flex:1}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--dim)}
+.run{border:1px solid var(--g);color:var(--g);padding:5px 12px;font-size:13px;letter-spacing:.08em}
+.card:hover .run{background:var(--g);color:#001a0a;box-shadow:0 0 14px #39ff8a88}
+.empty{color:var(--dim);text-align:center;padding:40px 0;font-size:16px}
+footer{position:relative;z-index:1;color:var(--dim);text-align:center;font-size:13px;padding:28px 20px 40px;border-top:1px solid var(--line);margin-top:20px;letter-spacing:.06em}
+footer b{color:var(--g)}
+#bootScr{position:fixed;inset:0;z-index:60;background:var(--bg);color:var(--g);font-size:15px;padding:30px;display:flex;flex-direction:column;justify-content:flex-end;transition:opacity .4s}
+#bootScr.out{opacity:0;pointer-events:none}
+#bootScr p{margin:2px 0;white-space:pre-wrap}
+#bootScr .ok{color:var(--c)}
+#launch{position:fixed;inset:0;z-index:70;background:#020805f2;display:none;place-items:center;text-align:center;color:var(--g);font-size:18px}
+#launch.on{display:grid}
+#launch .t{font-family:var(--display);font-size:clamp(22px,4vw,40px);color:var(--text);text-shadow:0 0 14px #39ff8a88;margin:10px 0}
+#launch .pb{width:min(420px,80vw);height:10px;border:1px solid var(--g);margin:16px auto 0;padding:1px}
+#launch .pb i{display:block;height:100%;width:0;background:var(--g);box-shadow:0 0 12px var(--g);transition:width .55s steps(12)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#rain{display:none}}
+</style>
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<div class="crt" aria-hidden="true"></div>
+<div id="bootScr" aria-hidden="true"></div>
+<div id="launch" role="status" aria-live="polite"><div><div id="lcmd">&gt; ./run</div><div class="t" id="ltitle"></div><div id="lstat">allocating memory…</div><div class="pb"><i id="lbar"></i></div></div></div>
+
+<header class="wrap">
+  <div class="prompt" id="prompt"></div>
+  <h1 class="logo" id="siteName" data-text="2TRAPZ GAMES">2TRAPZ <span class="dim">GAMES</span></h1>
+  <p class="tag" id="tagline"></p>
+  <div class="stats" id="stats"></div>
+</header>
+<div class="bar"><div class="wrap">
+  <label class="search"><span aria-hidden="true">&gt;_</span><input id="q" type="search" placeholder="grep games…" aria-label="Search games" autocomplete="off" spellcheck="false"></label>
+  <div class="chips" id="chips"></div>
+  <button class="rand" id="rand">./random.sh</button>
+</div></div>
+<main class="wrap">
+  <section id="recentSec" hidden><h2 class="sec">resume_session</h2><div class="grid" id="recent"></div></section>
+  <section><h2 class="sec" id="allTitle">all_programs</h2><div class="grid" id="grid"></div></section>
+</main>
+<footer id="foot"></footer>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  const RECENT_KEY = 'arcade.recent';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let genre = 'all', query = '';
+  const getRecent = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch (e){ return []; } };
+  const remember = slug => { try { const r = getRecent().filter(s => s !== slug); r.unshift(slug); localStorage.setItem(RECENT_KEY, JSON.stringify(r.slice(0, 4))); } catch (e){} };
+  const href = g => 'games/' + encodeURIComponent(g.slug) + '/index.html';
+  const exe = g => g.slug + '.exe';
+
+  /* header text */
+  document.title = SITE_NAME;
+  const words = SITE_NAME.toUpperCase().split(' ');
+  $('#siteName').dataset.text = SITE_NAME.toUpperCase();
+  $('#siteName').innerHTML = esc(words[0]) + (words.length > 1 ? ' <span class="dim">' + esc(words.slice(1).join(' ')) + '</span>' : '');
+  const genres = ['all', ...[...new Set(GAMES.map(g => g.genre.toLowerCase()))].sort()];
+  $('#stats').innerHTML = `<span>[ <b>${GAMES.length}</b> programs loaded ]</span><span>[ <b>${genres.length - 1}</b> classes ]</span><span>[ <b>0</b> downloads ]</span><span class="ok">[ status: <b>ONLINE</b> ]</span>`;
+  $('#foot').innerHTML = `© ${new Date().getFullYear()} <b>${esc(SITE_NAME)}</b> :: ${GAMES.length} programs :: all systems nominal`;
+  function type(el, html, speed, done){
+    if (reduce){ el.innerHTML = html; if (done) done(); return; }
+    let i = 0; const txt = html;
+    const step = () => { i++; el.textContent = txt.slice(0, i); if (i < txt.length) setTimeout(step, speed); else if (done) done(); };
+    step();
+  }
+  const user = 'root@' + SITE_NAME.split(' ')[0].toLowerCase();
+  type($('#prompt'), `${user}:~$ ./launch --all`, 28, () => {
+    $('#prompt').innerHTML = `<b>${esc(user)}</b>:<i>~</i>$ ./launch --all<span class="cursor"></span>`;
+    type($('#tagline'), TAGLINE, 18);
+  });
+
+  /* boot screen, once per visit */
+  const boot = $('#bootScr');
+  let seen = false; try { seen = sessionStorage.getItem('arcade.boot') === '1'; sessionStorage.setItem('arcade.boot', '1'); } catch (e){}
+  if (seen || reduce) boot.remove();
+  else {
+    const lines = ['BIOS v2.7 :: 2TRAPZ SYSTEMS', 'memory check ......... OK', 'mounting /games ...... OK', ...GAMES.slice(0, 6).map(g => `loading ${exe(g).padEnd(24, '.')} OK`), `${GAMES.length} programs ready.`, 'ACCESS GRANTED'];
+    let k = 0;
+    const next = () => { if (k < lines.length){ const p = document.createElement('p'); p.textContent = '> ' + lines[k]; if (/OK|GRANTED|ready/.test(lines[k])) p.className = 'ok'; boot.appendChild(p); k++; setTimeout(next, 70); } else setTimeout(() => { boot.classList.add('out'); setTimeout(() => boot.remove(), 450); }, 280); };
+    next();
+    boot.addEventListener('click', () => { boot.classList.add('out'); setTimeout(() => boot.remove(), 450); });
+  }
+
+  /* cards */
+  function card(g, i){
+    return `<a class="card" href="${href(g)}" data-slug="${esc(g.slug)}" style="animation-delay:${Math.min(i, 12) * 40}ms">
+      <div class="tbar"><i></i><i></i><i></i><span>~/games/${esc(exe(g))}</span>${g.isNew ? '<b class="new">NEW</b>' : ''}</div>
+      <div class="cover" style="background:linear-gradient(135deg,${esc(g.colors[0])},${esc(g.colors[1])})"><div class="tint"></div>
+        <span class="icon" aria-hidden="true">${g.icon}</span><span class="genre">#${esc(g.genre.toLowerCase())}</span></div>
+      <div class="body"><h3>${esc(g.title)}</h3><p>${esc(g.desc)}</p>
+        <div class="meta"><span>${esc(g.players || 'local · offline')}</span><span class="run">&gt; RUN</span></div></div></a>`;
+  }
+  function render(){
+    $('#chips').innerHTML = genres.map(x => `<button class="chip${x === genre ? ' on' : ''}" data-g="${esc(x)}">--${esc(x)}</button>`).join('');
+    const q = query.trim().toLowerCase();
+    const list = GAMES.filter(g => (genre === 'all' || g.genre.toLowerCase() === genre) && (!q || (g.title + ' ' + g.desc + ' ' + g.genre).toLowerCase().includes(q)));
+    $('#grid').innerHTML = list.map(card).join('') || `<p class="empty">grep: no match for "${esc(query)}"</p>`;
+    $('#allTitle').innerHTML = genre === 'all' && !q ? 'all_programs' : `results<small>${list.length} found${q ? ' for "' + esc(query) + '"' : ''}${genre !== 'all' ? ' in --' + esc(genre) : ''}</small>`;
+    const rec = getRecent().map(s => GAMES.find(g => g.slug === s)).filter(Boolean);
+    $('#recentSec').hidden = !rec.length || !!q || genre !== 'all';
+    $('#recent').innerHTML = rec.map(card).join('');
+  }
+
+  /* launch transition */
+  function launch(g){
+    remember(g.slug);
+    if (reduce){ location.href = href(g); return; }
+    $('#lcmd').textContent = `> ./${exe(g)}`; $('#ltitle').textContent = g.title.toUpperCase(); $('#lstat').textContent = 'decrypting assets…';
+    $('#launch').classList.add('on'); $('#lbar').style.width = '0';
+    requestAnimationFrame(() => { $('#lbar').style.width = '100%'; });
+    setTimeout(() => { $('#lstat').textContent = 'ACCESS GRANTED'; }, 380);
+    setTimeout(() => { location.href = href(g); }, 620);
+  }
+  window.addEventListener('pageshow', () => $('#launch').classList.remove('on'));
+  $('#chips').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b){ genre = b.dataset.g; render(); } });
+  $('#q').addEventListener('input', e => { query = e.target.value; render(); });
+  document.addEventListener('click', e => {
+    const a = e.target.closest('.card'); if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+    const g = GAMES.find(x => x.slug === a.dataset.slug); if (!g) return;
+    e.preventDefault(); launch(g);
+  });
+  $('#rand').addEventListener('click', () => launch(GAMES[Math.floor(Math.random() * GAMES.length)]));
+  document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== $('#q')){ e.preventDefault(); $('#q').focus(); } });
+  render();
+
+  /* code rain */
+  if (!reduce){
+    const cv = $('#rain'), g = cv.getContext('2d');
+    const chars = '01アイウエオカキクケコサシスセソ2TRAPZ<>{}[]/\\=+*#$%&'.split('');
+    let cols = [], fs = 16, W = 0, H = 0;
+    const size = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; cols = Array.from({ length:Math.ceil(W / fs) }, () => Math.random() * -H / fs); };
+    size(); addEventListener('resize', size);
+    let last = 0;
+    const draw = t => {
+      requestAnimationFrame(draw);
+      if (t - last < 55) return; last = t;
+      g.fillStyle = 'rgba(2,8,5,.12)'; g.fillRect(0, 0, W, H);
+      g.font = fs + 'px "Share Tech Mono", monospace';
+      for (let i = 0; i < cols.length; i++){
+        const y = cols[i] * fs;
+        g.fillStyle = Math.random() < .04 ? '#c9ffe0' : Math.random() < .5 ? '#39ff8a' : '#1fd36a';
+        g.fillText(chars[(Math.random() * chars.length) | 0], i * fs, y);
+        if (y > H && Math.random() > .975) cols[i] = 0; else cols[i]++;
+      }
+    };
+    requestAnimationFrame(draw);
+  }
+})();
+</script>
+</body>
+</html>
