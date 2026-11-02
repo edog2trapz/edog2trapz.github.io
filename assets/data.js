@@ -45,6 +45,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'besieged', title:'Besieged', icon:'🎯', genre:'Shooter', colors:['#0c1117', '#3fb6c8'], players:'1 player · online in Claude', isNew:true, featured:true,
+    desc:'3D operator-based breach-and-defend. Pick from 12 operators with unique gadgets, lean around corners, kit out your guns with sights and attachments, and fight across 4 maps and 4 modes.' },
   { slug:'hazeport', title:'Hazeport Tycoon', icon:'🌃', genre:'Tycoon', colors:['#1a1035', '#ffb547'], players:'1 player', isNew:true, featured:true,
     desc:'Grow and mix glowing product in a neon port city, take turf from three rival gangs and fight the street wars yourself in first person. Watch the heat.' },
   { slug:'breachline', title:'Breachline', icon:'💣', genre:'Shooter', colors:['#14100a', '#f0a83c'], players:'1 player', isNew:true, featured:true,
@@ -105,6 +107,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-02', tag:'New game', title:'Besieged has landed', game:'besieged',
+    text:'A 3D breach-and-defend shooter with 12 operators, gadgets, weapon attachments, 4 maps and 4 modes. Play against bots right here (online matches only work inside Claude).' },
   { date:'2026-11-02', tag:'Launch', title:'The DORFic update is live',
     text:'2trapz games has a whole new look: glossy glass, orange swooshes and a white future-city. Pick from five styles (Daylight, Night, Industrial, Blaze and Aero), unlock achievements, favorite games, write reviews and send your own game ideas straight to 2trapz.' },
   { date:'2026-11-02', tag:'New games', title:'Five new arrivals', game:'hazeport',

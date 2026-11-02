@@ -165,3 +165,4 @@ That's it: every change you make goes live with two clicks.
 - Power Hungry downloads its world map from the internet when it starts, so it needs a connection.
 - Stick Brawl's online room mode only works inside Claude. Everything else works anywhere.
 - Breachline plays against bots right on the site. Its online and LAN mode needs the separate Breachline server (`node server.js`), which GitHub Pages can't run.
+- Besieged plays against bots anywhere, but its online matches only work inside Claude. It loads its 3D engine from the internet when it starts, so it needs a connection.
