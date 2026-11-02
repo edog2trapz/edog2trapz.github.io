@@ -78,3 +78,4 @@ That's it: every change you make goes live with two clicks.
 - Saved games live in each player's own browser, so every visitor gets their own progress.
 - Power Hungry downloads its world map from the internet when it starts, so it needs a connection.
 - Stick Brawl's online room mode only works inside Claude. Everything else works anywhere.
+- Breachline plays against bots right on the site. Its online and LAN mode needs the separate Breachline server (`node server.js`), which GitHub Pages can't run.

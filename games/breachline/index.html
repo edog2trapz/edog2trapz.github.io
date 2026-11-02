@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breachline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="view" tabindex="0"></canvas>
+
+<!-- ============================== MAIN MENU ============================== -->
+<div id="menu">
+  <div class="menu-shade"></div>
+  <header class="topnav">
+    <div class="logo">BREACH<span>LINE</span></div>
+    <nav>
+      <button data-nav="play" class="on">Play</button>
+      <button data-nav="inventory">Inventory</button>
+      <button data-nav="cases">Armory</button>
+      <button data-nav="settings">Settings</button>
+    </nav>
+    <div class="wallet">
+      <span title="Credits">◈ <b id="w-credits">0</b></span>
+      <span title="Keys">⚿ <b id="w-keys">0</b></span>
+      <span title="Cases">▣ <b id="w-cases">0</b></span>
+    </div>
+  </header>
+
+  <section id="scr-play" class="screen active">
+    <div class="play-wrap">
+      <div class="namebox"><label>Callsign <input id="player-name" maxlength="20" placeholder="Enter your name"></label></div>
+      <div class="cards">
+        <div class="card">
+          <h2>Offline <small>vs bots</small></h2>
+          <p class="muted">Play a full match against AI on your own machine. No server needed.</p>
+          <div class="form">
+            <label>Map <select id="off-map"></select></label>
+            <p class="muted map-desc" id="off-map-desc"></p>
+            <label>Team <select id="off-team"><option value="T">Raiders (attack)</option><option value="CT">Wardens (defend)</option><option value="AUTO">Auto</option><option value="SPEC">Spectate bots</option></select></label>
+            <label>Bot skill <select id="off-diff"></select></label>
+            <label>Team size <select id="off-size"><option value="1">1v1</option><option value="2">2v2</option><option value="3">3v3</option><option value="4">4v4</option><option value="5" selected>5v5</option></select></label>
+            <label>Match length <select id="off-rounds"><option value="10">Short (first to 6)</option><option value="16" selected>Standard (first to 9)</option><option value="24">Long (first to 13)</option></select></label>
+            <label class="chk"><input type="checkbox" id="off-ff"> Friendly fire</label>
+          </div>
+          <button id="btn-offline" class="big">Start match</button>
+        </div>
+        <div class="card">
+          <h2>Online <small>& LAN</small></h2>
+          <p class="muted" id="online-help"></p>
+          <div class="form">
+            <label>Server <input id="srv-url" placeholder="localhost:3000"></label>
+            <label>Room <input id="srv-room" value="public" maxlength="24"></label>
+            <details><summary>New room options</summary>
+              <label>Map <select id="on-map"></select></label>
+              <label>Team size <select id="on-size"><option value="2">2v2</option><option value="3">3v3</option><option value="4">4v4</option><option value="5" selected>5v5</option></select></label>
+              <label>Bot skill <select id="on-diff"><option value="0">Easy</option><option value="1" selected>Normal</option><option value="2">Hard</option><option value="3">Expert</option></select></label>
+              <label>Length <select id="on-rounds"><option value="10">Short</option><option value="16" selected>Standard</option><option value="24">Long</option></select></label>
+              <label class="chk"><input type="checkbox" id="on-bots" checked> Fill empty slots with bots</label>
+            </details>
+          </div>
+          <div class="row"><button id="btn-connect" class="big">Join room</button><button id="btn-refresh">Refresh</button></div>
+          <div id="room-list"></div>
+        </div>
+        <div class="card controls">
+          <h2>Controls</h2>
+          <table>
+            <tr><td>WASD</td><td>Move</td></tr><tr><td>Mouse</td><td>Aim · LMB fire · RMB scope / alt</td></tr>
+            <tr><td>Space</td><td>Jump</td></tr><tr><td>Shift</td><td>Walk (silent)</td></tr><tr><td>C / Ctrl</td><td>Crouch</td></tr>
+            <tr><td>1-5 · Wheel · Q</td><td>Switch weapon / last used</td></tr><tr><td>R</td><td>Reload</td></tr>
+            <tr><td>B</td><td>Buy menu</td></tr><tr><td>E</td><td>Plant · defuse · pick up</td></tr><tr><td>G</td><td>Drop weapon</td></tr>
+            <tr><td>F</td><td>Inspect weapon</td></tr><tr><td>Tab</td><td>Scoreboard</td></tr><tr><td>Y / U</td><td>Chat all / team</td></tr>
+            <tr><td>M</td><td>Change team</td></tr><tr><td>Esc</td><td>Menu</td></tr>
+          </table>
+          <p class="muted">Grenades: LMB long throw, RMB short lob, both for medium.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="scr-inventory" class="screen">
+    <div class="inv-wrap">
+      <div class="inv-left">
+        <div class="inv-bar"><h2>Inventory</h2><span id="inv-count" class="muted"></span><select id="inv-filter"></select></div>
+        <div id="inv-grid"></div>
+      </div>
+      <div class="inv-right" id="inv-detail"></div>
+    </div>
+  </section>
+
+  <section id="scr-cases" class="screen">
+    <div class="cases-wrap">
+      <div class="cases-bar"><h2>Armory</h2><span class="muted">Earn credits and case drops by playing matches.</span>
+        <label class="chk skip"><input type="checkbox" id="skip-anim"> Skip opening animation</label>
+        <button id="buy-key">Buy key · <span id="key-price"></span> cr</button></div>
+      <div class="muted odds">Drop odds: <span id="odds"></span></div>
+      <form id="redeem" class="redeem"><label for="redeem-code">Redeem code</label><input id="redeem-code" maxlength="32" autocomplete="off" spellcheck="false" placeholder="Enter a code"><button type="submit">Redeem</button></form>
+      <div id="case-list"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================== HUD ============================== -->
+<div id="hud" class="hidden">
+  <div id="radar-wrap"><canvas id="radar" width="220" height="220"></canvas><div id="callout"></div></div>
+  <div id="topbar">
+    <div class="tb-team t"><div class="alive" id="aliveT"></div><div class="score" id="scoreT">0</div></div>
+    <div id="timer-box"><div id="timer">0:00</div><div id="round-label"></div></div>
+    <div class="tb-team ct"><div class="score" id="scoreCT">0</div><div class="alive" id="aliveCT"></div></div>
+  </div>
+  <div id="killfeed"></div>
+  <canvas id="xh" width="120" height="120"></canvas>
+  <div id="center-msg"></div>
+  <div id="sub-msg"></div>
+  <div id="hint"></div>
+  <div id="progress"><div class="bar"><div id="progress-fill"></div></div><div id="progress-label"></div></div>
+  <div id="spec-info"></div>
+  <div id="chat"><div id="chat-log"></div><input id="chat-input" maxlength="160" autocomplete="off"></div>
+  <div id="bottom-left">
+    <div id="money"><span id="moneyv"></span><span id="buyzone">BUY ZONE</span></div>
+    <div class="vitals"><div id="hp"><i>✚</i><span id="hpv">100</span></div><div id="ar"><i>⛨</i><span id="arv">0</span><span id="helm"></span></div>
+      <span id="kiticon" title="Defuse kit">✂</span><span id="bombicon" title="You carry the charge">💣</span></div>
+  </div>
+  <div id="bottom-right">
+    <div id="weapon-list"></div>
+    <div id="ammo"><span id="mag"></span><span id="res"></span></div>
+    <div id="wname"></div>
+  </div>
+  <div id="dmg-ind"></div>
+  <div id="fps"></div>
+</div>
+<div id="overlay-smoke" class="overlay"></div>
+<div id="overlay-flash" class="overlay"></div>
+<div id="overlay-dmg" class="overlay"></div>
+<div id="scope"><div class="scope-ring"></div><div class="scope-h"></div><div class="scope-v"></div></div>
+
+<div id="scoreboard" class="hidden"></div>
+<div id="buymenu" class="hidden"></div>
+<div id="teammenu" class="hidden">
+  <div class="tm-box">
+    <h2>Choose your side</h2>
+    <div class="tm-opts">
+      <button data-team="T" class="t"><b>Raiders</b><span>Attack · plant the charge</span><kbd>1</kbd></button>
+      <button data-team="CT" class="ct"><b>Wardens</b><span>Defend · defuse the charge</span><kbd>2</kbd></button>
+    </div>
+    <div class="tm-small"><button data-team="AUTO">Auto-assign <kbd>3</kbd></button><button data-team="SPEC">Spectate <kbd>4</kbd></button></div>
+  </div>
+</div>
+<div id="pausemenu" class="hidden">
+  <div class="pm-box">
+    <div class="logo small">BREACH<span>LINE</span></div>
+    <button id="pm-resume">Resume</button>
+    <button id="pm-team">Change team</button>
+    <button id="pm-settings">Settings</button>
+    <button id="pm-leave" class="danger">Leave match</button>
+  </div>
+</div>
+<div id="endscreen" class="hidden"></div>
+
+<div id="settings-modal" class="modal hidden">
+  <div class="modal-box"><div class="modal-head"><h2>Settings</h2><button id="settings-close">✕</button></div><div id="settings-form"></div></div>
+</div>
+<div id="case-modal" class="modal hidden">
+  <div class="modal-box wide">
+    <div class="modal-head"><h2 id="cm-title"></h2><div class="cm-head-btns"><button id="cm-skip" class="hidden">Skip ▸▸</button><button id="cm-close" aria-label="Close">✕</button></div></div>
+    <div id="cm-reels"></div>
+    <div id="cm-result"></div>
+  </div>
+</div>
+<div id="toast"></div>
+<div id="loading"><div>Loading Breachline…</div></div>
+<script src="boot.js"></script>
+<script src="vendor/three.min.js"></script>
+<script src="breachline.js"></script>
+</body>
+</html>
