@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reviews · 2trapz games</title>
+<meta name="description" content="Player reviews and ratings for every game on 2trapz games. Write your own.">
+<meta name="theme-color" content="#ff8a00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%25' cy='110%25' r='90%25'><stop offset='0' stop-color='%23ffd27a'/><stop offset='.5' stop-color='%23ff8a00'/><stop offset='1' stop-color='%23d94a00'/></radialGradient></defs><circle cx='50' cy='50' r='48' fill='url(%23g)'/><ellipse cx='50' cy='27' rx='33' ry='19' fill='white' opacity='.55'/><text x='50' y='67' font-family='Arial' font-weight='900' font-style='italic' font-size='44' text-anchor='middle' fill='white'>2t</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.rstats{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.rstat{padding:10px 16px;border-radius:14px;background:var(--glass2);border:1px solid var(--line)}
+.rstat b{font-family:var(--display);font-style:italic;font-weight:900;font-size:24px;color:var(--o-text);margin-right:6px}
+.rstat span{font-weight:800;color:var(--ink2);font-size:14px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:24px;align-items:start;margin-top:24px}
+.side{position:sticky;top:90px;display:flex;flex-direction:column;gap:20px}
+@media (max-width:960px){.cols{grid-template-columns:1fr}.side{position:static;order:-1}}
+.filters{padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.filters select{width:auto;flex:1 1 200px;border-radius:999px;height:42px;padding:0 16px;min-height:0}
+.board{padding:20px}
+.board h3{margin:0 0 12px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:18px}
+.lb{display:flex;align-items:center;gap:12px;padding:8px;border-radius:12px;text-decoration:none}
+.lb:hover{background:rgba(255,138,0,.08)}
+.lb .n{width:28px;font-family:var(--display);font-weight:900;font-style:italic;font-size:20px;color:var(--o-text);text-align:center}
+.lb .ti{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-size:22px;flex:none;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.lb b{display:block;font-size:14px;line-height:1.2}
+.rv-list{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+</style>
+</head>
+<body data-page="reviews">
+<main id="main">
+<div class="wrap">
+  <section class="panel phero hud">
+    <svg class="deco" viewBox="0 0 300 300" aria-hidden="true" fill="none"><circle cx="190" cy="110" r="70" stroke="var(--o2)" stroke-width="2" opacity=".6"/><circle cx="190" cy="110" r="100" stroke="var(--tech)" stroke-width="2" stroke-dasharray="3 10"/><circle cx="190" cy="110" r="135" stroke="var(--o2)" stroke-width="1.5" stroke-dasharray="60 20 6 20" opacity=".5"/><text x="190" y="128" text-anchor="middle" font-size="52">⭐</text></svg>
+    <div class="kicker">Community</div>
+    <h1>Player <span>reviews</span></h1>
+    <p>What players think of every 2trapz game. Rate the games you've played and help other players find the good stuff.</p>
+    <div class="rstats" id="rstats"></div>
+    <span class="tag-id">2TZ // RVW-03</span>
+  </section>
+
+  <div class="cols">
+    <div>
+      <div class="panel filters">
+        <select class="input" id="fGame" aria-label="Filter by game"><option value="">All games</option></select>
+        <select class="input" id="fSort" aria-label="Sort reviews"><option value="new">Newest first</option><option value="high">Highest rated</option><option value="low">Lowest rated</option></select>
+      </div>
+      <div id="list"></div>
+    </div>
+    <aside class="side">
+      <div id="write"></div>
+      <section class="panel board" id="board"></section>
+    </aside>
+  </div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, esc, GAMES, bySlug, allReviews, reviewCard, rating, stars, detailHref, mountReviewForm } = TZ;
+  const P = new URLSearchParams(location.search);
+  const pre = bySlug(P.get('g')) ? P.get('g') : '';
+  $('#fGame').innerHTML += [...GAMES].sort((a, b) => a.title.localeCompare(b.title)).map(g => `<option value="${esc(g.slug)}">${esc(g.title)}</option>`).join('');
+  $('#fGame').value = pre;
+
+  function paint(){
+    const all = allReviews();
+    const avg = all.length ? all.reduce((s, r) => s + (+r.stars || 0), 0) / all.length : 0;
+    const reviewed = new Set(all.map(r => r.game)).size;
+    $('#rstats').innerHTML = `<div class="rstat"><b>${all.length}</b><span>review${all.length === 1 ? '' : 's'}</span></div><div class="rstat"><b>${all.length ? avg.toFixed(1) : '–'}</b><span>average ★</span></div><div class="rstat"><b>${reviewed}</b><span>of ${GAMES.length} games rated</span></div>`;
+
+    const fg = $('#fGame').value, fs = $('#fSort').value;
+    let rs = allReviews(fg || undefined);
+    if (fs === 'high') rs.sort((a, b) => b.stars - a.stars);
+    if (fs === 'low') rs.sort((a, b) => a.stars - b.stars);
+    const g = bySlug(fg);
+    $('#list').innerHTML = rs.length ? `<div class="rv-list">${rs.map(r => reviewCard(r)).join('')}</div>` :
+      `<div class="panel empty"><div class="big">💬</div><h3>No reviews ${g ? 'for ' + esc(g.title) + ' ' : ''}yet</h3><p>Be the first. Pick a game, tap the stars and say what you think.</p></div>`;
+
+    const ranked = GAMES.map(x => ({ g:x, r:rating(x.slug) })).filter(x => x.r.count).sort((a, b) => b.r.avg - a.r.avg || b.r.count - a.r.count).slice(0, 5);
+    $('#board').innerHTML = `<h3>🏆 Top rated</h3>` + (ranked.length ? ranked.map((x, i) => `<a class="lb" href="${detailHref(x.g)}"><span class="n">${i + 1}</span><span class="ti" style="--c1:${esc(x.g.colors[0])};--c2:${esc(x.g.colors[1])}">${x.g.icon}</span><span><b>${esc(x.g.title)}</b>${stars(x.r.avg, 13)} <small class="muted">${x.r.count}</small></span></a>`).join('')
+      : `<p class="muted" style="margin:0">The leaderboard fills up as games get reviewed.</p>`);
+  }
+  mountReviewForm($('#write'), { preselect: pre, onDone: paint });
+  $('#fGame').addEventListener('change', () => { paint(); const u = new URL(location.href); $('#fGame').value ? u.searchParams.set('g', $('#fGame').value) : u.searchParams.delete('g'); history.replaceState(null, '', u); });
+  $('#fSort').addEventListener('change', paint);
+  document.addEventListener('tz:reviews', paint);
+  paint();
+  if (location.hash === '#write') setTimeout(() => { const s = $('#write select, #write textarea'); s && s.focus(); }, 400);
+})();
+</script>
+</body>
+</html>

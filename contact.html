@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact the creator · 2trapz games</title>
+<meta name="description" content="Send 2trapz your game to get it on the site, request a new game, or report a bug.">
+<meta name="theme-color" content="#ff8a00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%25' cy='110%25' r='90%25'><stop offset='0' stop-color='%23ffd27a'/><stop offset='.5' stop-color='%23ff8a00'/><stop offset='1' stop-color='%23d94a00'/></radialGradient></defs><circle cx='50' cy='50' r='48' fill='url(%23g)'/><ellipse cx='50' cy='27' rx='33' ry='19' fill='white' opacity='.55'/><text x='50' y='67' font-family='Arial' font-weight='900' font-style='italic' font-size='44' text-anchor='middle' fill='white'>2t</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.type{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:20px;border-radius:20px;cursor:pointer;text-align:left;
+  border:1px solid var(--glass-edge);background:var(--glass2);box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;overflow:hidden}
+.type::after{content:"";position:absolute;right:-36px;bottom:-36px;width:120px;height:120px;border-radius:50%;border:2px solid var(--tech);box-shadow:0 0 0 14px rgba(255,138,0,.05)}
+.type:hover{transform:translateY(-4px)}
+.type[aria-checked="true"]{box-shadow:var(--glow)}
+.type[aria-checked="true"]::before{content:"✓";position:absolute;right:14px;top:14px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;
+  background:linear-gradient(180deg,#ffb44d,#f26a00);box-shadow:0 2px 8px rgba(255,110,0,.45)}
+.type .orb{width:54px;height:54px;font-size:26px;margin-bottom:6px}
+.type b{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:19px}
+.type small{color:var(--ink2);font-size:14px;line-height:1.4}
+@media (max-width:760px){.types{grid-template-columns:1fr}.type{flex-direction:row;align-items:center;gap:14px;padding:14px}.type .orb{margin:0;flex:none}.type::before{top:50%!important;transform:translateY(-50%)}}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:24px;align-items:start;margin-top:24px}
+@media (max-width:960px){.cols{grid-template-columns:1fr}}
+.form{padding:26px}
+.form h2{margin:6px 0 18px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:26px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
+.fields{display:grid;gap:16px}
+.count{font-size:12px;color:var(--ink3);text-align:right;font-weight:700;margin-top:-10px}
+.err{display:none;padding:14px 16px;border-radius:14px;background:rgba(229,48,27,.08);border:1px solid rgba(229,48,27,.35);color:var(--ink)}
+.err.on{display:block}
+.err b{color:var(--red)}
+.done{padding:40px 26px;text-align:center}
+.done .orb{width:96px;height:96px;font-size:44px;margin:0 auto 16px;animation:popIn .6s cubic-bezier(.2,.9,.3,1.4) both}
+@keyframes popIn{from{transform:scale(0) rotate(-120deg)}}
+.done h2{margin:0 0 8px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:32px}
+.done p{max-width:440px;margin:0 auto 20px;color:var(--ink2)}
+.side{display:flex;flex-direction:column;gap:20px}
+.card2{padding:22px}
+.card2 h3{margin:0 0 10px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:18px}
+.mail{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--glass2);border:1px solid var(--line);font-weight:800;word-break:break-all;margin-bottom:12px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:var(--ink2)}
+.steps li::before{counter-increment:s;content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px;
+  background:linear-gradient(180deg,#ffb44d,#f26a00);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 8px rgba(255,110,0,.35)}
+.steps b{color:var(--ink)}
+.tip{font-size:14px;color:var(--ink2);margin:0}
+</style>
+</head>
+<body data-page="contact">
+<main id="main">
+<div class="wrap">
+  <section class="panel phero hud">
+    <svg class="deco" viewBox="0 0 300 300" aria-hidden="true" fill="none"><circle cx="190" cy="110" r="70" stroke="var(--o2)" stroke-width="2" opacity=".6"/><circle cx="190" cy="110" r="100" stroke="var(--tech)" stroke-width="2" stroke-dasharray="3 10"/><circle cx="190" cy="110" r="135" stroke="var(--o2)" stroke-width="1.5" stroke-dasharray="60 20 6 20" opacity=".5"/><text x="190" y="128" text-anchor="middle" font-size="52">📡</text></svg>
+    <div class="kicker">Direct line</div>
+    <h1>Contact the <span>creator</span></h1>
+    <span class="tag-id">2TZ // COM-04</span>
+    <p>Want your game on 2trapz games? Got an idea for the next one? Found a bug? Send it straight to 2trapz.</p>
+  </section>
+
+  <div class="types" role="radiogroup" aria-label="What do you want to send?">
+    <button class="type" role="radio" data-type="game" aria-checked="false"><span class="orb">🎮</span><span><b>Add my game</b><br><small>You made a game and want it on the site.</small></span></button>
+    <button class="type" role="radio" data-type="idea" aria-checked="false"><span class="orb">💡</span><span><b>Request a game</b><br><small>Tell 2trapz what game to build next.</small></span></button>
+    <button class="type" role="radio" data-type="message" aria-checked="false"><span class="orb">💬</span><span><b>Message or bug</b><br><small>Report a bug, ask a question or say hi.</small></span></button>
+  </div>
+
+  <div class="cols">
+    <section class="panel" id="formBox" aria-live="polite"></section>
+    <aside class="side">
+      <section class="panel card2">
+        <h3>✉️ Email 2trapz directly</h3>
+        <div class="mail"><span aria-hidden="true">📧</span><span id="mailAddr"></span></div>
+        <div class="row"><button class="btn sm" id="copyMail">Copy address</button><a class="btn sm ghost" id="openMail" href="#">Open email app</a></div>
+      </section>
+      <section class="panel card2">
+        <h3>What happens next</h3>
+        <ol class="steps">
+          <li><span><b>It lands in 2trapz's inbox.</b> Every message gets read.</span></li>
+          <li><span><b>Games get tested.</b> If it's fun, works in a browser and is OK for everyone, it can go on the site.</span></li>
+          <li><span><b>Ideas go on the list.</b> The best requests become the next 2trapz game.</span></li>
+        </ol>
+      </section>
+      <section class="panel card2">
+        <h3>📦 Sending a game?</h3>
+        <p class="tip">The easiest way is a link where it can be played or downloaded: itch.io, GitHub, Replit, Google Drive or Scratch all work. Paste the link in the form. If it's a file, email it to the address above as an attachment instead.</p>
+      </section>
+    </aside>
+  </div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, $$, esc, GAMES, genres, EMAIL } = TZ;
+  const P = new URLSearchParams(location.search);
+  let type = ['game','idea','message'].includes(P.get('type')) ? P.get('type') : 'idea';
+  $('#mailAddr').textContent = EMAIL;
+  $('#openMail').href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('Hi from 2trapz games');
+  $('#copyMail').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(EMAIL); TZ.toast({ icon:'📋', small:'Copied', big:esc(EMAIL) }); TZ.sfx('ok'); }
+    catch (e){ prompt('Copy the address:', EMAIL); }
+  });
+
+  const genreOpts = sel => ['', ...genres, 'Puzzle', 'Horror', 'Platformer', 'Simulation', 'Other'].filter((v, i, a) => a.indexOf(v) === i)
+    .map(g => `<option value="${esc(g)}"${g === sel ? ' selected' : ''}>${g ? esc(g) : 'Pick a genre…'}</option>`).join('');
+  const gameOpts = () => `<option value="">None / not sure</option>` + [...GAMES].sort((a, b) => a.title.localeCompare(b.title)).map(g => `<option>${esc(g.title)}</option>`).join('');
+  const prof = TZ.profile();
+  const common = `<div class="two">
+      <label class="field"><span>Your name</span><input id="fName" maxlength="40" value="${esc(prof.tag)}" required></label>
+      <label class="field"><span>Your email <em>(only if you want a reply)</em></span><input id="fEmail" type="email" maxlength="80" placeholder="you@example.com" autocomplete="email"></label></div>`;
+  const area = (id, label, ph, max) => `<label class="field"><span>${label}</span><textarea id="${id}" maxlength="${max}" placeholder="${esc(ph)}" required></textarea></label><div class="count" data-for="${id}">0 / ${max}</div>`;
+  const FORMS = {
+    game: { kicker:'Submit a game', title:'Add my game to the site', btn:'🎮 Send my game', body: () => `${common}
+      <div class="two"><label class="field"><span>Game title</span><input id="fTitle" maxlength="60" required></label>
+      <label class="field"><span>Genre</span><select id="fGenre">${genreOpts('')}</select></label></div>
+      <label class="field"><span>Link to play or download it <em>(itch.io, GitHub, Drive…)</em></span><input id="fLink" type="url" maxlength="300" placeholder="https://"></label>
+      ${area('fBody', 'Tell 2trapz about it', 'What is it, how do you play, what makes it fun?', 1500)}
+      <label class="check"><input type="checkbox" id="fOwn" required> <span>I made this game, or I have permission from the person who did.</span></label>` },
+    idea: { kicker:'Request a game', title:'What should 2trapz build next?', btn:'💡 Send my idea', body: () => `${common}
+      <div class="two"><label class="field"><span>Name your idea</span><input id="fTitle" maxlength="60" placeholder="e.g. Shrimp Kart" value="${esc(P.get('idea') || '')}" required></label>
+      <label class="field"><span>Genre</span><select id="fGenre">${genreOpts('')}</select></label></div>
+      ${area('fBody', 'Describe the game', 'What do you do? What makes it awesome? Bosses, power-ups, multiplayer?', 1500)}
+      <label class="field"><span>Is it like a game already on the site? <em>(optional)</em></span><select id="fLike">${gameOpts()}</select></label>` },
+    message: { kicker:'Message or bug', title:'Talk to 2trapz', btn:'💬 Send message', body: () => { const tp = P.get('topic') === 'Bug' ? 'Bug report' : ''; return `${common}
+      <div class="two"><label class="field"><span>Topic</span><select id="fTopic">${['Bug report','Question','Feedback','Just saying hi','Other'].map(t => `<option${t === tp ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="field"><span>Which game? <em>(optional)</em></span><select id="fLike">${gameOpts()}</select></label></div>
+      ${area('fBody', 'Your message', 'If it is a bug: what happened, and what were you doing right before?', 1500)}`; } },
+  };
+
+  function paintTypes(){ $$('.type').forEach(b => b.setAttribute('aria-checked', String(b.dataset.type === type))); }
+  function paintForm(){
+    const F = FORMS[type];
+    $('#formBox').innerHTML = `<form class="form" novalidate>
+      <div class="kicker">${F.kicker}</div><h2>${F.title}</h2>
+      <div class="fields">${F.body()}
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="sr" aria-hidden="true">
+        <div class="err" id="err"></div>
+        <div class="row"><button class="btn lg" type="submit">${F.btn}</button><span class="muted" style="font-size:14px">Goes straight to 2trapz.</span></div>
+      </div></form>`;
+    $$('#formBox textarea').forEach(t => t.addEventListener('input', () => { const c = $(`.count[data-for="${t.id}"]`); if (c) c.textContent = t.value.length + ' / ' + t.maxLength; }));
+    $('#formBox form').addEventListener('submit', submit);
+  }
+  const val = id => { const el = $('#' + id); return el ? el.value.trim() : ''; };
+
+  async function submit(e){
+    e.preventDefault();
+    const form = e.target, err = $('#err');
+    const fail = (m, extra) => { err.innerHTML = `<b>Hold up:</b> ${m}${extra || ''}`; err.classList.add('on'); TZ.sfx('err'); };
+    err.classList.remove('on');
+    if (form._honey.value) return;
+    const name = val('fName').replace(/[<>]/g, ''), email = val('fEmail'), body = val('fBody');
+    if (!name) return fail('add your name.');
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('that email doesn\'t look right. You can also leave it empty.');
+    if ((type === 'game' || type === 'idea') && !val('fTitle')) return fail(type === 'game' ? 'what\'s your game called?' : 'give your idea a name.');
+    if (type === 'game' && val('fLink') && !/^https?:\/\/\S+\.\S+/.test(val('fLink'))) return fail('the link should start with https://');
+    if (body.length < 10) return fail('write a little more (at least 10 characters).');
+    if (type === 'game' && !$('#fOwn').checked) return fail('tick the box to confirm you made the game or have permission.');
+    const last = TZ.get('tz.lastSend', 0);
+    if (Date.now() - last < 20000) return fail('you just sent something. Wait a few seconds and try again.');
+
+    let subject, fields = { Name: name, Gamertag: TZ.profile().tag, 'Reply email': email || '(none given)' };
+    if (type === 'game'){ subject = `🎮 Game submission: ${val('fTitle')}`; Object.assign(fields, { 'Game title': val('fTitle'), Genre: val('fGenre') || '?', Link: val('fLink') || '(no link, check for an email attachment)', About: body }); }
+    else if (type === 'idea'){ subject = `💡 Game request: ${val('fTitle')}`; Object.assign(fields, { Idea: val('fTitle'), Genre: val('fGenre') || '?', Description: body, 'Similar to': val('fLike') || '-' }); }
+    else { subject = `💬 ${val('fTopic')} from ${name}`; Object.assign(fields, { Topic: val('fTopic'), Game: val('fLike') || '-', Message: body }); }
+    fields['Sent from'] = '2trapz games contact page';
+
+    const btn = $('button[type=submit]', form); btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      await TZ.sendToCreator(subject, fields, email);
+      TZ.set('tz.lastSend', Date.now());
+      TZ.set('tz.sent', (TZ.get('tz.sent', 0) || 0) + 1);
+      done();
+    } catch (ex){
+      btn.disabled = false; btn.textContent = FORMS[type].btn;
+      fail('the message didn\'t go through (the internet or the mail service might be down).',
+        `<div class="row" style="margin-top:10px"><a class="btn sm" href="${esc(TZ.mailto(subject, fields))}">Send it with my email app</a></div>`);
+    }
+  }
+  function done(){
+    const icons = { game:'🎮', idea:'💡', message:'💬' };
+    $('#formBox').innerHTML = `<div class="done"><span class="orb">${icons[type]}</span><h2>Sent!</h2>
+      <p>${type === 'game' ? '2trapz got your game. If it makes it onto the site, it will show up under New arrivals.' : type === 'idea' ? 'Your idea is in 2trapz\'s inbox. Keep an eye on New arrivals!' : '2trapz got your message. If you left an email, watch for a reply.'}</p>
+      <div class="row" style="justify-content:center"><button class="btn" id="again">Send another</button><a class="btn ghost" href="games.html">Play some games</a></div></div>`;
+    const r = $('#formBox .orb').getBoundingClientRect(); TZ.confetti(r.left + r.width / 2, r.top + r.height / 2, 34);
+    TZ.sfx('ok'); TZ.unlock('ideas');
+    $('#again').addEventListener('click', paintForm);
+  }
+
+  $$('.type').forEach(b => b.addEventListener('click', () => { type = b.dataset.type; paintTypes(); paintForm(); const u = new URL(location.href); u.searchParams.set('type', type); history.replaceState(null, '', u); }));
+  paintTypes(); paintForm();
+})();
+</script>
+</body>
+</html>

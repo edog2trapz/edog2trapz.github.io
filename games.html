@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>All games · 2trapz games</title>
+<meta name="description" content="Every free browser game on 2trapz games. Search, filter by genre and play instantly.">
+<meta name="theme-color" content="#ff8a00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%25' cy='110%25' r='90%25'><stop offset='0' stop-color='%23ffd27a'/><stop offset='.5' stop-color='%23ff8a00'/><stop offset='1' stop-color='%23d94a00'/></radialGradient></defs><circle cx='50' cy='50' r='48' fill='url(%23g)'/><ellipse cx='50' cy='27' rx='33' ry='19' fill='white' opacity='.55'/><text x='50' y='67' font-family='Arial' font-weight='900' font-style='italic' font-size='44' text-anchor='middle' fill='white'>2t</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.tools{position:sticky;top:80px;z-index:30;margin-top:20px;padding:12px;display:flex;flex-direction:column;gap:12px}
+.tools .top{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{position:relative;flex:1 1 260px}
+.search .input{padding-left:44px;border-radius:999px;height:46px}
+.search > span{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:17px;pointer-events:none}
+.search kbd{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
+.sort{width:auto;min-width:170px;border-radius:999px;height:46px;padding:0 16px;cursor:pointer}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:thin}
+.count{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:26px 2px 14px}
+.count h2{margin:0;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:22px}
+.count h2 span{color:var(--o-text)}
+@media (max-width:640px){.tools{position:static;padding:10px}.search kbd{display:none}.sort{flex:1}}
+</style>
+</head>
+<body data-page="games">
+<main id="main">
+<div class="wrap">
+  <section class="panel phero hud">
+    <svg class="deco" viewBox="0 0 300 300" aria-hidden="true" fill="none"><circle cx="190" cy="110" r="70" stroke="var(--o2)" stroke-width="2" opacity=".6"/><circle cx="190" cy="110" r="100" stroke="var(--tech)" stroke-width="2" stroke-dasharray="3 10"/><circle cx="190" cy="110" r="135" stroke="var(--o2)" stroke-width="1.5" stroke-dasharray="60 20 6 20" opacity=".5"/><text x="190" y="128" text-anchor="middle" font-size="52">🎮</text></svg>
+    <div class="kicker">The library</div>
+    <h1>All <span>games</span></h1>
+    <span class="tag-id">2TZ // LIB-01</span>
+    <p id="sub">Every game runs right in your browser. Tap a cover for details and reviews, or hit Play to jump straight in.</p>
+  </section>
+
+  <section class="panel tools" aria-label="Search and filter">
+    <div class="top">
+      <label class="search"><span aria-hidden="true">🔍</span><input class="input" id="q" type="search" placeholder="Search games…" aria-label="Search games" autocomplete="off" spellcheck="false"><kbd>/</kbd></label>
+      <select class="input sort" id="sort" aria-label="Sort games">
+        <option value="featured">Sort: Featured</option>
+        <option value="new">Sort: Newest</option>
+        <option value="az">Sort: A to Z</option>
+        <option value="rated">Sort: Top rated</option>
+        <option value="played">Sort: Most played by me</option>
+      </select>
+      <button class="chip" id="favOnly" aria-pressed="false">♥ Favorites</button>
+      <button class="btn" data-random>🎲 Random</button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Genre"></div>
+  </section>
+
+  <div class="count"><h2 id="resTitle">All games</h2><span class="muted" id="resNote" style="font-weight:700;font-size:14px"></span></div>
+  <div class="grid" id="grid"></div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, $$, esc, GAMES, card, genres, genreIcon, rating, plays, favs } = TZ;
+  const P = new URLSearchParams(location.search);
+  let genre = genres.includes(P.get('genre')) ? P.get('genre') : 'All';
+  let sort = P.get('sort') || 'featured';
+  let query = P.get('q') || '';
+  let favOnly = P.get('fav') === '1';
+  $('#q').value = query; $('#sort').value = [...$('#sort').options].some(o => o.value === sort) ? sort : 'featured';
+  if (P.get('focus')) setTimeout(() => $('#q').focus(), 300);
+
+  function sync(){
+    const u = new URLSearchParams();
+    if (genre !== 'All') u.set('genre', genre);
+    if (sort !== 'featured') u.set('sort', sort);
+    if (query.trim()) u.set('q', query.trim());
+    if (favOnly) u.set('fav', '1');
+    history.replaceState(null, '', location.pathname + (u.toString() ? '?' + u : ''));
+  }
+  function render(){
+    $('#chips').innerHTML = ['All', ...genres].map(g => {
+      const n = g === 'All' ? GAMES.length : GAMES.filter(x => x.genre === g).length;
+      return `<button class="chip${g === genre ? ' on' : ''}" data-g="${esc(g)}">${g === 'All' ? '✨' : genreIcon(g)} ${esc(g)} <small>${n}</small></button>`;
+    }).join('');
+    $('#favOnly').setAttribute('aria-pressed', String(favOnly));
+    const q = query.trim().toLowerCase(), f = favs(), p = plays();
+    let list = GAMES.map((g, i) => ({ g, i })).filter(({ g }) =>
+      (genre === 'All' || g.genre === genre) && (!favOnly || f.includes(g.slug)) &&
+      (!q || (g.title + ' ' + g.desc + ' ' + g.genre).toLowerCase().includes(q)));
+    if (sort === 'az') list.sort((a, b) => a.g.title.localeCompare(b.g.title));
+    else if (sort === 'new') list.sort((a, b) => (!!b.g.isNew - !!a.g.isNew) || a.i - b.i);
+    else if (sort === 'rated') list.sort((a, b) => (rating(b.g.slug).avg - rating(a.g.slug).avg) || (rating(b.g.slug).count - rating(a.g.slug).count) || a.i - b.i);
+    else if (sort === 'played') list.sort((a, b) => ((p[b.g.slug] || 0) - (p[a.g.slug] || 0)) || a.i - b.i);
+    else list.sort((a, b) => (!!b.g.featured - !!a.g.featured) || a.i - b.i);
+    const filtered = genre !== 'All' || q || favOnly;
+    $('#resTitle').innerHTML = filtered ? `<span>${list.length}</span> result${list.length === 1 ? '' : 's'}` : `All <span>${GAMES.length}</span> games`;
+    $('#resNote').textContent = [q && `matching "${query.trim()}"`, genre !== 'All' && `in ${genre}`, favOnly && 'in your favorites'].filter(Boolean).join(' · ');
+    $('#grid').innerHTML = list.length ? list.map(({ g }, i) => card(g, i)).join('') :
+      `<div class="panel empty" style="grid-column:1/-1"><div class="big">${favOnly && !f.length ? '♡' : '🔍'}</div><h3>${favOnly && !f.length ? 'No favorites yet' : 'No games found'}</h3>
+       <p>${favOnly && !f.length ? 'Tap the ♡ on any game card to save it here.' : 'Nothing matches that search. Try another word, or ask 2trapz to make it.'}</p>
+       <div class="row" style="justify-content:center"><button class="btn ghost" id="clear">Clear filters</button>${q ? `<a class="btn" href="contact.html?type=idea&idea=${encodeURIComponent(query.trim())}">💡 Request "${esc(query.trim())}"</a>` : ''}</div></div>`;
+    sync();
+  }
+  $('#chips').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b){ genre = b.dataset.g; render(); } });
+  $('#q').addEventListener('input', e => { query = e.target.value; render(); });
+  $('#sort').addEventListener('change', e => { sort = e.target.value; render(); });
+  $('#favOnly').addEventListener('click', () => { favOnly = !favOnly; render(); });
+  document.addEventListener('click', e => {
+    if (e.target.closest('#clear')){ genre = 'All'; query = ''; favOnly = false; $('#q').value = ''; render(); }
+    if (favOnly && e.target.closest('[data-fav]')) setTimeout(render, 250);
+  });
+  render();
+})();
+</script>
+</body>
+</html>

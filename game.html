@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game · 2trapz games</title>
+<meta name="description" content="Play free on 2trapz games. Details, ratings and player reviews.">
+<meta name="theme-color" content="#ff8a00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%25' cy='110%25' r='90%25'><stop offset='0' stop-color='%23ffd27a'/><stop offset='.5' stop-color='%23ff8a00'/><stop offset='1' stop-color='%23d94a00'/></radialGradient></defs><circle cx='50' cy='50' r='48' fill='url(%23g)'/><ellipse cx='50' cy='27' rx='33' ry='19' fill='white' opacity='.55'/><text x='50' y='67' font-family='Arial' font-weight='900' font-style='italic' font-size='44' text-anchor='middle' fill='white'>2t</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.crumbs{margin:22px 2px 0;font-size:14px;font-weight:700;color:var(--ink3)}
+.crumbs a{color:var(--o-text);text-decoration:none}
+.banner{position:relative;margin-top:12px;border-radius:26px;overflow:hidden;color:#fff;min-height:380px;display:flex;align-items:flex-end;padding:40px 44px;
+  background:linear-gradient(125deg,var(--c1) 0%,var(--c1) 30%,var(--c2) 100%);box-shadow:var(--shadow-lg);isolation:isolate}
+.banner::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.66),rgba(0,0,0,.3) 50%,transparent 80%),linear-gradient(0deg,rgba(0,0,0,.4),transparent 55%)}
+.banner::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(170deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.05) 30%,transparent 30.3%)}
+.banner .sw{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.banner .art{position:absolute;right:7%;top:50%;width:min(300px,34%);aspect-ratio:1;transform:translateY(-50%);z-index:-1}
+.banner .art::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.35),rgba(255,255,255,.05) 60%,transparent 70%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35),0 0 0 18px rgba(255,255,255,.06),0 0 0 40px rgba(255,255,255,.04)}
+.banner .art span{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(90px,13vw,160px);filter:drop-shadow(0 18px 24px rgba(0,0,0,.5));animation:float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-12px) rotate(-3deg)}}
+.banner .info{max-width:600px}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:5px 12px;border-radius:999px;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.pill.new{background:linear-gradient(180deg,#ff7a5c,#e5301b);border-color:#ffb3a3}
+.banner h1{margin:14px 0 8px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(36px,6vw,72px);line-height:.95;text-shadow:0 4px 20px rgba(0,0,0,.45)}
+.banner .rate{color:rgba(255,255,255,.88);font-size:14px}
+.banner .stars i{color:rgba(255,255,255,.35)}.banner .stars i.on{color:#ffb347}
+.banner p{margin:12px 0 22px;font-size:17px;color:rgba(255,255,255,.93);text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.btn.glass{color:#fff;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 4px 14px rgba(0,0,0,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.btn.glass:hover{background:rgba(255,255,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 0 0 2px #fff,0 6px 20px rgba(0,0,0,.25)}
+.btn.glass[aria-pressed="true"]{background:linear-gradient(180deg,#ff7a5c,#e5301b);border-color:#ffb3a3}
+@media (max-width:640px){
+  .banner{padding:24px 20px;min-height:520px;border-radius:20px}
+  .banner .art{right:50%;top:24%;width:60%;transform:translate(50%,-50%)}
+  .banner::before{background:linear-gradient(0deg,rgba(0,0,0,.72),rgba(0,0,0,.4) 55%,rgba(0,0,0,.05))}
+  .banner .row .btn{flex:1 1 auto}
+}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:24px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
+.box{padding:22px}
+.box h3{margin:0 0 12px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:20px}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:16px}
+.fact{padding:12px 14px;border-radius:14px;background:var(--glass2);border:1px solid var(--line)}
+.fact small{display:block;color:var(--ink3);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.fact b{font-size:17px}
+.dist{display:grid;gap:7px;margin-top:6px}
+.dist div{display:grid;grid-template-columns:34px 1fr 30px;gap:10px;align-items:center;font-size:13px;font-weight:800;color:var(--ink2)}
+.dist .tr{height:10px;border-radius:9px;background:var(--line);overflow:hidden}
+.dist .tr i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--o1),var(--o3))}
+.avg{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+.avg b{font-family:var(--display);font-weight:900;font-style:italic;font-size:52px;line-height:1;background:linear-gradient(180deg,#ffb13d,#f25c05);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+</style>
+</head>
+<body data-page="game">
+<main id="main">
+<div class="wrap" id="root"></div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, esc, GAMES, bySlug, card, stars, rating, allReviews, reviewCard, playHref, plays, isFav, mountReviewForm, genreIcon } = TZ;
+  const slug = new URLSearchParams(location.search).get('g');
+  const g = bySlug(slug);
+  const root = $('#root');
+  if (!g){
+    root.innerHTML = `<section class="panel empty" style="margin-top:40px"><div class="big">📡</div><h3>Game not found</h3><p>That game isn't on the site (or the link is broken).</p><div class="row" style="justify-content:center"><a class="btn" href="games.html">Browse all games</a><a class="btn ghost" href="contact.html?type=idea">Request it</a></div></section>`;
+    return;
+  }
+  document.title = g.title + ' · 2trapz games';
+  const swoosh = `<svg class="sw" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M-50 420C200 330 380 470 600 380S900 240 1100 260" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="3"/><path d="M-50 450C220 360 400 500 640 410S920 280 1100 300" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="18"/><path d="M-50 470C240 400 430 520 660 440S940 320 1100 330" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/></svg>`;
+
+  function paint(){
+    const r = rating(g.slug), rs = allReviews(g.slug), fav = isFav(g.slug), n = plays()[g.slug] || 0;
+    const dist = [5,4,3,2,1].map(s => ({ s, c: rs.filter(x => Math.round(x.stars) === s).length }));
+    const same = GAMES.filter(x => x.slug !== g.slug && x.genre === g.genre);
+    const more = [...same, ...GAMES.filter(x => x.slug !== g.slug && x.genre !== g.genre)].slice(0, 8);
+    root.innerHTML = `
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a> › <a href="games.html">Games</a> › <a href="games.html?genre=${encodeURIComponent(g.genre)}">${esc(g.genre)}</a> › ${esc(g.title)}</nav>
+  <section class="banner" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}">
+    ${swoosh}<div class="art" aria-hidden="true"><span>${g.icon}</span></div>
+    <div class="info">
+      <div class="pills">${g.isNew ? '<span class="pill new">New</span>' : ''}<span class="pill">${genreIcon(g.genre)} ${esc(g.genre)}</span>${g.players ? `<span class="pill">${esc(g.players)}</span>` : ''}<span class="pill">Free</span></div>
+      <h1>${esc(g.title)}</h1>
+      <div class="rate">${r.count ? `${stars(r.avg, 18)} <span>${r.avg.toFixed(1)} out of 5 · ${r.count} review${r.count === 1 ? '' : 's'}</span>` : '<span>No reviews yet. Be the first!</span>'}</div>
+      <p>${esc(g.desc)}</p>
+      <div class="row">
+        <a class="btn lg" href="${playHref(g)}" data-play="${esc(g.slug)}">▶ Play now</a>
+        <button class="btn lg glass" data-fav="${esc(g.slug)}" data-fav-text aria-pressed="${fav}">${fav ? '♥ Favorited' : '♡ Favorite'}</button>
+        <button class="btn lg glass icon" id="share" aria-label="Share this game" title="Share">🔗</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="cols" style="margin-top:24px">
+    <div>
+      <section class="panel box reveal">
+        <h3>About this game</h3>
+        <p style="margin:0;color:var(--ink2);font-size:16px">${esc(g.desc)}</p>
+        <div class="facts">
+          <div class="fact"><small>Genre</small><b>${genreIcon(g.genre)} ${esc(g.genre)}</b></div>
+          <div class="fact"><small>Players</small><b>${esc(g.players || 'See in game')}</b></div>
+          <div class="fact"><small>You played</small><b>${n} time${n === 1 ? '' : 's'}</b></div>
+          <div class="fact"><small>Price</small><b>Free</b></div>
+        </div>
+      </section>
+      <section class="panel box reveal" style="margin-top:20px">
+        <h3>Ratings</h3>
+        <div class="avg"><b>${r.count ? r.avg.toFixed(1) : '–'}</b><div>${stars(r.avg, 20)}<div class="muted" style="font-weight:700;font-size:14px;margin-top:4px">${r.count} review${r.count === 1 ? '' : 's'}</div></div></div>
+        <div class="dist">${dist.map(d => `<div><span>${d.s} ★</span><span class="tr"><i style="width:${r.count ? d.c / r.count * 100 : 0}%"></i></span><span>${d.c}</span></div>`).join('')}</div>
+      </section>
+    </div>
+    <div id="write"></div>
+  </div>
+
+  <div class="sec"><h2>Player reviews</h2><span class="rule"></span></div>
+  ${rs.length ? `<div class="rv-list">${rs.map(x => reviewCard(x, { showGame:false })).join('')}</div>` :
+    `<div class="panel empty"><div class="big">💬</div><h3>No reviews yet</h3><p>Played ${esc(g.title)}? Your review could be the first.</p></div>`}
+
+  <div class="sec"><h2>${same.length ? 'More ' + esc(g.genre) + ' & more' : 'More games'}</h2><span class="rule"></span><a class="more" href="games.html">All games ›</a></div>
+  <div class="shelf">${more.map(card).join('')}</div>`;
+    mountReviewForm($('#write'), { game:g.slug, onDone: paint });
+    TZ.reveal(root);
+  }
+  paint();
+  document.addEventListener('tz:reviews', paint);
+
+  document.addEventListener('click', async e => {
+    if (!e.target.closest('#share')) return;
+    const url = location.href;
+    try {
+      if (navigator.share){ await navigator.share({ title:g.title + ' on 2trapz games', text:'Play ' + g.title + ' free in your browser', url }); return; }
+      await navigator.clipboard.writeText(url);
+      TZ.toast({ icon:'🔗', small:'Link copied', big:'Send it to a friend!' }); TZ.sfx('ok');
+    } catch (err){ if (err && err.name !== 'AbortError') prompt('Copy this link:', url); }
+  });
+})();
+</script>
+</body>
+</html>

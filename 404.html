@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Signal lost · 2trapz games</title>
+<meta name="theme-color" content="#ff8a00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%25' cy='110%25' r='90%25'><stop offset='0' stop-color='%23ffd27a'/><stop offset='.5' stop-color='%23ff8a00'/><stop offset='1' stop-color='%23d94a00'/></radialGradient></defs><circle cx='50' cy='50' r='48' fill='url(%23g)'/><ellipse cx='50' cy='27' rx='33' ry='19' fill='white' opacity='.55'/><text x='50' y='67' font-family='Arial' font-weight='900' font-style='italic' font-size='44' text-anchor='middle' fill='white'>2t</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.lost{margin:50px auto 0;max-width:720px;padding:46px 30px;text-align:center}
+.lost .big{font-family:var(--display);font-weight:900;font-style:italic;font-size:clamp(110px,22vw,200px);line-height:.9;letter-spacing:-.02em;
+  background:linear-gradient(180deg,#ffc06a,#ff8a00 50%,#d43a00);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 8px 20px rgba(255,110,0,.35));animation:glitch 3s infinite steps(1)}
+@keyframes glitch{0%,90%,100%{transform:none}92%{transform:translate(4px,-2px) skewX(-6deg)}95%{transform:translate(-4px,1px) skewX(4deg)}}
+.lost h1{margin:10px 0 8px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(26px,4vw,38px)}
+.lost p{margin:0 auto 24px;max-width:460px;color:var(--ink2);font-size:17px}
+.bars{display:flex;gap:6px;justify-content:center;align-items:flex-end;height:40px;margin-bottom:18px}
+.bars i{width:10px;border-radius:3px;background:var(--line2)}
+.bars i:nth-child(1){height:25%;background:linear-gradient(180deg,#ff7a5c,#e5301b);animation:blinkb 1s steps(1) infinite}
+.bars i:nth-child(2){height:45%}.bars i:nth-child(3){height:65%}.bars i:nth-child(4){height:85%}.bars i:nth-child(5){height:100%}
+@keyframes blinkb{50%{opacity:.2}}
+</style>
+</head>
+<body data-page="404">
+<main id="main">
+<div class="wrap">
+  <section class="panel lost hud">
+    <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="big" aria-hidden="true">404</div>
+    <h1>Signal lost</h1>
+    <p>This page got disconnected from the network. It might have moved, or the link has a typo.</p>
+    <div class="row" style="justify-content:center"><a class="btn lg" href="/index.html">🏠 Back to home</a><a class="btn lg ghost" href="#" data-random>🎲 Random game</a></div>
+  </section>
+</div>
+</main>
+<script src="/assets/data.js"></script>
+<script src="/assets/site.js"></script>
+<script>TZ.unlock('lost');</script>
+</body>
+</html>

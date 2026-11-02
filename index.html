@@ -2,293 +2,284 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>2trapz games</title>
-<meta name="description" content="2trapz games: free browser games. No downloads, no sign-up. Just run.">
-<meta name="theme-color" content="#020805">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23020805'/><text x='50' y='68' font-family='monospace' font-weight='900' font-size='54' text-anchor='middle' fill='%2339ff8a'>2t</text></svg>">
+<meta name="description" content="2trapz games: free browser games. No downloads, no sign-up. Just play.">
+<meta name="theme-color" content="#ff8a00">
+<meta property="og:title" content="2trapz games">
+<meta property="og:description" content="Free browser games. No downloads, no sign-up. Just play.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%25' cy='110%25' r='90%25'><stop offset='0' stop-color='%23ffd27a'/><stop offset='.5' stop-color='%23ff8a00'/><stop offset='1' stop-color='%23d94a00'/></radialGradient></defs><circle cx='50' cy='50' r='48' fill='url(%23g)'/><ellipse cx='50' cy='27' rx='33' ry='19' fill='white' opacity='.55'/><text x='50' y='67' font-family='Arial' font-weight='900' font-style='italic' font-size='44' text-anchor='middle' fill='white'>2t</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<script>
-/* =====================================================================
-   EDIT YOUR SITE HERE
-   ---------------------------------------------------------------------
-   To add a game:
-     1. Make a folder in games/ (for example games/my-new-game/)
-     2. Put the game's HTML file in it, named index.html
-     3. Copy one of the entries below and change it to match
-   slug   = the folder name inside games/
-   colors = the two ends of the card's cover gradient
-   isNew  = true shows a NEW tag on the card
-   ===================================================================== */
-const SITE_NAME = '2trapz games';
-const TAGLINE = 'free browser games // no downloads // no sign-up // just run';
-const GAMES = [
-  { slug:'hazeport', title:'Hazeport Tycoon', icon:'🌃', genre:'Tycoon', colors:['#1a1035', '#ffb547'], players:'1 player', isNew:true,
-    desc:'Grow and mix glowing product in a neon port city, take turf from three rival gangs and fight the street wars yourself in first person. Watch the heat.' },
-  { slug:'breachline', title:'Breachline', icon:'💣', genre:'Shooter', colors:['#14100a', '#f0a83c'], players:'1 player', isNew:true,
-    desc:'Round-based tactical shooter. Buy guns, plant or defuse the charge against bots on three maps, and open weapon cases for skins.' },
-  { slug:'stick-brawl-td', title:'Stick Brawl TD', icon:'🛡️', genre:'Strategy', colors:['#0a0d18', '#d9480f'], players:'1 player', isNew:true,
-    desc:'Every Stick Brawl fighter becomes a tower. Pick a squad of 8, dig for gold with the Gold Miner, and hold the road against 30 waves of zombies and the original bosses.' },
-  { slug:'power-hungry', title:'Power Hungry', icon:'♚', genre:'Strategy', colors:['#3b2a8c', '#e8b64c'], players:'1 player', isNew:true,
-    desc:'Seize a nation, wage real-time wars on a living world map, hunt down your nemesis, then conquer the stars until the universe runs dry.' },
-  { slug:'vector-terminal', title:'Vector Terminal', icon:'📈', genre:'Strategy', colors:['#02110a', '#39ff8a'], players:'1 player', isNew:true,
-    desc:'AI Trading Arena, remastered. Out-trade six AI bots across 40 days of news-driven markets, then hack your way to the top before the SEC catches on.' },
-  { slug:'stick-brawl', title:'Stick Brawl', icon:'🥋', genre:'Fighting', colors:['#7f1d1d', '#f97316'], players:'',
-    desc:'Stick-figure fighting with flashy special moves and full Bankai-style transformations.' },
-  { slug:'eelectric', title:'Eelectric.io', icon:'⚡', genre:'Arcade', colors:['#0b3a5a', '#5ee6ff'], players:'',
-    desc:'You are an electric eel. Eat, grow, and fry everything in the water.' },
-  { slug:'bucket-splash', title:'Bucket Splash', icon:'🪣', genre:'Party', colors:['#0d5c8a', '#7fe0ff'], players:'',
-    desc:'Sprint, shove and drench your rivals with hot and cold taps, add-ins and a mega splash.' },
-  { slug:'sack-lewis-2', title:'Sack Lewis II', icon:'🏛️', genre:'Arcade', colors:['#6a1912', '#e3a93b'], players:'',
-    desc:'Ancient Rome. Catch Lewis, a monkey, a snake and a rooster, stuff them in a sack and sew it shut before the Senate loses patience.' },
-  { slug:'shrimp-quest', title:'Shrimp Quest', icon:'🦐', genre:'RPG', colors:['#0f4c5c', '#ff8a6a'], players:'',
-    desc:'A handheld-style creature-battling adventure across the seafloor.' },
-  { slug:'shrimp-tycoon', title:'Shrimp Tycoon', icon:'💰', genre:'Tycoon', colors:['#14532d', '#ffb37a'], players:'',
-    desc:'Breed high-pattern shrimp, keep the tank spotless and play the market.' },
-  { slug:'penguin-polar-rush', title:'Penguin Polar Rush', icon:'🐧', genre:'Racing', colors:['#1e3a8a', '#e0f2fe'], players:'1–4 players',
-    desc:'Belly-slide racing for up to four players on one keyboard, across Antarctica, the Arctic and a Svalbard blizzard.' },
-  { slug:'find-nemo', title:'Find Nemo', icon:'🐠', genre:'Adventure', colors:['#0c4a6e', '#fb923c'], players:'',
-    desc:'Cross the reef, the jellyfish, the abyss and Sydney Harbour to bring your son home.' },
-  { slug:'dao-hunter', title:'Dao Hunter', icon:'☯️', genre:'Action', colors:['#111827', '#c4b5fd'], players:'',
-    desc:'Roam open 3D hills, find high ground and dispel every wave of the Dao before your qi runs out.' },
-  { slug:'primordial', title:'Primordial: Evolve', icon:'🧬', genre:'Survival', colors:['#064e3b', '#a3e635'], players:'',
-    desc:'Start as something tiny. Hunt, survive and evolve into ever bigger, nastier forms.' },
-  { slug:'outpost-zero', title:'Outpost Zero', icon:'🛰️', genre:'Shooter', colors:['#232619', '#e8552d'], players:'',
-    desc:'Hold the base, explore the ruins, pick your archetype and call down the Hellstorm.' },
-  { slug:'hoop-brawl', title:'Hoop Brawl', icon:'🏀', genre:'Sports', colors:['#7c2d12', '#fbbf24'], players:'1v1 · 2v2',
-    desc:'1v1 and 2v2 basketball where special moves, parries and boss fights are all legal.' },
-  { slug:'boss-fight', title:'Boss Fight', icon:'👹', genre:'Action', colors:['#3b0764', '#f43f5e'], players:'',
-    desc:'Six abilities. One enormous tentacled boss. Good luck.' },
-];
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
-:root{
-  --bg:#020805; --panel:#04120b; --panel2:#071a10; --line:#0f3a24; --line2:#1a5c39;
-  --g:#39ff8a; --g2:#1fd36a; --c:#00e5ff; --m:#ff2bd6; --amber:#ffcc4d;
-  --text:#c9ffe0; --dim:#4f8f6c; --mono:"Share Tech Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; --display:"Orbitron", "Share Tech Mono", monospace;
-  color-scheme:dark;
+/* ---- gamercard strip ---- */
+.hello{display:flex;align-items:center;gap:16px;margin-top:26px;padding:14px 16px 14px 14px}
+.hello .ava{width:62px;height:62px;font-size:34px;box-shadow:inset 0 0 0 3px var(--o2),0 0 0 3px rgba(255,255,255,.7),0 6px 16px rgba(255,110,0,.3);cursor:pointer;border:0}
+.hello h1{margin:0;font-family:var(--display);font-weight:900;font-style:italic;font-size:clamp(20px,3vw,28px);line-height:1.1;letter-spacing:.01em}
+.hello h1 span{color:var(--o-text)}
+.hello p{margin:3px 0 0;color:var(--ink2);font-weight:700;font-size:14px}
+.hello .row{margin-left:auto;flex-wrap:nowrap}
+@media (max-width:760px){.hello{flex-wrap:wrap}.hello .row{margin-left:0;width:100%}.hello .row .btn{flex:1}}
+
+/* ---- spotlight ---- */
+.spot{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;margin-top:20px}
+.spot-main{display:grid;border-radius:26px;overflow:hidden;box-shadow:var(--shadow-lg);background:#111;isolation:isolate;min-height:430px}
+.slide{grid-area:1/1;position:relative;display:flex;align-items:flex-end;padding:40px 44px 70px;color:#fff;overflow:hidden;
+  background:linear-gradient(125deg,var(--c1) 0%,var(--c1) 30%,var(--c2) 100%);opacity:0;visibility:hidden;transition:opacity .7s ease,visibility 0s .7s}
+.slide.on{opacity:1;visibility:visible;transition:opacity .7s ease}
+.slide::before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(0,0,0,.66) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,0) 75%),linear-gradient(0deg,rgba(0,0,0,.45),transparent 50%)}
+.slide::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(170deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.06) 30%,transparent 30.3%);pointer-events:none}
+.slide .sw{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.9}
+.slide.on .sw path{animation:swoosh 9s ease-in-out infinite alternate}
+@keyframes swoosh{to{transform:translateX(-60px)}}
+.sl-art{position:absolute;z-index:1;right:6%;top:50%;width:min(340px,38%);aspect-ratio:1;transform:translateY(-50%)}
+.sl-art .stage{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.35),rgba(255,255,255,.05) 60%,transparent 70%);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.35),0 0 0 18px rgba(255,255,255,.06),0 0 0 40px rgba(255,255,255,.04)}
+.sl-art .stage::after{content:"";position:absolute;inset:-26px;border-radius:50%;border:2px dashed rgba(255,255,255,.3);animation:spin 40s linear infinite}
+.sl-art .big{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(90px,14vw,170px);line-height:1;filter:drop-shadow(0 18px 24px rgba(0,0,0,.5)) drop-shadow(0 0 30px rgba(255,255,255,.35))}
+.slide.on .sl-art .big{animation:float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-14px) rotate(-3deg)}}
+.sl-txt{position:relative;z-index:2;max-width:560px}
+.sl-k{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.sl-txt h2{margin:14px 0 8px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(34px,5.4vw,64px);line-height:.95;letter-spacing:.01em;text-shadow:0 4px 20px rgba(0,0,0,.45)}
+.sl-txt p{margin:10px 0 22px;font-size:17px;line-height:1.5;color:rgba(255,255,255,.92);text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.sl-txt .rate{color:rgba(255,255,255,.85)}
+.sl-txt .stars i{color:rgba(255,255,255,.35)}.sl-txt .stars i.on{color:#ffb347}
+.slide.on .sl-txt > *{animation:slideIn .7s cubic-bezier(.2,.8,.3,1) both}
+.slide.on .sl-txt > :nth-child(2){animation-delay:.06s}.slide.on .sl-txt > :nth-child(3){animation-delay:.12s}.slide.on .sl-txt > :nth-child(4){animation-delay:.18s}.slide.on .sl-txt > :nth-child(5){animation-delay:.24s}
+@keyframes slideIn{from{opacity:0;transform:translateX(-30px)}}
+.btn.glass{color:#fff;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 4px 14px rgba(0,0,0,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.btn.glass:hover{background:rgba(255,255,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 0 0 2px #fff,0 6px 20px rgba(0,0,0,.25)}
+.dots{position:absolute;z-index:3;left:44px;bottom:26px;display:flex;gap:8px}
+.dots button{width:34px;height:8px;border-radius:9px;border:0;padding:0;cursor:pointer;background:rgba(255,255,255,.3);overflow:hidden;position:relative}
+.dots button i{position:absolute;inset:0;width:0;background:#fff;border-radius:9px}
+.dots button.on i{animation:fill var(--dur,7s) linear forwards}
+.spot-main:hover .dots button.on i,.spot-main:focus-within .dots button.on i{animation-play-state:paused}
+@keyframes fill{to{width:100%}}
+.spot-side{display:flex;flex-direction:column;gap:12px}
+.stile{flex:1;display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;cursor:pointer;text-align:left;border:1px solid var(--glass-edge);background:var(--glass2);box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;min-height:72px}
+.stile:hover{transform:translateX(-4px)}
+.stile[aria-current="true"]{box-shadow:var(--glow)}
+.stile .ti{width:56px;height:56px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:30px;background:linear-gradient(135deg,var(--c1),var(--c2));position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.stile .ti::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.45),transparent 45%)}
+.stile b{display:block;font-family:var(--display);font-style:italic;font-weight:800;text-transform:uppercase;font-size:15px;line-height:1.15}
+.stile small{color:var(--ink3);font-weight:700;font-size:12.5px}
+@media (max-width:980px){
+  .spot{grid-template-columns:1fr}
+  .spot-side{flex-direction:row;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
+  .stile{flex:0 0 230px;scroll-snap-align:start}
+  .stile:hover{transform:translateY(-3px)}
 }
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono)}
-body{min-height:100vh;overflow-x:hidden}
-::selection{background:var(--g);color:#001a0a}
-a{color:inherit}
-#rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.22;pointer-events:none}
-.crt{position:fixed;inset:0;z-index:50;pointer-events:none;
-  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.65) 100%);
-  animation:flicker 6s infinite steps(1)}
-@keyframes flicker{0%,100%{opacity:1}47%{opacity:.92}48%{opacity:1}83%{opacity:.95}}
-.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 20px}
-header{padding:40px 0 20px}
-.prompt{color:var(--dim);font-size:15px;min-height:1.4em}
-.prompt b{color:var(--g)} .prompt i{color:var(--c);font-style:normal}
-.cursor{display:inline-block;width:.6em;height:1.05em;background:var(--g);vertical-align:-.15em;margin-left:2px;animation:blink 1s steps(1) infinite}
-@keyframes blink{50%{opacity:0}}
-.logo{position:relative;font-family:var(--display);font-weight:900;font-size:clamp(46px,9vw,108px);line-height:.95;margin:14px 0 0;letter-spacing:.04em;
-  color:var(--g);text-shadow:0 0 8px #39ff8acc,0 0 30px #39ff8a66,0 0 70px #39ff8a33}
-.logo .dim{color:var(--text);text-shadow:0 0 10px #00e5ff99}
-.logo::before,.logo::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;overflow:hidden;pointer-events:none}
-.logo::before{color:var(--c);text-shadow:none;transform:translate(3px,0);clip-path:inset(0 0 70% 0);opacity:.8;animation:glitchA 3.2s infinite steps(1)}
-.logo::after{color:var(--m);text-shadow:none;transform:translate(-3px,0);clip-path:inset(60% 0 0 0);opacity:.8;animation:glitchB 2.7s infinite steps(1)}
-@keyframes glitchA{0%,88%,100%{transform:translate(0,0);clip-path:inset(0 0 100% 0)}89%{transform:translate(5px,-2px);clip-path:inset(10% 0 60% 0)}92%{transform:translate(-4px,1px);clip-path:inset(40% 0 30% 0)}95%{transform:translate(3px,0);clip-path:inset(70% 0 5% 0)}}
-@keyframes glitchB{0%,85%,100%{transform:translate(0,0);clip-path:inset(100% 0 0 0)}86%{transform:translate(-6px,2px);clip-path:inset(55% 0 20% 0)}90%{transform:translate(4px,-1px);clip-path:inset(15% 0 70% 0)}93%{transform:translate(-2px,0);clip-path:inset(80% 0 2% 0)}}
-.tag{color:var(--c);font-size:17px;margin:14px 0 0;min-height:1.4em;letter-spacing:.04em}
-.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:14px}
-.stats span{border:1px solid var(--line2);background:#03140bcc;padding:4px 10px;color:var(--dim)}
-.stats b{color:var(--g)}
-.stats .ok b{color:var(--g);animation:pulse 2s infinite}
-@keyframes pulse{50%{text-shadow:0 0 10px var(--g)}}
-.bar{position:sticky;top:0;z-index:20;background:#020805e8;backdrop-filter:blur(6px);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
-.bar .wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.search{flex:1 1 240px;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);padding:0 12px}
-.search span{color:var(--g)}
-.search input{flex:1;background:none;border:0;color:var(--text);font:inherit;font-size:16px;padding:10px 0;outline:none;min-width:0;caret-color:var(--g)}
-.search input::placeholder{color:var(--dim)}
-.search:focus-within{border-color:var(--g);box-shadow:0 0 0 1px var(--g),0 0 18px #39ff8a33}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{background:transparent;border:1px solid var(--line2);color:var(--dim);padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;text-transform:lowercase}
-.chip:hover{color:var(--g);border-color:var(--g)}
-.chip.on{background:var(--g);border-color:var(--g);color:#001a0a;box-shadow:0 0 14px #39ff8a66}
-.rand{background:transparent;border:1px solid var(--m);color:var(--m);padding:9px 14px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;text-shadow:0 0 8px #ff2bd688}
-.rand:hover{background:var(--m);color:#14000f;text-shadow:none;box-shadow:0 0 18px #ff2bd677}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--c);outline-offset:2px}
-h2.sec{font-family:var(--mono);font-weight:400;font-size:16px;letter-spacing:.12em;margin:30px 0 12px;color:var(--g);text-transform:uppercase}
-h2.sec::before{content:"// ";color:var(--dim)}
-h2.sec small{color:var(--dim);margin-left:8px;letter-spacing:.04em;text-transform:none}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;padding-bottom:20px}
-.card{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line2);text-decoration:none;overflow:hidden;
-  transition:transform .15s,border-color .15s,box-shadow .15s;animation:boot .5s both}
-@keyframes boot{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.card:hover{transform:translateY(-4px);border-color:var(--g);box-shadow:0 0 0 1px var(--g),0 0 28px #39ff8a44,0 18px 40px #000c}
-.tbar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--panel2);border-bottom:1px solid var(--line2);font-size:12px;color:var(--dim)}
-.tbar i{width:9px;height:9px;border-radius:50%;background:#1d3b2b}
-.tbar i:nth-child(1){background:#ff5f56aa}.tbar i:nth-child(2){background:#ffbd2eaa}.tbar i:nth-child(3){background:#27c93faa}
-.tbar span{margin-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tbar .new{margin-left:auto;color:#14000f;background:var(--m);padding:0 6px;font-size:11px;letter-spacing:.1em;box-shadow:0 0 10px #ff2bd688}
-.cover{position:relative;height:140px;display:grid;place-items:center;overflow:hidden}
-.cover::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px 4px),linear-gradient(90deg,#00000055,transparent 30%,transparent 70%,#00000055);mix-blend-mode:multiply}
-.cover::after{content:"";position:absolute;left:0;right:0;height:40%;top:-40%;background:linear-gradient(transparent,#39ff8a33,transparent);opacity:0}
-.card:hover .cover::after{opacity:1;animation:sweep 1.1s linear infinite}
-@keyframes sweep{to{top:100%}}
-.cover .tint{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#020805 100%)}
-.icon{position:relative;z-index:1;font-size:70px;line-height:1;filter:drop-shadow(0 0 14px #ffffff55) drop-shadow(0 8px 10px #000a);transition:transform .2s}
-.card:hover .icon{animation:jit .35s steps(2) infinite}
-@keyframes jit{0%{transform:translate(0,0) scale(1.1)}50%{transform:translate(2px,-1px) scale(1.1)}100%{transform:translate(-2px,1px) scale(1.1)}}
-.genre{position:absolute;z-index:2;left:10px;bottom:8px;color:var(--g);font-size:12px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 0 6px #000}
-.body{padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.body h3{margin:0;font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.06em;color:var(--text);text-transform:uppercase}
-.body p{margin:0;color:#8fc9a6;font-size:14px;line-height:1.45;flex:1}
-.meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--dim)}
-.run{border:1px solid var(--g);color:var(--g);padding:5px 12px;font-size:13px;letter-spacing:.08em}
-.card:hover .run{background:var(--g);color:#001a0a;box-shadow:0 0 14px #39ff8a88}
-.empty{color:var(--dim);text-align:center;padding:40px 0;font-size:16px}
-footer{position:relative;z-index:1;color:var(--dim);text-align:center;font-size:13px;padding:28px 20px 40px;border-top:1px solid var(--line);margin-top:20px;letter-spacing:.06em}
-footer b{color:var(--g)}
-#bootScr{position:fixed;inset:0;z-index:60;background:var(--bg);color:var(--g);font-size:15px;padding:30px;display:flex;flex-direction:column;justify-content:flex-end;transition:opacity .4s}
-#bootScr.out{opacity:0;pointer-events:none}
-#bootScr p{margin:2px 0;white-space:pre-wrap}
-#bootScr .ok{color:var(--c)}
-#launch{position:fixed;inset:0;z-index:70;background:#020805f2;display:none;place-items:center;text-align:center;color:var(--g);font-size:18px}
-#launch.on{display:grid}
-#launch .t{font-family:var(--display);font-size:clamp(22px,4vw,40px);color:var(--text);text-shadow:0 0 14px #39ff8a88;margin:10px 0}
-#launch .pb{width:min(420px,80vw);height:10px;border:1px solid var(--g);margin:16px auto 0;padding:1px}
-#launch .pb i{display:block;height:100%;width:0;background:var(--g);box-shadow:0 0 12px var(--g);transition:width .55s steps(12)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#rain{display:none}}
+@media (max-width:640px){
+  .spot-main{min-height:520px;border-radius:20px}
+  .slide{padding:24px 22px 60px;align-items:flex-end}
+  .sl-art{right:50%;top:22%;width:58%;transform:translate(50%,-50%)}
+  .slide::before{background:linear-gradient(0deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.05) 100%)}
+  .sl-txt p{font-size:15px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .sl-txt .row .btn{flex:1}
+  .dots{left:22px;bottom:22px}
+}
+
+/* ---- stats ---- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.stat{padding:18px 20px;display:flex;align-items:center;gap:14px}
+.stat .si{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;flex:none;background:linear-gradient(180deg,#ffb44d,#f26a00);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 12px rgba(255,110,0,.35)}
+.stat b{display:block;font-family:var(--display);font-weight:900;font-style:italic;font-size:32px;line-height:1;background:linear-gradient(180deg,#ffb13d,#f25c05);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat small{color:var(--ink2);font-weight:800;font-size:13px;letter-spacing:.04em}
+@media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:420px){.stat{padding:14px}.stat .si{width:40px;height:40px;font-size:20px}.stat b{font-size:26px}}
+
+/* ---- genres ---- */
+.genres{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.gtile{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;text-decoration:none;border:1px solid var(--glass-edge);background:var(--glass2);box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.gtile::after{content:"";position:absolute;right:-30px;bottom:-30px;width:90px;height:90px;border-radius:50%;border:2px solid var(--tech);box-shadow:0 0 0 12px rgba(255,138,0,.05)}
+.gtile:hover{transform:translateY(-4px);box-shadow:var(--glow)}
+.gtile .orb{width:46px;height:46px;font-size:22px}
+.gtile b{display:block;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:16px}
+.gtile small{color:var(--ink3);font-weight:700}
+
+/* ---- style showcase ---- */
+.styles.big{grid-template-columns:repeat(6,1fr);gap:14px}
+.styles.big .sopt{flex-direction:column;align-items:stretch;gap:10px;padding:10px 10px 14px;border-radius:18px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
+.styles.big .sopt:hover{transform:translateY(-4px)}
+.styles.big .sopt[aria-pressed="true"]{box-shadow:var(--glow)}
+.styles.big .sopt .pv{width:100%;height:96px;border-radius:12px}
+.styles.big .sopt .pv::before{height:22px;bottom:16px;box-shadow:0 -10px 0 -5px var(--pr2)}
+.styles.big .sopt .pv::after{left:12px;top:12px;width:44%;height:24px}
+.styles.big .sopt b{font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;font-size:16px;padding:0 4px}
+.styles.big .sopt small{padding:0 4px}
+@media (max-width:1100px){.styles.big{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.styles.big{grid-template-columns:repeat(2,1fr)}.styles.big .sopt small{display:none}}
+
+/* ---- call to action ---- */
+.cta{margin-top:60px;padding:44px;border-radius:28px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(120deg,#ff9a1f 0%,#f25c05 50%,#d8340f 100%);box-shadow:0 20px 50px rgba(242,92,5,.35);border:1px solid rgba(255,255,255,.4)}
+.cta::before{content:"";position:absolute;left:0;right:0;top:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0))}
+.cta svg{position:absolute;right:-60px;top:-40px;width:520px;height:420px;opacity:.55;pointer-events:none}
+.cta > div{position:relative;max-width:620px}
+.cta h2{margin:6px 0 10px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(30px,4.6vw,50px);line-height:1;text-shadow:0 3px 14px rgba(120,30,0,.35)}
+.cta p{margin:0 0 22px;font-size:17px;color:rgba(255,255,255,.95)}
+.cta .kicker{color:#fff}.cta .kicker::before{background:#fff}
+.btn.white{color:#c2410c;text-shadow:none;background:linear-gradient(180deg,#ffffff 0%,#fff3e6 49%,#ffe6cc 51%,#fff 100%);border-color:#fff;box-shadow:inset 0 1px 0 #fff,0 6px 18px rgba(120,30,0,.3)}
+@media (max-width:640px){.cta{padding:28px 22px}.cta .row .btn{flex:1}}
 </style>
 </head>
-<body>
-<canvas id="rain" aria-hidden="true"></canvas>
-<div class="crt" aria-hidden="true"></div>
-<div id="bootScr" aria-hidden="true"></div>
-<div id="launch" role="status" aria-live="polite"><div><div id="lcmd">&gt; ./run</div><div class="t" id="ltitle"></div><div id="lstat">allocating memory…</div><div class="pb"><i id="lbar"></i></div></div></div>
+<body data-page="home">
+<main id="main">
+<div class="wrap">
 
-<header class="wrap">
-  <div class="prompt" id="prompt"></div>
-  <h1 class="logo" id="siteName" data-text="2TRAPZ GAMES">2TRAPZ <span class="dim">GAMES</span></h1>
-  <p class="tag" id="tagline"></p>
-  <div class="stats" id="stats"></div>
-</header>
-<div class="bar"><div class="wrap">
-  <label class="search"><span aria-hidden="true">&gt;_</span><input id="q" type="search" placeholder="grep games…" aria-label="Search games" autocomplete="off" spellcheck="false"></label>
-  <div class="chips" id="chips"></div>
-  <button class="rand" id="rand">./random.sh</button>
-</div></div>
-<main class="wrap">
-  <section id="recentSec" hidden><h2 class="sec">resume_session</h2><div class="grid" id="recent"></div></section>
-  <section><h2 class="sec" id="allTitle">all_programs</h2><div class="grid" id="grid"></div></section>
+  <section class="panel hello hud" id="hello" aria-label="Your gamercard"></section>
+
+  <section class="spot" aria-label="Featured games">
+    <div class="spot-main" id="spotMain" aria-roledescription="carousel"></div>
+    <div class="spot-side" id="spotSide" role="tablist" aria-label="Pick a featured game"></div>
+  </section>
+
+  <section class="stats" aria-label="Site stats">
+    <div class="panel stat reveal"><span class="si">🎮</span><span><b data-count id="stGames">0</b><small>GAMES</small></span></div>
+    <div class="panel stat reveal"><span class="si">🧩</span><span><b data-count id="stGenres">0</b><small>GENRES</small></span></div>
+    <div class="panel stat reveal"><span class="si">💸</span><span><b><span data-count="100">0</span>%</b><small>FREE FOREVER</small></span></div>
+    <div class="panel stat reveal"><span class="si">🏆</span><span><b data-count id="stAch">0</b><small id="stAchL">ACHIEVEMENTS</small></span></div>
+  </section>
+
+  <section aria-label="DORFic styles">
+    <div class="sec"><h2>Choose your DORFic</h2><span class="rule"></span><span class="muted" style="font-weight:800;font-size:13px">press <kbd>S</kbd> to cycle</span></div>
+    <div id="styleShow"></div>
+  </section>
+
+  <section id="resumeSec" hidden>
+    <div class="sec"><h2>Jump back in</h2><span class="rule"></span><a class="more" href="#" data-random>🎲 Surprise me</a></div>
+    <div class="shelf" id="resume"></div>
+  </section>
+
+  <section>
+    <div class="sec"><h2>New arrivals</h2><span class="rule"></span><a class="more" href="games.html?sort=new">See all ›</a></div>
+    <div class="shelf" id="fresh"></div>
+  </section>
+
+  <section>
+    <div class="sec"><h2>Browse by genre</h2><span class="rule"></span></div>
+    <div class="genres" id="genres"></div>
+  </section>
+
+  <section>
+    <div class="sec"><h2>Player reviews</h2><span class="rule"></span><a class="more" href="reviews.html">All reviews ›</a></div>
+    <div id="reviews"></div>
+  </section>
+
+  <section class="cta reveal" aria-label="Contact the creator">
+    <svg viewBox="0 0 520 420" aria-hidden="true" fill="none" stroke="#fff"><circle cx="360" cy="180" r="90" stroke-width="2" opacity=".6"/><circle cx="360" cy="180" r="130" stroke-width="2" stroke-dasharray="4 12"/><circle cx="360" cy="180" r="180" stroke-width="1.5" stroke-dasharray="90 30 8 30"/><path d="M0 330C140 250 260 380 400 300S520 200 600 220" stroke-width="3" opacity=".8"/><path d="M0 360C150 290 270 410 420 330S540 240 620 250" stroke-width="1.5" opacity=".6"/></svg>
+    <div>
+      <div class="kicker">Contact the creator</div>
+      <h2>Got a game?<br>Got an idea?</h2>
+      <p>Made your own game and want it on 2trapz games? Send it in. Have an idea for the next game, or found a bug? Tell 2trapz directly.</p>
+      <div class="row"><a class="btn lg white" href="contact.html?type=game">🎮 Submit your game</a><a class="btn lg glass" href="contact.html?type=idea">💡 Request a game</a></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec"><h2>The full library</h2><span class="rule"></span><a class="more" href="games.html">Search &amp; filter ›</a></div>
+    <div class="grid" id="all"></div>
+  </section>
+
+</div>
 </main>
-<footer id="foot"></footer>
 
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
 <script>
 (() => {
-  const $ = s => document.querySelector(s);
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
-  const RECENT_KEY = 'arcade.recent';
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let genre = 'all', query = '';
-  const getRecent = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch (e){ return []; } };
-  const remember = slug => { try { const r = getRecent().filter(s => s !== slug); r.unshift(slug); localStorage.setItem(RECENT_KEY, JSON.stringify(r.slice(0, 4))); } catch (e){} };
-  const href = g => 'games/' + encodeURIComponent(g.slug) + '/index.html';
-  const exe = g => g.slug + '.exe';
+  const { $, $$, esc, GAMES, card, stars, rating, detailHref, playHref, genres, genreIcon, allReviews, reviewCard, recent, reduce } = TZ;
 
-  /* header text */
-  document.title = SITE_NAME;
-  const words = SITE_NAME.toUpperCase().split(' ');
-  $('#siteName').dataset.text = SITE_NAME.toUpperCase();
-  $('#siteName').innerHTML = esc(words[0]) + (words.length > 1 ? ' <span class="dim">' + esc(words.slice(1).join(' ')) + '</span>' : '');
-  const genres = ['all', ...[...new Set(GAMES.map(g => g.genre.toLowerCase()))].sort()];
-  $('#stats').innerHTML = `<span>[ <b>${GAMES.length}</b> programs loaded ]</span><span>[ <b>${genres.length - 1}</b> classes ]</span><span>[ <b>0</b> downloads ]</span><span class="ok">[ status: <b>ONLINE</b> ]</span>`;
-  $('#foot').innerHTML = `© ${new Date().getFullYear()} <b>${esc(SITE_NAME)}</b> :: ${GAMES.length} programs :: all systems nominal`;
-  function type(el, html, speed, done){
-    if (reduce){ el.innerHTML = html; if (done) done(); return; }
-    let i = 0; const txt = html;
-    const step = () => { i++; el.textContent = txt.slice(0, i); if (i < txt.length) setTimeout(step, speed); else if (done) done(); };
-    step();
+  /* gamercard */
+  function hello(){
+    const p = TZ.profile(), lv = TZ.level(), h = new Date().getHours();
+    const greet = h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    const got = Object.keys(TZ.unlocked()).length;
+    $('#hello').innerHTML = `<button class="ava" data-open-guide title="Open your Guide">${p.avatar}</button>
+      <div><h1>${greet}, <span>${esc(p.tag)}</span></h1><p>Level ${lv.lv} · 🏆 ${TZ.score()} TZ · ${got} of ${TZ.ACH.length} achievements</p></div>
+      <div class="row"><button class="btn ghost" data-open-guide>🏆 Achievements</button><button class="btn" data-random>🎲 Random game</button></div>`;
+    $('#stAch').dataset.count = got;
   }
-  const user = 'root@' + SITE_NAME.split(' ')[0].toLowerCase();
-  type($('#prompt'), `${user}:~$ ./launch --all`, 28, () => {
-    $('#prompt').innerHTML = `<b>${esc(user)}</b>:<i>~</i>$ ./launch --all<span class="cursor"></span>`;
-    type($('#tagline'), TAGLINE, 18);
-  });
+  hello();
+  document.addEventListener('tz:profile', hello);
+  document.addEventListener('click', e => { if (e.target.closest('[data-open-guide]')) TZ.openGuide(); });
 
-  /* boot screen, once per visit */
-  const boot = $('#bootScr');
-  let seen = false; try { seen = sessionStorage.getItem('arcade.boot') === '1'; sessionStorage.setItem('arcade.boot', '1'); } catch (e){}
-  if (seen || reduce) boot.remove();
-  else {
-    const lines = ['BIOS v2.7 :: 2TRAPZ SYSTEMS', 'memory check ......... OK', 'mounting /games ...... OK', ...GAMES.slice(0, 6).map(g => `loading ${exe(g).padEnd(24, '.')} OK`), `${GAMES.length} programs ready.`, 'ACCESS GRANTED'];
-    let k = 0;
-    const next = () => { if (k < lines.length){ const p = document.createElement('p'); p.textContent = '> ' + lines[k]; if (/OK|GRANTED|ready/.test(lines[k])) p.className = 'ok'; boot.appendChild(p); k++; setTimeout(next, 70); } else setTimeout(() => { boot.classList.add('out'); setTimeout(() => boot.remove(), 450); }, 280); };
-    next();
-    boot.addEventListener('click', () => { boot.classList.add('out'); setTimeout(() => boot.remove(), 450); });
+  /* spotlight carousel */
+  const feat = GAMES.filter(g => g.featured).length ? GAMES.filter(g => g.featured) : GAMES.slice(0, 5);
+  let cur = 0, timer = 0;
+  const DUR = 7000;
+  const swoosh = `<svg class="sw" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M-50 420C200 330 380 470 600 380S900 240 1100 260" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="3"/><path d="M-50 450C220 360 400 500 640 410S920 280 1100 300" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="18"/><path d="M-50 470C240 400 430 520 660 440S940 320 1100 330" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/></svg>`;
+  $('#spotMain').innerHTML = feat.map((g, i) => { const r = rating(g.slug); return `
+    <div class="slide" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${feat.length}: ${esc(g.title)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}">
+      ${swoosh}
+      <div class="sl-art" aria-hidden="true"><span class="stage"></span><span class="big">${g.icon}</span></div>
+      <div class="sl-txt">
+        <div class="sl-k">★ Featured${g.isNew ? ' · New' : ''} · ${esc(g.genre)}</div>
+        <h2>${esc(g.title)}</h2>
+        <div class="rate">${r.count ? stars(r.avg) + ` <span>${r.avg.toFixed(1)} · ${r.count} review${r.count === 1 ? '' : 's'}</span>` : `<span>${esc(g.players || 'Free to play')} · Be the first to review</span>`}</div>
+        <p>${esc(g.desc)}</p>
+        <div class="row"><a class="btn lg" href="${playHref(g)}" data-play="${esc(g.slug)}">▶ Play now</a><a class="btn lg glass" href="${detailHref(g)}">Details</a></div>
+      </div>
+    </div>`; }).join('') + `<div class="dots">${feat.map((g, i) => `<button aria-label="Show ${esc(g.title)}" data-dot="${i}" style="--dur:${DUR}ms"><i></i></button>`).join('')}</div>`;
+  $('#spotSide').innerHTML = feat.map((g, i) => `<button class="stile" role="tab" data-go="${i}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}"><span class="ti">${g.icon}</span><span><b>${esc(g.title)}</b><small>${esc(g.genre)}${g.isNew ? ' · New' : ''}</small></span></button>`).join('');
+  function show(i){
+    cur = (i + feat.length) % feat.length;
+    $$('#spotMain .slide').forEach((s, k) => s.classList.toggle('on', k === cur));
+    $$('#spotMain .dots button').forEach((d, k) => { d.classList.remove('on'); if (k === cur){ void d.offsetWidth; d.classList.add('on'); } });
+    $$('#spotSide .stile').forEach((s, k) => { s.setAttribute('aria-current', String(k === cur)); s.setAttribute('aria-selected', String(k === cur)); });
+    clearTimeout(timer);
+    if (!reduce) timer = setTimeout(tick, DUR);
   }
+  let paused = false;
+  function tick(){ if (paused || document.hidden){ timer = setTimeout(tick, 600); return; } show(cur + 1); }
+  $('#spotMain').addEventListener('mouseenter', () => paused = true);
+  $('#spotMain').addEventListener('mouseleave', () => paused = false);
+  $('#spotMain').addEventListener('focusin', () => paused = true);
+  $('#spotMain').addEventListener('focusout', () => paused = false);
+  document.addEventListener('click', e => { const d = e.target.closest('[data-dot],[data-go]'); if (d) show(+(d.dataset.dot || d.dataset.go)); });
+  let sx = null;
+  $('#spotMain').addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive:true });
+  $('#spotMain').addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1)); sx = null; });
+  show(0);
 
-  /* cards */
-  function card(g, i){
-    return `<a class="card" href="${href(g)}" data-slug="${esc(g.slug)}" style="animation-delay:${Math.min(i, 12) * 40}ms">
-      <div class="tbar"><i></i><i></i><i></i><span>~/games/${esc(exe(g))}</span>${g.isNew ? '<b class="new">NEW</b>' : ''}</div>
-      <div class="cover" style="background:linear-gradient(135deg,${esc(g.colors[0])},${esc(g.colors[1])})"><div class="tint"></div>
-        <span class="icon" aria-hidden="true">${g.icon}</span><span class="genre">#${esc(g.genre.toLowerCase())}</span></div>
-      <div class="body"><h3>${esc(g.title)}</h3><p>${esc(g.desc)}</p>
-        <div class="meta"><span>${esc(g.players || 'local · offline')}</span><span class="run">&gt; RUN</span></div></div></a>`;
-  }
-  function render(){
-    $('#chips').innerHTML = genres.map(x => `<button class="chip${x === genre ? ' on' : ''}" data-g="${esc(x)}">--${esc(x)}</button>`).join('');
-    const q = query.trim().toLowerCase();
-    const list = GAMES.filter(g => (genre === 'all' || g.genre.toLowerCase() === genre) && (!q || (g.title + ' ' + g.desc + ' ' + g.genre).toLowerCase().includes(q)));
-    $('#grid').innerHTML = list.map(card).join('') || `<p class="empty">grep: no match for "${esc(query)}"</p>`;
-    $('#allTitle').innerHTML = genre === 'all' && !q ? 'all_programs' : `results<small>${list.length} found${q ? ' for "' + esc(query) + '"' : ''}${genre !== 'all' ? ' in --' + esc(genre) : ''}</small>`;
-    const rec = getRecent().map(s => GAMES.find(g => g.slug === s)).filter(Boolean);
-    $('#recentSec').hidden = !rec.length || !!q || genre !== 'all';
-    $('#recent').innerHTML = rec.map(card).join('');
-  }
+  /* stats */
+  $('#stGames').dataset.count = GAMES.length;
+  $('#stGenres').dataset.count = genres.length;
+  if ('IntersectionObserver' in window){
+    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ $$('[data-count]', en.target).forEach(TZ.countUp); io.unobserve(en.target); } }), { threshold:.4 });
+    $$('.stat').forEach(s => io.observe(s));
+  } else $$('[data-count]').forEach(TZ.countUp);
 
-  /* launch transition */
-  function launch(g){
-    remember(g.slug);
-    if (reduce){ location.href = href(g); return; }
-    $('#lcmd').textContent = `> ./${exe(g)}`; $('#ltitle').textContent = g.title.toUpperCase(); $('#lstat').textContent = 'decrypting assets…';
-    $('#launch').classList.add('on'); $('#lbar').style.width = '0';
-    requestAnimationFrame(() => { $('#lbar').style.width = '100%'; });
-    setTimeout(() => { $('#lstat').textContent = 'ACCESS GRANTED'; }, 380);
-    setTimeout(() => { location.href = href(g); }, 620);
-  }
-  window.addEventListener('pageshow', () => $('#launch').classList.remove('on'));
-  $('#chips').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b){ genre = b.dataset.g; render(); } });
-  $('#q').addEventListener('input', e => { query = e.target.value; render(); });
-  document.addEventListener('click', e => {
-    const a = e.target.closest('.card'); if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
-    const g = GAMES.find(x => x.slug === a.dataset.slug); if (!g) return;
-    e.preventDefault(); launch(g);
-  });
-  $('#rand').addEventListener('click', () => launch(GAMES[Math.floor(Math.random() * GAMES.length)]));
-  document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== $('#q')){ e.preventDefault(); $('#q').focus(); } });
-  render();
+  /* style showcase */
+  $('#styleShow').innerHTML = TZ.stylesHTML('big');
 
-  /* code rain */
-  if (!reduce){
-    const cv = $('#rain'), g = cv.getContext('2d');
-    const chars = '01アイウエオカキクケコサシスセソ2TRAPZ<>{}[]/\\=+*#$%&'.split('');
-    let cols = [], fs = 16, W = 0, H = 0;
-    const size = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; cols = Array.from({ length:Math.ceil(W / fs) }, () => Math.random() * -H / fs); };
-    size(); addEventListener('resize', size);
-    let last = 0;
-    const draw = t => {
-      requestAnimationFrame(draw);
-      if (t - last < 55) return; last = t;
-      g.fillStyle = 'rgba(2,8,5,.12)'; g.fillRect(0, 0, W, H);
-      g.font = fs + 'px "Share Tech Mono", monospace';
-      for (let i = 0; i < cols.length; i++){
-        const y = cols[i] * fs;
-        g.fillStyle = Math.random() < .04 ? '#c9ffe0' : Math.random() < .5 ? '#39ff8a' : '#1fd36a';
-        g.fillText(chars[(Math.random() * chars.length) | 0], i * fs, y);
-        if (y > H && Math.random() > .975) cols[i] = 0; else cols[i]++;
-      }
-    };
-    requestAnimationFrame(draw);
+  /* shelves */
+  function shelves(){
+    const rec = recent().map(TZ.bySlug).filter(Boolean);
+    $('#resumeSec').hidden = !rec.length;
+    $('#resume').innerHTML = rec.map(card).join('');
+    $('#fresh').innerHTML = GAMES.filter(g => g.isNew).map(card).join('') || GAMES.slice(0, 6).map(card).join('');
+    $('#all').innerHTML = GAMES.map(card).join('');
   }
+  shelves();
+
+  /* genres */
+  $('#genres').innerHTML = genres.map(g => { const n = GAMES.filter(x => x.genre === g).length; return `<a class="gtile reveal" href="games.html?genre=${encodeURIComponent(g)}"><span class="orb">${genreIcon(g)}</span><span><b>${esc(g)}</b><small>${n} game${n === 1 ? '' : 's'}</small></span></a>`; }).join('');
+
+  /* reviews */
+  function reviews(){
+    const rs = allReviews().slice(0, 3);
+    $('#reviews').innerHTML = rs.length ? `<div class="rv-list">${rs.map(r => reviewCard(r)).join('')}</div>`
+      : `<div class="panel empty"><div class="big">⭐</div><h3>No reviews yet</h3><p>Played something you loved (or hated)? Rate it and your review could be the first one on the site.</p><a class="btn" href="reviews.html#write">Write the first review</a></div>`;
+  }
+  reviews();
+  document.addEventListener('tz:reviews', reviews);
+  TZ.reveal();
 })();
 </script>
 </body>
