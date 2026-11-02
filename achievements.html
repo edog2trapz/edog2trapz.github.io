@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Achievements · 2trapz games</title>
+<meta name="description" content="The 2trapz games trophy room: every achievement, how to unlock it and your progress.">
+<meta name="theme-color" content="#ff8a00">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="2trapz games">
+<meta property="og:title" content="Achievements · 2trapz games">
+<meta property="og:description" content="The 2trapz games trophy room: every achievement, how to unlock it and your progress.">
+<meta property="og:image" content="https://edog2trapz.github.io/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.trophy-hero{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;margin-top:26px;padding:30px}
+@media (max-width:700px){.trophy-hero{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.ring{position:relative;width:210px;height:210px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--o3) 0, var(--o1) calc(var(--p) * 1%), var(--line) 0);box-shadow:0 0 40px rgba(255,130,0,.25)}
+.ring::before{content:"";position:absolute;inset:16px;border-radius:50%;background:var(--glass2);box-shadow:inset 0 3px 10px rgba(0,0,0,.12)}
+.ring::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px dashed var(--tech2);animation:spin 50s linear infinite}
+.ring > div{position:relative;text-align:center}
+.ring b{display:block;font-family:var(--display);font-weight:900;font-style:italic;font-size:52px;line-height:1;background:linear-gradient(180deg,#ffb13d,#f25c05);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ring small{font-weight:900;letter-spacing:.14em;color:var(--ink3);font-size:12px}
+.trophy-hero h1{margin:6px 0 8px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(32px,5vw,52px);line-height:1}
+.trophy-hero h1 span{color:var(--o-text)}
+.trophy-hero p{margin:0 0 16px;color:var(--ink2);font-size:17px}
+.tstats{display:flex;gap:10px;flex-wrap:wrap}
+@media (max-width:700px){.tstats{justify-content:center}}
+.tstats span{padding:8px 14px;border-radius:12px;background:var(--glass2);border:1px solid var(--line);font-weight:800;color:var(--ink2)}
+.tstats b{color:var(--o-text);font-family:var(--display);font-style:italic;font-size:20px;margin-right:4px}
+.filt{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 16px}
+.medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}
+.mcard{padding:22px 16px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;perspective:600px}
+.medal{position:relative;width:104px;height:104px;margin-bottom:8px;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.3,1.2)}
+.mcard:hover .medal{transform:rotateY(360deg)}
+.medal .face{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;font-size:46px;
+  background:radial-gradient(circle at 50% 120%,#ffd27a 0%,#ff8a00 45%,#d94a00 100%);
+  box-shadow:inset 0 -6px 12px rgba(120,30,0,.45),inset 0 3px 3px rgba(255,255,255,.6),0 0 0 5px #ffe0b0,0 0 0 7px #e2700a,0 10px 24px rgba(255,100,0,.35)}
+.medal .face::before{content:"";position:absolute;left:14%;right:14%;top:5%;height:44%;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.08))}
+.medal .face span{position:relative;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.medal .rib{position:absolute;left:50%;bottom:-16px;width:46px;height:30px;transform:translateX(-50%);z-index:-1;
+  background:linear-gradient(90deg,var(--red) 0 33%,#fff 33% 66%,var(--red) 66%);clip-path:polygon(0 0,100% 0,100% 100%,50% 70%,0 100%)}
+.mcard.lock .medal .face{background:radial-gradient(circle at 50% 120%,#d9dee4 0%,#a7b0ba 50%,#77818c 100%);box-shadow:inset 0 -6px 12px rgba(0,0,0,.25),inset 0 3px 3px rgba(255,255,255,.6),0 0 0 5px #e6e9ed,0 0 0 7px #8d97a3}
+.mcard.lock .medal .face span{filter:grayscale(1) opacity(.55)}
+.mcard.lock .medal .rib{background:linear-gradient(90deg,#8d97a3 0 33%,#d4d9de 33% 66%,#8d97a3 66%)}
+.mcard h3{margin:10px 0 0;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:17px}
+.mcard p{margin:0;color:var(--ink2);font-size:14px;line-height:1.4;min-height:2.8em}
+.mcard .pts{margin-top:6px;padding:4px 12px;border-radius:var(--pill);font-family:var(--display);font-style:italic;font-weight:900;color:#fff;background:linear-gradient(180deg,#ffb44d,#f26a00);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.mcard.lock .pts{background:linear-gradient(180deg,#b7bfc8,#7d8792)}
+.mcard .when{font-size:12px;font-weight:800;color:var(--ink3)}
+.mcard .go{font-size:13px;font-weight:800;color:var(--o-text);text-decoration:none}
+.mcard.got{animation:shine 4s ease-in-out infinite}
+@keyframes shine{50%{box-shadow:var(--shadow),0 0 26px rgba(255,140,0,.25)}}
+</style>
+</head>
+<body data-page="achievements">
+<main id="main">
+<div class="wrap">
+  <section class="panel trophy-hero hud">
+    <div class="ring" id="ring" style="--p:0"><div><b id="pct">0%</b><small>COMPLETE</small></div></div>
+    <div>
+      <div class="kicker">Trophy room</div>
+      <h1>Your <span>achievements</span></h1>
+      <p>Every achievement is worth TZ points. Level up, climb the Ranks and find the secret ones.</p>
+      <div class="tstats" id="tstats"></div>
+    </div>
+    <span class="tag-id">2TZ // TRP-06</span>
+  </section>
+  <div class="filt" role="group" aria-label="Show">
+    <button class="chip on" data-f="all">✨ All</button><button class="chip" data-f="got">🏆 Unlocked</button><button class="chip" data-f="lock">🔒 Locked</button>
+  </div>
+  <div class="medals" id="medals"></div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, $$, esc, ACH, unlocked, score, level } = TZ;
+  const HOW = { player_one:'games.html', hopper:'games.html', arcade_rat:'games.html', completionist:'games.html', dedicated:'games.html', lucky:'#random',
+    collector:'games.html', critic:'reviews.html#write', ideas:'contact.html?type=idea', identity:'account.html', lights:'#style', stylist:'#style', tourist:'about.html', regular:'', online:'account.html' };
+  let f = 'all';
+  function paint(){
+    const u = unlocked(), got = ACH.filter(a => u[a.id]).length, pct = Math.round(got / ACH.length * 100), lv = level();
+    $('#ring').style.setProperty('--p', pct); $('#pct').textContent = pct + '%';
+    $('#tstats').innerHTML = `<span><b>${got}</b>of ${ACH.length} unlocked</span><span><b>${score()}</b>TZ</span><span><b>${lv.lv}</b>level</span>`;
+    const list = ACH.filter(a => f === 'all' || (f === 'got' ? u[a.id] : !u[a.id]));
+    $('#medals').innerHTML = list.map((a, i) => { const has = !!u[a.id], hide = a.secret && !has, link = HOW[a.id];
+      return `<article class="panel mcard reveal ${has ? 'got' : 'lock'}" style="transition-delay:${Math.min(i, 10) * 40}ms">
+        <div class="medal"><div class="face"><span>${hide ? '❔' : a.icon}</span></div><div class="rib"></div></div>
+        <h3>${hide ? 'Secret' : esc(a.name)}</h3><p>${hide ? 'Keep exploring to find this one.' : esc(a.desc)}</p>
+        <span class="pts">${a.pts} TZ</span>
+        ${has ? `<span class="when">Unlocked ${new Date(u[a.id]).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}</span>`
+          : link && !hide ? (link === '#random' ? '<a class="go" href="#" data-random>Try it ›</a>' : link === '#style' ? '<a class="go" href="#" data-open-style>Try it ›</a>' : `<a class="go" href="${link}">Go ›</a>`) : ''}
+      </article>`; }).join('') || `<div class="panel empty" style="grid-column:1/-1"><div class="big">🏆</div><h3>Nothing here yet</h3><p>Go play something!</p></div>`;
+    TZ.reveal($('#medals'));
+  }
+  $$('[data-f]').forEach(b => b.addEventListener('click', () => { f = b.dataset.f; $$('[data-f]').forEach(x => x.classList.toggle('on', x === b)); paint(); }));
+  document.addEventListener('click', e => { if (e.target.closest('[data-open-style]')){ e.preventDefault(); scrollTo({ top:0, behavior:'smooth' }); setTimeout(() => $('#styleBtn').click(), 300); } });
+  ['tz:profile', 'tz:auth'].forEach(ev => document.addEventListener(ev, paint));
+  paint();
+  /* repaint when an achievement unlocks on this page */
+  let last = JSON.stringify(unlocked());
+  setInterval(() => { const now = JSON.stringify(unlocked()); if (now !== last){ last = now; paint(); } }, 1500);
+})();
+</script>
+</body>
+</html>

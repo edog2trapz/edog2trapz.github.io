@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>About · 2trapz games</title>
+<meta name="description" content="About 2trapz games: free browser games made by 2trapz, in a glossy DORFic style.">
+<meta name="theme-color" content="#ff8a00">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="2trapz games">
+<meta property="og:title" content="About · 2trapz games">
+<meta property="og:description" content="About 2trapz games: free browser games made by 2trapz, in a glossy DORFic style.">
+<meta property="og:image" content="https://edog2trapz.github.io/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.ahero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center;margin-top:26px;padding:40px}
+@media (max-width:900px){.ahero{grid-template-columns:1fr;padding:28px 22px}}
+.ahero h1{margin:8px 0 12px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(36px,6vw,66px);line-height:.95}
+.ahero h1 span{background:linear-gradient(180deg,#ffb13d,#f25c05 70%,#d43a00);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ahero p{margin:0 0 14px;color:var(--ink2);font-size:18px;max-width:560px}
+.orbit{position:relative;width:min(420px,100%);aspect-ratio:1;margin:0 auto}
+.orbit .core{position:absolute;inset:34%;}
+.orbit .core .orb{width:100%;height:100%}
+.orbit .core .orb b{font-size:clamp(36px,7vw,58px)}
+.orbit .core::before,.orbit .core::after{content:"";position:absolute;inset:-14%;border-radius:50%;border:3px solid var(--o2);opacity:.5;animation:pulse 2.6s ease-out infinite}
+.orbit .core::after{animation-delay:1.3s}
+@keyframes pulse{from{transform:scale(.8);opacity:.7}to{transform:scale(1.6);opacity:0}}
+.track{position:absolute;border-radius:50%;border:1.5px dashed var(--tech);animation:spin var(--d) linear infinite}
+.track.t1{inset:18%;--d:26s}.track.t2{inset:4%;--d:40s;animation-direction:reverse}
+.track i{position:absolute;width:52px;height:52px;margin:-26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:26px;
+  background:var(--glass2);box-shadow:0 0 0 2px var(--o2),0 6px 16px rgba(0,0,0,.18)}
+@media (max-width:520px){.track i{width:40px;height:40px;margin:-20px;font-size:20px}}
+.track i span{display:block;animation:spin var(--d) linear infinite reverse}
+.track.t2 i span{animation-direction:normal}
+.astats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+.astats div{padding:18px;text-align:center}
+.astats b{display:block;font-family:var(--display);font-weight:900;font-style:italic;font-size:38px;line-height:1;background:linear-gradient(180deg,#ffb13d,#f25c05);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.astats small{font-weight:900;letter-spacing:.12em;color:var(--ink2);font-size:12px}
+@media (max-width:700px){.astats{grid-template-columns:repeat(2,1fr)}}
+.dorf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:24px;align-items:start}
+@media (max-width:900px){.dorf{grid-template-columns:1fr}}
+.dorf .txt{padding:26px}
+.dorf .txt p{margin:0 0 12px;color:var(--ink2);font-size:16px}
+.letters{display:flex;gap:6px;margin:4px 0 16px;flex-wrap:wrap}
+.letters span{display:flex;flex-direction:column;align-items:center;min-width:58px;padding:8px 6px;border-radius:12px;background:var(--glass2);border:1px solid var(--line)}
+.letters b{font-family:var(--display);font-style:italic;font-weight:900;font-size:30px;line-height:1;color:var(--o-text)}
+.letters small{font-size:11px;font-weight:800;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase}
+.styles.big{grid-template-columns:repeat(3,1fr);gap:12px}
+.styles.big .sopt{flex-direction:column;align-items:stretch;gap:8px;padding:10px 10px 12px;border-radius:16px}
+.styles.big .sopt[aria-pressed="true"]{box-shadow:var(--glow)}
+.styles.big .sopt .pv{width:100%;height:70px}
+.styles.big .sopt small{display:none}
+@media (max-width:520px){.styles.big{grid-template-columns:repeat(2,1fr)}}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:800px){.steps3{grid-template-columns:1fr}}
+.step{padding:24px;position:relative}
+.step .n{position:absolute;right:18px;top:12px;font-family:var(--display);font-weight:900;font-style:italic;font-size:64px;line-height:1;color:var(--o2);opacity:.15}
+.step .orb{width:54px;height:54px;font-size:26px;margin-bottom:12px}
+.step h3{margin:0 0 6px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:20px}
+.step p{margin:0;color:var(--ink2)}
+</style>
+</head>
+<body data-page="about">
+<main id="main">
+<div class="wrap">
+  <section class="panel ahero hud">
+    <div>
+      <div class="kicker">About</div>
+      <h1>Made by <span id="creator">2trapz</span></h1>
+      <p id="intro"></p>
+      <p id="extra" class="muted" style="font-size:16px"></p>
+      <div class="row"><a class="btn lg" href="games.html">▶ Play the games</a><a class="btn lg ghost" href="contact.html">✉️ Contact</a></div>
+    </div>
+    <div class="orbit" aria-hidden="true">
+      <div class="track t2" id="t2"></div><div class="track t1" id="t1"></div>
+      <div class="core"><span class="orb"><b>2t</b></span></div>
+    </div>
+    <span class="tag-id">2TZ // ABT-07</span>
+  </section>
+
+  <section class="astats">
+    <div class="panel reveal"><b id="aGames">0</b><small>GAMES</small></div>
+    <div class="panel reveal"><b id="aGenres">0</b><small>GENRES</small></div>
+    <div class="panel reveal"><b id="aAch">0</b><small>ACHIEVEMENTS</small></div>
+    <div class="panel reveal"><b>5</b><small>DORFIC STYLES</small></div>
+  </section>
+
+  <div class="sec"><h2>What is DORFic?</h2><span class="rule"></span></div>
+  <div class="dorf">
+    <section class="panel txt reveal">
+      <div class="letters"><span><b>D</b><small>Daylight</small></span><span><b>O</b><small>Orange</small></span><span><b>R</b><small>Red</small></span><span><b>F</b><small>Futurism</small></span><span><b>G</b><small>Graphic</small></span></div>
+      <p>DORFic is the bright, glossy look of mid-2000s tech: white future-cities, orange swooshes, shiny glass buttons, office-tower windows and abstract tech lines. It's the orange, industrial cousin of Frutiger Aero, and it's all over old game console menus and gadgets.</p>
+      <p>This whole site is built in that style. Pick a version below, or press <kbd>S</kbd> anywhere to flip through them.</p>
+    </section>
+    <div id="styleShow" class="reveal"></div>
+  </div>
+
+  <div class="sec"><h2>How it works</h2><span class="rule"></span></div>
+  <div class="steps3">
+    <section class="panel step reveal"><span class="n">1</span><span class="orb">▶️</span><h3>Play instantly</h3><p>Every game runs in your browser. No downloads, no installs, nothing to buy.</p></section>
+    <section class="panel step reveal"><span class="n">2</span><span class="orb">🏆</span><h3>Level up</h3><p>Unlock achievements, earn TZ, pick a gamertag and climb the Ranks.</p></section>
+    <section class="panel step reveal"><span class="n">3</span><span class="orb">💡</span><h3>Shape what's next</h3><p>Review games, request new ones, or send in a game you made yourself.</p></section>
+  </div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, esc, GAMES, genres, ACH } = TZ;
+  const A = typeof ABOUT !== 'undefined' ? ABOUT : {};
+  $('#creator').textContent = A.creator || '2trapz';
+  $('#intro').textContent = A.intro || '';
+  $('#extra').textContent = A.extra || '';
+  const pick = n => { const a = [...GAMES]; const out = []; while (out.length < n && a.length) out.push(a.splice(Math.floor(Math.random() * a.length), 1)[0]); return out; };
+  const g = pick(10);
+  const ring = list => list.map((x, i) => { const a = Math.PI * 2 * i / list.length; return `<i style="left:${(50 + 50 * Math.cos(a)).toFixed(2)}%;top:${(50 + 50 * Math.sin(a)).toFixed(2)}%"><span>${x.icon}</span></i>`; }).join('');
+  $('#t1').innerHTML = ring(g.slice(0, 4));
+  $('#t2').innerHTML = ring(g.slice(4, 10));
+  $('#aGames').dataset.count = GAMES.length; $('#aGenres').dataset.count = genres.length; $('#aAch').dataset.count = ACH.length;
+  ['#aGames', '#aGenres', '#aAch'].forEach(s => TZ.countUp($(s)));
+  $('#styleShow').innerHTML = TZ.stylesHTML('big');
+  TZ.reveal();
+})();
+</script>
+</body>
+</html>

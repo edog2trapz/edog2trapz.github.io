@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin · 2trapz games</title>
+<meta name="description" content="Creator-only console for approving reviews.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ff8a00">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="2trapz games">
+<meta property="og:title" content="Admin · 2trapz games">
+<meta property="og:description" content="Creator-only console for approving reviews.">
+<meta property="og:image" content="https://edog2trapz.github.io/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.ops-hero{position:relative;margin-top:26px;padding:30px 30px 26px;border-radius:var(--r);overflow:hidden;color:#fff;
+  background:linear-gradient(135deg,#2b3036,#16191d);border:1px solid rgba(255,255,255,.12);box-shadow:var(--shadow-lg)}
+.ops-hero::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:repeating-linear-gradient(-45deg,#ffb000 0 14px,#16181b 14px 28px)}
+.ops-hero::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+.ops-hero > *{position:relative;z-index:1}
+.ops-hero h1{margin:10px 0 6px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(30px,5vw,48px);line-height:1}
+.ops-hero h1 span{color:#ffb000}
+.ops-hero p{margin:0;color:#c5cbd2}
+.ops-hero .kicker{color:#ffb000}.ops-hero .kicker::before{background:#ffb000}
+.lamps{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;font:800 12px/1 ui-monospace,Consolas,monospace;letter-spacing:.14em;color:#c5cbd2}
+.lamps span{display:flex;align-items:center;gap:8px}
+.lamps i{width:10px;height:10px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84}
+.lamps i.w{background:#ffb000;box-shadow:0 0 8px #ffb000;animation:blink 1.2s steps(1) infinite}
+@keyframes blink{50%{opacity:.25}}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.kpis div{padding:18px;text-align:center}
+.kpis b{display:block;font-family:var(--display);font-weight:900;font-style:italic;font-size:40px;line-height:1;color:var(--o-text)}
+.kpis small{font-weight:900;letter-spacing:.12em;font-size:12px;color:var(--ink3)}
+.queue{display:grid;gap:12px}
+.qi{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px}
+.qi .ti{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.qi b{font-size:15px}.qi .meta{font-size:13px;color:var(--ink3);font-weight:700}
+.qi q{display:block;margin-top:4px;color:var(--ink);quotes:"“" "”"}
+.qi .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:640px){.qi{grid-template-columns:44px minmax(0,1fr)}.qi .ti{width:44px;height:44px;font-size:22px}.qi .acts{grid-column:1/-1;justify-content:flex-start}}
+.gate{padding:40px 24px;text-align:center;margin-top:24px}
+.gate h2{margin:8px 0;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase}
+.gate p{color:var(--ink2);max-width:520px;margin:0 auto 16px}
+</style>
+</head>
+<body data-page="admin">
+<main id="main">
+<div class="wrap">
+  <section class="ops-hero">
+    <div class="kicker">Restricted · Creator only</div>
+    <h1>Ops <span>console</span></h1>
+    <p>Approve, hide or delete reviews before they go public.</p>
+    <div class="lamps" id="lamps"></div>
+  </section>
+  <div id="ops"></div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, $$, esc, bySlug, account, accountsOn, stars, fmtDate } = TZ;
+  const root = $('#ops');
+  const lamps = (a, b, c) => { $('#lamps').innerHTML = `<span><i class="${a ? '' : 'w'}"></i>ACCOUNTS ${a ? 'ONLINE' : 'OFFLINE'}</span><span><i class="${b ? '' : 'w'}"></i>SIGNED IN ${b ? 'YES' : 'NO'}</span><span><i class="${c ? '' : 'w'}"></i>ADMIN ${c ? 'GRANTED' : 'DENIED'}</span>`; };
+  const gate = (icon, title, text, btn) => { root.innerHTML = `<section class="panel gate"><div style="font-size:48px">${icon}</div><h2>${title}</h2><p>${text}</p>${btn || ''}</section>`; };
+  function item(r, approved){
+    const g = bySlug(r.game) || { title:r.game, icon:'🎮', colors:['#333','#777'] };
+    return `<article class="panel qi" data-id="${esc(r.id)}"><span class="ti" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}">${g.icon}</span>
+      <div><b>${esc(g.title)}</b> ${stars(r.stars, 13)}<div class="meta">${esc(r.avatar || '')} ${esc(r.name)} · ${esc(fmtDate(r.date))}</div><q>${esc(r.text)}</q></div>
+      <div class="acts">${approved ? '<button class="btn sm ghost" data-act="hidden">Hide</button>' : '<button class="btn sm" data-act="approved">✔ Approve</button><button class="btn sm ghost" data-act="hidden">Hide</button>'}<button class="btn sm red" data-act="delete">Delete</button></div></article>`;
+  }
+  async function load(){
+    const on = accountsOn && !account.failed, u = account.user(), admin = account.isAdmin();
+    lamps(on, !!u, admin);
+    if (!on) return gate('🔌', 'Accounts are off', 'The admin console needs accounts switched on. Follow "Turn on accounts" in the README, then come back.');
+    if (account.loading) return gate('⏳', 'Connecting…', 'Linking up to the 2trapz Network.');
+    if (!u) return gate('🔐', 'Sign in first', 'Sign in with the admin account (listed in ACCOUNTS.admins in assets/data.js).', '<a class="btn" href="account.html?next=admin.html">Sign in</a>');
+    if (!admin) return gate('⛔', 'Access denied', 'This account isn\'t on the admin list. Admins sign in with a verified email listed in ACCOUNTS.admins and in firestore.rules.');
+    root.innerHTML = `<section class="kpis"><div class="panel"><b id="kP">…</b><small>WAITING</small></div><div class="panel"><b id="kA">…</b><small>LIVE REVIEWS</small></div><div class="panel"><b id="kU">…</b><small>RANKED PLAYERS</small></div></section>
+      <div class="sec"><h2>Waiting for approval</h2><span class="rule"></span><button class="btn sm ghost" id="reload">↻ Refresh</button></div><div class="queue" id="pend"></div>
+      <div class="sec"><h2>Live reviews</h2><span class="rule"></span></div><div class="queue" id="live"></div>`;
+    $('#reload').addEventListener('click', load);
+    try {
+      const [pend, live, users] = await Promise.all([account.pendingReviews(), account.approvedReviews(), account.leaderboard(200)]);
+      $('#kP').textContent = pend.length; $('#kA').textContent = live.length; $('#kU').textContent = users.length;
+      $('#pend').innerHTML = pend.map(r => item(r, false)).join('') || '<div class="panel empty"><div class="big">✅</div><h3>All clear</h3><p>No reviews waiting.</p></div>';
+      $('#live').innerHTML = live.map(r => item(r, true)).join('') || '<div class="panel empty"><div class="big">💬</div><h3>No live reviews yet</h3></div>';
+    } catch (e){
+      root.insertAdjacentHTML('afterbegin', `<section class="panel gate"><h2>Couldn't load</h2><p>${esc(account.errorText(e))}</p></section>`);
+    }
+  }
+  root.addEventListener('click', async e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const card = b.closest('[data-id]'), id = card.dataset.id, act = b.dataset.act;
+    if (act === 'delete' && !confirm('Delete this review for good?')) return;
+    b.disabled = true;
+    try {
+      if (act === 'delete') await account.removeReview(id); else await account.setReviewStatus(id, act);
+      card.style.transition = 'opacity .3s, transform .3s'; card.style.opacity = '0'; card.style.transform = 'translateX(30px)';
+      TZ.sfx('ok'); setTimeout(load, 350);
+    } catch (err){ b.disabled = false; TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); }
+  });
+  document.addEventListener('tz:auth', load);
+  load();
+})();
+</script>
+</body>
+</html>

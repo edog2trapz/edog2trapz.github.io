@@ -17,7 +17,12 @@
 
   /* ---------- storage (never trusted to exist) ---------- */
   const get = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e){ return d; } };
-  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e){} };
+  const ACC = (typeof ACCOUNTS !== 'undefined' && ACCOUNTS) || {};
+  const accountsOn = !!(ACC.firebase && ACC.firebase.apiKey);
+  /* filled in by assets/accounts.js once Firebase loads */
+  const account = { enabled: accountsOn, loading: accountsOn, failed: false, user: () => null, isAdmin: () => false, sync: () => 'idle' };
+  const SYNC_KEYS = ['tz.profile', 'tz.ach', 'tz.plays', 'tz.favs', 'tz.styles'];
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e){} if (account.save && SYNC_KEYS.includes(k)) account.save(); };
 
   /* ---------- data ---------- */
   const GAMES_ = (typeof GAMES !== 'undefined' ? GAMES : []);
@@ -42,6 +47,8 @@
     set('tz.profile', profile);
   }
   const saveProfile = () => { set('tz.profile', profile); paintBadge(); };
+  function reloadProfile(){ profile = get('tz.profile', profile) || profile; paintBadge(); if (guideOpen) paintGuide(); document.dispatchEvent(new CustomEvent('tz:profile')); }
+  function setAvatar(a){ if (!AVATARS.includes(a)) return; profile.avatar = a; saveProfile(); if (guideOpen) paintGuide(); document.dispatchEvent(new CustomEvent('tz:profile')); }
 
   /* ---------- plays, recent, favourites ---------- */
   const plays = () => get('tz.plays', {});
@@ -59,10 +66,12 @@
   /* ---------- reviews & ratings ---------- */
   const myReviews = () => get('tz.myReviews', []) || [];
   const avatarFor = name => { let h = 0; for (const c of String(name)) h = (h * 31 + c.charCodeAt(0)) | 0; return AVATARS[Math.abs(h) % AVATARS.length]; };
+  let cloudReviews = [];
   function allReviews(slug){
-    const approved = REVIEWS_.filter(r => r && bySlug(r.game) && (!slug || r.game === slug)).map(r => ({ ...r, avatar: avatarFor(r.name) }));
+    const approved = [...REVIEWS_, ...cloudReviews].filter(r => r && bySlug(r.game) && (!slug || r.game === slug)).map(r => ({ ...r, avatar: r.avatar || avatarFor(r.name) }));
     const approvedKeys = new Set(approved.map(r => r.game + '|' + r.name + '|' + r.text));
-    const mine = myReviews().filter(r => (!slug || r.game === slug) && !approvedKeys.has(r.game + '|' + r.name + '|' + r.text)).map(r => ({ ...r, mine:true }));
+    const cloudIds = new Set(cloudReviews.map(r => r.id));
+    const mine = myReviews().filter(r => (!slug || r.game === slug) && !approvedKeys.has(r.game + '|' + r.name + '|' + r.text) && !(r.cloudId && cloudIds.has(r.cloudId))).map(r => ({ ...r, mine:true }));
     return [...mine, ...approved].sort((a, b) => (b.mine - a.mine) || String(b.date).localeCompare(String(a.date)));
   }
   function rating(slug){
@@ -126,7 +135,8 @@
     { id:'regular', icon:'📅', name:'Regular', desc:'Visit on 3 different days.', pts:25 },
     { id:'konami', icon:'⬆️', name:'Old School', desc:'Enter the secret code.', pts:50, secret:true },
     { id:'lost', icon:'📡', name:'Signal Lost', desc:'Find a page that does not exist.', pts:10, secret:true },
-  ];
+    { id:'online', icon:'🌐', name:'Connected', desc:'Sign in with an account.', pts:15, needs:'accounts' },
+  ].filter(a => !a.needs || accountsOn);
   const TOTAL_PTS = ACH.reduce((s, a) => s + a.pts, 0);
   const unlocked = () => get('tz.ach', {}) || {};
   const score = () => { const u = unlocked(); return ACH.reduce((s, a) => s + (u[a.id] ? a.pts : 0), 0); };
@@ -295,6 +305,7 @@
   const NAV = [
     { id:'home', href:'index.html', icon:'🏠', label:'Home' },
     { id:'games', href:'games.html', icon:'🎮', label:'Games' },
+    { id:'ranks', href:'leaderboard.html', icon:'🏆', label:'Ranks' },
     { id:'reviews', href:'reviews.html', icon:'⭐', label:'Reviews' },
     { id:'contact', href:'contact.html', icon:'✉️', label:'Contact' },
   ];
@@ -310,15 +321,19 @@
 </div></header>`);
     document.body.insertAdjacentHTML('beforeend', `
 <footer class="tz-foot"><div class="wrap">
-  <div><a class="logo" href="${BASE}index.html"><span class="orb"><b>2t</b></span>${wordmark}</a>
-    <p>${esc(typeof TAGLINE !== 'undefined' ? TAGLINE : '')} Every game runs right in your browser. Built by 2trapz.</p></div>
-  <div><h4>Explore</h4><ul>
-    <li><a href="${BASE}index.html">Home</a></li><li><a href="${BASE}games.html">All games</a></li>
-    <li><a href="${BASE}reviews.html">Reviews</a></li><li><a href="#" data-random>Random game 🎲</a></li></ul></div>
-  <div><h4>Creator</h4><ul>
-    <li><a href="${BASE}contact.html">Contact the creator</a></li><li><a href="${BASE}contact.html?type=game">Submit your game</a></li>
+  <div class="fbrand"><a class="logo" href="${BASE}index.html"><span class="orb"><b>2t</b></span>${wordmark}</a>
+    <p>${esc(typeof TAGLINE !== 'undefined' ? TAGLINE : '')} Every game runs right in your browser. Built by 2trapz.</p>
+    <div class="row" style="margin-top:14px"><a class="btn sm" href="${BASE}account.html">🪪 ${accountsOn ? 'Sign in' : 'Player ID'}</a><a class="btn sm ghost" href="${BASE}contact.html?type=game">🎮 Submit a game</a></div></div>
+  <div><h4>Play</h4><ul>
+    <li><a href="${BASE}index.html">Home</a></li><li><a href="${BASE}games.html">All games</a></li><li><a href="${BASE}leaderboard.html">Ranks</a></li>
+    <li><a href="${BASE}achievements.html">Achievements</a></li><li><a href="#" data-random>Random game 🎲</a></li></ul></div>
+  <div><h4>Community</h4><ul>
+    <li><a href="${BASE}reviews.html">Reviews</a></li><li><a href="${BASE}news.html">News</a></li><li><a href="${BASE}contact.html">Contact the creator</a></li>
     <li><a href="${BASE}contact.html?type=idea">Request a game</a></li><li><a href="${BASE}contact.html?type=message&topic=Bug">Report a bug</a></li></ul></div>
-  <div class="base"><span>© ${new Date().getFullYear()} ${esc(SITE)} · DORFic edition: <span id="footStyle">${(STYLES.find(x => x.id === themePref()) || STYLES[0]).name}</span> · ${GAMES_.length} games, 0 downloads</span><span>Press <kbd>G</kbd> for the Guide · <kbd>/</kbd> to search</span></div>
+  <div><h4>Info</h4><ul>
+    <li><a href="${BASE}about.html">About</a></li><li><a href="${BASE}faq.html">Help &amp; FAQ</a></li><li><a href="${BASE}account.html">Your account</a></li>
+    <li><a href="${BASE}privacy.html">Privacy</a></li><li><a href="${BASE}terms.html">Terms</a></li></ul></div>
+  <div class="base"><span>© ${new Date().getFullYear()} ${esc(SITE)} · DORFic edition: <span id="footStyle">${(STYLES.find(x => x.id === themePref()) || STYLES[0]).name}</span> · ${GAMES_.length} games, 0 downloads</span><span>Press <kbd>G</kbd> for the Guide · <kbd>/</kbd> to search · <kbd>S</kbd> to restyle</span></div>
 </div></footer>
 <div class="guide-scrim" id="guideScrim"></div>
 <aside class="guide panel" id="guide" role="dialog" aria-modal="true" aria-label="Guide" style="visibility:hidden"></aside>
@@ -333,12 +348,19 @@
     const a = $('#gbAva'); if (!a) return;
     a.textContent = profile.avatar; $('#gbTag').textContent = profile.tag;
     $('#gbScore').textContent = `🏆 ${score()} · Lv ${level().lv}`;
+    $('#guideBtn').classList.toggle('online', !!account.user());
   }
 
   /* ---------- guide panel (press G) ---------- */
   let guideOpen = false, guideTab = 'ach', lastFocus = null;
   function gameRow(g, sub){
     return `<a class="gl" href="${detailHref(g)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}"><span class="ti">${g.icon}</span><span><b>${esc(g.title)}</b><small>${esc(sub)}</small></span><span class="go">›</span></a>`;
+  }
+  function acctRow(){
+    const u = account.user();
+    if (u) return `<div class="gacct"><span class="dot"></span>Signed in${u.email ? ' as ' + esc(u.email) : ''} · <a href="${BASE}account.html">Profile</a>${account.isAdmin() ? ` · <a href="${BASE}admin.html">Admin</a>` : ''} · <button data-signout>Sign out</button></div>`;
+    if (accountsOn && !account.failed) return `<a class="gacct" href="${BASE}account.html">🔐 Sign in to save your progress on every device ›</a>`;
+    return `<a class="gacct" href="${BASE}account.html">🪪 See your Player ID ›</a>`;
   }
   function paintGuide(){
     const el = $('#guide'), u = unlocked(), lv = level(), got = ACH.filter(a => u[a.id]).length, p = plays(), th = themePref();
@@ -369,6 +391,7 @@
           <div class="gh-tag"><label class="sr" for="gTag">Gamertag</label><input id="gTag" maxlength="18" value="${esc(profile.tag)}" autocomplete="off" spellcheck="false">
           <small>🏆 ${score()} TZ · Level ${lv.lv}</small></div></div>
         <div class="lvl"><div class="bar"><i style="width:${lv.pct}%"></i></div><div class="lt"><span>Lv ${lv.lv}</span><span>${lv.next} TZ to Lv ${lv.lv + 1}</span></div></div>
+        ${acctRow()}
         <div class="avs" role="group" aria-label="Avatar">${AVATARS.map(a => `<button data-ava="${a}" aria-pressed="${a === profile.avatar}" aria-label="Avatar ${a}">${a}</button>`).join('')}</div>
       </div>
       <div class="gtabs" role="tablist">${[['ach','🏆 Achievements'],['games','🎮 My games'],['set','⚙️ Settings']].map(([k, l]) => `<button class="gtab" role="tab" data-gtab="${k}" aria-selected="${guideTab === k}">${l}</button>`).join('')}</div>
@@ -465,6 +488,15 @@
   /* ---------- review form (used on game + reviews pages) ---------- */
   function mountReviewForm(host, opts){
     opts = opts || {};
+    if (accountsOn && !account.failed && !account.user()){
+      host.innerHTML = `<div class="panel" style="padding:26px;text-align:center"><div class="kicker">Write a review</div>
+        <div style="font-size:46px;margin:10px 0 4px">🔐</div>
+        <h3 style="margin:0 0 6px;font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;font-size:22px">${account.loading ? 'Connecting…' : 'Sign in to review'}</h3>
+        <p class="muted" style="margin:0 0 16px">Reviews are tied to your account so 2trapz games stays spam-free.</p>
+        <a class="btn" href="${BASE}account.html?next=${encodeURIComponent(location.pathname.split('/').pop() + location.search)}">Sign in or create account</a></div>`;
+      if (!host._tzWait){ host._tzWait = () => { document.removeEventListener('tz:auth', host._tzWait); host._tzWait = null; mountReviewForm(host, opts); }; document.addEventListener('tz:auth', host._tzWait); }
+      return;
+    }
     let starsPicked = 0;
     const uid = 'rf' + Math.random().toString(36).slice(2, 7);
     host.innerHTML = `<form class="panel" style="padding:22px" novalidate>
@@ -496,16 +528,22 @@
       if (!name) return fail('Add your name.');
       if (text.length < 4) return fail('Write a few words.');
       const r = { id: Date.now().toString(36), game, name, stars: starsPicked, text, date: today(), avatar: profile.avatar };
-      const mine = myReviews(); mine.unshift(r); set('tz.myReviews', mine.slice(0, 50));
       const btn = $('button[type=submit]', form); btn.disabled = true;
       msg.style.color = ''; msg.textContent = 'Posting…';
       const g = bySlug(game);
+      const cloud = accountsOn && account.user();
+      if (cloud){
+        try { r.cloudId = await account.postReview(r); }
+        catch (err){ btn.disabled = false; return fail(account.errorText(err)); }
+      }
+      const mine = myReviews(); mine.unshift(r); set('tz.myReviews', mine.slice(0, 50));
       const line = `{ game:${JSON.stringify(game)}, name:${JSON.stringify(name)}, stars:${starsPicked}, text:${JSON.stringify(text)}, date:${JSON.stringify(r.date)} },`;
+      const how = cloud ? { 'Approve or delete it here': new URL('admin.html', BASE || location.href).href }
+                        : { 'To approve, paste this line into REVIEWS in assets/data.js': line };
       try {
-        await sendToCreator(`⭐ New review: ${g.title} (${starsPicked}/5)`, {
-          Game: g.title, Stars: '★'.repeat(starsPicked) + '☆'.repeat(5 - starsPicked), Name: name, Review: text,
-          'To approve, paste this line into REVIEWS in assets/data.js': line });
-      } catch (err){ /* the review is still saved locally; the creator just won't get the email */ }
+        await sendToCreator(`⭐ ${cloud ? 'Review waiting for approval' : 'New review'}: ${g.title} (${starsPicked}/5)`, Object.assign({
+          Game: g.title, Stars: '★'.repeat(starsPicked) + '☆'.repeat(5 - starsPicked), Name: name, Review: text }, how));
+      } catch (err){ /* the review is still saved; the creator just won't get the email */ }
       unlock('critic'); sfx('ok');
       const rect = btn.getBoundingClientRect(); confetti(rect.left + rect.width / 2, rect.top, 22);
       toast({ icon:'⭐', small:'Review posted', big:'Thanks for rating ' + esc(g.title) + '!' });
@@ -523,7 +561,12 @@
     const fav = t.closest('[data-fav]');
     if (fav){ e.preventDefault(); const on = toggleFav(fav.dataset.fav); $$(`[data-fav="${CSS.escape(fav.dataset.fav)}"]`).forEach(b => { b.setAttribute('aria-pressed', String(on)); if (b.hasAttribute('data-fav-text')) b.textContent = on ? '♥ Favorited' : '♡ Favorite'; else b.textContent = on ? '♥' : '♡'; }); sfx(on ? 'ok' : 'click'); return; }
     const del = t.closest('[data-delrev]');
-    if (del){ set('tz.myReviews', myReviews().filter(r => r.id !== del.dataset.delrev)); document.dispatchEvent(new CustomEvent('tz:reviews')); sfx('click'); return; }
+    if (del){
+      const r = myReviews().find(x => x.id === del.dataset.delrev);
+      if (r && r.cloudId && account.deleteMyReview) account.deleteMyReview(r.cloudId).catch(() => {});
+      set('tz.myReviews', myReviews().filter(x => x.id !== del.dataset.delrev)); document.dispatchEvent(new CustomEvent('tz:reviews')); sfx('click'); return;
+    }
+    if (t.closest('[data-signout]')){ e.preventDefault(); account.signOut && account.signOut().then(() => location.reload()); return; }
     if (t.closest('#guideBtn')){ guideOpen ? closeGuide() : openGuide(); return; }
     if (t.closest('#gClose') || t.id === 'guideScrim'){ closeGuide(); return; }
     const tab = t.closest('[data-gtab]'); if (tab){ guideTab = tab.dataset.gtab; paintGuide(); sfx('click'); $(`[data-gtab="${guideTab}"]`).focus(); return; }
@@ -625,5 +668,21 @@
     profile: () => profile, plays, recent, favs, isFav, toggleFav, myReviews, allReviews, rating, stars, fmtDate,
     card, reviewCard, mountReviewForm, sendToCreator, mailto, launch, randomGame, unlock, toast, confetti, sfx, reveal, countUp,
     openGuide, score, level, ACH, unlocked, STYLES, stylesHTML, setTheme, themePref,
+    account, accountsOn, ACC, AVATARS, reloadProfile, setAvatar, setTag: commitTag, avatarFor,
   };
+
+  /* ---------- accounts (only when Firebase is set up in data.js) ---------- */
+  document.addEventListener('tz:auth', () => { paintBadge(); if (guideOpen) paintGuide(); });
+  if (accountsOn){
+    import(BASE + 'assets/accounts.js').then(m => m.start(window.TZ, ACC)).then(api => {
+      Object.assign(account, api, { loading:false });
+      document.dispatchEvent(new CustomEvent('tz:auth'));
+      account.approvedReviews().then(list => { cloudReviews = (list || []).filter(r => bySlug(r.game)); document.dispatchEvent(new CustomEvent('tz:reviews')); })
+        .catch(e => console.warn('[2trapz] could not load reviews', e));
+    }).catch(e => {
+      console.warn('[2trapz] accounts unavailable', e);
+      account.loading = false; account.failed = true;
+      document.dispatchEvent(new CustomEvent('tz:auth'));
+    });
+  }
 })();

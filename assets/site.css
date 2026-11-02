@@ -463,14 +463,15 @@ kbd{display:inline-block;min-width:24px;padding:1px 7px;border-radius:6px;text-a
 /* ---------- footer ---------- */
 .tz-foot{position:relative;z-index:2;margin-top:70px;border-top:1px solid var(--glass-edge);background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
 .tz-foot::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--o2),var(--red),var(--o1),transparent)}
-.tz-foot .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px;padding-top:36px;padding-bottom:30px}
+.tz-foot .wrap{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:30px;padding-top:36px;padding-bottom:30px}
 .tz-foot h4{margin:0 0 10px;font-family:var(--display);font-style:italic;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:14px;color:var(--o-text)}
 .tz-foot p{margin:10px 0 0;color:var(--ink2);font-size:14px;max-width:360px}
 .tz-foot ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .tz-foot ul a{text-decoration:none;color:var(--ink2);font-weight:700;font-size:15px}
 .tz-foot ul a:hover{color:var(--o-text)}
 .tz-foot .base{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--line);color:var(--ink3);font-size:13px;font-weight:700}
-@media (max-width:760px){.tz-foot .wrap{grid-template-columns:1fr 1fr}.tz-foot .wrap > :first-child{grid-column:1/-1}}
+@media (max-width:860px){.tz-foot .wrap{grid-template-columns:1fr 1fr 1fr}.tz-foot .wrap > :first-child{grid-column:1/-1}}
+@media (max-width:520px){.tz-foot .wrap{grid-template-columns:1fr 1fr}}
 
 /* ---------- confetti orbs ---------- */
 .confetti{position:fixed;z-index:96;pointer-events:none;border-radius:50%;
@@ -590,3 +591,11 @@ kbd{display:inline-block;min-width:24px;padding:1px 7px;border-radius:6px;text-a
   .grid .rate{font-size:12px}
   .grid .gc-foot{margin-top:4px}
 }
+
+/* accounts: guide row + online dot */
+.gacct{display:block;margin-top:12px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);font-size:13px;font-weight:800;color:#fff;text-decoration:none;line-height:1.5;word-break:break-word}
+a.gacct:hover{background:rgba(255,255,255,.28)}
+.gacct a,.gacct button{color:#fff;font:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.gacct .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 2px rgba(255,255,255,.8),0 0 8px #3ddc84;margin-right:7px;vertical-align:1px}
+.guide-btn .ava{position:relative}
+.guide-btn.online .ava::after{content:"";position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 2px var(--chrome1),0 0 8px #3ddc84}

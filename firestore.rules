@@ -1,0 +1,47 @@
+// 2trapz games :: Firestore security rules
+// Paste all of this into Firebase console → Firestore Database → Rules → Publish.
+// If you change ACCOUNTS.admins in assets/data.js, change the email list in isAdmin() too.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['realbug1243@gmail.com'];
+    }
+
+    // One profile per player: gamertag, avatar, achievements, plays, favorites.
+    // Everyone can read them (that's the leaderboard). Only you can write yours.
+    match /users/{uid} {
+      allow read: if true;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['tag', 'avatar', 'custom', 'score', 'level', 'ach', 'plays', 'favs', 'styles', 'updated'])
+        && request.resource.data.tag is string && request.resource.data.tag.size() > 0 && request.resource.data.tag.size() <= 18
+        && request.resource.data.avatar is string && request.resource.data.avatar.size() <= 8
+        && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 1000
+        && request.resource.data.level is int && request.resource.data.level <= 50;
+      allow delete: if request.auth != null && (request.auth.uid == uid || isAdmin());
+    }
+
+    // Reviews start as 'pending'. Only an admin can approve them (admin.html).
+    // Everyone sees approved reviews; you can always see and delete your own.
+    match /reviews/{id} {
+      allow read: if resource.data.status == 'approved'
+        || isAdmin()
+        || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['game', 'name', 'stars', 'text', 'date', 'avatar', 'uid', 'status', 'created'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.game is string && request.resource.data.game.size() <= 60
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 24
+        && request.resource.data.text is string && request.resource.data.text.size() >= 4 && request.resource.data.text.size() <= 500
+        && request.resource.data.stars is int && request.resource.data.stars >= 1 && request.resource.data.stars <= 5;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['pending', 'approved', 'hidden'];
+      allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+    }
+  }
+}

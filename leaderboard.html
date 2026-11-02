@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ranks · 2trapz games</title>
+<meta name="description" content="The 2trapz games leaderboard: top players ranked by TZ score.">
+<meta name="theme-color" content="#ff8a00">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="2trapz games">
+<meta property="og:title" content="Ranks · 2trapz games">
+<meta property="og:description" content="The 2trapz games leaderboard: top players ranked by TZ score.">
+<meta property="og:image" content="https://edog2trapz.github.io/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.podium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:18px;max-width:820px;margin:34px auto 0}
+.pod{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.pod .who{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:12px;min-width:0;max-width:100%}
+.pod .medal{position:relative;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-size:48px;
+  background:radial-gradient(circle at 50% 30%,#fff,#eef1f4);box-shadow:0 0 0 5px var(--mc),0 0 0 8px rgba(255,255,255,.6),0 12px 30px rgba(0,0,0,.25),0 0 40px var(--mg)}
+.pod .medal::after{content:attr(data-rank);position:absolute;right:-6px;top:-6px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-style:italic;font-weight:900;font-size:16px;color:#fff;
+  background:radial-gradient(circle at 50% 120%,var(--mc2),var(--mc));box-shadow:0 0 0 3px #fff,0 3px 8px rgba(0,0,0,.3);text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.pod.p1 .medal{width:124px;height:124px;font-size:62px;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.pod .who b{font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;font-size:17px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .who small{font-weight:800;color:var(--o-text)}
+.ped{width:100%;border-radius:16px 16px 6px 6px;position:relative;overflow:hidden;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:900;font-style:italic;font-size:54px;
+  background:linear-gradient(180deg,var(--mc2) 0%,var(--mc) 55%,var(--mc3) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 16px 30px rgba(0,0,0,.2);text-shadow:0 3px 10px rgba(0,0,0,.35)}
+.ped::before{content:"";position:absolute;left:0;right:0;top:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.05))}
+.ped::after{content:"";position:absolute;inset:auto 0 12px 0;height:6px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.5) 0 10px,transparent 10px 18px)}
+.p1{--mc:#ff9a1f;--mc2:#ffd27a;--mc3:#e2560a;--mg:rgba(255,150,0,.55)}.p1 .ped{height:170px}
+.p2{--mc:#9aa5b1;--mc2:#eef2f5;--mc3:#6f7a86;--mg:rgba(180,195,210,.45)}.p2 .ped{height:120px}
+.p3{--mc:#c46a2b;--mc2:#f2b07a;--mc3:#8f4313;--mg:rgba(200,110,40,.4)}.p3 .ped{height:90px}
+.pod.empty .medal{opacity:.4;filter:grayscale(1)}
+@media (max-width:560px){.podium{gap:8px}.pod .medal{width:64px;height:64px;font-size:32px}.pod.p1 .medal{width:84px;height:84px;font-size:42px}.ped{font-size:36px}.p1 .ped{height:120px}.p2 .ped{height:86px}.p3 .ped{height:64px}.pod .who b{font-size:13px}}
+.board{margin-top:26px;padding:8px}
+.lrow{display:grid;grid-template-columns:56px 48px minmax(0,1fr) 70px 70px 90px;align-items:center;gap:10px;padding:10px 12px;border-radius:14px}
+.lrow + .lrow{border-top:1px solid var(--line)}
+.lrow.head{font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);border:0}
+.lrow .rk{font-family:var(--display);font-style:italic;font-weight:900;font-size:22px;color:var(--o-text);text-align:center}
+.lrow .ava{width:42px;height:42px;font-size:22px}
+.lrow .nm{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow .sc{font-family:var(--display);font-style:italic;font-weight:900;font-size:20px;text-align:right}
+.lrow .c{text-align:center;font-weight:800;color:var(--ink2)}
+.lrow.me{background:linear-gradient(90deg,rgba(255,138,0,.18),rgba(255,138,0,.04));box-shadow:inset 0 0 0 2px var(--o2)}
+.lrow.me .nm::after{content:"YOU";margin-left:8px;padding:2px 7px;border-radius:var(--pill);font-size:10px;letter-spacing:.1em;color:#fff;background:var(--o2);vertical-align:2px}
+@media (max-width:640px){.lrow{grid-template-columns:40px 40px minmax(0,1fr) 70px}.lrow .c{display:none}.lrow .ava{width:36px;height:36px;font-size:19px}}
+.how{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.how div{display:flex;gap:10px;align-items:center;padding:12px;border-radius:14px;background:var(--glass2);border:1px solid var(--line)}
+.how .orb{width:40px;height:40px;font-size:19px;flex:none}
+.how b{display:block;font-size:14px}.how small{color:var(--ink3);font-weight:800}
+.note{padding:22px;text-align:center;margin-top:24px}
+.note h3{margin:0 0 6px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase}
+.note p{margin:0 auto 14px;max-width:520px;color:var(--ink2)}
+</style>
+</head>
+<body data-page="ranks">
+<main id="main">
+<div class="wrap">
+  <section class="panel phero hud">
+    <svg class="deco" viewBox="0 0 300 300" aria-hidden="true" fill="none"><circle cx="190" cy="110" r="70" stroke="var(--o2)" stroke-width="2" opacity=".6"/><circle cx="190" cy="110" r="100" stroke="var(--tech)" stroke-width="2" stroke-dasharray="3 10"/><circle cx="190" cy="110" r="135" stroke="var(--o2)" stroke-width="1.5" stroke-dasharray="60 20 6 20" opacity=".5"/><text x="190" y="128" text-anchor="middle" font-size="52">🏆</text></svg>
+    <div class="kicker">Leaderboard</div>
+    <h1>The <span>Ranks</span></h1>
+    <p>Top players on the 2trapz Network, ranked by TZ score. Unlock achievements to climb.</p>
+    <span class="tag-id">2TZ // RNK-02</span>
+  </section>
+  <div id="podium" class="podium" aria-label="Top 3 players"></div>
+  <div id="cta"></div>
+  <section class="panel board" id="board" aria-label="Leaderboard"></section>
+  <div class="sec"><h2>How to earn TZ</h2><span class="rule"></span><a class="more" href="achievements.html">Trophy room ›</a></div>
+  <div class="how" id="how"></div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, esc, ACH, account, accountsOn, score, level, unlocked, plays } = TZ;
+  const me = () => { const p = TZ.profile(); return { uid: account.user() ? account.user().uid : 'me', tag: p.tag, avatar: p.avatar, score: score(), level: level().lv, ach: Object.keys(unlocked()).length, games: Object.keys(plays()).length, me: true }; };
+  function podium(list){
+    const slot = (x, cls, rank) => x ? `<div class="pod ${cls}"><div class="who"><span class="medal" data-rank="${rank}">${esc(x.avatar || '🎮')}</span><b>${esc(x.tag)}</b><small>${x.score} TZ</small></div><div class="ped">${rank}</div></div>`
+      : `<div class="pod ${cls} empty"><div class="who"><span class="medal" data-rank="${rank}">❔</span><b>Open spot</b><small>— TZ</small></div><div class="ped">${rank}</div></div>`;
+    $('#podium').innerHTML = slot(list[1], 'p2', 2) + slot(list[0], 'p1', 1) + slot(list[2], 'p3', 3);
+  }
+  function table(list, myUid){
+    $('#board').innerHTML = `<div class="lrow head"><span>Rank</span><span></span><span>Player</span><span class="c">Ach.</span><span class="c">Games</span><span style="text-align:right">TZ</span></div>` +
+      list.map((x, i) => `<div class="lrow${x.uid === myUid || x.me ? ' me' : ''}"><span class="rk">${i + 1}</span><span class="ava">${esc(x.avatar || '🎮')}</span><span class="nm">${esc(x.tag)}</span><span class="c">${x.ach}</span><span class="c">${x.games}</span><span class="sc">${x.score}</span></div>`).join('');
+  }
+  $('#how').innerHTML = [...ACH].filter(a => !a.secret).sort((a, b) => b.pts - a.pts).slice(0, 8).map(a => `<div><span class="orb">${a.icon}</span><span><b>${esc(a.name)}</b><small>+${a.pts} TZ · ${esc(a.desc)}</small></span></div>`).join('');
+
+  async function render(){
+    if (!accountsOn || account.failed){
+      podium([me()]); table([me()], 'me');
+      $('#cta').innerHTML = `<section class="panel note"><h3>📡 Online ranks are coming soon</h3><p>When accounts switch on, every player's TZ score lands here. For now, here's your own score. Keep unlocking achievements!</p><a class="btn" href="achievements.html">See achievements</a></section>`;
+      return;
+    }
+    if (account.loading){ $('#board').innerHTML = '<p class="muted" style="padding:20px;text-align:center;margin:0">Loading the ranks…</p>'; podium([]); return; }
+    try {
+      const list = (await account.leaderboard(50)).filter(x => x.tag);
+      const u = account.user();
+      podium(list); table(list.length ? list : [me()], u ? u.uid : 'me');
+      $('#cta').innerHTML = u ? '' : `<section class="panel note"><h3>Want your name up here?</h3><p>Sign in and your TZ score joins the leaderboard automatically.</p><a class="btn" href="account.html?next=leaderboard.html">Sign in to join</a></section>`;
+    } catch (e){
+      $('#board').innerHTML = `<p class="muted" style="padding:20px;text-align:center;margin:0">Couldn't load the ranks right now. ${esc(account.errorText(e))}</p>`;
+    }
+  }
+  document.addEventListener('tz:auth', render);
+  render();
+})();
+</script>
+</body>
+</html>

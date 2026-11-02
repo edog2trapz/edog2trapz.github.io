@@ -20,6 +20,30 @@ const TAGLINE = 'Free browser games. No downloads. No sign-up. Just play.';
 /* Where "Contact the creator", game requests and reviews get sent. */
 const CREATOR_EMAIL = 'realbug1243@gmail.com';
 
+/* =====================================================================
+   ACCOUNTS: sign in with Google, GitHub or email
+   ---------------------------------------------------------------------
+   Accounts stay switched off (everyone plays as a guest, progress saved
+   on their own device) until you paste your Firebase settings below.
+   The README section "Turn on accounts" walks you through it.
+   ===================================================================== */
+const ACCOUNTS = {
+  /* Paste the firebaseConfig object from the Firebase console here, like:
+     firebase: { apiKey:'AIza...', authDomain:'your-project.firebaseapp.com', projectId:'your-project', appId:'1:123:web:abc' }, */
+  firebase: null,
+  /* Sign-in buttons to show. Add 'github' after turning it on in Firebase. */
+  providers: ['google', 'email'],
+  /* Accounts that can open admin.html to approve or delete reviews. */
+  admins: ['realbug1243@gmail.com'],
+};
+
+/* The About page. Change this to tell people about yourself. */
+const ABOUT = {
+  creator: '2trapz',
+  intro: '2trapz games is a collection of free games made by 2trapz. Every game runs right in your browser: no downloads, no installs, no sign-up needed. New games land here as soon as they are ready.',
+  extra: 'Got an idea for the next game, or made one yourself? The Contact page goes straight to 2trapz.',
+};
+
 const GAMES = [
   { slug:'hazeport', title:'Hazeport Tycoon', icon:'🌃', genre:'Tycoon', colors:['#1a1035', '#ffb547'], players:'1 player', isNew:true, featured:true,
     desc:'Grow and mix glowing product in a neon port city, take turf from three rival gangs and fight the street wars yourself in first person. Watch the heat.' },
@@ -72,4 +96,17 @@ const GAMES = [
    { game:'breachline', name:'Sam', stars:5, text:'The case openings are addictive.', date:'2026-11-02' },
    ===================================================================== */
 const REVIEWS = [
+];
+
+/* =====================================================================
+   NEWS (the News page and the homepage ticker). Newest first.
+   { date:'2026-11-02', tag:'Update', title:'...', text:'...', game:'slug' }
+   tag can be anything, for example Launch, New game, Update, Event.
+   game (optional) links the post to a game.
+   ===================================================================== */
+const NEWS = [
+  { date:'2026-11-02', tag:'Launch', title:'The DORFic update is live',
+    text:'2trapz games has a whole new look: glossy glass, orange swooshes and a white future-city. Pick from five styles (Daylight, Night, Industrial, Blaze and Aero), unlock achievements, favorite games, write reviews and send your own game ideas straight to 2trapz.' },
+  { date:'2026-11-02', tag:'New games', title:'Five new arrivals', game:'hazeport',
+    text:'Hazeport Tycoon, Breachline, Stick Brawl TD, Power Hungry and Vector Terminal are all in the spotlight on the homepage. Go rate them!' },
 ];
