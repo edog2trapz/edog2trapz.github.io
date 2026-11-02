@@ -86,10 +86,11 @@
   const fmtDate = d => { try { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }); } catch (e){ return d; } };
 
   /* ---------- sounds (made live, no audio files) ---------- */
-  let ac = null;
+  let ac = null, gestured = false;
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, () => { gestured = true; }, { capture:true, passive:true }));
   const soundOn = () => get('tz.sound', true) !== false;
   function actx(){
-    if (!soundOn()) return null;
+    if (!soundOn() || !gestured) return null;
     try {
       if (!ac){ const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; ac = new C(); }
       if (ac.state === 'suspended') ac.resume();
@@ -135,6 +136,7 @@
     { id:'regular', icon:'📅', name:'Regular', desc:'Visit on 3 different days.', pts:25 },
     { id:'konami', icon:'⬆️', name:'Old School', desc:'Enter the secret code.', pts:50, secret:true },
     { id:'lost', icon:'📡', name:'Signal Lost', desc:'Find a page that does not exist.', pts:10, secret:true },
+    { id:'backup', icon:'💾', name:'Memory Card', desc:'Back up your progress to a save file or code.', pts:10 },
     { id:'online', icon:'🌐', name:'Connected', desc:'Sign in with an account.', pts:15, needs:'accounts' },
   ].filter(a => !a.needs || accountsOn);
   const TOTAL_PTS = ACH.reduce((s, a) => s + a.pts, 0);
@@ -358,7 +360,7 @@
   }
   function acctRow(){
     const u = account.user();
-    if (u) return `<div class="gacct"><span class="dot"></span>Signed in${u.email ? ' as ' + esc(u.email) : ''} · <a href="${BASE}account.html">Profile</a>${account.isAdmin() ? ` · <a href="${BASE}admin.html">Admin</a>` : ''} · <button data-signout>Sign out</button></div>`;
+    if (u) return `<div class="gacct"><span class="dot"></span>Signed in${u.username || u.email ? ' as ' + esc(u.username || u.email) : ''} · <a href="${BASE}account.html">Profile</a>${account.isAdmin() ? ` · <a href="${BASE}admin.html">Admin</a>` : ''} · <button data-signout>Sign out</button></div>`;
     if (accountsOn && !account.failed) return `<a class="gacct" href="${BASE}account.html">🔐 Sign in to save your progress on every device ›</a>`;
     return `<a class="gacct" href="${BASE}account.html">🪪 See your Player ID ›</a>`;
   }
@@ -400,7 +402,7 @@
   function openGuide(){
     if (guideOpen) return; guideOpen = true; lastFocus = document.activeElement;
     paintGuide(); const g = $('#guide'); g.style.visibility = 'visible';
-    requestAnimationFrame(() => { g.classList.add('on'); $('#guideScrim').classList.add('on'); });
+    requestAnimationFrame(() => { if (!guideOpen) return; g.classList.add('on'); $('#guideScrim').classList.add('on'); });
     sfx('open'); setTimeout(() => { const x = $('#gClose'); x && x.focus(); }, 60);
   }
   function closeGuide(){
@@ -414,6 +416,44 @@
     if (!v || v === profile.tag) return;
     profile.tag = v; profile.custom = true; saveProfile(); unlock('identity');
     document.dispatchEvent(new CustomEvent('tz:profile'));
+  }
+
+  /* ---------- memory card: back up or move progress without an account ---------- */
+  const SAVE_KEYS = ['tz.profile', 'tz.ach', 'tz.plays', 'tz.favs', 'tz.styles', 'tz.myReviews', 'arcade.recent'];
+  function exportSave(){ const o = { v:1, site:'2trapz games', at: today() }; SAVE_KEYS.forEach(k => { o[k] = get(k, null); }); return o; }
+  function saveCode(){ return '2TZ1-' + btoa(unescape(encodeURIComponent(JSON.stringify(exportSave())))); }
+  function downloadSave(){
+    const blob = new Blob([JSON.stringify(exportSave(), null, 1)], { type:'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = '2trapz-save-' + String(profile.tag).replace(/[^a-z0-9_-]/gi, '') + '-' + today() + '.json';
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    unlock('backup');
+  }
+  function importSave(o){
+    if (typeof o === 'string'){
+      const c = o.replace(/\s+/g, '');
+      if (!c.startsWith('2TZ1-')) throw new Error('That isn\'t a 2trapz save code. Codes start with 2TZ1-');
+      try { o = JSON.parse(decodeURIComponent(escape(atob(c.slice(5))))); } catch (e){ throw new Error('That save code is broken or cut off.'); }
+    }
+    if (!o || o.v !== 1) throw new Error('That isn\'t a 2trapz games save.');
+    const obj = x => (x && typeof x === 'object' && !Array.isArray(x)) ? x : {}, arr = x => Array.isArray(x) ? x : [];
+    const ach = { ...obj(get('tz.ach', {})) };
+    for (const [k, v] of Object.entries(obj(o['tz.ach']))) if (ACH.some(a => a.id === k)){ const t = +v || Date.now(); ach[k] = ach[k] ? Math.min(ach[k], t) : t; }
+    const pl = { ...obj(get('tz.plays', {})) };
+    for (const [k, v] of Object.entries(obj(o['tz.plays']))) if (bySlug(k)) pl[k] = Math.max(pl[k] || 0, Math.min(Math.floor(+v) || 0, 99999));
+    set('tz.ach', ach); set('tz.plays', pl);
+    set('tz.favs', [...new Set([...arr(get('tz.favs', [])), ...arr(o['tz.favs']).filter(s => bySlug(s))])]);
+    const st = {}; for (const k of Object.keys(obj(o['tz.styles']))) if (STYLES.some(x => x.id === k)) st[k] = 1;
+    set('tz.styles', { ...obj(get('tz.styles', {})), ...st });
+    const mine = arr(get('tz.myReviews', [])), ids = new Set(mine.map(r => r.id));
+    arr(o['tz.myReviews']).forEach(r => { if (r && r.id && !ids.has(r.id) && bySlug(r.game) && typeof r.text === 'string') mine.push({ id:String(r.id), game:r.game, name:String(r.name || '').slice(0, 24), stars:Math.max(1, Math.min(5, Math.round(+r.stars) || 1)), text:r.text.slice(0, 500), date:String(r.date || today()).slice(0, 10), avatar:AVATARS.includes(r.avatar) ? r.avatar : '🎮', cloudId:r.cloudId ? String(r.cloudId) : undefined }); });
+    set('tz.myReviews', mine.slice(0, 50));
+    set('arcade.recent', [...new Set([...arr(o['arcade.recent']).filter(s => bySlug(s)), ...arr(get('arcade.recent', []))])].slice(0, 6));
+    const p = obj(o['tz.profile']);
+    if (p.tag) set('tz.profile', { tag: String(p.tag).replace(/[<>]/g, '').trim().slice(0, 18) || profile.tag, avatar: AVATARS.includes(p.avatar) ? p.avatar : profile.avatar, custom: !!p.custom });
+    reloadProfile(); unlock('backup');
+    document.dispatchEvent(new CustomEvent('tz:reviews'));
+    if (account.push) account.push();
   }
 
   /* ---------- launching a game ---------- */
@@ -668,7 +708,7 @@
     profile: () => profile, plays, recent, favs, isFav, toggleFav, myReviews, allReviews, rating, stars, fmtDate,
     card, reviewCard, mountReviewForm, sendToCreator, mailto, launch, randomGame, unlock, toast, confetti, sfx, reveal, countUp,
     openGuide, score, level, ACH, unlocked, STYLES, stylesHTML, setTheme, themePref,
-    account, accountsOn, ACC, AVATARS, reloadProfile, setAvatar, setTag: commitTag, avatarFor,
+    account, accountsOn, ACC, AVATARS, reloadProfile, setAvatar, setTag: commitTag, avatarFor, exportSave, saveCode, downloadSave, importSave,
   };
 
   /* ---------- accounts (only when Firebase is set up in data.js) ---------- */

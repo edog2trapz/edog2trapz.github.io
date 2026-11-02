@@ -6,6 +6,8 @@
 <title>Your account · 2trapz games</title>
 <meta name="description" content="Sign in to 2trapz games with Google, GitHub or email. Your Player ID, progress and reviews.">
 <meta name="theme-color" content="#ff8a00">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4591809197740975"
+     crossorigin="anonymous"></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="2trapz games">
 <meta property="og:title" content="Your account · 2trapz games">
@@ -56,10 +58,10 @@
 .barcode{width:42%;height:clamp(22px,5vw,34px);background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px);opacity:.75}
 .id-no{font:800 clamp(9px,1.7vw,12px)/1 ui-monospace,Consolas,monospace;letter-spacing:.14em;color:var(--ink2)}
 .holo{position:absolute;z-index:4;left:52%;bottom:5%;width:10%;aspect-ratio:1;border-radius:50%;opacity:.75;mix-blend-mode:screen;
-  background:conic-gradient(from var(--h,0deg),#ff8a00,#ffe08a,#7fe0ff,#c4b5fd,#ff7a5c,#ff8a00);filter:saturate(1.3);animation:holo 6s linear infinite;
+  background:conic-gradient(from var(--holo,0deg),#ff8a00,#ffe08a,#7fe0ff,#c4b5fd,#ff7a5c,#ff8a00);filter:saturate(1.3);animation:holo 6s linear infinite;
   -webkit-mask:radial-gradient(circle,#000 55%,transparent 56%),repeating-radial-gradient(circle,#000 0 2px,transparent 2px 4px);mask:radial-gradient(circle,#000 55%,transparent 56%)}
-@property --h{syntax:'<angle>';initial-value:0deg;inherits:false}
-@keyframes holo{to{--h:360deg}}
+@property --holo{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes holo{to{--holo:360deg}}
 .idnote{text-align:center;margin-top:14px;color:var(--ink3);font-weight:700;font-size:13px}
 /* ---- sign in portal ---- */
 .portal{padding:30px}
@@ -107,6 +109,12 @@
 .st{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:var(--pill);white-space:nowrap}
 .st.live{background:rgba(61,220,132,.15);color:#17a35a}.st.pending{background:rgba(255,138,0,.14);color:var(--o-text)}.st.hidden{background:var(--line);color:var(--ink3)}
 .danger{border:1px solid rgba(229,48,27,.35)!important}
+details.alt{margin-top:18px}
+details.alt summary{cursor:pointer;font-weight:800;color:var(--o-text);font-size:14px}
+.memu{display:inline-block;width:22px;height:28px;border-radius:4px 4px 3px 3px;position:relative;flex:none;
+  background:linear-gradient(180deg,var(--chrome1),var(--chrome2));box-shadow:inset 0 0 0 1px var(--chrome-edge),0 2px 4px rgba(0,0,0,.2)}
+.memu::before{content:"";position:absolute;left:3px;right:3px;top:4px;height:10px;border-radius:2px;background:linear-gradient(180deg,#ffb44d,#f26a00)}
+.memu::after{content:"";position:absolute;left:5px;right:5px;bottom:3px;height:4px;background:repeating-linear-gradient(90deg,#d9a33a 0 2px,transparent 2px 4px)}
 </style>
 </head>
 <body data-page="account">
@@ -177,26 +185,35 @@
     root.innerHTML = `<div>${keycard()}<p class="idnote">Hover or tilt the card ✨</p></div>
       <div style="display:grid;gap:20px">
         <section class="panel box"><h3>🪪 Guest Player ID</h3><p class="muted" style="margin:0">Online accounts are coming soon. Until then, your Player ID, achievements and favorites are saved on this device, so use the same browser to keep your progress.</p></section>
-        ${editor()}${stats()}</div>`;
+        ${editor()}${stats()}${memoryCard()}</div>`;
     $('#ttl').innerHTML = 'Player <span>ID</span>';
     bind();
   }
   function signInView(){
     const show = k => providers.includes(k);
-    root.innerHTML = `<section class="panel portal">
-        <div class="kicker">Sign in</div><h2>Join the <span>2trapz Network</span></h2>
-        <p>One account for every game. Your progress follows you to any device.</p>
-        <div class="prov">
-          ${show('google') ? `<button class="pbtn google" data-prov="google">${G_LOGO} Sign in with Google</button>` : ''}
-          ${show('github') ? `<button class="pbtn github" data-prov="github">${GH_LOGO} Sign in with GitHub</button>` : ''}
-        </div>
-        ${show('email') ? `${show('google') || show('github') ? '<div class="or">or use email</div>' : ''}
-        <div class="etabs" role="tablist"><button role="tab" data-mode="in" aria-selected="true">Sign in</button><button role="tab" data-mode="up" aria-selected="false">Create account</button></div>
+    const emailOnly = show('email') && !show('username');
+    const emailForm = `<div class="etabs" role="tablist"><button type="button" role="tab" data-mode="in" aria-selected="true">Sign in</button><button type="button" role="tab" data-mode="up" aria-selected="false">Create account</button></div>
         <form class="eform" id="eform" novalidate>
           <label class="field"><span>Email</span><input id="em" type="email" autocomplete="email" required></label>
           <label class="field"><span>Password</span><input id="pw" type="password" autocomplete="current-password" minlength="6" required></label>
           <div class="row" style="justify-content:space-between"><button class="btn" type="submit" id="esub">Sign in</button><button type="button" class="linkbtn" id="forgot">Forgot password?</button></div>
+        </form>`;
+    root.innerHTML = `<section class="panel portal">
+        <div class="kicker">Sign in</div><h2>Join the <span>2trapz Network</span></h2>
+        <p>${show('username') ? 'Just pick a username and password. No email needed.' : 'One account for every game.'} Your progress saves to your account and follows you to any device.</p>
+        ${show('google') || show('github') ? `<div class="prov">
+          ${show('google') ? `<button class="pbtn google" data-prov="google">${G_LOGO} Sign in with Google</button>` : ''}
+          ${show('github') ? `<button class="pbtn github" data-prov="github">${GH_LOGO} Sign in with GitHub</button>` : ''}
+        </div>${show('username') || show('email') ? '<div class="or">or</div>' : ''}` : ''}
+        ${show('username') ? `<div class="etabs" role="tablist"><button type="button" role="tab" data-umode="in" aria-selected="true">Sign in</button><button type="button" role="tab" data-umode="up" aria-selected="false">Create account</button></div>
+        <form class="eform" id="uform" novalidate>
+          <label class="field"><span>Username</span><input id="un" maxlength="16" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>
+          <label class="field"><span>Password</span><input id="upw" type="password" autocomplete="current-password" required></label>
+          <label class="field" id="upw2w" hidden><span>Type the password again</span><input id="upw2" type="password" autocomplete="new-password"></label>
+          <p class="muted" id="uhint" style="margin:0;font-size:13px" hidden>3 to 16 letters, numbers or _. Your username stays private; other players see your gamertag. <b>Write your password down</b>: without an email there's no way to reset it.</p>
+          <div class="row"><button class="btn" type="submit" id="usub">Sign in</button></div>
         </form>` : ''}
+        ${show('email') ? (emailOnly ? emailForm : `<details class="alt"><summary>Use an email address instead</summary><div style="margin-top:14px">${emailForm}</div></details>`) : ''}
         <p class="amsg" id="amsg" role="status"></p>
         <p class="muted" style="font-size:13px;margin:6px 0 0">By signing in you agree to the <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy policy</a>.</p>
       </section>
@@ -205,15 +222,37 @@
           <li><span class="orb">☁️</span><span><b>Progress everywhere</b>Achievements, favorites and play history saved to your account.</span></li>
           <li><span class="orb">🏆</span><span><b>Join the Ranks</b>Your TZ score goes on the public leaderboard.</span></li>
           <li><span class="orb">⭐</span><span><b>Write reviews</b>Rate games and help other players.</span></li>
-          <li><span class="orb">🔒</span><span><b>Your email stays private</b>Only your gamertag and avatar are public.</span></li></ul></section></div>`;
+          <li><span class="orb">🔒</span><span><b>Stays private</b>Only your gamertag and avatar are public.</span></li></ul></section>
+        ${memoryCard()}</div>`;
     $('#ttl').innerHTML = 'Sign <span>in</span>';
-    let mode = 'in';
-    const msg = (t, good) => { const m = $('#amsg'); m.textContent = t; m.className = 'amsg ' + (good ? 'good' : 'bad'); };
+    const msg = (t, good) => { const m = $('#amsg'); if (!m) return; m.textContent = t; m.className = 'amsg ' + (good ? 'good' : 'bad'); };
     const done = () => { msg('Signed in! Loading your profile…', true); TZ.sfx('ok'); if (next) setTimeout(() => { location.href = next; }, 600); };
     $$('[data-prov]').forEach(b => b.addEventListener('click', async () => {
       msg('');
       try { await account.signIn(b.dataset.prov); done(); } catch (e){ msg(account.errorText(e)); TZ.sfx('err'); }
     }));
+    /* username form */
+    let umode = 'in';
+    $$('[data-umode]').forEach(b => b.addEventListener('click', () => {
+      umode = b.dataset.umode; $$('[data-umode]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+      $('#usub').textContent = umode === 'in' ? 'Sign in' : 'Create account';
+      $('#upw2w').hidden = $('#uhint').hidden = umode === 'in';
+      $('#upw').autocomplete = umode === 'in' ? 'current-password' : 'new-password';
+    }));
+    const uf = $('#uform');
+    if (uf) uf.addEventListener('submit', async e => {
+      e.preventDefault();
+      const un = $('#un').value.trim(), pw = $('#upw').value;
+      if (!account.usernameOk(un)) return msg('Usernames are 3 to 16 letters, numbers or _ (no spaces).');
+      if (pw.length < 6) return msg('Passwords need at least 6 characters.');
+      if (umode === 'up' && pw !== $('#upw2').value) return msg('The two passwords don\'t match.');
+      const btn = $('#usub'); btn.disabled = true;
+      try { if (umode === 'in') await account.signInUser(un, pw); else await account.signUpUser(un, pw); done(); }
+      catch (err){ msg(account.errorText(err, 'username')); TZ.sfx('err'); }
+      finally { btn.disabled = false; }
+    });
+    /* email form */
+    let mode = 'in';
     $$('[data-mode]').forEach(b => b.addEventListener('click', () => {
       mode = b.dataset.mode; $$('[data-mode]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
       $('#esub').textContent = mode === 'in' ? 'Sign in' : 'Create account'; $('#pw').autocomplete = mode === 'in' ? 'current-password' : 'new-password';
@@ -222,28 +261,29 @@
     if (ef) ef.addEventListener('submit', async e => {
       e.preventDefault(); const em = $('#em').value.trim(), pw = $('#pw').value;
       if (!em || !pw) return msg('Type your email and password.');
-      $('#esub').disabled = true;
+      const btn = $('#esub'); btn.disabled = true;
       try { if (mode === 'in') await account.signInEmail(em, pw); else { await account.signUpEmail(em, pw); } done(); }
       catch (err){ msg(account.errorText(err)); TZ.sfx('err'); }
-      finally { $('#esub').disabled = false; }
+      finally { btn.disabled = false; }
     });
     const fg = $('#forgot');
     if (fg) fg.addEventListener('click', async () => {
       const em = $('#em').value.trim(); if (!em) return msg('Type your email first, then tap "Forgot password?".');
       try { await account.resetPassword(em); msg('Check your inbox for a reset link.', true); } catch (e){ msg(account.errorText(e)); }
     });
-    tilt();
+    bindCard(); tilt();
   }
   function signedInView(){
     const u = account.user();
     root.innerHTML = `<div style="display:grid;gap:20px">${keycard()}
         <section class="panel box"><h3>☁️ Account</h3>
-          <p style="margin:0 0 6px"><b>${esc(u.name || 'Player')}</b> <span class="muted">${esc(u.email)}</span></p>
-          <p style="margin:0 0 14px" class="muted">Signed in with ${u.provider === 'google.com' ? 'Google' : u.provider === 'github.com' ? 'GitHub' : 'email'} · <span class="syncpill" id="sync">☁️ Synced</span></p>
+          <p style="margin:0 0 6px">${u.username ? `👤 <b>${esc(u.username)}</b> <span class="muted">(your private username)</span>` : `<b>${esc(u.name || 'Player')}</b> <span class="muted">${esc(u.email)}</span>`}</p>
+          <p style="margin:0 0 14px" class="muted">Signed in with ${u.provider === 'google.com' ? 'Google' : u.provider === 'github.com' ? 'GitHub' : u.provider === 'username' ? 'a username' : 'email'} · <span class="syncpill" id="sync">☁️ Synced</span></p>
           ${u.provider === 'password' && !u.verified ? '<p class="muted" style="margin:0 0 12px;font-size:14px">📬 Check your inbox to verify your email.</p>' : ''}
           <div class="row"><button class="btn ghost" data-signout>Sign out</button>${account.isAdmin() ? '<a class="btn" href="admin.html">🛠️ Admin console</a>' : ''}</div></section>
       </div>
       <div style="display:grid;gap:20px">${editor()}${stats()}
+        ${memoryCard()}
         <section class="panel box"><h3>⭐ Your reviews</h3><div id="myrv"><p class="muted" style="margin:0">Loading…</p></div></section>
         <section class="panel box danger"><h3>⚠️ Danger zone</h3><p class="muted" style="margin:0 0 12px">Deleting your account removes your profile and leaderboard spot for good.</p>
           <button class="btn red sm" id="del">Delete my account</button><p class="amsg" id="amsg"></p></section></div>`;
@@ -268,7 +308,40 @@
   }
   document.addEventListener('tz:sync', e => paintSync(e.detail));
 
+  function memoryCard(){
+    return `<section class="panel box"><h3><span class="memu" aria-hidden="true"></span>Memory card</h3>
+      <p class="muted" style="margin:0 0 14px">Back up your progress, or move it to another device or browser. Works with or without an account.</p>
+      <div class="row"><button class="btn sm" id="mcSave">⬇ Save to file</button><button class="btn sm ghost" id="mcLoad">⬆ Load a save file</button><input type="file" id="mcFile" accept=".json,application/json" hidden></div>
+      <details class="alt" style="margin-top:14px"><summary>Use a save code instead</summary>
+        <div style="display:grid;gap:10px;margin-top:12px">
+          <button class="btn sm ghost" id="mcCopy" style="justify-self:start">📋 Copy my save code</button>
+          <label class="field"><span>Paste a save code to load it</span><textarea id="mcCode" style="min-height:80px;font:12px/1.4 ui-monospace,Consolas,monospace" placeholder="2TZ1-..."></textarea></label>
+          <button class="btn sm" id="mcPaste" style="justify-self:start">Load code</button></div></details>
+      <p class="amsg" id="mcMsg" role="status"></p></section>`;
+  }
+  function bindCard(){
+    const m = (t, good) => { const el = $('#mcMsg'); if (el){ el.textContent = t; el.className = 'amsg ' + (good ? 'good' : 'bad'); } };
+    const loaded = () => { m('Progress loaded! ' + (account.user() ? 'It\'s saving to your account too.' : ''), true); TZ.sfx('ok'); TZ.toast({ icon:'💾', small:'Memory card', big:'Progress loaded!' }); setTimeout(render, 900); };
+    const on = (id, fn) => { const el = $('#' + id); if (el) el.addEventListener('click', fn); };
+    on('mcSave', () => { TZ.downloadSave(); m('Saved! Keep that file somewhere safe.', true); });
+    on('mcLoad', () => $('#mcFile').click());
+    const f = $('#mcFile');
+    if (f) f.addEventListener('change', async () => {
+      const file = f.files[0]; if (!file) return;
+      try { TZ.importSave(JSON.parse(await file.text())); loaded(); } catch (e){ m(e.message || 'That file couldn\'t be loaded.'); TZ.sfx('err'); }
+      f.value = '';
+    });
+    on('mcCopy', async () => {
+      const code = TZ.saveCode();
+      try { await navigator.clipboard.writeText(code); m('Save code copied. Paste it somewhere safe.', true); TZ.unlock('backup'); }
+      catch (e){ $('#mcCode').value = code; m('Copy the code from the box below.', true); TZ.unlock('backup'); }
+    });
+    on('mcPaste', () => {
+      try { TZ.importSave($('#mcCode').value); loaded(); } catch (e){ m(e.message || 'That code didn\'t work.'); TZ.sfx('err'); }
+    });
+  }
   function bind(){
+    bindCard();
     const tagIn = $('#tagIn');
     if (tagIn){
       const commit = () => { TZ.setTag(tagIn.value); refreshCard(); };

@@ -7,6 +7,11 @@
    admin to approve them) and powers the leaderboard.
    ===================================================================== */
 const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+/* Username accounts are Firebase email/password accounts with a made-up
+   address on this domain, so players never need a real email. */
+const USER_DOMAIN = 'player.edog2trapz.github.io';
+export const usernameOk = u => /^[A-Za-z0-9_]{3,16}$/.test(String(u || ''));
+const userEmail = u => String(u).trim().toLowerCase() + '@' + USER_DOMAIN;
 
 export async function start(TZ, cfg){
   const [{ initializeApp }, A, F] = await Promise.all([
@@ -17,7 +22,8 @@ export async function start(TZ, cfg){
   const db = F.getFirestore(app);
   const admins = (cfg.admins || []).map(e => String(e).toLowerCase());
   const emit = () => document.dispatchEvent(new CustomEvent('tz:auth'));
-  let user = null, syncState = 'idle', timer = 0, pulling = false;
+  let user = null, syncState = 'idle', timer = 0, pulling = false, pendingTag = null;
+  const isUsername = u => !!(u && u.email && u.email.endsWith('@' + USER_DOMAIN));
 
   const cleanTag = s => String(s || '').replace(/[<>]/g, '').replace(/\s+/g, '').slice(0, 18) || 'Player';
   const setSync = s => { syncState = s; document.dispatchEvent(new CustomEvent('tz:sync', { detail: s })); };
@@ -46,6 +52,7 @@ export async function start(TZ, cfg){
     } else if (!local.profile.custom && user.displayName){
       profile.tag = cleanTag(user.displayName.split(' ')[0] + Math.floor(10 + Math.random() * 90));
     }
+    if (pendingTag){ profile.tag = cleanTag(pendingTag); profile.custom = true; pendingTag = null; }
     TZ.set('tz.profile', profile);
     pulling = false;
     TZ.reloadProfile();
@@ -95,17 +102,33 @@ export async function start(TZ, cfg){
     'permission-denied': 'The server said no. (Check the Firestore rules in the README.)',
   };
 
+  const UERR = {
+    'auth/email-already-in-use': 'That username is taken. Try another one.',
+    'auth/invalid-credential': 'Wrong username or password.',
+    'auth/wrong-password': 'Wrong username or password.',
+    'auth/user-not-found': 'No account with that username. Create one instead?',
+    'auth/invalid-email': 'Usernames can only use letters, numbers and _ (3 to 16 of them).',
+    'auth/operation-not-allowed': 'Accounts aren\'t switched on in Firebase yet (turn on Email/Password).',
+  };
   const api = {
     enabled: true,
     user: () => user && {
-      uid: user.uid, name: user.displayName || '', email: user.email || '', photo: user.photoURL || '', verified: !!user.emailVerified,
-      provider: ((user.providerData || [])[0] || {}).providerId || 'password',
+      uid: user.uid, name: user.displayName || '', photo: user.photoURL || '', verified: !!user.emailVerified,
+      username: isUsername(user) ? user.email.split('@')[0] : '',
+      email: isUsername(user) ? '' : (user.email || ''),
+      provider: isUsername(user) ? 'username' : (((user.providerData || [])[0] || {}).providerId || 'password'),
       created: user.metadata && user.metadata.creationTime,
     },
+    usernameOk,
+    signInUser: (name, pw) => A.signInWithEmailAndPassword(auth, userEmail(name), pw),
+    async signUpUser(name, pw){ pendingTag = name; try { return await A.createUserWithEmailAndPassword(auth, userEmail(name), pw); } catch (e){ pendingTag = null; throw e; } },
     isAdmin: () => !!(user && user.email && user.emailVerified && admins.includes(user.email.toLowerCase())),
     sync: () => syncState,
     save, push,
-    errorText: e => (e && (ERR[e.code] || e.message)) || 'Something went wrong. Try again.',
+    errorText: (e, kind) => {
+      if (kind === 'username' && e && UERR[e.code]) return UERR[e.code];
+      return (e && (ERR[e.code] || e.message)) || 'Something went wrong. Try again.';
+    },
     signIn(which){
       const p = which === 'github' ? new A.GithubAuthProvider() : new A.GoogleAuthProvider();
       if (which !== 'github') p.setCustomParameters({ prompt: 'select_account' });

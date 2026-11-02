@@ -104,11 +104,11 @@ If you like it, paste that line into the `REVIEWS = [` list at the bottom of `as
 
 ---
 
-## Turn on accounts (sign in with Google, email and GitHub)
+## Turn on accounts (username + password)
 
-Until you do this, everyone plays as a guest and their progress stays on their own device. Turning on accounts adds Google and email sign-in, cloud-saved progress, the Ranks leaderboard, and a review approval console. It's free (Firebase's free plan) and takes about 10 minutes.
+Until you do this, everyone plays as a guest and their progress stays on their own device (they can still back it up with the Memory Card on the account page). Turning on accounts lets players make an account with just a **username and password** (no email needed), saves their progress to it on any device, and switches on the Ranks leaderboard and your review approval console. The accounts live in **Firebase**, Google's free app backend. Setting it up takes about 10 minutes, once.
 
-1. Go to **https://console.firebase.google.com** and sign in with **realbug1243@gmail.com**.
+1. Go to **https://console.firebase.google.com** and log in with **realbug1243@gmail.com** (that's only for you to manage it; players never see Google).
 2. Click **Create a project**, name it `2trapz-games`, switch Google Analytics **off**, and finish.
 3. On the project home page, click the **</>** (Web) button to add a web app. Give it any nickname, leave "Firebase Hosting" unticked, and click **Register app**.
 4. Firebase shows some code with `const firebaseConfig = { ... }`. Copy everything **inside the curly braces**.
@@ -117,16 +117,27 @@ Until you do this, everyone plays as a guest and their progress stays on their o
    firebase: { apiKey: "AIza...", authDomain: "2trapz-games.firebaseapp.com", projectId: "2trapz-games", storageBucket: "...", messagingSenderId: "...", appId: "..." },
    ```
    (These keys are meant to be public. The security comes from the rules in step 8.)
-6. In Firebase, open **Build → Authentication → Get started → Sign-in method**. Turn on **Google** (pick your email as the support email) and **Email/Password**. Save each one.
+6. In Firebase, open **Build → Authentication → Get started → Sign-in method** and turn on **Email/Password**. (Username accounts use this behind the scenes.)
 7. Still in Authentication, open **Settings → Authorized domains → Add domain** and add `edog2trapz.github.io`.
 8. Open **Build → Firestore Database → Create database**. Pick a location near you, choose **production mode**, and create it. Then open the **Rules** tab, delete everything there, paste in everything from this repo's `firestore.rules` file, and click **Publish**.
-9. Upload the changed `assets/data.js` to GitHub. Wait a minute, open the site, go to **Account** and sign in with Google using **realbug1243@gmail.com**. You're the admin: your account page shows an **Admin console** button.
+9. Upload the changed `assets/data.js` to GitHub and wait a minute. Accounts are live.
 
-**Approving reviews with accounts on:** players must sign in to post reviews. You get an email for each one with a link to `admin.html`, where you click **Approve**, **Hide** or **Delete**. (No more pasting code into `data.js`.)
+**Becoming the admin (to approve reviews):** on the site's Account page, open "Use an email address instead", choose **Create account**, and sign up with **realbug1243@gmail.com**. Click the link in the verification email Firebase sends you, then sign out and back in. Your account page now shows an **Admin console** button (`admin.html`). Players must sign in to post reviews; you get an email for each one, then click **Approve**, **Hide** or **Delete** in the console.
 
-**Optional, sign in with GitHub:** in Firebase, open Authentication → Sign-in method → **GitHub**, switch it on, and copy the callback URL it shows. On GitHub, go to Settings → Developer settings → OAuth Apps → **New OAuth App**. Use `https://edog2trapz.github.io` as the homepage and paste the callback URL. Create it, then copy the **Client ID** and a new **Client secret** back into Firebase and save. Finally, change `providers: ['google', 'email']` to `providers: ['google', 'email', 'github']` in `assets/data.js`.
+**Forgotten username passwords:** username accounts have no email, so they can't reset their own password. If a player asks, open Firebase → Authentication → Users, find `theirusername@player.edog2trapz.github.io`, and delete it so they can sign up again (they can restore progress from a Memory Card save).
+
+**Optional, sign in with Google or GitHub:** turn on **Google** (and/or **GitHub**, which needs an OAuth app made on GitHub under Settings → Developer settings → OAuth Apps, using the callback URL Firebase shows) in Authentication → Sign-in method, then add `'google'` (and/or `'github'`) to `providers` in `assets/data.js`.
 
 **Adding another admin:** add their email to `admins` in `assets/data.js` **and** to the list in `isAdmin()` in `firestore.rules`, then publish the rules again.
+
+## Ads (Google AdSense)
+
+Your AdSense code (`ca-pub-4591809197740975`) is in the `<head>` of every page except `admin.html`, and `ads.txt` is at the top of the site. After it's live:
+
+1. In AdSense, add the site `edog2trapz.github.io`, choose **AdSense code snippet** to verify, and click **Verify**. Then request a review.
+2. Turn on **Auto ads**. If ads cover the phone menu bar at the bottom of the screen, switch off **Anchor ads**.
+3. In **Privacy & messaging**, create a **European regulations (GDPR) message**. Google needs this to show ads to visitors in the EU and UK.
+4. The games themselves (`games/...`) don't have the ad code, so ads never pop up over a game you're playing. If you want ads there too, add the same code to that game's `index.html` `<head>`.
 
 ## News and About
 
@@ -139,10 +150,11 @@ Until you do this, everyone plays as a guest and their progress stays on their o
 
 - **5 DORFic styles.** Click the swirly swatch button in the top bar (or press **S**): Daylight, Night, Industrial, Blaze and Aero. Auto follows the device's light or dark setting.
 - **Guide.** Click your gamertag (or press **G**) to change your gamertag and avatar, see your level, achievements, recently played games and favorites.
-- **Achievements.** 17 of them (18 with accounts on), worth TZ points, with a pop-up and a chime when you unlock one. Two are secret.
+- **Achievements.** 18 of them (19 with accounts on), worth TZ points, with a pop-up and a chime when you unlock one. Two are secret.
 - **Favorites.** Tap the ♡ on any game.
 - **Launch screen, startup intro and sounds.** Sounds can be turned off in the Guide's settings.
-- **Accounts** (once turned on): Player ID card, cloud saves, the Ranks leaderboard and an admin console.
+- **Accounts** (once turned on): username + password sign-up, Player ID card, cloud saves, the Ranks leaderboard and an admin console.
+- **Memory Card** (account page): save progress to a file or code and load it on another device. Works without accounts.
 - **Shortcuts:** **/** search, **R** random game, **S** switch style, **G** Guide, **Esc** close.
 - **Secret:** there is a classic cheat code. On a phone, tap the orange 2t logo 7 times on the homepage.
 
