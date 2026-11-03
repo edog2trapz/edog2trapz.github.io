@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
+    desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry against the clock, prep, air-fry, plate up and survive seven episodes of three tough judges.' },
   { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
     desc:'Fight it on the line, or hold your breath and go down after it. Rod-and-reel fishing and freedive spearfishing across five waters, with 38 fish, 6 legends, weather, sharks and crocodiles.' },
   { slug:'orb-four', title:'Orb Four', icon:'🟠', genre:'Puzzle', colors:['#1b2230', '#ff8a00'], players:'1–2 players · online with friends', isNew:true, featured:true,
@@ -115,6 +117,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-03', tag:'New game', title:'Airfryer Chef is cooking', game:'airfryer-chef',
+    text:'Seven rivals get professional kitchens. You get an air fryer. Shop the pantry, prep, air-fry, plate up and face three judges across seven episodes, from the mystery basket to the grand finale. There is a practice kitchen and a cookbook of every plate you serve.' },
   { date:'2026-11-03', tag:'Update', title:'Friends, cloud saves and Orb Four', game:'orb-four',
     text:'Sign in and your game saves follow you to any device. Add friends with your friend code, see who is online, send game invites and challenge them to live matches of Orb Four, the new online game. The Ranks now have a Friends tab too.' },
   { date:'2026-11-02', tag:'New game', title:'Besieged has landed', game:'besieged',
