@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Friends · 2trapz games</title>
+<meta name="description" content="Add friends on 2trapz games, see who&#x27;s online, send game invites and challenge friends to live Orb Four matches.">
+<meta name="theme-color" content="#ff8a00">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4591809197740975"
+     crossorigin="anonymous"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="2trapz games">
+<meta property="og:title" content="Friends · 2trapz games">
+<meta property="og:description" content="Add friends on 2trapz games, see who&#x27;s online, send game invites and challenge friends to live Orb Four matches.">
+<meta property="og:image" content="https://edog2trapz.github.io/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.fgrid{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:24px;align-items:start;margin-top:24px}
+@media (max-width:940px){.fgrid{grid-template-columns:1fr}}
+.box{padding:22px}
+.box h3{margin:0 0 14px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:19px;display:flex;align-items:center;gap:10px}
+.box h3 .cnt{margin-left:auto;font-size:13px;font-style:normal;color:var(--ink3);letter-spacing:.06em}
+/* friend code display: glossy LCD */
+.lcd{position:relative;display:flex;align-items:center;justify-content:center;gap:4px;padding:18px 10px;border-radius:16px;margin-bottom:14px;overflow:hidden;
+  background:linear-gradient(180deg,#1a1f27,#0d1015);box-shadow:inset 0 2px 10px rgba(0,0,0,.6),0 0 0 2px var(--o2),0 8px 24px rgba(255,120,0,.25)}
+.lcd::before{content:"";position:absolute;inset:0 0 55% 0;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0))}
+.lcd::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);pointer-events:none}
+.lcd span{position:relative;font:800 clamp(22px,4.6vw,30px)/1 ui-monospace,"JetBrains Mono",Consolas,monospace;letter-spacing:.12em;color:#ffb347;text-shadow:0 0 10px rgba(255,150,0,.8),0 0 22px rgba(255,120,0,.5)}
+.lcd small{position:absolute;left:12px;top:8px;font:800 9px/1 ui-monospace,monospace;letter-spacing:.2em;color:rgba(255,180,90,.6)}
+.search{display:flex;gap:8px}
+.search .input{flex:1;border-radius:var(--pill)}
+.res,.req,.fr{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--glass2);margin-top:10px}
+.res b,.req b,.fr b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res small,.req small{color:var(--ink3);font-weight:700;font-size:12.5px}
+.res > span:nth-child(2),.req > span:nth-child(2){flex:1;min-width:0}
+.res .btn,.req .btn{flex:none}
+.pava{position:relative;width:52px;height:52px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:28px;background:radial-gradient(circle at 50% 30%,#fff,#e8ecf0);box-shadow:inset 0 0 0 2px var(--chrome-edge)}
+.pava.on{box-shadow:inset 0 0 0 3px #3ddc84,0 0 14px rgba(61,220,132,.6)}
+.pava.on::after{content:"";position:absolute;right:0;bottom:0;width:14px;height:14px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 3px var(--glass2)}
+.flist{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.fcard{padding:16px;display:flex;flex-direction:column;gap:12px}
+.fcard .top{display:flex;align-items:center;gap:12px}
+.fcard .nm{min-width:0;flex:1}
+.fcard .nm b{display:block;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcard .st{font-size:13px;font-weight:800;color:var(--ink3)}
+.fcard .st.on{color:#17a35a}.fcard .st.play{color:var(--o-text)}
+.fcard .acts{display:flex;gap:8px;flex-wrap:wrap}
+.fcard .acts .btn{flex:1}
+.fcard .inv{display:none;gap:8px}
+.fcard.inviting .inv{display:flex}
+.fcard .inv select{flex:1;min-height:36px;padding:4px 10px;border-radius:10px}
+.xbtn{background:none;border:0;color:var(--ink3);cursor:pointer;font-size:18px;padding:4px 6px;border-radius:8px}
+.xbtn:hover{color:var(--red);background:rgba(229,48,27,.08)}
+.note{padding:30px 24px;text-align:center}
+.note h3{justify-content:center}
+.note p{color:var(--ink2);max-width:520px;margin:0 auto 16px}
+.muted-s{font-size:13px;color:var(--ink3);margin:8px 0 0}
+</style>
+</head>
+<body data-page="friends">
+<main id="main">
+<div class="wrap">
+  <section class="panel phero hud">
+    <svg class="deco" viewBox="0 0 300 300" aria-hidden="true" fill="none"><circle cx="190" cy="110" r="70" stroke="var(--o2)" stroke-width="2" opacity=".6"/><circle cx="190" cy="110" r="100" stroke="var(--tech)" stroke-width="2" stroke-dasharray="3 10"/><circle cx="190" cy="110" r="135" stroke="var(--o2)" stroke-width="1.5" stroke-dasharray="60 20 6 20" opacity=".5"/><text x="190" y="128" text-anchor="middle" font-size="52">👥</text></svg>
+    <div class="kicker">2trapz Network</div>
+    <h1>Your <span>friends</span></h1>
+    <p>Add friends with their friend code, see who's online, invite them to games and challenge them to live Orb Four matches.</p>
+    <span class="tag-id">2TZ // FRN-12</span>
+  </section>
+  <div id="root"></div>
+</div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(() => {
+  const { $, $$, esc, GAMES, bySlug, account, accountsOn } = TZ;
+  const root = $('#root');
+  const P = new URLSearchParams(location.search);
+  let addCode = (P.get('add') || '').trim();
+  let friendships = [], profiles = {}, built = false, refresher = 0;
+  const fmtCode = c => '2TZ-' + String(c).slice(0, 4) + '-' + String(c).slice(4, 8);
+  const ago = t => { const s = (Date.now() - t) / 1000; if (!t) return 'a while ago'; if (s < 3600) return Math.max(1, Math.round(s / 60)) + ' min ago'; if (s < 86400) return Math.round(s / 3600) + ' h ago'; return Math.round(s / 86400) + ' days ago'; };
+  const status = p => {
+    if (!p) return { cls:'', txt:'' };
+    if (p.online && p.playing && bySlug(p.playing)) return { cls:'play', txt:'🎮 Playing ' + bySlug(p.playing).title };
+    if (p.online) return { cls:'on', txt:'🟢 Online' };
+    return { cls:'', txt:'Last seen ' + ago(p.seen) + (p.playing && bySlug(p.playing) ? ' · played ' + bySlug(p.playing).title : '') };
+  };
+  const note = (icon, title, text, btn) => { root.innerHTML = `<section class="panel note" style="margin-top:24px"><div style="font-size:48px">${icon}</div><h3 style="font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;margin:8px 0">${title}</h3><p>${text}</p>${btn || ''}</section>`; built = false; };
+
+  function build(){
+    const code = account.myCode();
+    root.innerHTML = `<div class="fgrid">
+      <div style="display:grid;gap:20px">
+        <section class="panel box"><h3>🔑 Your friend code</h3>
+          <div class="lcd"><small>FRIEND CODE</small><span id="myCode">${fmtCode(code)}</span></div>
+          <div class="row"><button class="btn sm" id="copyCode">📋 Copy code</button><button class="btn sm ghost" id="shareLink">🔗 Share invite link</button></div>
+          <p class="muted-s">It's also the ID number on your Player ID card.</p></section>
+        <section class="panel box"><h3>➕ Add a friend</h3>
+          <form class="search" id="findForm"><input class="input" id="findQ" placeholder="Friend code or exact gamertag" autocomplete="off" spellcheck="false" aria-label="Friend code or gamertag"><button class="btn sm" type="submit">Find</button></form>
+          <div id="results"></div></section>
+        <section class="panel box"><h3>📨 Requests <span class="cnt" id="reqCnt"></span></h3><div id="reqs"></div></section>
+      </div>
+      <section class="panel box"><h3>👥 Friends <span class="cnt" id="frCnt"></span></h3><div id="friends"></div>
+        <div class="row" style="margin-top:16px"><a class="btn sm ghost" href="leaderboard.html?tab=friends">🏆 Friends leaderboard</a><a class="btn sm ghost" href="games/orb-four/index.html">🟠 Practice Orb Four</a></div></section>
+    </div>`;
+    built = true;
+    $('#copyCode').addEventListener('click', () => copy(fmtCode(code), 'Friend code copied'));
+    $('#shareLink').addEventListener('click', async () => {
+      const url = new URL('friends.html?add=' + code, TZ.BASE || location.href).href;
+      try { if (navigator.share){ await navigator.share({ title:'Add me on 2trapz games', text:'Add me as a friend on 2trapz games!', url }); return; } } catch (e){ return; }
+      copy(url, 'Invite link copied');
+    });
+    $('#findForm').addEventListener('submit', e => { e.preventDefault(); find($('#findQ').value); });
+    if (addCode){ $('#findQ').value = addCode; find(addCode); addCode = ''; }
+    paint();
+  }
+  async function copy(text, msg){
+    try { await navigator.clipboard.writeText(text); TZ.toast({ icon:'📋', small:msg, big:esc(text), ms:2600 }); TZ.sfx('ok'); }
+    catch (e){ prompt('Copy this:', text); }
+  }
+  async function find(q){
+    const box = $('#results'); box.innerHTML = '<p class="muted-s">Searching…</p>';
+    try {
+      const list = await account.findPlayers(q);
+      box.innerHTML = list.length ? list.map(p => { const f = friendships.find(x => x.other === p.uid);
+        const label = !f ? '<button class="btn sm" data-add="' + esc(p.uid) + '">Add</button>' : f.status === 'accepted' ? '<span class="muted-s">Friends ✓</span>' : f.incoming ? '<button class="btn sm" data-accept="' + esc(f.id) + '">Accept</button>' : '<span class="muted-s">Requested</span>';
+        return `<div class="res" data-p='${esc(JSON.stringify({ uid:p.uid, tag:p.tag, avatar:p.avatar }))}'><span class="pava${p.online ? ' on' : ''}">${esc(p.avatar)}</span><span><b>${esc(p.tag)}</b><small>Lv ${p.level} · ${p.score} TZ · ${fmtCode(p.code)}</small></span>${label}</div>`; }).join('')
+        : '<p class="muted-s">No player found. Check the code, or type their exact gamertag.</p>';
+    } catch (e){ box.innerHTML = `<p class="muted-s">${esc(account.errorText(e))}</p>`; }
+  }
+  function paint(){
+    if (!built) return;
+    const acc = friendships.filter(f => f.status === 'accepted'), inc = friendships.filter(f => f.incoming), out = friendships.filter(f => f.status === 'pending' && !f.incoming);
+    $('#reqCnt').textContent = inc.length ? inc.length + ' new' : '';
+    $('#reqs').innerHTML = (inc.length || out.length) ? inc.map(f => `<div class="req"><span class="pava">${esc(f.avatar)}</span><span><b>${esc(f.tag)}</b><small>wants to be friends</small></span><button class="btn sm" data-accept="${esc(f.id)}">Accept</button><button class="xbtn" data-remove="${esc(f.id)}" aria-label="Decline" title="Decline">✕</button></div>`).join('')
+      + out.map(f => `<div class="req"><span class="pava">${esc(f.avatar)}</span><span><b>${esc(f.tag)}</b><small>request sent · waiting</small></span><button class="xbtn" data-remove="${esc(f.id)}" aria-label="Cancel request" title="Cancel">✕</button></div>`).join('')
+      : '<p class="muted-s" style="margin:0">No requests right now.</p>';
+    $('#frCnt').textContent = acc.length ? acc.length : '';
+    const sorted = acc.map(f => ({ f, p: profiles[f.other] })).sort((a, b) => ((b.p && b.p.online) - (a.p && a.p.online)) || ((b.p ? b.p.seen : 0) - (a.p ? a.p.seen : 0)));
+    const gameOpts = GAMES.filter(g => g.slug !== 'orb-four').map(g => `<option value="${esc(g.slug)}">${esc(g.title)}</option>`).join('');
+    $('#friends').innerHTML = sorted.length ? `<div class="flist">${sorted.map(({ f, p }) => { const st = status(p);
+      return `<article class="panel fcard" data-f='${esc(JSON.stringify({ uid:f.other, tag:(p && p.tag) || f.tag, avatar:(p && p.avatar) || f.avatar }))}'>
+        <div class="top"><span class="pava${p && p.online ? ' on' : ''}">${esc((p && p.avatar) || f.avatar)}</span><div class="nm"><b>${esc((p && p.tag) || f.tag)}</b><span class="st ${st.cls}">${esc(st.txt)}</span></div><button class="xbtn" data-remove="${esc(f.id)}" data-name="${esc((p && p.tag) || f.tag)}" aria-label="Remove friend" title="Remove friend">✕</button></div>
+        ${p ? `<div class="muted-s" style="margin:0">Lv ${p.level} · ${p.score} TZ · ${p.ach} achievements</div>` : ''}
+        <div class="acts"><button class="btn sm" data-challenge>⚔️ Orb Four</button><button class="btn sm ghost" data-invite>🎮 Invite</button></div>
+        <div class="inv"><select class="input" aria-label="Pick a game">${gameOpts}</select><button class="btn sm" data-send>Send</button></div>
+      </article>`; }).join('')}</div>`
+      : `<div class="empty" style="padding:20px 0"><div class="big">🤝</div><h3>No friends yet</h3><p>Share your friend code or invite link, or type a friend's code on the left.</p></div>`;
+  }
+  async function refreshProfiles(){
+    const ids = friendships.filter(f => f.status === 'accepted').map(f => f.other);
+    if (!ids.length) return paint();
+    (await account.profiles(ids)).forEach(p => { profiles[p.uid] = p; });
+    paint();
+  }
+
+  root.addEventListener('click', async e => {
+    const t = e.target, data = el => JSON.parse(el.dataset.f || el.dataset.p);
+    const add = t.closest('[data-add]');
+    if (add){ add.disabled = true; try { const r = await account.addFriend(data(add.closest('[data-p]'))); TZ.toast({ icon:'🤝', small:'Friends', big: r === 'accepted' ? 'You are now friends!' : r === 'already' ? 'Already friends' : 'Friend request sent', ms:2600 }); TZ.sfx('ok'); add.outerHTML = '<span class="muted-s">' + (r === 'accepted' ? 'Friends ✓' : 'Requested') + '</span>'; } catch (err){ add.disabled = false; TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); } return; }
+    const acc = t.closest('[data-accept]');
+    if (acc){ acc.disabled = true; try { await account.acceptFriend(acc.dataset.accept); TZ.sfx('ach'); TZ.toast({ icon:'🤝', small:'Friends', big:'New friend added!', ms:2600 }); } catch (err){ acc.disabled = false; TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); } return; }
+    const rm = t.closest('[data-remove]');
+    if (rm){ if (rm.dataset.name && !confirm('Remove ' + rm.dataset.name + ' from your friends?')) return; try { await account.removeFriend(rm.dataset.remove); TZ.sfx('click'); } catch (err){ TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); } return; }
+    const ch = t.closest('[data-challenge]');
+    if (ch){ ch.disabled = true; ch.textContent = 'Starting…'; try { const f = data(ch.closest('[data-f]')); const id = await account.createMatch(f, 'orb-four'); TZ.launch('orb-four', { url: TZ.BASE + 'games/orb-four/index.html?m=' + encodeURIComponent(id) }); } catch (err){ ch.disabled = false; ch.textContent = '⚔️ Orb Four'; TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); } return; }
+    const iv = t.closest('[data-invite]');
+    if (iv){ iv.closest('.fcard').classList.toggle('inviting'); return; }
+    const sd = t.closest('[data-send]');
+    if (sd){ const card = sd.closest('[data-f]'), f = data(card), slug = $('select', card).value; sd.disabled = true;
+      try { await account.invite(f.uid, slug); TZ.sfx('ok'); TZ.toast({ icon:'🎮', small:'Invite sent', big:esc(f.tag) + ' · ' + esc(bySlug(slug).title), ms:2600 }); card.classList.remove('inviting'); }
+      catch (err){ TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); } finally { sd.disabled = false; } return; }
+  });
+
+  document.addEventListener('tz:friends', e => { friendships = e.detail || []; paint(); refreshProfiles(); });
+  function render(){
+    if (!accountsOn || account.failed) return note('📡', 'Friends are coming soon', 'Friends, online status and live matches switch on together with accounts. Meanwhile you can practice Orb Four against the CPU.', '<a class="btn" href="games/orb-four/index.html">🟠 Play Orb Four</a>');
+    if (account.loading) return note('⏳', 'Connecting…', 'Linking up to the 2trapz Network.');
+    if (!account.user()) return note('🔐', 'Sign in to add friends', 'Make a free account with just a username and password. Then share your friend code and start challenging people.', `<a class="btn" href="account.html?next=${encodeURIComponent('friends.html' + location.search)}">Sign in or create account</a>`);
+    if (!built) build();
+    clearInterval(refresher); refresher = setInterval(() => { if (!document.hidden) refreshProfiles(); }, 60000);
+  }
+  document.addEventListener('tz:auth', render);
+  render();
+})();
+</script>
+</body>
+</html>

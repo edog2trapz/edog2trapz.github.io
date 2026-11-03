@@ -90,7 +90,8 @@
 (() => {
   const { $, $$, esc, ACH, unlocked, score, level } = TZ;
   const HOW = { player_one:'games.html', hopper:'games.html', arcade_rat:'games.html', completionist:'games.html', dedicated:'games.html', lucky:'#random',
-    collector:'games.html', critic:'reviews.html#write', ideas:'contact.html?type=idea', identity:'account.html', lights:'#style', stylist:'#style', tourist:'about.html', regular:'', online:'account.html' };
+    collector:'games.html', critic:'reviews.html#write', ideas:'contact.html?type=idea', identity:'account.html', lights:'#style', stylist:'#style', tourist:'about.html', regular:'', online:'account.html',
+    backup:'account.html', orbwin:'games/orb-four/index.html', friend:'friends.html', versus:'friends.html' };
   let f = 'all';
   function paint(){
     const u = unlocked(), got = ACH.filter(a => u[a.id]).length, pct = Math.round(got / ACH.length * 100), lv = level();

@@ -106,7 +106,16 @@ If you like it, paste that line into the `REVIEWS = [` list at the bottom of `as
 
 ## Turn on accounts (username + password)
 
-Until you do this, everyone plays as a guest and their progress stays on their own device (they can still back it up with the Memory Card on the account page). Turning on accounts lets players make an account with just a **username and password** (no email needed), saves their progress to it on any device, and switches on the Ranks leaderboard and your review approval console. The accounts live in **Firebase**, Google's free app backend. Setting it up takes about 10 minutes, once.
+**This is the one step only you can do.** Until it's done, everyone plays as a guest, progress stays on their own device (they can still back it up with the Memory Card), and the Account, Friends and Ranks pages say "coming soon". The site needs somewhere online to keep everyone's accounts, and that's **Firebase**, Google's free app backend. It takes about 10 minutes, once. After that, everything below just works:
+
+- **Accounts** with just a username and password (no email needed).
+- **Cloud saves**: every game's save data syncs to the player's account, so they can continue on any device. Saves sync whenever a 2trapz page opens and right before a game starts.
+- **The Ranks leaderboard**: global and friends-only.
+- **Friends**: friend codes, requests, online status ("Playing Breachline"), game invites.
+- **Play together**: live online **Orb Four** matches between friends, with quick reactions and rematches.
+- **Your admin console** for approving reviews.
+
+Firebase's free plan is plenty for a small site. (If the site gets really big, Firebase will tell you before anything costs money; it never charges unless you add a card.)
 
 1. Go to **https://console.firebase.google.com** and log in with **realbug1243@gmail.com** (that's only for you to manage it; players never see Google).
 2. Click **Create a project**, name it `2trapz-games`, switch Google Analytics **off**, and finish.
@@ -119,7 +128,7 @@ Until you do this, everyone plays as a guest and their progress stays on their o
    (These keys are meant to be public. The security comes from the rules in step 8.)
 6. In Firebase, open **Build → Authentication → Get started → Sign-in method** and turn on **Email/Password**. (Username accounts use this behind the scenes.)
 7. Still in Authentication, open **Settings → Authorized domains → Add domain** and add `edog2trapz.github.io`.
-8. Open **Build → Firestore Database → Create database**. Pick a location near you, choose **production mode**, and create it. Then open the **Rules** tab, delete everything there, paste in everything from this repo's `firestore.rules` file, and click **Publish**.
+8. Open **Build → Firestore Database → Create database**. Pick a location near you, choose **production mode**, and create it. Then open the **Rules** tab, delete everything there, paste in everything from this repo's `firestore.rules` file, and click **Publish**. (Whenever `firestore.rules` changes in this repo, paste it in and publish again.)
 9. Upload the changed `assets/data.js` to GitHub and wait a minute. Accounts are live.
 
 **Becoming the admin (to approve reviews):** on the site's Account page, open "Use an email address instead", choose **Create account**, and sign up with **realbug1243@gmail.com**. Click the link in the verification email Firebase sends you, then sign out and back in. Your account page now shows an **Admin console** button (`admin.html`). Players must sign in to post reviews; you get an email for each one, then click **Approve**, **Hide** or **Delete** in the console.
@@ -150,11 +159,12 @@ Your AdSense code (`ca-pub-4591809197740975`) is in the `<head>` of every page e
 
 - **5 DORFic styles.** Click the swirly swatch button in the top bar (or press **S**): Daylight, Night, Industrial, Blaze and Aero. Auto follows the device's light or dark setting.
 - **Guide.** Click your gamertag (or press **G**) to change your gamertag and avatar, see your level, achievements, recently played games and favorites.
-- **Achievements.** 18 of them (19 with accounts on), worth TZ points, with a pop-up and a chime when you unlock one. Two are secret.
+- **Achievements.** 19 of them (22 with accounts on), worth TZ points, with a pop-up and a chime when you unlock one. Two are secret.
 - **Favorites.** Tap the ♡ on any game.
 - **Launch screen, startup intro and sounds.** Sounds can be turned off in the Guide's settings.
 - **Accounts** (once turned on): username + password sign-up, Player ID card, cloud saves, the Ranks leaderboard and an admin console.
 - **Memory Card** (account page): save progress to a file or code and load it on another device. Works without accounts.
+- **Friends + Orb Four** (once accounts are on): add friends, see who's online, send game invites, and play live Orb Four matches. Orb Four also has vs-CPU (4 difficulties) and 2-players-on-one-screen modes that work for everyone.
 - **Shortcuts:** **/** search, **R** random game, **S** switch style, **G** Guide, **Esc** close.
 - **Secret:** there is a classic cheat code. On a phone, tap the orange 2t logo 7 times on the homepage.
 

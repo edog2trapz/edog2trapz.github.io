@@ -66,6 +66,8 @@
       <h2 id="accounts">Accounts</h2>
       <p>Accounts are optional and run on <b>Google Firebase Authentication</b>. The simplest kind uses just a <b>username and password</b>, with no email address needed. Firebase stores your username and a scrambled (hashed) version of your password, which we can never see. If you choose to sign in with an email address, Google or GitHub instead, Firebase keeps that email and how you signed in, and with Google or GitHub we also receive your name and profile picture.</p>
       <p>Your profile is saved in <b>Google Cloud Firestore</b>: gamertag, avatar, TZ score and level, achievements, play counts, favorites and style choices. Your <b>gamertag, avatar and scores are public</b> on the leaderboard. Your username, password and email address are never shown publicly.</p>
+      <p>When you're signed in we also save <b>each game's save data</b> to your account so you can continue on another device. Only you can read your saves.</p>
+      <p><b>Friends:</b> other signed-in players can find you by your friend code or gamertag. Your friends can see whether you're online and which game you last played, and can send you game invites and Orb Four challenges. Orb Four matches store the moves and quick reactions (like "GG"); there is no free-text chat.</p>
       <h2 id="reviews">Reviews</h2>
       <p>When you post a review we save your name, star rating and text, and email a copy to 2trapz. If you're signed in, the review is linked to your account. Reviews become public only after 2trapz approves them. You can delete your own reviews.</p>
       <h2 id="contact">Contact form</h2>

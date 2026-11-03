@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'orb-four', title:'Orb Four', icon:'🟠', genre:'Puzzle', colors:['#1b2230', '#ff8a00'], players:'1–2 players · online with friends', isNew:true, featured:true,
+    desc:'Drop glossy orbs and line up four before your opponent does. Beat the CPU, play a friend on the same screen, or challenge your 2trapz friends to live online matches.' },
   { slug:'besieged', title:'Besieged', icon:'🎯', genre:'Shooter', colors:['#0c1117', '#3fb6c8'], players:'1 player · online in Claude', isNew:true, featured:true,
     desc:'3D operator-based breach-and-defend. Pick from 12 operators with unique gadgets, lean around corners, kit out your guns with sights and attachments, and fight across 4 maps and 4 modes.' },
   { slug:'hazeport', title:'Hazeport Tycoon', icon:'🌃', genre:'Tycoon', colors:['#1a1035', '#ffb547'], players:'1 player', isNew:true, featured:true,
@@ -111,6 +113,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-03', tag:'Update', title:'Friends, cloud saves and Orb Four', game:'orb-four',
+    text:'Sign in and your game saves follow you to any device. Add friends with your friend code, see who is online, send game invites and challenge them to live matches of Orb Four, the new online game. The Ranks now have a Friends tab too.' },
   { date:'2026-11-02', tag:'New game', title:'Besieged has landed', game:'besieged',
     text:'A 3D breach-and-defend shooter with 12 operators, gadgets, weapon attachments, 4 maps and 4 modes. Play against bots right here (online matches only work inside Claude).' },
   { date:'2026-11-02', tag:'Launch', title:'The DORFic update is live',

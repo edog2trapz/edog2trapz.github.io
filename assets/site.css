@@ -253,7 +253,7 @@ html.overdrive .tz-bg{filter:hue-rotate(0deg) saturate(1.6);animation:hue 2s lin
 .guide-btn .gt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1;text-align:left}
 .guide-btn .gt b{font-size:14px;font-weight:800;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .guide-btn .gt small{font-size:12px;color:var(--o-text);font-weight:800}
-@media (max-width:900px){.blade .bl{display:none}.blade{padding:0 13px}.blade .bi{font-size:19px}}
+@media (max-width:1180px){.blade .bl{display:none}.blade{padding:0 13px}.blade .bi{font-size:19px}}
 @media (max-width:640px){
   .tz-top .wrap{height:60px;gap:10px}
   .word{font-size:18px}
@@ -600,3 +600,18 @@ a.gacct:hover{background:rgba(255,255,255,.28)}
 .gacct .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 2px rgba(255,255,255,.8),0 0 8px #3ddc84;margin-right:7px;vertical-align:1px}
 .guide-btn .ava{position:relative}
 .guide-btn.online .ava::after{content:"";position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 2px var(--chrome1),0 0 8px #3ddc84}
+
+/* friends badge + invite popups */
+.blade{position:relative}
+.nbadge{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;display:grid;place-items:center;font:900 11px/1 var(--body);font-style:normal;color:#fff;
+  background:linear-gradient(180deg,#ff7a5c,#e5301b);box-shadow:0 0 0 2px var(--chrome1),0 2px 6px rgba(229,48,27,.5);letter-spacing:0;text-shadow:none}
+@media (max-width:640px){.nbadge{top:0;right:8px}}
+.invites{position:fixed;z-index:94;left:16px;bottom:24px;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 32px))}
+@media (max-width:640px){.invites{bottom:96px}}
+.invite{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;padding:14px;border-radius:18px;animation:inviteIn .5s cubic-bezier(.2,.9,.3,1.2) both;box-shadow:var(--shadow-lg),0 0 0 2px var(--o2)}
+@keyframes inviteIn{from{opacity:0;transform:translateX(-40px) scale(.9)}}
+.invite .ava{width:48px;height:48px;font-size:26px}
+.invite .it{font-size:14px;line-height:1.35}
+.invite .it small{display:block;font-weight:900;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--o-text)}
+.invite .ia{grid-column:1/-1;display:flex;gap:8px}
+.invite .ia .btn{flex:1}

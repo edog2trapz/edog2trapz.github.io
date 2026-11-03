@@ -60,6 +60,8 @@
 .how .orb{width:40px;height:40px;font-size:19px;flex:none}
 .how b{display:block;font-size:14px}.how small{color:var(--ink3);font-weight:800}
 .note{padding:22px;text-align:center;margin-top:24px}
+.tabs{display:flex;gap:8px;justify-content:center;margin-top:22px}
+.lrow .on-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ddc84;box-shadow:0 0 6px #3ddc84;margin-left:8px;vertical-align:1px}
 .note h3{margin:0 0 6px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase}
 .note p{margin:0 auto 14px;max-width:520px;color:var(--ink2)}
 </style>
@@ -74,6 +76,7 @@
     <p>Top players on the 2trapz Network, ranked by TZ score. Unlock achievements to climb.</p>
     <span class="tag-id">2TZ // RNK-02</span>
   </section>
+  <div class="tabs" role="tablist" aria-label="Leaderboard"><button class="chip on" role="tab" data-tab="global">🌍 Global</button><button class="chip" role="tab" data-tab="friends">👥 Friends</button></div>
   <div id="podium" class="podium" aria-label="Top 3 players"></div>
   <div id="cta"></div>
   <section class="panel board" id="board" aria-label="Leaderboard"></section>
@@ -95,11 +98,27 @@
   }
   function table(list, myUid){
     $('#board').innerHTML = `<div class="lrow head"><span>Rank</span><span></span><span>Player</span><span class="c">Ach.</span><span class="c">Games</span><span style="text-align:right">TZ</span></div>` +
-      list.map((x, i) => `<div class="lrow${x.uid === myUid || x.me ? ' me' : ''}"><span class="rk">${i + 1}</span><span class="ava">${esc(x.avatar || '🎮')}</span><span class="nm">${esc(x.tag)}</span><span class="c">${x.ach}</span><span class="c">${x.games}</span><span class="sc">${x.score}</span></div>`).join('');
+      list.map((x, i) => `<div class="lrow${x.uid === myUid || x.me ? ' me' : ''}"><span class="rk">${i + 1}</span><span class="ava">${esc(x.avatar || '🎮')}</span><span class="nm">${esc(x.tag)}${x.online ? '<i class="on-dot" title="Online"></i>' : ''}</span><span class="c">${x.ach}</span><span class="c">${x.games}</span><span class="sc">${x.score}</span></div>`).join('');
   }
   $('#how').innerHTML = [...ACH].filter(a => !a.secret).sort((a, b) => b.pts - a.pts).slice(0, 8).map(a => `<div><span class="orb">${a.icon}</span><span><b>${esc(a.name)}</b><small>+${a.pts} TZ · ${esc(a.desc)}</small></span></div>`).join('');
 
+  let tab = new URLSearchParams(location.search).get('tab') === 'friends' ? 'friends' : 'global';
+  document.querySelectorAll('[data-tab]').forEach(b => {
+    b.classList.toggle('on', b.dataset.tab === tab);
+    b.addEventListener('click', () => { tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b)); history.replaceState(null, '', tab === 'friends' ? '?tab=friends' : location.pathname); render(); });
+  });
   async function render(){
+    if (tab === 'friends' && accountsOn && !account.failed && !account.loading){
+      const u = account.user();
+      if (!u){ podium([me()]); table([me()], 'me'); $('#cta').innerHTML = `<section class="panel note"><h3>Sign in to see your friends' ranks</h3><p>Add friends and compare TZ scores.</p><a class="btn" href="account.html?next=leaderboard.html">Sign in</a></section>`; return; }
+      try {
+        const fr = (await account.friendships()).filter(f => f.status === 'accepted');
+        const list = [...await account.profiles(fr.map(f => f.other)), { ...me(), uid: u.uid, online: true }].sort((a, b) => b.score - a.score);
+        podium(list); table(list, u.uid);
+        $('#cta').innerHTML = fr.length ? '' : `<section class="panel note"><h3>No friends yet</h3><p>Share your friend code and your friends show up here.</p><a class="btn" href="friends.html">👥 Add friends</a></section>`;
+      } catch (e){ $('#board').innerHTML = `<p class="muted" style="padding:20px;text-align:center;margin:0">${esc(account.errorText(e))}</p>`; }
+      return;
+    }
     if (!accountsOn || account.failed){
       podium([me()]); table([me()], 'me');
       $('#cta').innerHTML = `<section class="panel note"><h3>📡 Online ranks are coming soon</h3><p>When accounts switch on, every player's TZ score lands here. For now, here's your own score. Keep unlocking achievements!</p><a class="btn" href="achievements.html">See achievements</a></section>`;

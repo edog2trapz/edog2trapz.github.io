@@ -137,7 +137,10 @@
     { id:'konami', icon:'⬆️', name:'Old School', desc:'Enter the secret code.', pts:50, secret:true },
     { id:'lost', icon:'📡', name:'Signal Lost', desc:'Find a page that does not exist.', pts:10, secret:true },
     { id:'backup', icon:'💾', name:'Memory Card', desc:'Back up your progress to a save file or code.', pts:10 },
+    { id:'orbwin', icon:'🟠', name:'Four in a Row', desc:'Beat the CPU at Orb Four.', pts:15 },
     { id:'online', icon:'🌐', name:'Connected', desc:'Sign in with an account.', pts:15, needs:'accounts' },
+    { id:'friend', icon:'🤝', name:'Squad Up', desc:'Add a friend.', pts:15, needs:'accounts' },
+    { id:'versus', icon:'⚔️', name:'Versus', desc:'Finish an online match with a friend.', pts:20, needs:'accounts' },
   ].filter(a => !a.needs || accountsOn);
   const TOTAL_PTS = ACH.reduce((s, a) => s + a.pts, 0);
   const unlocked = () => get('tz.ach', {}) || {};
@@ -308,6 +311,7 @@
     { id:'home', href:'index.html', icon:'🏠', label:'Home' },
     { id:'games', href:'games.html', icon:'🎮', label:'Games' },
     { id:'ranks', href:'leaderboard.html', icon:'🏆', label:'Ranks' },
+    { id:'friends', href:'friends.html', icon:'👥', label:'Friends' },
     { id:'reviews', href:'reviews.html', icon:'⭐', label:'Reviews' },
     { id:'contact', href:'contact.html', icon:'✉️', label:'Contact' },
   ];
@@ -316,7 +320,7 @@
 <a class="sr" href="#main">Skip to content</a>
 <header class="tz-top"><div class="wrap">
   <a class="logo" href="${BASE}index.html" aria-label="${esc(SITE)} home"><span class="orb" id="tzOrb"><b>2t</b></span>${wordmark}</a>
-  <nav class="blades" aria-label="Main">${NAV.map(n => `<a class="blade" href="${BASE}${n.href}"${(page === n.id || (page === 'game' && n.id === 'games')) ? ' aria-current="page"' : ''}><span class="bi" aria-hidden="true">${n.icon}</span><span class="bl">${n.label}</span></a>`).join('')}</nav>
+  <nav class="blades" aria-label="Main">${NAV.map(n => `<a class="blade" href="${BASE}${n.href}"${(page === n.id || (page === 'game' && n.id === 'games')) ? ' aria-current="page"' : ''}><span class="bi" aria-hidden="true">${n.icon}</span><span class="bl">${n.label}</span>${n.id === 'friends' ? '<span class="nbadge" id="friendBadge" hidden></span>' : ''}</a>`).join('')}</nav>
   <button class="style-btn" id="styleBtn" aria-haspopup="true" aria-expanded="false" aria-controls="stylePop" title="Change the DORFic style"><i></i><span class="sr">Change style</span></button>
   <div class="style-pop panel" id="stylePop" role="dialog" aria-label="DORFic style"><h3>Pick your <span>DORFic</span> style</h3>${stylesHTML('')}</div>
   <button class="guide-btn" id="guideBtn" aria-haspopup="dialog" aria-controls="guide" title="Open the Guide (G)"><span class="ava" id="gbAva"></span><span class="gt"><b id="gbTag"></b><small id="gbScore"></small></span></button>
@@ -327,7 +331,7 @@
     <p>${esc(typeof TAGLINE !== 'undefined' ? TAGLINE : '')} Every game runs right in your browser. Built by 2trapz.</p>
     <div class="row" style="margin-top:14px"><a class="btn sm" href="${BASE}account.html">🪪 ${accountsOn ? 'Sign in' : 'Player ID'}</a><a class="btn sm ghost" href="${BASE}contact.html?type=game">🎮 Submit a game</a></div></div>
   <div><h4>Play</h4><ul>
-    <li><a href="${BASE}index.html">Home</a></li><li><a href="${BASE}games.html">All games</a></li><li><a href="${BASE}leaderboard.html">Ranks</a></li>
+    <li><a href="${BASE}index.html">Home</a></li><li><a href="${BASE}games.html">All games</a></li><li><a href="${BASE}leaderboard.html">Ranks</a></li><li><a href="${BASE}friends.html">Friends</a></li>
     <li><a href="${BASE}achievements.html">Achievements</a></li><li><a href="#" data-random>Random game 🎲</a></li></ul></div>
   <div><h4>Community</h4><ul>
     <li><a href="${BASE}reviews.html">Reviews</a></li><li><a href="${BASE}news.html">News</a></li><li><a href="${BASE}contact.html">Contact the creator</a></li>
@@ -470,16 +474,20 @@
     if (n >= GAMES_.length) got = unlock('completionist') || got;
     if (total >= 25) got = unlock('dedicated') || got;
     if (opts.random) got = unlock('lucky') || got;
-    const url = playHref(g);
-    if (reduce){ setTimeout(() => { location.href = url; }, got ? 1200 : 0); return; }
+    const url = opts.url || playHref(g);
+    /* signed in: make sure the newest cloud save is on this device before the game starts */
+    const synced = account.user() && account.beforePlay ? Promise.race([account.beforePlay(slug), new Promise(r => setTimeout(r, 4000))]).catch(() => {}) : Promise.resolve();
+    const go = ms => Promise.all([synced, new Promise(r => setTimeout(r, ms))]).then(() => { location.href = url; });
+    if (reduce){ go(got ? 1200 : 0); return; }
     sfx('launch');
     const L = $('#tzLaunch');
     $('#lCore').style.cssText = `--c1:${g.colors[0]};--c2:${g.colors[1]}`;
     $('#lIcon').textContent = g.icon; $('#lTitle').textContent = g.title; $('#lStat').textContent = opts.random ? 'Rolling the dice…' : 'Loading';
     $('#lBar').style.width = '0'; L.classList.add('on');
     requestAnimationFrame(() => requestAnimationFrame(() => { $('#lBar').style.width = '100%'; }));
-    setTimeout(() => { $('#lStat').textContent = 'Ready'; }, 650);
-    setTimeout(() => { location.href = url; }, got ? 1900 : 900);
+    if (account.user()) $('#lStat').textContent = 'Syncing your save…';
+    synced.then(() => { $('#lStat').textContent = 'Ready'; });
+    go(got ? 1900 : 900);
   }
   const randomGame = () => GAMES_[Math.floor(Math.random() * GAMES_.length)];
   window.addEventListener('pageshow', () => { const L = $('#tzLaunch'); L && L.classList.remove('on'); });
@@ -708,11 +716,58 @@
     profile: () => profile, plays, recent, favs, isFav, toggleFav, myReviews, allReviews, rating, stars, fmtDate,
     card, reviewCard, mountReviewForm, sendToCreator, mailto, launch, randomGame, unlock, toast, confetti, sfx, reveal, countUp,
     openGuide, score, level, ACH, unlocked, STYLES, stylesHTML, setTheme, themePref,
-    account, accountsOn, ACC, AVATARS, reloadProfile, setAvatar, setTag: commitTag, avatarFor, exportSave, saveCode, downloadSave, importSave,
+    account, accountsOn, ACC, AVATARS, reloadProfile, setAvatar, setTag: commitTag, avatarFor, exportSave, saveCode, downloadSave, importSave, inviteHref,
   };
 
   /* ---------- accounts (only when Firebase is set up in data.js) ---------- */
-  document.addEventListener('tz:auth', () => { paintBadge(); if (guideOpen) paintGuide(); });
+  let socialFor = '', stopSocial = [];
+  function inviteHref(inv){
+    if (inv.match) return BASE + 'games/' + encodeURIComponent(inv.game || 'orb-four') + '/index.html?m=' + encodeURIComponent(inv.match);
+    const g = bySlug(inv.game); return g ? playHref(g) : BASE + 'friends.html';
+  }
+  function showInvites(list){
+    let box = $('#tzInvites');
+    if (!box){ document.body.insertAdjacentHTML('beforeend', '<div class="invites" id="tzInvites" aria-live="polite"></div>'); box = $('#tzInvites'); }
+    const seen = new Set($$('.invite', box).map(x => x.dataset.id));
+    list.forEach(inv => {
+      if (seen.has(inv.id)) return;
+      const g = bySlug(inv.game), title = g ? g.title : 'a game';
+      box.insertAdjacentHTML('beforeend', `<div class="invite panel" data-id="${esc(inv.id)}"><span class="ava">${esc(inv.fromAvatar || '🎮')}</span>
+        <div class="it"><small>${inv.match ? 'Challenge!' : 'Game invite'}</small><b>${esc(inv.fromTag || 'A friend')}</b> ${inv.match ? 'challenged you to' : 'wants to play'} <b>${esc(title)}</b></div>
+        <div class="ia"><a class="btn sm" href="${esc(inviteHref(inv))}" data-join="${esc(inv.id)}">${inv.match ? 'Accept' : 'Play'}</a><button class="btn sm ghost" data-later="${esc(inv.id)}">Later</button></div></div>`);
+      sfx('ach');
+    });
+    $$('.invite', box).forEach(x => { if (!list.some(i => i.id === x.dataset.id)) x.remove(); });
+  }
+  function startSocial(){
+    const u = account.user();
+    if (!u || socialFor === u.uid) return;
+    stopSocial.forEach(f => f()); stopSocial = []; socialFor = u.uid;
+    stopSocial.push(account.watchInvites(showInvites));
+    stopSocial.push(account.watchFriendships(list => {
+      const inc = list.filter(f => f.incoming).length, b = $('#friendBadge');
+      if (b){ b.hidden = !inc; b.textContent = inc; }
+      if (list.some(f => f.status === 'accepted')) unlock('friend');
+      document.dispatchEvent(new CustomEvent('tz:friends', { detail: list }));
+    }));
+  }
+  document.addEventListener('click', e => {
+    const j = e.target.closest('[data-join]'), l = e.target.closest('[data-later]');
+    const id = (j || l) && (j || l).dataset[j ? 'join' : 'later'];
+    if (!id) return;
+    if (account.closeInvite) account.closeInvite(id).catch(() => {});
+    const card = e.target.closest('.invite'); if (card) card.remove();
+    if (j){
+      e.preventDefault();
+      const href = j.getAttribute('href'), m = href.match(/games\/([^/]+)\/index\.html/);
+      const slug = m && decodeURIComponent(m[1]);
+      if (slug && bySlug(slug)) launch(slug, { url: href }); else location.href = href;
+    }
+  });
+  document.addEventListener('tz:auth', () => {
+    paintBadge(); if (guideOpen) paintGuide();
+    if (account.user()) startSocial(); else { stopSocial.forEach(f => f()); stopSocial = []; socialFor = ''; const b = $('#friendBadge'); if (b) b.hidden = true; }
+  });
   if (accountsOn){
     import(BASE + 'assets/accounts.js').then(m => m.start(window.TZ, ACC)).then(api => {
       Object.assign(account, api, { loading:false });

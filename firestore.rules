@@ -5,32 +5,90 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function signedIn() { return request.auth != null; }
     function isAdmin() {
-      return request.auth != null
+      return signedIn()
         && request.auth.token.email_verified == true
         && request.auth.token.email in ['realbug1243@gmail.com'];
     }
+    // a "pair" is two user ids joined with _, smallest first (same as pairOf in accounts.js)
+    function isPair(p, a, b) { return p == a + '_' + b || p == b + '_' + a; }
+    function friends(p) {
+      return exists(/databases/$(database)/documents/friendships/$(p))
+        && get(/databases/$(database)/documents/friendships/$(p)).data.status == 'accepted';
+    }
 
-    // One profile per player: gamertag, avatar, achievements, plays, favorites.
-    // Everyone can read them (that's the leaderboard). Only you can write yours.
+    // ---------- player profiles (public: this is what the leaderboard and friends see) ----------
     match /users/{uid} {
       allow read: if true;
-      allow create, update: if request.auth != null && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['tag', 'avatar', 'custom', 'score', 'level', 'ach', 'plays', 'favs', 'styles', 'updated'])
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['tag', 'avatar', 'custom', 'score', 'level', 'ach', 'plays', 'favs', 'styles', 'code', 'seen', 'playing', 'savesAt', 'updated'])
         && request.resource.data.tag is string && request.resource.data.tag.size() > 0 && request.resource.data.tag.size() <= 18
         && request.resource.data.avatar is string && request.resource.data.avatar.size() <= 8
         && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 1000
         && request.resource.data.level is int && request.resource.data.level <= 50;
-      allow delete: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow delete: if signedIn() && (request.auth.uid == uid || isAdmin());
+
+      // ---------- game saves: private to the player ----------
+      match /saves/{key} {
+        allow read, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['k', 'v', 'h', 't'])
+          && request.resource.data.v is string && request.resource.data.v.size() <= 900000;
+      }
     }
 
-    // Reviews start as 'pending'. Only an admin can approve them (admin.html).
-    // Everyone sees approved reviews; you can always see and delete your own.
+    // ---------- friends ----------
+    match /friendships/{id} {
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+      allow create: if signedIn()
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to != request.auth.uid
+        && request.resource.data.members.size() == 2
+        && request.resource.data.members.hasAll([request.auth.uid, request.resource.data.to])
+        && request.resource.data.status == 'pending'
+        && isPair(id, request.auth.uid, request.resource.data.to);
+      allow update: if signedIn()
+        && request.auth.uid == resource.data.to
+        && resource.data.status == 'pending'
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedAt']);
+      allow delete: if signedIn() && request.auth.uid in resource.data.members;
+    }
+
+    // ---------- game invites (only between friends) ----------
+    match /invites/{id} {
+      allow read: if signedIn() && (request.auth.uid == resource.data.to || request.auth.uid == resource.data.from);
+      allow create: if signedIn()
+        && request.resource.data.from == request.auth.uid
+        && isPair(request.resource.data.pair, request.auth.uid, request.resource.data.to)
+        && friends(request.resource.data.pair)
+        && request.resource.data.status == 'open';
+      allow update: if signedIn() && request.auth.uid == resource.data.to
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+      allow delete: if signedIn() && (request.auth.uid == resource.data.to || request.auth.uid == resource.data.from);
+    }
+
+    // ---------- live matches (Orb Four), only between friends ----------
+    match /matches/{id} {
+      allow read: if signedIn() && request.auth.uid in resource.data.players;
+      allow create: if signedIn()
+        && request.resource.data.players.size() == 2
+        && request.resource.data.players[0] == request.auth.uid
+        && isPair(request.resource.data.pair, request.auth.uid, request.resource.data.players[1])
+        && friends(request.resource.data.pair);
+      allow update: if signedIn() && request.auth.uid in resource.data.players
+        && request.resource.data.players == resource.data.players
+        && request.resource.data.pair == resource.data.pair;
+      allow delete: if signedIn() && request.auth.uid in resource.data.players;
+    }
+
+    // ---------- reviews: start 'pending', only an admin can approve (admin.html) ----------
     match /reviews/{id} {
       allow read: if resource.data.status == 'approved'
         || isAdmin()
-        || (request.auth != null && resource.data.uid == request.auth.uid);
-      allow create: if request.auth != null
+        || (signedIn() && resource.data.uid == request.auth.uid);
+      allow create: if signedIn()
         && request.resource.data.keys().hasOnly(['game', 'name', 'stars', 'text', 'date', 'avatar', 'uid', 'status', 'created'])
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'pending'
@@ -41,7 +99,7 @@ service cloud.firestore {
       allow update: if isAdmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && request.resource.data.status in ['pending', 'approved', 'hidden'];
-      allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
     }
   }
 }

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Orb Four · 2trapz games</title>
+<meta name="description" content="Drop glossy orbs and line up four. Play the CPU, a friend on the same screen, or challenge your 2trapz friends online.">
+<meta name="theme-color" content="#ff8a00">
+<meta property="og:title" content="Orb Four · 2trapz games">
+<meta property="og:image" content="https://edog2trapz.github.io/assets/og-image.png">
+<link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('tz.theme'));if(t&&t!=='auto')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.ohead{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:24px;padding:18px 22px}
+.ohead h1{margin:0;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(28px,4vw,40px);line-height:1}
+.ohead h1 span{color:var(--o-text)}
+.modes{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.arena{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;margin-top:20px}
+@media (max-width:900px){.arena{grid-template-columns:1fr}}
+/* ---- board ---- */
+.boardwrap{position:relative;padding:18px 18px 22px;border-radius:28px;max-width:640px;margin:0 auto;width:100%;
+  background:linear-gradient(160deg,#ffae4a 0%,#ff8a00 35%,#e2560a 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.6),inset 0 -6px 14px rgba(120,30,0,.4),0 24px 50px rgba(200,70,0,.35)}
+.boardwrap::before{content:"";position:absolute;left:12px;right:12px;top:6px;height:40%;border-radius:22px 22px 50% 50%/22px 22px 26px 26px;background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0));pointer-events:none}
+.boardwrap::after{content:"2TZ // ORB-FOUR";position:absolute;right:22px;bottom:5px;font:800 9px/1 ui-monospace,monospace;letter-spacing:.24em;color:rgba(255,255,255,.75)}
+.ghostrow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;height:56px;margin-bottom:6px;position:relative;z-index:2}
+.ghostrow span{display:grid;place-items:end center}
+.board{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;z-index:1}
+.col{display:grid;grid-template-rows:repeat(6,1fr);gap:8px;padding:4px;border-radius:999px;cursor:pointer;transition:background .15s}
+.col:hover,.col.hl{background:rgba(255,255,255,.18)}
+.board.locked .col{cursor:default}.board.locked .col:hover{background:none}
+.cell{position:relative;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 35%,#20252e,#0c0f14);box-shadow:inset 0 4px 8px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.35)}
+.orb4{position:absolute;inset:6%;border-radius:50%;animation:drop var(--dt,.45s) cubic-bezier(.4,0,.6,1) both}
+.orb4::before{content:"";position:absolute;left:16%;right:16%;top:6%;height:42%;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.08))}
+.orb4.a{background:radial-gradient(circle at 50% 120%,#ffd27a 0%,#ff8a00 45%,#d94a00 100%);box-shadow:inset 0 -4px 8px rgba(120,30,0,.5),0 0 12px rgba(255,140,0,.5)}
+.orb4.b{background:radial-gradient(circle at 50% 120%,#ffffff 0%,#cfd6de 45%,#7d8792 100%);box-shadow:inset 0 -4px 8px rgba(30,40,55,.45),0 0 12px rgba(200,220,240,.45)}
+.orb4.win{animation:drop var(--dt,.45s) cubic-bezier(.4,0,.6,1) both,winpulse 1s ease-in-out .5s infinite}
+@keyframes drop{from{transform:translateY(var(--dy,-400%))}70%{transform:translateY(0)}82%{transform:translateY(-10%)}to{transform:none}}
+@keyframes winpulse{50%{box-shadow:0 0 0 4px #fff,0 0 26px #fff}}
+.gorb{width:78%;aspect-ratio:1;border-radius:50%;opacity:0;transition:opacity .12s;position:relative}
+.gorb.show{opacity:.85;animation:hover 1s ease-in-out infinite}
+@keyframes hover{50%{transform:translateY(-5px)}}
+.gorb.a{background:radial-gradient(circle at 50% 120%,#ffd27a 0%,#ff8a00 45%,#d94a00 100%)}
+.gorb.b{background:radial-gradient(circle at 50% 120%,#ffffff 0%,#cfd6de 45%,#7d8792 100%)}
+/* ---- side ---- */
+.side{display:grid;gap:16px}
+.pcard{position:relative;padding:14px;border-radius:18px;transition:box-shadow .2s,transform .2s}
+.pcard .pin{display:flex;align-items:center;gap:12px}
+.pcard.turn{box-shadow:var(--glow);transform:scale(1.02)}
+.pcard .pc{width:34px;height:34px;border-radius:50%;flex:none;position:relative;padding:0;border:0;cursor:default}
+.pcard .pc::before{content:"";position:absolute;left:16%;right:16%;top:6%;height:42%;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.08))}
+.pcard .pc.a{background:radial-gradient(circle at 50% 120%,#ffd27a 0%,#ff8a00 45%,#d94a00 100%)}
+.pcard .pc.b{background:radial-gradient(circle at 50% 120%,#ffffff 0%,#cfd6de 45%,#7d8792 100%)}
+.pcard .ava{width:46px;height:46px;font-size:24px}
+.pcard b{display:block;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard small{color:var(--ink3);font-weight:800;font-size:12.5px}
+.pcard .pin > span:nth-child(3){min-width:0;flex:1}
+.pcard .wins{font-family:var(--display);font-weight:900;font-style:italic;font-size:26px;color:var(--o-text)}
+.bubble2{position:absolute;right:12px;top:10px;padding:6px 12px;border-radius:14px;font-weight:900;font-size:16px;background:var(--glass2);border:1px solid var(--line2);box-shadow:var(--shadow);animation:bub 2.6s ease both;pointer-events:none;z-index:3}
+@keyframes bub{0%{opacity:0;transform:translateY(8px) scale(.6)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+.status{padding:16px;text-align:center}
+.status b{display:block;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:22px}
+.status small{color:var(--ink2);font-weight:700}
+.emotes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.emotes button{height:40px;border-radius:12px;border:1px solid var(--line2);background:var(--glass2);font-size:18px;font-weight:900;cursor:pointer;color:var(--ink)}
+.emotes button:hover{border-color:var(--o2)}
+.diff{display:flex;gap:6px}
+.howto{font-size:14px;color:var(--ink2);line-height:1.6;padding:16px}
+.howto h3{margin:0 0 6px;font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;font-size:16px;color:var(--ink)}
+.result{position:absolute;inset:0;z-index:5;display:none;place-items:center;border-radius:28px;background:rgba(10,12,16,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.result.on{display:grid;animation:fadeIn .3s}
+.result .panel{padding:26px 30px;text-align:center;min-width:260px;background:var(--glass2)}
+.result h2{margin:0 0 6px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(30px,5vw,44px);line-height:1}
+.result p{margin:0 0 16px;color:var(--ink2);font-weight:700}
+.wait{display:none;position:absolute;inset:0;z-index:4;place-items:center;border-radius:28px;background:rgba(10,12,16,.35)}
+.wait.on{display:grid}
+.wait .panel{padding:22px 26px;text-align:center;max-width:320px}
+.wait .spin{width:46px;height:46px;margin:0 auto 10px;border-radius:50%;border:4px solid var(--line2);border-top-color:var(--o2);animation:spin 1s linear infinite}
+</style>
+</head>
+<body data-page="orbfour">
+<main id="main">
+<div class="wrap">
+  <section class="panel ohead hud">
+    <span class="orb" style="width:48px;height:48px"><b>4</b></span>
+    <div><div class="kicker">Puzzle · 1–2 players</div><h1>Orb <span>Four</span></h1></div>
+    <div class="modes" role="group" aria-label="Mode">
+      <button class="chip" data-mode="cpu">🤖 vs CPU</button><button class="chip" data-mode="local">👥 2 players</button><button class="chip" data-mode="online">🌐 Online</button>
+    </div>
+  </section>
+  <div class="arena">
+    <div class="boardwrap" id="bw">
+      <div class="ghostrow" id="ghosts"></div>
+      <div class="board" id="board" role="grid" aria-label="Orb Four board"></div>
+      <div class="result" id="result"><div class="panel"><h2 id="rTitle"></h2><p id="rText"></p><div class="row" style="justify-content:center" id="rBtns"></div></div></div>
+      <div class="wait" id="wait"><div class="panel"><div class="spin"></div><b id="wTitle">Waiting…</b><p class="muted" id="wText" style="margin:6px 0 0"></p></div></div>
+    </div>
+    <aside class="side">
+      <div class="panel pcard" id="p0"><div class="pin"></div></div>
+      <div class="panel pcard" id="p1"><div class="pin"></div></div>
+      <div class="panel status" id="status"></div>
+      <div class="panel" style="padding:14px" id="extra"></div>
+      <div class="panel howto"><h3>How to play</h3>Take turns dropping orbs into the columns. First to line up <b>four in a row</b> (across, up-and-down or diagonal) wins. Click or tap a column, or use <kbd>←</kbd> <kbd>→</kbd> and <kbd>Enter</kbd>, or keys <kbd>1</kbd>–<kbd>7</kbd>.</div>
+    </aside>
+  </div>
+</div>
+</main>
+<script src="../../assets/data.js"></script>
+<script src="../../assets/site.js"></script>
+<script>
+(() => {
+  const { $, $$, esc, account, accountsOn } = TZ;
+  const W = 7, H = 6;
+  const P = new URLSearchParams(location.search);
+  const matchId = P.get('m');
+  let mode = matchId ? 'online' : (TZ.get('tz.orb.mode', 'cpu') === 'local' ? 'local' : 'cpu');
+  let diff = TZ.get('tz.orb.diff', 2);
+  let board = '.'.repeat(W * H), turn = 'a', over = false, winCells = [], lastIdx = -1, hoverCol = 3, busy = false;
+  let wins = { a:0, b:0 }, match = null, meIdx = -1, stopWatch = null, lastEmote = 0, versusGiven = false;
+
+  /* ---------- rules ---------- */
+  const at = (b, r, c) => b[r * W + c];
+  function dropRow(b, c){ for (let r = H - 1; r >= 0; r--) if (at(b, r, c) === '.') return r; return -1; }
+  function place(b, c, who){ const r = dropRow(b, c); if (r < 0) return null; const i = r * W + c; return { b: b.slice(0, i) + who + b.slice(i + 1), i }; }
+  function winner(b){
+    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (let r = 0; r < H; r++) for (let c = 0; c < W; c++){
+      const v = at(b, r, c); if (v === '.') continue;
+      for (const [dr, dc] of dirs){
+        const cells = [];
+        for (let k = 0; k < 4; k++){ const rr = r + dr * k, cc = c + dc * k; if (rr < 0 || rr >= H || cc < 0 || cc >= W || at(b, rr, cc) !== v) break; cells.push(rr * W + cc); }
+        if (cells.length === 4) return { who: v, cells };
+      }
+    }
+    return b.includes('.') ? null : { who: 'draw', cells: [] };
+  }
+
+  /* ---------- CPU (negamax with alpha-beta) ---------- */
+  const ORDER = [3, 2, 4, 1, 5, 0, 6];
+  function scoreWindow(w, me){ const op = me === 'a' ? 'b' : 'a'; let m = 0, o = 0, e = 0; for (const x of w){ if (x === me) m++; else if (x === op) o++; else e++; }
+    if (m === 4) return 1000; if (m === 3 && e === 1) return 6; if (m === 2 && e === 2) return 2; if (o === 3 && e === 1) return -5; return 0; }
+  function evaluate(b, me){
+    let s = 0;
+    for (let r = 0; r < H; r++) if (at(b, r, 3) === me) s += 3;
+    for (let r = 0; r < H; r++) for (let c = 0; c < W; c++){
+      if (c + 3 < W) s += scoreWindow([at(b,r,c),at(b,r,c+1),at(b,r,c+2),at(b,r,c+3)], me);
+      if (r + 3 < H) s += scoreWindow([at(b,r,c),at(b,r+1,c),at(b,r+2,c),at(b,r+3,c)], me);
+      if (r + 3 < H && c + 3 < W) s += scoreWindow([at(b,r,c),at(b,r+1,c+1),at(b,r+2,c+2),at(b,r+3,c+3)], me);
+      if (r + 3 < H && c - 3 >= 0) s += scoreWindow([at(b,r,c),at(b,r+1,c-1),at(b,r+2,c-2),at(b,r+3,c-3)], me);
+    }
+    return s;
+  }
+  function negamax(b, depth, alpha, beta, who){
+    const w = winner(b);
+    if (w) return w.who === 'draw' ? 0 : (w.who === who ? 100000 + depth : -100000 - depth);
+    if (depth === 0) return evaluate(b, who) - evaluate(b, who === 'a' ? 'b' : 'a');
+    let best = -Infinity;
+    for (const c of ORDER){
+      const m = place(b, c, who); if (!m) continue;
+      const v = -negamax(m.b, depth - 1, -beta, -alpha, who === 'a' ? 'b' : 'a');
+      if (v > best) best = v; if (v > alpha) alpha = v; if (alpha >= beta) break;
+    }
+    return best;
+  }
+  function cpuMove(b, who){
+    const depth = [1, 3, 5, 7][diff] || 5;
+    if (diff === 0 && Math.random() < .45){ const open = ORDER.filter(c => dropRow(b, c) >= 0); return open[Math.floor(Math.random() * open.length)]; }
+    let best = -Infinity, pick = 3;
+    for (const c of ORDER){ const m = place(b, c, who); if (!m) continue; const v = -negamax(m.b, depth - 1, -Infinity, Infinity, who === 'a' ? 'b' : 'a'); if (v > best){ best = v; pick = c; } }
+    return pick;
+  }
+
+  /* ---------- drawing ---------- */
+  function build(){
+    $('#board').innerHTML = Array.from({ length: W }, (_, c) => `<div class="col" data-c="${c}" role="button" aria-label="Column ${c + 1}">${Array.from({ length: H }, (_, r) => `<div class="cell" data-i="${r * W + c}"></div>`).join('')}</div>`).join('');
+    $('#ghosts').innerHTML = Array.from({ length: W }, (_, c) => `<span><i class="gorb" data-g="${c}"></i></span>`).join('');
+  }
+  let shown = '.'.repeat(W * H);
+  function draw(){
+    for (let i = 0; i < W * H; i++){
+      const cell = $(`.cell[data-i="${i}"]`), v = board[i];
+      if (v !== shown[i]){
+        cell.innerHTML = v === '.' ? '' : `<span class="orb4 ${v}" style="--dy:-${(Math.floor(i / W) + 1.6) * 110}%;--dt:${.28 + Math.floor(i / W) * .05}s"></span>`;
+        if (v !== '.' && i === lastIdx) TZ.sfx('star', Math.floor(i / W));
+      }
+      const o = $('.orb4', cell); if (o) o.classList.toggle('win', winCells.includes(i));
+    }
+    shown = board;
+    $('#board').classList.toggle('locked', !myTurn());
+    ghost();
+    side();
+  }
+  function ghost(){
+    $$('.gorb').forEach(g => { g.className = 'gorb'; });
+    $$('.col').forEach(c => c.classList.remove('hl'));
+    if (!myTurn() || over) return;
+    const g = $(`.gorb[data-g="${hoverCol}"]`); if (g) g.className = 'gorb show ' + turn;
+    const col = $(`.col[data-c="${hoverCol}"]`); if (col) col.classList.add('hl');
+  }
+  const prof = () => TZ.profile();
+  function names(){
+    if (mode === 'online' && match){ const [x, y] = match.players; return [{ tag: match.tags[x], ava: match.avatars[x] }, { tag: match.tags[y], ava: match.avatars[y] }]; }
+    if (mode === 'cpu') return [{ tag: prof().tag, ava: prof().avatar }, { tag: 'CPU · ' + ['Easy', 'Normal', 'Hard', 'Insane'][diff], ava: '🤖' }];
+    return [{ tag: 'Player 1', ava: '🟠' }, { tag: 'Player 2', ava: '⚪' }];
+  }
+  function side(){
+    const n = names();
+    ['a', 'b'].forEach((k, j) => {
+      const el = $('#p' + j);
+      const you = (mode === 'online' && meIdx === j) || (mode === 'cpu' && j === 0);
+      el.querySelector('.pin').innerHTML = `<span class="pc ${k}"></span><span class="ava">${esc(n[j].ava || '🎮')}</span><span><b>${esc(n[j].tag || 'Player')}</b><small>${you ? 'You · ' : ''}${k === 'a' ? 'Orange' : 'Silver'}${k === 'a' ? ' · goes first' : ''}</small></span><span class="wins">${mode === 'online' ? '' : wins[k]}</span>`;
+      el.classList.toggle('turn', !over && turn === k && (mode !== 'online' || (match && match.status === 'playing')));
+    });
+    let t = '', s = '';
+    if (over){ const w = winner(board); t = w && w.who !== 'draw' ? n[w.who === 'a' ? 0 : 1].tag + ' wins!' : 'Draw!'; s = 'Game over'; }
+    else if (mode === 'online' && match && match.status !== 'playing'){ t = 'Waiting'; s = 'for your friend to join'; }
+    else if (mode === 'online'){ t = myTurn() ? 'Your turn' : 'Their turn'; s = myTurn() ? 'Drop an orb!' : n[turn === 'a' ? 0 : 1].tag + ' is thinking…'; }
+    else if (mode === 'cpu'){ t = turn === 'a' ? 'Your turn' : 'CPU thinking…'; s = 'Line up four to win'; }
+    else { t = n[turn === 'a' ? 0 : 1].tag + "'s turn"; s = 'Pass the device!'; }
+    $('#status').innerHTML = `<b>${esc(t)}</b><small>${esc(s)}</small>`;
+  }
+  function extras(){
+    const e = $('#extra');
+    if (mode === 'cpu') e.innerHTML = `<div class="kicker" style="margin-bottom:8px">Difficulty</div><div class="diff">${['Easy','Normal','Hard','Insane'].map((d, i) => `<button class="chip${i === diff ? ' on' : ''}" data-diff="${i}">${d}</button>`).join('')}</div><div class="row" style="margin-top:12px"><button class="btn sm ghost" data-new>↻ New game</button></div>`;
+    else if (mode === 'local') e.innerHTML = `<div class="row"><button class="btn sm ghost" data-new>↻ New game</button><button class="btn sm ghost" data-reset>Reset score</button></div>`;
+    else if (match) e.innerHTML = `<div class="kicker" style="margin-bottom:8px">Reactions</div><div class="emotes">${['👋','GG','🔥','😮','😂','🤝'].map(x => `<button data-emote="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
+    else e.innerHTML = '';
+  }
+  function setModeChips(){ $$('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); }
+
+  /* ---------- turns ---------- */
+  const myTurn = () => {
+    if (over || busy) return false;
+    if (mode === 'local') return true;
+    if (mode === 'cpu') return turn === 'a';
+    return !!(match && match.status === 'playing' && meIdx >= 0 && match.turn === match.players[meIdx]);
+  };
+  function play(c){
+    if (!myTurn()) return;
+    const m = place(board, c, turn); if (!m){ TZ.sfx('err'); return; }
+    board = m.b; lastIdx = m.i;
+    const w = winner(board);
+    if (mode === 'online'){
+      const other = match.players[1 - meIdx];
+      const data = { board, turn: other, moves: (match.moves || 0) + 1, last: m.i };
+      if (w){ data.status = 'done'; data.winner = w.who === 'draw' ? 'draw' : match.players[meIdx]; }
+      match = { ...match, ...data }; turn = meIdx === 0 ? 'b' : 'a';
+      account.updateMatch(match.id, data).catch(e => TZ.toast({ icon:'⚠️', small:'Connection', big:esc(account.errorText(e)) }));
+      if (w) finish(w); else draw();
+      return;
+    }
+    if (w){ finish(w); return; }
+    turn = turn === 'a' ? 'b' : 'a';
+    draw();
+    if (mode === 'cpu' && turn === 'b'){
+      busy = true; draw();
+      setTimeout(() => {
+        const col = cpuMove(board, 'b'), mm = place(board, col, 'b');
+        busy = false;
+        if (mm){ board = mm.b; lastIdx = mm.i; }
+        const w2 = winner(board);
+        if (w2) return finish(w2);
+        turn = 'a'; draw();
+      }, 380 + Math.random() * 300);
+    }
+  }
+  function finish(w){
+    over = true; winCells = w.cells; draw();
+    const n = names();
+    let title = 'Draw!', text = 'Nobody got four. Again?';
+    if (w.who !== 'draw'){
+      const idx = w.who === 'a' ? 0 : 1;
+      const youWon = (mode === 'cpu' && idx === 0) || (mode === 'online' && idx === meIdx);
+      if (mode !== 'online') wins[w.who]++;
+      title = mode === 'local' ? n[idx].tag + ' wins!' : youWon ? 'You win!' : 'You lose';
+      text = mode === 'cpu' ? (youWon ? 'You beat the CPU on ' + ['Easy','Normal','Hard','Insane'][diff] + '!' : 'The CPU got four in a row.') : mode === 'online' ? (youWon ? 'GG! Want a rematch?' : n[idx].tag + ' got four in a row.') : 'Four in a row!';
+      if (youWon || mode === 'local'){ const r = $('#bw').getBoundingClientRect(); TZ.confetti(r.left + r.width / 2, r.top + r.height / 3, 40); TZ.sfx('ach'); } else TZ.sfx('err');
+      if (mode === 'cpu' && youWon) TZ.unlock('orbwin');
+    }
+    if (mode === 'online' && !versusGiven){ versusGiven = true; TZ.unlock('versus'); }
+    setTimeout(() => {
+      $('#rTitle').textContent = title; $('#rText').textContent = text;
+      $('#rBtns').innerHTML = mode === 'online' ? rematchBtns() : '<button class="btn" data-new>↻ Play again</button>';
+      $('#result').classList.add('on');
+    }, 1500);
+    side();
+  }
+  function reset(){ board = '.'.repeat(W * H); turn = 'a'; over = false; winCells = []; lastIdx = -1; busy = false; shown = board; build(); draw(); $('#result').classList.remove('on'); }
+
+  /* ---------- online ---------- */
+  function rematchBtns(){
+    if (match && match.rematch) return `<a class="btn" href="index.html?m=${encodeURIComponent(match.rematch)}">⚔️ Join rematch</a><a class="btn ghost" href="../../friends.html">Friends</a>`;
+    return `<button class="btn" data-rematch>⚔️ Rematch</button><a class="btn ghost" href="../../friends.html">Friends</a>`;
+  }
+  function waitMsg(title, text){ $('#wTitle').textContent = title; $('#wText').innerHTML = text || ''; $('#wait').classList.add('on'); }
+  function online(){
+    reset(); extras();
+    if (!matchId){
+      waitMsg('Challenge a friend', `Open your <a href="../../friends.html" style="color:var(--o-text);font-weight:800">Friends</a> list and press ⚔️ Orb Four next to a friend. They get an invite and you play live.`);
+      return;
+    }
+    if (!accountsOn || account.failed) return waitMsg('Online play is coming soon', 'Online matches switch on with accounts. Try the CPU meanwhile!');
+    if (account.loading) return waitMsg('Connecting…', 'Linking up to the 2trapz Network.');
+    const u = account.user();
+    if (!u) return waitMsg('Sign in to play', `<a class="btn sm" style="margin-top:8px" href="../../account.html?next=${encodeURIComponent('games/orb-four/index.html?m=' + matchId)}">Sign in</a>`);
+    if (stopWatch) stopWatch();
+    waitMsg('Loading match…', '');
+    stopWatch = account.watchMatch(matchId, m => {
+      if (!m){ return waitMsg('Match not found', 'It may have been deleted.'); }
+      meIdx = m.players.indexOf(u.uid);
+      if (meIdx < 0) return waitMsg('Not your match', 'This match is between two other players.');
+      const first = !match; match = m;
+      if (m.status === 'waiting' && meIdx === 1){ account.updateMatch(m.id, { status: 'playing' }).catch(() => {}); }
+      if (m.status === 'waiting' && meIdx === 0) waitMsg('Waiting for ' + (m.tags[m.players[1]] || 'your friend'), 'They got an invite. The match starts as soon as they accept.');
+      else $('#wait').classList.remove('on');
+      board = m.board; lastIdx = m.last; turn = m.turn === m.players[0] ? 'a' : 'b';
+      const w = winner(board);
+      if (m.emote && m.emote.t > lastEmote){ if (!first || Date.now() - m.emote.t < 4000) showEmote(m.emote); lastEmote = m.emote.t; }
+      if (w && !over){ finish(w); }
+      else if (over && m.rematch){ $('#rBtns').innerHTML = rematchBtns(); }
+      else if (!w){ over = false; winCells = []; draw(); }
+      extras();
+    }, e => waitMsg('Couldn\'t load the match', esc(account.errorText(e))));
+  }
+  function showEmote(em){
+    const j = match.players.indexOf(em.u); if (j < 0) return;
+    const card = $('#p' + j); const b = document.createElement('span'); b.className = 'bubble2'; b.textContent = em.e;
+    card.appendChild(b); setTimeout(() => b.remove(), 2700); TZ.sfx('click');
+  }
+
+  /* ---------- input ---------- */
+  $('#board').addEventListener('click', e => { const c = e.target.closest('[data-c]'); if (c) play(+c.dataset.c); });
+  $('#board').addEventListener('mousemove', e => { const c = e.target.closest('[data-c]'); if (c && +c.dataset.c !== hoverCol){ hoverCol = +c.dataset.c; ghost(); } });
+  document.addEventListener('keydown', e => {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowLeft'){ hoverCol = Math.max(0, hoverCol - 1); ghost(); e.preventDefault(); }
+    else if (e.key === 'ArrowRight'){ hoverCol = Math.min(W - 1, hoverCol + 1); ghost(); e.preventDefault(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('button,a')){ play(hoverCol); e.preventDefault(); }
+    else if (/^[1-7]$/.test(e.key)){ hoverCol = +e.key - 1; play(hoverCol); }
+  });
+  document.addEventListener('click', async e => {
+    const t = e.target;
+    const md = t.closest('[data-mode]');
+    if (md){
+      const m = md.dataset.mode;
+      if (m === 'online'){ mode = 'online'; setModeChips(); online(); return; }
+      if (matchId){ location.href = 'index.html'; TZ.set('tz.orb.mode', m); return; }
+      mode = m; TZ.set('tz.orb.mode', m); setModeChips(); $('#wait').classList.remove('on'); extras(); reset(); return;
+    }
+    const d = t.closest('[data-diff]'); if (d){ diff = +d.dataset.diff; TZ.set('tz.orb.diff', diff); extras(); reset(); return; }
+    if (t.closest('[data-new]')){ reset(); return; }
+    if (t.closest('[data-reset]')){ wins = { a:0, b:0 }; reset(); return; }
+    const em = t.closest('[data-emote]');
+    if (em && match){ const data = { emote: { u: account.user().uid, e: em.dataset.emote, t: Date.now() } }; lastEmote = data.emote.t; showEmote(data.emote); account.updateMatch(match.id, data).catch(() => {}); return; }
+    const rm = t.closest('[data-rematch]');
+    if (rm && match){
+      rm.disabled = true; rm.textContent = 'Starting…';
+      try {
+        const other = match.players[1 - meIdx];
+        const id = await account.createMatch({ uid: other, tag: match.tags[other], avatar: match.avatars[other] }, 'orb-four');
+        await account.updateMatch(match.id, { rematch: id });
+        location.href = 'index.html?m=' + encodeURIComponent(id);
+      } catch (err){ rm.disabled = false; rm.textContent = '⚔️ Rematch'; TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); }
+    }
+  });
+  document.addEventListener('tz:auth', () => { if (mode === 'online') online(); });
+
+  build(); setModeChips(); extras(); draw();
+  if (mode === 'online') online();
+})();
+</script>
+</body>
+</html>
