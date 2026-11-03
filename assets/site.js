@@ -33,7 +33,7 @@
   const detailHref = g => BASE + 'game.html?g=' + encodeURIComponent(g.slug);
   const playHref = g => BASE + 'games/' + encodeURIComponent(g.slug) + '/index.html';
   const genres = [...new Set(GAMES_.map(g => g.genre))].sort();
-  const GENRE_ICON = { Tycoon:'💼', Shooter:'🎯', Strategy:'♟️', Fighting:'🥊', Arcade:'🕹️', Party:'🎉', RPG:'🗡️', Racing:'🏁', Adventure:'🧭', Action:'💥', Survival:'🔥', Sports:'🏆', Puzzle:'🧩', Horror:'👻', Platformer:'🍄', Simulation:'🛠️' };
+  const GENRE_ICON = { Tycoon:'💼', Shooter:'🎯', Strategy:'♟️', Fighting:'🥊', Arcade:'🕹️', Party:'🎉', RPG:'🗡️', Racing:'🏁', Adventure:'🧭', Action:'💥', Survival:'🔥', Sports:'🏆', Puzzle:'🧩', Horror:'👻', Platformer:'🍄', Simulation:'🛠️', Cooking:'🍳' };
   const genreIcon = g => GENRE_ICON[g] || '🎮';
 
   /* ---------- profile ---------- */
