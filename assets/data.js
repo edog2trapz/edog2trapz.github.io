@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
+    desc:'Fight it on the line, or hold your breath and go down after it. Rod-and-reel fishing and freedive spearfishing across five waters, with 38 fish, 6 legends, weather, sharks and crocodiles.' },
   { slug:'orb-four', title:'Orb Four', icon:'🟠', genre:'Puzzle', colors:['#1b2230', '#ff8a00'], players:'1–2 players · online with friends', isNew:true, featured:true,
     desc:'Drop glossy orbs and line up four before your opponent does. Beat the CPU, play a friend on the same screen, or challenge your 2trapz friends to live online matches.' },
   { slug:'besieged', title:'Besieged', icon:'🎯', genre:'Shooter', colors:['#0c1117', '#3fb6c8'], players:'1 player · online in Claude', isNew:true, featured:true,
