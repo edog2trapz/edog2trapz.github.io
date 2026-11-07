@@ -39,7 +39,21 @@ kbd{font-family:var(--ui);font-weight:700;font-size:.85em;padding:1px 6px;border
 .controls ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px;font-size:17px;color:#d6e6e6}
 .fine{margin:0;color:var(--mute);font-size:15px}
 .sheet{position:fixed;inset:0;margin:auto;width:min(880px,calc(100% - 32px));height:min(660px,calc(100% - 32px));background:var(--panel);border:1px solid var(--rule);border-radius:10px;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.6);backdrop-filter:blur(6px)}
-.sheet header{display:flex;align-items:center;gap:16px;padding:16px 20px;border-bottom:1px solid var(--rule)}
+.sheet header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;padding:16px 20px;border-bottom:1px solid var(--rule)}
+.code{width:140px;max-width:100%;background:rgba(255,255,255,.05);border:1px solid var(--rule);border-radius:6px;color:var(--foam);font:600 16px var(--ui);padding:6px 10px}
+.code:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.adm-body{flex:1;overflow:auto;padding:14px 20px 22px;display:flex;flex-direction:column;gap:18px}
+.adm-body h3{margin:0 0 8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px;color:var(--kelp)}
+.adm-row{display:flex;flex-wrap:wrap;gap:8px}
+.adm-row+.adm-row{margin-top:8px}
+.adm-btn{border:1px solid var(--rule);background:rgba(242,177,52,.08);color:var(--foam);border-radius:6px;padding:9px 14px;font-size:16px;font-weight:600}
+.adm-btn:hover{background:rgba(242,177,52,.18)}
+.adm-btn.cur{border-color:var(--kelp);color:var(--kelp)}
+.adm-tog{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.adm-btn.tog{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left}
+.adm-btn.tog span{font-size:14px;font-weight:500;color:var(--mute)}
+.adm-btn.tog.on{background:var(--brass);color:#2a1a00;border-color:var(--brass)}
+.adm-btn.tog.on span{color:#4a3200}
 .sheet h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0;line-height:1}
 .sheet header .grow{flex:1;min-width:0}
 .cash{font-family:var(--display);font-size:24px;color:var(--brass);font-variant-numeric:tabular-nums}
@@ -127,7 +141,7 @@ kbd{font-family:var(--ui);font-weight:700;font-size:.85em;padding:1px 6px;border
         </ul>
       </div>
     </div>
-    <p class="fine">On touch: drag across the water to aim, hold to reel, stick to move. <kbd>C</kbd> codex · <kbd>M</kbd> mute. Progress saves in this browser.</p>
+    <p class="fine">On touch: drag across the water to aim, hold to reel, stick to move. <kbd>C</kbd> codex · <kbd>M</kbd> mute · type <kbd>enoch</kbd> for the admin panel. Progress saves in this browser.</p>
   </div>
 </div>
 
@@ -145,9 +159,20 @@ kbd{font-family:var(--ui);font-weight:700;font-size:.85em;padding:1px 6px;border
 <div id="codex" class="sheet" hidden role="dialog" aria-label="Angler's Codex">
   <header>
     <div class="grow"><div class="eyebrow">Angler's</div><h2>Codex</h2></div>
+    <input id="codeIn" class="code" placeholder="Secret code" autocomplete="off" spellcheck="false" maxlength="12" aria-label="Secret code">
+    <button class="x" id="codeGo">Enter</button>
     <button class="x" id="codexClose">Close</button>
   </header>
   <div class="codex-grid" id="codexGrid"></div>
+</div>
+
+<div id="adm" class="sheet" hidden role="dialog" aria-label="Enoch admin panel">
+  <header>
+    <div class="grow"><div class="eyebrow">Enoch mode</div><h2>⚡ Admin Panel</h2></div>
+    <div class="cash" id="admCash"></div>
+    <button class="x" id="admClose">Close</button>
+  </header>
+  <div class="adm-body" id="admBody"></div>
 </div>
 
 <div id="card" hidden>
@@ -166,6 +191,7 @@ kbd{font-family:var(--ui);font-weight:700;font-size:.85em;padding:1px 6px;border
     <button id="tNet" class="tb small">NET</button>
     <button id="tChum" class="tb small">CHUM</button>
     <button id="tTrawl" class="tb small">TRAWL</button>
+    <button id="tAdm" class="tb small" hidden>⚡ ENOCH</button>
   </div>
   <div id="tbtns">
     <div id="tDrag"><button id="tDragDn" class="tb small">DRAG −</button><button id="tDragUp" class="tb small">DRAG +</button></div>
@@ -428,11 +454,11 @@ function zoneName(x){for(const z of MAP.zones)if(x<z[0])return z[1];return'';}
 
 // ---------- save
 const SAVE_KEY='hook-harpoon-v1';
-function defaultSave(){return{v:3,money:60,day:1,time:6.2,drag:3,bait:0,map:'cove',maps:{cove:1},bounties:{},eq:{rod:'driftwood',reel:'spincast',line:'mono',leader:'mono',lure:'spinner',gun:'pole',fins:'rubber',suit:'shorty',tank:'freedive',boat:'dinghy'},owned:{boat:{dinghy:1},rod:{driftwood:1},reel:{spincast:1},line:{mono:1},leader:{mono:1},lure:{spinner:1,sardine:1},gun:{pole:1},fins:{rubber:1},suit:{shorty:1},tank:{freedive:1},extra:{castnet:1}},cooler:[],codex:{},legends:{}};}
+function defaultSave(){return{v:3,money:60,day:1,time:6.2,drag:3,bait:0,map:'cove',maps:{cove:1},bounties:{},eq:{rod:'driftwood',reel:'spincast',line:'mono',leader:'mono',lure:'spinner',gun:'pole',fins:'rubber',suit:'shorty',tank:'freedive',boat:'dinghy'},owned:{boat:{dinghy:1},rod:{driftwood:1},reel:{spincast:1},line:{mono:1},leader:{mono:1},lure:{spinner:1,sardine:1},gun:{pole:1},fins:{rubber:1},suit:{shorty:1},tank:{freedive:1},extra:{castnet:1}},cooler:[],codex:{},legends:{},adm:{}};}
 let S=defaultSave();
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){}}
 function loadSave(){try{const j=localStorage.getItem(SAVE_KEY);if(j)return JSON.parse(j);}catch(e){}return null;}
-function adopt(o){const d=defaultSave();if(!o||typeof o!=='object')return d;const r=Object.assign(d,o);r.eq=Object.assign(defaultSave().eq,o.eq||{});const ow=defaultSave().owned;for(const k in ow)r.owned[k]=Object.assign(ow[k],(o.owned||{})[k]||{});r.maps=Object.assign({cove:1},o.maps||{});if(!MAPS[r.map])r.map='cove';r.bounties=o.bounties||{};return r;}
+function adopt(o){const d=defaultSave();if(!o||typeof o!=='object')return d;const r=Object.assign(d,o);r.eq=Object.assign(defaultSave().eq,o.eq||{});const ow=defaultSave().owned;for(const k in ow)r.owned[k]=Object.assign(ow[k],(o.owned||{})[k]||{});r.maps=Object.assign({cove:1},o.maps||{});if(!MAPS[r.map])r.map='cove';r.bounties=o.bounties||{};r.adm=o.adm||{};return r;}
 
 // ---------- world geometry (rebuilt per map)
 const FX0=-34,FSTEP=0.25;
@@ -508,15 +534,17 @@ const SFX={
 };
 
 // ---------- input
-const I={keys:{},down:false,btnPrimary:false,sprintBtn:false,px:0,py:0,aimMouse:false,lastTouchAim:-9,stick:{x:0,y:0},touch:false,dragDelta:0,p:{}};
+const I={code:'',keys:{},down:false,btnPrimary:false,sprintBtn:false,px:0,py:0,aimMouse:false,lastTouchAim:-9,stick:{x:0,y:0},touch:false,dragDelta:0,p:{}};
 const primaryHeld=()=>I.down||!!I.keys[' ']||I.btnPrimary;
 const moveX=()=>clamp((I.keys.d||I.keys.arrowright?1:0)-(I.keys.a||I.keys.arrowleft?1:0)+I.stick.x,-1,1);
 const moveY=()=>clamp((I.keys.s||I.keys.arrowdown?1:0)-(I.keys.w||I.keys.arrowup?1:0)+I.stick.y,-1,1);
 const aimActive=()=>I.aimMouse||(G.t-I.lastTouchAim<1.2)||I.down;
 function S2W(px,py){return[(px-W/2)/G.cam.s+G.cam.x,(py-H/2)/G.cam.s+G.cam.y];}
 function W2S(x,y){return[(x-G.cam.x)*G.cam.s+W/2,(y-G.cam.y)*G.cam.s+H/2];}
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   const wasDown=I.keys[k];I.keys[k]=true;if(wasDown)return;au();
+  if(k.length===1){const prev=I.code;I.code=(I.code+k).slice(-5);if(I.code==='enoch'){I.code='';e.preventDefault();unlockEnoch();return;}if((k==='o'&&prev.endsWith('en'))||(k==='c'&&prev.endsWith('eno'))||(k==='h'&&prev.endsWith('enoc')))return;}
+  if((k==='`'||k==='f2')&&S.cheat){e.preventDefault();toggleAdm();return;}
   if(k==='escape'){closeSheets();return;}
   if(k==='c'&&G.mode!=='title'){toggleCodex();return;}
   if(k==='m'){AU.muted=!AU.muted;if(AU.master)AU.master.gain.value=AU.muted?0:0.7;msg(AU.muted?'Sound off':'Sound on');return;}
@@ -544,7 +572,7 @@ holdBtn('tSprint',()=>{I.sprintBtn=true;},()=>{I.sprintBtn=false;});
 holdBtn('tDragDn',()=>{I.dragDelta-=0.5;});
 holdBtn('tDragUp',()=>{I.dragDelta+=0.5;});
 holdBtn('tLure',()=>{const o=LURE_KEYS.filter(k=>S.owned.lure[k]&&(!LURES[k].bait||S.bait>0));selectLure(o[(o.indexOf(S.eq.lure)+1)%o.length]);});
-holdBtn('tCodex',()=>toggleCodex());
+holdBtn('tCodex',()=>toggleCodex());holdBtn('tAdm',()=>toggleAdm());
 holdBtn('tNet',()=>{I.netBtn=true;I.p.net=true;},()=>{I.netBtn=false;});holdBtn('tChum',()=>{I.p.chum=true;});holdBtn('tTrawl',()=>{I.p.trawl=true;});
 (()=>{const st=$('stick'),kn=$('knob');let id=null;const upd=e=>{const r=st.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=(e.clientX-cx)/50,dy=(e.clientY-cy)/50;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l;}I.stick.x=Math.abs(dx)<0.15?0:dx;I.stick.y=Math.abs(dy)<0.15?0:dy;kn.style.transform=`translate(${dx*36}px,${dy*36}px)`;};
   st.addEventListener('pointerdown',e=>{id=e.pointerId;try{st.setPointerCapture(id);}catch(_){}upd(e);});st.addEventListener('pointermove',e=>{if(e.pointerId===id)upd(e);});
@@ -601,10 +629,11 @@ function updateFishFree(f,dt){const sp=f.sp;f.t-=dt;f.wary=Math.max(0,f.wary-dt)
   const fl=floorDepth(f.x);if(f.y<0.5){f.y=0.5;f.vy=Math.max(0,f.vy);}if(f.y>fl-0.3){f.y=fl-0.3;f.vy=Math.min(0,f.vy);}
   fishPose(f,dt);}
 function fishInterest(dt,L){const lu=S.eq.lure,LU=LURES[lu],lineV=LINES[S.eq.line].vis,light=lightNow(),ph=phaseOf(S.time),moving=L.speed>0.3||L.flash>0,rod=RODS[S.eq.rod],wb=biteMult(),clar=Math.min(1,MAP.clarity+0.3),wire=LEADERS[S.eq.leader].wire,troll=Math.abs(G.boat.vx)>0.8;
-  for(const f of G.fish){if((f.state!=='wander'&&f.state!=='hunt')||f.wary>0)continue;const d=dist(f.x,f.y,L.x,L.y);const sight=f.sp.sight*(0.45+0.55*light)*(lu==='spinner'||lu==='popper'||lu==='sardine'?1.2:1)*clar;if(d>sight)continue;
+  for(const f of G.fish){if((f.state!=='wander'&&f.state!=='hunt')||f.wary>0)continue;const d=dist(f.x,f.y,L.x,L.y);const sight=f.sp.sight*(0.45+0.55*light)*(lu==='spinner'||lu==='popper'||lu==='sardine'?1.2:1)*clar;if(d>sight*(S.adm.magnet?2:1))continue;
     let pref=f.sp.lures[lu]||0;if(LU.troll&&L.speed<1.2)pref*=0.15;
     let p=f.sp.bite*pref*ACT[f.sp.active][ph]*(moving?1:0.5)*wb;if(f.sp.sight>=8&&!f.sp.shark)p/=lineV*(wire?1.3:1);if(f.sp.bottom&&L.onFloor)p*=1.8;if(f.lureInLip)p*=0.5;if(rod.light&&f.w<2)p*=1.4;
     if(f.state==='hunt')p*=2.5;else if(f.fed>0)p*=1.6;if(troll&&rod.troll)p*=1.3;if(G.chumT>0&&(f.sp.shark||f.sp.pred)&&Math.abs(f.x-G.chumX)<22)p*=1.7;
+    if(S.adm.magnet)p*=6;
     if(Math.random()<p*dt*0.35){f.state='follow';f.t=rand(4,7);}}}
 
 // ---------- ecosystem: bait schools, predators, frenzies
@@ -717,7 +746,8 @@ function updateFight(dt){const F=G.fight,f=F.f,sp=f.sp,rod=RODS[S.eq.rod],reel=R
   F.slackT=taut?Math.max(0,F.slackT-dt*2):F.slackT+dt;
   f.stamina=clamp(f.stamina-((F.T/F.maxPull)*0.075*(F.good?1.8:1)+0.005)*dt+(F.st==='rest'&&!reeling?0.012*dt:0),0,1);
   fishPose(f,dt);
-  if(sp.teeth&&!LEADERS[S.eq.leader].wire&&Math.random()<dt*(sp.teeth>1?0.1:0.02)*(F.st==='shake'?3:1))return loseFish('bite');
+  if(S.adm.unbreak){F.lineOut=Math.min(F.lineOut,reel.cap-1);F.slackT=0;F.rockT=0;F.T=Math.min(F.T,line.str*0.95);}
+  if(!S.adm.unbreak&&sp.teeth&&!LEADERS[S.eq.leader].wire&&Math.random()<dt*(sp.teeth>1?0.1:0.02)*(F.st==='shake'?3:1))return loseFish('bite');
   if(F.T>line.str)return loseFish('snap');
   if(F.lineOut>reel.cap)return loseFish('spooled');
   if(F.slackT>(sp.style==='shaker'?0.9:1.5))return loseFish('slack');
@@ -773,7 +803,7 @@ function updateTrawl(dt){const T=G.trawl;if(!T)return;const b=G.boat,B=BOAT();co
     msg(T.catch.length?`Hauled ${T.catch.length} fish. About $${v} in the hold.`:'The net came up empty. Steam through schools and bait.',T.catch.length?'#86c27a':'#9fb6bd',4);if(T.catch.length)SFX.win();G.trawl=null;}}}
 
 // ---------- diving
-function startDive(){const b=G.boat;G.mode='dive';G.diver={x:b.x+b.face*(BOAT().len/2-0.6),y:0.4,vx:b.face*1.2,vy:1.4,aim:{x:b.face,y:0.2},ang:Math.PI/2*0.6,o2:1,o2max:1,hr:72,kick:0,calm:0,stringer:[],gun:'loaded',reloadT:0,blackT:0,shotNoise:0,wasDeep:false,stingT:0,coldWarned:false};
+function startDive(){const b=G.boat;G.mode='dive';G.diveT=G.t;G.diver={x:b.x+b.face*(BOAT().len/2-0.6),y:0.4,vx:b.face*1.2,vy:1.4,aim:{x:b.face,y:0.2},ang:Math.PI/2*0.6,o2:1,o2max:1,hr:72,kick:0,calm:0,stringer:[],gun:'loaded',reloadT:0,blackT:0,shotNoise:0,wasDeep:false,stingT:0,coldWarned:false};
   splashAt(G.diver.x,0,1.2);SFX.splash(1);setAmb(true);msg(TANKS[S.eq.tank].air>1?'Regulator in. Bubbles will spook the wary ones.':'Below. Move slow, keep your heart calm.','#86c27a',3);}
 function climbAboard(){const D=G.diver;let tot=0,n=0;for(const it of D.stringer){secureCatch(it);tot+=valueOf(it);n++;}
   if(n){msg(`Secured ${n} fish in the cooler. $${tot} worth.`,'#86c27a',3.5);SFX.win();}
@@ -822,14 +852,14 @@ function updateShark(dt){const D=G.diver;G.blood=Math.max(0,G.blood-dt*0.035);co
     const look=(D.aim.x*(-dx)+D.aim.y*(-dy))/d>0.82;K.looked=look;if(look){K.respect+=dt;K.close=Math.max(0,K.close-dt);}else K.close+=dt;
     if(K.respect>4.5){K.state='leave';msg(`The ${P.name} loses interest.`,'#86c27a');}
     else if(K.close>2.6){if(G.dfight||D.stringer.length)K.state='steal';else if(K.t>14)K.state='leave';}}
-  else if(K.state==='steal'){spd=4.8*P.speed;if(d<1.4){if(G.dfight){const f=G.dfight.f;const i=G.fish.indexOf(f);if(i>=0)G.fish.splice(i,1);G.respawn.push({key:f.key,t:60});G.dfight=null;if(G.shaft){G.shaft.fish=null;G.shaft.state='back';}msg(`The ${P.name} ripped your fish off the shaft!`,'#ff6a4d');}
+  else if(K.state==='steal'){spd=4.8*P.speed;if(S.adm.god)K.state='leave';else if(d<1.4){if(G.dfight){const f=G.dfight.f;const i=G.fish.indexOf(f);if(i>=0)G.fish.splice(i,1);G.respawn.push({key:f.key,t:60});G.dfight=null;if(G.shaft){G.shaft.fish=null;G.shaft.state='back';}msg(`The ${P.name} ripped your fish off the shaft!`,'#ff6a4d');}
     else if(D.stringer.length){let bi=0;D.stringer.forEach((s,i)=>{if(s.w>D.stringer[bi].w)bi=i;});const it=D.stringer.splice(bi,1)[0];msg(`The ${P.name} took your ${SPECIES[it.key].name}!`,'#ff6a4d');}
     bloodAt(D.x,D.y,8);K.state='leave';D.hr+=25;G.blood=0.1;shake(0.5);}}
   else if(K.state==='leave'){tx=K.x+(K.x>D.x?20:-20);ty=K.y+1;spd=3*P.speed;if(d>28){G.shark=null;return;}}
   const n=norm(tx-K.x,ty-K.y);K.vx=lerp(K.vx,n.x*spd,Math.min(1,dt*1.5));K.vy=lerp(K.vy,n.y*spd,Math.min(1,dt*1.5));K.x+=K.vx*dt;K.y+=K.vy*dt;K.y=clamp(K.y,0.8,floorDepth(K.x)-0.6);
   if(Math.abs(K.vx)>0.1)K.dir=Math.sign(K.vx);K.pitch=lerp(K.pitch,clamp(Math.atan2(K.vy,Math.abs(K.vx)+0.3),-0.5,0.5),Math.min(1,dt*3));}
 function updateDive(dt){const D=G.diver,fins=FINS[S.eq.fins],tank=TANKS[S.eq.tank];const mx=moveX(),my=moveY(),mag=Math.min(1,Math.hypot(mx,my));const sprint=(I.keys.shift||I.sprintBtn)&&mag>0.1;
-  const scoot=sprint&&S.owned.extra.scooter;D.scoot=scoot;const maxS=1.7*fins.speed*(scoot?2.6:sprint?1.8:1);let tvx=mx*maxS,tvy=my*maxS;
+  const scoot=sprint&&S.owned.extra.scooter;D.scoot=scoot;const maxS=1.7*fins.speed*(scoot?2.6:sprint?1.8:1)*(S.adm.turbo?2:1);let tvx=mx*maxS,tvy=my*maxS;
   if(mag<0.1){tvx=D.vx*0.6;tvy=D.y<7?-0.25:D.y>16?0.18:0;}
   D.vx=lerp(D.vx,tvx,Math.min(1,dt*2.2));D.vy=lerp(D.vy,tvy,Math.min(1,dt*2.2));D.x+=D.vx*dt;D.y+=D.vy*dt;
   if(D.y<0.15){D.y=0.15;D.vy=Math.max(0,D.vy);}const fl=floorDepth(D.x);if(D.y>fl-0.45){D.y=fl-0.45;D.vy=Math.min(0,D.vy);}if(fl<1.2){D.x+=0.05;}D.x=clamp(D.x,-6,MAP.w-4);
@@ -843,17 +873,18 @@ function updateDive(dt){const D=G.diver,fins=FINS[S.eq.fins],tank=TANKS[S.eq.tan
     if(D.wasDeep){D.wasDeep=false;splashAt(D.x,0,0.4);}}
   else{D.wasDeep=true;D.calm=0;if(D.o2max>1&&D.o2<1)D.o2max=1;D.o2-=dt/breath*(D.hr/62)*(1+D.y/80)*(mag>0.1?fins.eff:0.85)*(cold?1.7:1);if(D.o2<=0){D.o2=0;D.blackT+=dt;if(D.blackT>3)return blackout();}
     if(cold&&!D.coldWarned){D.coldWarned=true;msg('Freezing! A 7 mm suit would keep your air longer.','#7fd3e6',4);}}
+  if(S.adm.god){D.o2=Math.max(D.o2,1);D.blackT=0;}
   G.noise=0.35+speed/(1.7*fins.speed)*0.5*(scoot?0.4:1)+(scoot?0.3:sprint?0.8:0)+Math.max(0,(D.hr-65)/90)+D.shotNoise+(tank.air>1&&!tank.silent&&!atSurf?0.45:0);D.shotNoise=Math.max(0,D.shotNoise-dt*1.5);
   if(aimActive()){const a=S2W(I.px,I.py);D.aim=norm(a[0]-D.x,a[1]-D.y);}else if(mag>0.2)D.aim=norm(mx,my);
   updateGun(dt);if(G.dfight)updateDFight(dt);updateShark(dt);if(!G.diver)return;
   G.blood+=D.stringer.length*0.006*dt;if(MAP.current&&!atSurf)D.x+=MAP.current*0.45*dt;if(G.chumT>0)G.blood+=dt*0.02;
-  D.stingT-=dt;for(const j of JELLY){if(D.stingT<=0&&dist(D.x,D.y,j.x,j.y+j.r*0.8)<j.r+0.35){D.stingT=2.5;D.o2=Math.max(0,D.o2-0.08);D.hr+=30;msg('Jellyfish sting!','#ff8ad8',2);SFX.sting();shake(0.2);}}
+  D.stingT-=dt;for(const j of JELLY){if(!S.adm.god&&D.stingT<=0&&dist(D.x,D.y,j.x,j.y+j.r*0.8)<j.r+0.35){D.stingT=2.5;D.o2=Math.max(0,D.o2-0.08);D.hr+=30;msg('Jellyfish sting!','#ff8ad8',2);SFX.sting();shake(0.2);}}
   if(!atSurf&&Math.random()<dt*(1.2+speed)*(tank.air>1&&!tank.silent?3:1))part({type:'bubble',x:D.x+Math.cos(D.ang)*0.55,y:D.y-0.15,vy:-rand(0.6,1.2),life:3,max:3,r:rand(0.03,0.07)});
   if((D.o2<0.3&&!atSurf)||D.hr>110){G.heartT-=dt;if(G.heartT<=0){SFX.heart();G.heartT=60/D.hr;}}
   G.canClimb=atSurf&&Math.abs(D.x-G.boat.x)<BOAT().len/2+1.2;if(I.p.action&&G.canClimb)climbAboard();}
 
 // ---------- travel
-function travelTo(k){if(k===MAP.key)return;const m=MAPS[k];if(m.offshore&&!BOAT().offshore){msg(`${m.name} needs an offshore boat: Center Console or bigger.`,'#ff6a4d',4);return;}if(!S.maps[k]){if(S.money<m.price)return;S.money-=m.price;S.maps[k]=1;SFX.buy();}
+function travelTo(k,force){if(k===MAP.key)return;const m=MAPS[k];if(m.offshore&&!BOAT().offshore&&!force){msg(`${m.name} needs an offshore boat: Center Console or bigger.`,'#ff6a4d',4);return;}if(!S.maps[k]){if(S.money<m.price)return;S.money-=m.price;S.maps[k]=1;SFX.buy();}
   G.worlds[MAP.key]={fish:G.fish,schools:G.schools,respawn:G.respawn,bait:G.bait,crit:G.crit};
   S.map=k;buildMap(k);const w=G.worlds[k];if(w){G.fish=w.fish;G.schools=w.schools;G.respawn=w.respawn;G.bait=w.bait||[];G.crit=w.crit||[];}else initWorld();G.net=null;G.trawl=null;G.blitz=[];G.chumT=0;
   G.boat.x=15;G.boat.vx=0;G.castState='idle';G.lure=null;G.fight=null;G.bite=null;G.parts=[];G.fade=1.6;S.time=(S.time+2)%24;pickWeather(true);
@@ -882,7 +913,7 @@ function update(dt,live){G.t+=dt;S.time+=dt/30;if(S.time>=24){S.time-=24;S.day++
 function updateTopside(dt){const b=G.boat,reel=REELS[S.eq.reel],mx=moveX(),B=BOAT(),hl=B.len/2;
   if(I.dragDelta){S.drag=clamp(S.drag+I.dragDelta,0.5,reel.maxDrag);I.dragDelta=0;}S.drag=Math.min(S.drag,reel.maxDrag);
   const idle=G.castState==='idle'&&!G.net,troll=G.castState==='water'&&B.troll&&!G.bite;
-  if(idle||troll){let cap=troll?Math.min(3.2,B.speed*0.45):B.speed*(I.keys.shift?1.5:1);if(G.trawl)cap=Math.min(cap,3.2);const drift=mx?0:(MAP.current||0)*0.5;b.vx=lerp(b.vx,mx*cap+drift,Math.min(1,dt*(1.2+6/B.len)));}else b.vx=lerp(b.vx,0,Math.min(1,dt*3));
+  if(idle||troll){let cap=troll?Math.min(3.2,B.speed*0.45):B.speed*(I.keys.shift?1.5:1);if(G.trawl)cap=Math.min(cap,3.2);if(S.adm.turbo)cap*=3;const drift=mx?0:(MAP.current||0)*0.5;b.vx=lerp(b.vx,mx*cap+drift,Math.min(1,dt*(1.2+6/B.len)));}else b.vx=lerp(b.vx,0,Math.min(1,dt*3));
   b.x=clamp(b.x+b.vx*dt,5+hl,MAP.w-8-hl);
   if(Math.abs(b.vx)>2&&Math.random()<dt*Math.abs(b.vx)*2)part({type:'drop',x:b.x-Math.sign(b.vx)*hl,y:-0.05,vx:-b.vx*0.3+rand(-0.5,0.5),vy:-rand(1,2.5),life:0.6,max:1,r:rand(0.03,0.07)});
   updateNet(dt);updateTrawl(dt);
@@ -1173,6 +1204,7 @@ function render(){const s=G.cam.s,h=S.time,L=lightNow(),[vx0,vx1]=visX(),[vy0,vy
   if(wx.fog>0.02){const a=wx.fog*0.6,fc=L>0.4?'200,210,212':'60,68,76';const gg=ctx.createLinearGradient(0,sy0-H*0.5,0,sy0+H*0.25);gg.addColorStop(0,`rgba(${fc},0)`);gg.addColorStop(0.55,`rgba(${fc},${a})`);gg.addColorStop(0.75,`rgba(${fc},${a*0.7})`);gg.addColorStop(1,`rgba(${fc},0)`);ctx.fillStyle=gg;ctx.fillRect(0,0,W,H);}
   if(G.flash>0){ctx.fillStyle=`rgba(230,240,255,${G.flash*0.5})`;ctx.fillRect(0,0,W,H);}
   if(G.fade>0){ctx.fillStyle=`rgba(0,0,0,${clamp(G.fade/1.5,0,1)})`;ctx.fillRect(0,0,W,H);}
+  if(S.adm.xray&&G.mode!=='title')drawXray(vx0,vx1);
   if(G.mode!=='title')hud();}
 const SHORE={beach:{wall:'#6b4a2e',roof:'#8a3b2a',tree:'palm'},pines:{wall:'#4a3222',roof:'#2f5a3a',tree:'pine'},mud:{wall:'#7a6a4a',roof:'#4a5a2a',tree:'mangrove'},cliff:{wall:'#9a2a22',roof:'#2a2a2a',tree:'pine',snow:1},islet:{wall:'#e8e8e0',roof:'#2a6a9a',tree:'palm'}};
 function drawShore(L){worldTf();const st=SHORE[MAP.shore];
@@ -1299,7 +1331,7 @@ function showCard(it,secured){const sp=SPECIES[it.key],cc=$('cardCv'),x=cc.getCo
   const c=$('card');c.hidden=true;void c.offsetWidth;c.hidden=false;clearTimeout(cardTimer);cardTimer=setTimeout(()=>{c.hidden=true;},3400);}
 let shopTab='bounty';
 function openShop(){G.paused=true;$('shop').hidden=false;renderShop();$('shopClose').focus();}
-function closeSheets(){$('shop').hidden=true;$('codex').hidden=true;G.paused=G.mode==='title';}
+function closeSheets(){$('shop').hidden=true;$('codex').hidden=true;$('adm').hidden=true;G.paused=G.mode==='title';}
 function toggleCodex(){if(!$('codex').hidden){closeSheets();return;}$('shop').hidden=true;G.paused=true;$('codex').hidden=false;renderCodex();}
 function statLine(cat,it){switch(cat){case'rod':return`Power ${it.power.toFixed(2)} · Hook-set window ${it.window}s · Cast ×${it.cast}`;case'reel':return`${it.ratio}:1 gear · ${it.maxDrag} kg max drag · ${Math.round(it.smooth*100)}% smooth · ${it.cap} m line`;case'line':return`${it.str} kg test`;case'lure':return it.float?'Floats on the surface':`Sinks ${it.sink} m/s`;case'gun':return`${it.range} m range · ${it.reload}s reload · ${it.noise<0.5?'silent':'loud'}`;case'fins':return`Speed ×${it.speed} · Air use ×${it.eff}`;case'tank':return`Air ×${it.air}${it.silent?' · silent':''}`;case'boat':return`${Math.round(it.speed*3.6)} km/h · cooler ${it.cooler} · live well ${it.well}${it.troll?' · trolling':''}${it.offshore?' · offshore':''}${it.chair?' · fighting chair':''}${it.trawl?' · trawl net':''}`;default:return'';}}
 function renderShop(){$('shopEyebrow').textContent=MAP.name;$('shopCash').textContent=`$${S.money.toLocaleString()}`;
@@ -1326,9 +1358,48 @@ function renderCodex(){const grid=$('codexGrid');grid.innerHTML='';for(const mk 
   for(const k of m.species){const sp=SPECIES[k],c=S.codex[k];const d=document.createElement('div');d.className='cx'+(sp.legend?' legend':'');
     const cvs=document.createElement('canvas');cvs.width=260;cvs.height=100;cvs.getContext('2d').drawImage(fishThumb(k,!c),0,0,260,100);d.appendChild(cvs);
     d.insertAdjacentHTML('beforeend',`<div class="nm">${c?sp.name:'???'}</div><div class="hint">${sp.hint}</div>${c?`<div class="rec">Caught ${c.n} · Record ${c.best.toFixed(2)} kg</div>`:''}<div class="chips"><span class="chip ${c&&c.rod?'on':''}">Rod</span><span class="chip ${c&&c.spear?'on':''}">Spear</span>${c&&c.rod&&c.spear?'<span class="chip gold">Both ways</span>':''}${sp.shark?'<span class="chip">Tag &amp; release</span>':''}${sp.legend?'<span class="chip gold">Legend</span>':''}</div>`);grid.appendChild(d);}}}
-$('shopClose').onclick=closeSheets;$('codexClose').onclick=closeSheets;
+$('shopClose').onclick=closeSheets;$('codexClose').onclick=closeSheets;$('admClose').onclick=closeSheets;
+// ---------- Enoch admin panel
+function tryCode(){const v=$('codeIn').value.trim().toLowerCase();$('codeIn').value='';if(v==='enoch')unlockEnoch();else{$('codeIn').placeholder=v?'Unknown code':'Secret code';}}
+$('codeGo').onclick=tryCode;$('codeIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')tryCode();});
+function unlockEnoch(){if(G.mode==='title')begin();
+  if(G.mode==='dive'&&G.diver&&G.t-(G.diveT||0)<4&&G.diver.y<1.5&&!G.diver.stringer.length){G.mode='topside';G.diver=null;G.shaft=null;G.dfight=null;G.shark=null;setAmb(false);}
+  if(G.net&&G.net.state!=='haul')G.net=null;
+  const first=!S.cheat;S.cheat=1;save();msg(first?'ENOCH CODE ACCEPTED. Admin panel unlocked: ` or F2 opens it.':'Enoch admin panel','#f2b134',3.5);SFX.win();openAdm();}
+function openAdm(){if(G.mode==='title')return;$('shop').hidden=true;$('codex').hidden=true;G.paused=true;$('adm').hidden=false;renderAdm();$('admClose').focus();}
+function toggleAdm(){if(!$('adm').hidden){closeSheets();return;}if(!S.cheat){msg('Type enoch to unlock the admin panel.','#9fb6bd');return;}openAdm();}
+function admLeaveDive(){if(G.mode==='dive'){G.mode='topside';G.diver=null;G.shaft=null;G.dfight=null;G.shark=null;G.blood=0;setAmb(false);}}
+const ADMTOG=[['god','God mode','Infinite air underwater. Jellies and sharks leave you alone.'],['unbreak','Unbreakable line','No snaps, bite-offs, spooling or thrown hooks.'],['magnet','Fish magnet','Fish spot your lure from twice as far and bite 6x more.'],['turbo','Turbo','Boat 3x faster, diver 2x faster.'],['xray','X-ray','Species and weight over every fish.']];
+const ADMACT={
+  m1k:()=>{S.money+=1000;return'+$1,000';},m10k:()=>{S.money+=10000;return'+$10,000';},m100k:()=>{S.money+=100000;return'+$100,000';},
+  sell:()=>{const t=S.cooler.reduce((a,it)=>a+valueOf(it),0);S.money+=t;S.cooler=[];return`Cooler sold for $${t}`;},
+  maps:()=>{for(const k of MAP_ORDER)S.maps[k]=1;return'Every water unlocked';},
+  gear:()=>{for(const c in CATS)for(const k in CATS[c])S.owned[c][k]=1;S.owned.lure.sardine=1;return'All gear and boats unlocked. Equip them at the dock.';},
+  codex:()=>{for(const k in SPECIES){const sp=SPECIES[k];if(!S.codex[k])S.codex[k]={n:1,best:+(sp.max*0.8).toFixed(2),rod:1,spear:sp.shark?0:1};}return'Codex completed';},
+  land:()=>{if(!G.fight)return'Nothing on the line';G.fight.f.stamina=0;landFish();return'Landed';},
+  bait:()=>{S.bait=BOAT().well;return`Live well full: ${S.bait} sardines`;},
+  frenzy:()=>{const x=clamp(G.mode==='dive'&&G.diver?G.diver.x+6:G.boat.x+10,25,MAP.w-10);if(!BAITCFG[MAP.key])return'No bait here';const s=newBait(x);s.y=Math.min(s.y,2.5);G.bait.push(s);let n=0;for(const f of G.fish){if(n>=4)break;if(f.sp.pred&&!f.sp.legend&&f.state==='wander'&&Math.abs(f.x-s.x)<90){f.hunger=2;f.state='hunt';f.prey=s;f.t=14;f.x=clamp(s.x+(Math.random()<.5?-1:1)*rand(8,14),5,MAP.w-6);f.y=clamp(s.y+rand(-2,2),0.8,floorDepth(f.x)-0.5);n++;}}addBlitz(s.x);return`Feeding frenzy started with ${n} predators`;},
+  legend:()=>{const k=MAP.species.find(k=>SPECIES[k].legend);if(!k)return'No legend in these waters';let f=G.fish.find(f=>f.key===k);if(!f)f=spawnSpecies(k);const x=G.mode==='dive'&&G.diver?G.diver.x+8:G.boat.x+12;f.x=clamp(x,5,MAP.w-6);f.y=clamp(Math.max(f.y,3),1,floorDepth(f.x)-0.6);f.state='wander';f.wary=0;f.t=8;f.tx=f.x;f.ty=f.y;return`${SPECIES[k].name} summoned nearby`;},
+  noshark:()=>{G.shark=null;G.blood=0;G.chumT=0;return'The predator swims off';},
+};
+function admDo(a){let r;
+  if(ADMACT[a])r=ADMACT[a]();
+  else if(a.startsWith('go')){const k=a.slice(2);if(k===MAP.key)r='Already here';else{admLeaveDive();G.fight=null;G.bite=null;G.lure=null;G.castState='idle';S.maps[k]=1;travelTo(k,true);save();return;}}
+  else if(a[0]==='t'){S.time=+a.slice(1);r=`Time set to ${fmtTime(S.time)}`;}
+  else if(a[0]==='w'){const w=a.slice(1);setWeather(w,true);for(const k in G.wx)G.wx[k]=WX[w][k]||0;r=`Weather: ${wxName().toLowerCase()}`;}
+  save();msg(r||'Done','#f2b134',2.5);if(!$('adm').hidden)renderAdm();}
+function renderAdm(){const A=S.adm,B=(id,label,cls='')=>`<button class="adm-btn ${cls}" data-a="${id}">${label}</button>`;
+  $('admCash').textContent=`$${S.money.toLocaleString()}`;
+  $('admBody').innerHTML=`<section><h3>Money and progress</h3><div class="adm-row">${B('m1k','+$1,000')}${B('m10k','+$10,000')}${B('m100k','+$100,000')}${B('sell',`Sell cooler (${S.cooler.length})`)}${B('maps','Unlock all waters')}${B('gear','Unlock all gear and boats')}${B('codex','Complete the codex')}</div></section>
+  <section><h3>Cheats</h3><div class="adm-tog">${ADMTOG.map(([k,n,d])=>`<button class="adm-btn tog ${A[k]?'on':''}" data-t="${k}" aria-pressed="${!!A[k]}"><b>${n}</b><span>${A[k]?'ON':'OFF'} · ${d}</span></button>`).join('')}</div></section>
+  <section><h3>Fishing</h3><div class="adm-row">${B('land',G.fight?`Land the ${G.fight.f.sp.name}`:'Land the hooked fish')}${B('bait','Fill the live well')}${B('frenzy','Start a feeding frenzy')}${B('legend','Summon this water\'s legend')}${B('noshark','Send the shark away')}</div></section>
+  <section><h3>Time and weather</h3><div class="adm-row">${[['t6','Dawn'],['t12','Noon'],['t18.5','Dusk'],['t0','Midnight']].map(([k,n])=>B(k,n)).join('')}</div><div class="adm-row">${[['clear','Clear'],['cloudy','Overcast'],['rain',MAP.cold?'Snow':'Rain'],['storm','Storm'],['fog','Fog']].map(([w,n])=>B('w'+w,n)).join('')}</div></section>
+  <section><h3>Teleport</h3><div class="adm-row">${MAP_ORDER.map(k=>B('go'+k,MAPS[k].name,k===MAP.key?'cur':'')).join('')}</div></section>`;
+  $('admBody').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>admDo(b.dataset.a));
+  $('admBody').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const k=b.dataset.t;S.adm[k]=!S.adm[k];save();msg(`${ADMTOG.find(t=>t[0]===k)[1]} ${S.adm[k]?'on':'off'}`,'#f2b134',1.8);renderAdm();});}
+function drawXray(vx0,vx1){screenTf();for(const f of G.fish){if(f.x<vx0-2||f.x>vx1+2)continue;const[sx,sy]=W2S(f.x,f.y);if(sy<-20||sy>H+20)continue;const off=f.len*fishScale(f)*G.cam.s*0.5+10;txt(`${f.sp.name} ${f.w.toFixed(1)} kg`,sx,sy-off,11,f.sp.legend?'#ff6a4d':f.sp.shark?'#7fd3e6':'#f2b134','center',FUI,700);}}
 let lastLabels='';
-function updateTouchLabels(){if($('touch').hidden)return;const dive=G.mode==='dive',cs=G.castState;$('tNet').hidden=dive||!S.owned.extra.castnet;$('tChum').hidden=dive||!S.owned.extra.chum;$('tTrawl').hidden=dive||!BOAT().trawl;
+function updateTouchLabels(){if($('touch').hidden)return;$('tAdm').hidden=!S.cheat;const dive=G.mode==='dive',cs=G.castState;$('tNet').hidden=dive||!S.owned.extra.castnet;$('tChum').hidden=dive||!S.owned.extra.chum;$('tTrawl').hidden=dive||!BOAT().trawl;
   const prim=dive?'SHOOT':cs==='idle'||cs==='charging'?'CAST':G.bite?'STRIKE':'REEL';
   const act=dive?'BOAT':cs==='fight'?'LAND':G.boat.x<16+BOAT().len/2?'SHOP':'DIVE';const alt=dive?'SWAP':'TWITCH';
   const key=prim+act+alt+dive+cs;if(key===lastLabels)return;lastLabels=key;$('tPrimary').textContent=prim;$('tAction').textContent=act;$('tAlt').textContent=alt;$('tSprint').hidden=!dive;$('tDrag').style.visibility=cs==='fight'&&!dive?'visible':'hidden';$('tLure').hidden=dive;}
@@ -1343,7 +1414,7 @@ function start(data){const snap=data&&data.S?data.S:loadSave();S=adopt(snap);bui
   if(window.claude&&window.claude.hot&&window.claude.hot.snapshot)try{window.claude.hot.snapshot(()=>({S}));}catch(e){}
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{for(const k in thumbCache)delete thumbCache[k];});
   requestAnimationFrame(frame);}
-if(location.hash==='#debug')window.__hh={newBait,trawlToggle,doChum,netClose,G,get S(){return S;},SPECIES,MAPS,startDive,hookSet,startBite,spawnSpecies,travelTo,setWeather,get MAP(){return MAP;}};
+if(location.hash==='#debug')window.__hh={admDo,unlockEnoch,newBait,trawlToggle,doChum,netClose,G,get S(){return S;},SPECIES,MAPS,startDive,hookSet,startBite,spawnSpecies,travelTo,setWeather,get MAP(){return MAP;}};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
 </script>
