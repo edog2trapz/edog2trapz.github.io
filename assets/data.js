@@ -52,7 +52,7 @@ const GAMES = [
   { slug:'burner-line', title:'Burner Line', icon:'☎️', genre:'Simulation', colors:['#170f05', '#ffb341'], players:'1 player', isNew:true, featured:true,
     desc:'Run a basement scam call center to pay off Uncle Vic. Dig through marks\' profiles, keep your cover story straight on live calls, wash the money, run a crew and rug-pull memecoins before the feds close the case.' },
   { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
-    desc:'First-person parkour across the rooftops of a Polish old town. Wall-run, slide, vault and ride ziplines through five timed courses, race your own ghost for gold, or see how far you get in endless mode.' },
+    desc:'First-person parkour across the rooftops of a Polish old town. Five timed courses, three CS-style surf maps, an endless mode, and six knives to unbox, each with its own inspect animation.' },
   { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
     desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry against the clock, prep, air-fry, plate up and survive seven episodes of three tough judges.' },
   { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
@@ -121,6 +121,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-07', tag:'Update', title:'Dachy: surf mode and knives', game:'dachy',
+    text:'Dachy now has a CS-style surf mode: three maps high above the old town, from the wide ramps of Vistula to the night-time Dragon. Earn coins in every mode and open Rooftop Cases for six knives (butterfly, karambit, M9 bayonet, paracord, skeleton and nomad) in 13 finishes with real wear. Press F to inspect.' },
   { date:'2026-11-07', tag:'New game', title:'Burner Line is ringing', game:'burner-line',
     text:'You owe Uncle Vic $100,000 and you have ten days. Dig through your marks\' FaceSpace for intel, work live calls where every answer is on a timer and they test your cover story, then wash the money before it gets frozen. Hire a crew, rug-pull memecoins and keep the feds\' case board under 100.' },
   { date:'2026-11-07', tag:'New game', title:'Dachy: parkour over the old town', game:'dachy',
