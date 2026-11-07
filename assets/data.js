@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'nightwire', title:'Nightwire', icon:'🌑', genre:'Stealth', colors:['#05080d', '#ffb45a'], players:'1 player', isNew:true, featured:true,
+    desc:'Top-down stealth across four night operations. Stay in the shadows, shoot out the lights, grab and interrogate guards, hide the bodies and crack the case on Ansel Varga.' },
   { slug:'burner-line', title:'Burner Line', icon:'☎️', genre:'Simulation', colors:['#170f05', '#ffb341'], players:'1 player', isNew:true, featured:true,
     desc:'Run a basement scam call center to pay off Uncle Vic. Dig through marks\' profiles, keep your cover story straight on live calls, wash the money, run a crew and rug-pull memecoins before the feds close the case.' },
   { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
@@ -121,6 +123,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-07', tag:'New game', title:'Nightwire: four nights in the dark', game:'nightwire',
+    text:'A stealth campaign across a harbour annex, a rain-soaked rail depot, a skyscraper office floor and a lakeside villa. Darkness hides you, guards hear your footsteps, and you can grab, interrogate and hide anyone who gets in the way. Pick a loadout, choose your difficulty and go for a Ghost rating.' },
   { date:'2026-11-07', tag:'New game', title:'Burner Line is ringing', game:'burner-line',
     text:'You owe Uncle Vic $100,000 and you have ten days. Dig through your marks\' FaceSpace for intel, work live calls where every answer is on a timer and they test your cover story, then wash the money before it gets frozen. Hire a crew, rug-pull memecoins and keep the feds\' case board under 100.' },
   { date:'2026-11-07', tag:'New game', title:'Dachy: parkour over the old town', game:'dachy',
