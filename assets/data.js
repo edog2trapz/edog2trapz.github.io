@@ -56,7 +56,7 @@ const GAMES = [
   { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
     desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry against the clock, prep, air-fry, plate up and survive seven episodes of three tough judges.' },
   { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
-    desc:'Fight it on the line, or hold your breath and go down after it. Rod-and-reel fishing and freedive spearfishing across five waters, with 38 fish, 6 legends, weather, sharks and crocodiles.' },
+    desc:'Fight it on the line, or hold your breath and go down after it. Rod, cast net, trawl and speargun across eight waters, with 62 fish, 9 legends, five boats, shark fishing and a living ocean full of bait balls, whales and dolphins.' },
   { slug:'orb-four', title:'Orb Four', icon:'🟠', genre:'Puzzle', colors:['#1b2230', '#ff8a00'], players:'1–2 players · online with friends', isNew:true, featured:true,
     desc:'Drop glossy orbs and line up four before your opponent does. Beat the CPU, play a friend on the same screen, or challenge your 2trapz friends to live online matches.' },
   { slug:'besieged', title:'Besieged', icon:'🎯', genre:'Shooter', colors:['#0c1117', '#3fb6c8'], players:'1 player · online in Claude', isNew:true, featured:true,
