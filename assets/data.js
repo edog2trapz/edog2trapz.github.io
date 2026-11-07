@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'nightwire', title:'Nightwire', icon:'🌑', genre:'Stealth', colors:['#05080d', '#ffb45a'], players:'1 player', isNew:true, featured:true,
+    desc:'Top-down stealth across four night operations. Stay in the shadows, shoot out the lights, grab and interrogate guards, hide the bodies and crack the case on Ansel Varga.' },
   { slug:'burner-line', title:'Burner Line', icon:'☎️', genre:'Simulation', colors:['#170f05', '#ffb341'], players:'1 player', isNew:true, featured:true,
     desc:'Run a basement scam call center to pay off Uncle Vic. Dig through marks\' profiles, keep your cover story straight on live calls, wash the money, run a crew and rug-pull memecoins before the feds close the case.' },
   { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
@@ -56,7 +58,7 @@ const GAMES = [
   { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
     desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry against the clock, prep, air-fry, plate up and survive seven episodes of three tough judges.' },
   { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
-    desc:'Fight it on the line, or hold your breath and go down after it. Rod-and-reel fishing and freedive spearfishing across five waters, with 38 fish, 6 legends, weather, sharks and crocodiles.' },
+    desc:'Fight it on the line, or hold your breath and go down after it. Rod, cast net, trawl and speargun across eight waters, with 62 fish, 9 legends, five boats, shark fishing and a living ocean full of bait balls, whales and dolphins.' },
   { slug:'orb-four', title:'Orb Four', icon:'🟠', genre:'Puzzle', colors:['#1b2230', '#ff8a00'], players:'1–2 players · online with friends', isNew:true, featured:true,
     desc:'Drop glossy orbs and line up four before your opponent does. Beat the CPU, play a friend on the same screen, or challenge your 2trapz friends to live online matches.' },
   { slug:'besieged', title:'Besieged', icon:'🎯', genre:'Shooter', colors:['#0c1117', '#3fb6c8'], players:'1 player · online in Claude', isNew:true, featured:true,
@@ -123,6 +125,8 @@ const REVIEWS = [
 const NEWS = [
   { date:'2026-11-07', tag:'Update', title:'Dachy: surf mode and knives', game:'dachy',
     text:'Dachy now has a CS-style surf mode: three maps high above the old town, from the wide ramps of Vistula to the night-time Dragon. Earn coins in every mode and open Rooftop Cases for six knives (butterfly, karambit, M9 bayonet, paracord, skeleton and nomad) in 13 finishes with real wear. Press F to inspect.' },
+  { date:'2026-11-07', tag:'New game', title:'Nightwire: four nights in the dark', game:'nightwire',
+    text:'A stealth campaign across a harbour annex, a rain-soaked rail depot, a skyscraper office floor and a lakeside villa. Darkness hides you, guards hear your footsteps, and you can grab, interrogate and hide anyone who gets in the way. Pick a loadout, choose your difficulty and go for a Ghost rating.' },
   { date:'2026-11-07', tag:'New game', title:'Burner Line is ringing', game:'burner-line',
     text:'You owe Uncle Vic $100,000 and you have ten days. Dig through your marks\' FaceSpace for intel, work live calls where every answer is on a timer and they test your cover story, then wash the money before it gets frozen. Hire a crew, rug-pull memecoins and keep the feds\' case board under 100.' },
   { date:'2026-11-07', tag:'New game', title:'Dachy: parkour over the old town', game:'dachy',
