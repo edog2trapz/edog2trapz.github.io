@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'burner-line', title:'Burner Line', icon:'☎️', genre:'Simulation', colors:['#170f05', '#ffb341'], players:'1 player', isNew:true, featured:true,
+    desc:'Run a basement scam call center to pay off Uncle Vic. Dig through marks\' profiles, keep your cover story straight on live calls, wash the money, run a crew and rug-pull memecoins before the feds close the case.' },
   { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
     desc:'First-person parkour across the rooftops of a Polish old town. Wall-run, slide, vault and ride ziplines through five timed courses, race your own ghost for gold, or see how far you get in endless mode.' },
   { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
@@ -119,6 +121,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-07', tag:'New game', title:'Burner Line is ringing', game:'burner-line',
+    text:'You owe Uncle Vic $100,000 and you have ten days. Dig through your marks\' FaceSpace for intel, work live calls where every answer is on a timer and they test your cover story, then wash the money before it gets frozen. Hire a crew, rug-pull memecoins and keep the feds\' case board under 100.' },
   { date:'2026-11-07', tag:'New game', title:'Dachy: parkour over the old town', game:'dachy',
     text:'Run, slide, wall-run and zipline across the red roofs of a Polish old town, from a misty morning in Kazimierz to a night run over the city centre. Five timed courses with gold, silver and bronze times, pretzel rings to find, a ghost of your best run to race, and an endless mode that keeps building rooftops until your clock runs out.' },
   { date:'2026-11-03', tag:'New game', title:'Airfryer Chef is cooking', game:'airfryer-chef',
