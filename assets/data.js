@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
+    desc:'First-person parkour across the rooftops of a Polish old town. Wall-run, slide, vault and ride ziplines through five timed courses, race your own ghost for gold, or see how far you get in endless mode.' },
   { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
     desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry against the clock, prep, air-fry, plate up and survive seven episodes of three tough judges.' },
   { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
@@ -117,6 +119,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-07', tag:'New game', title:'Dachy: parkour over the old town', game:'dachy',
+    text:'Run, slide, wall-run and zipline across the red roofs of a Polish old town, from a misty morning in Kazimierz to a night run over the city centre. Five timed courses with gold, silver and bronze times, pretzel rings to find, a ghost of your best run to race, and an endless mode that keeps building rooftops until your clock runs out.' },
   { date:'2026-11-03', tag:'New game', title:'Airfryer Chef is cooking', game:'airfryer-chef',
     text:'Seven rivals get professional kitchens. You get an air fryer. Shop the pantry, prep, air-fry, plate up and face three judges across seven episodes, from the mystery basket to the grand finale. There is a practice kitchen and a cookbook of every plate you serve.' },
   { date:'2026-11-03', tag:'Update', title:'Friends, cloud saves and Orb Four', game:'orb-four',
