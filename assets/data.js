@@ -70,7 +70,7 @@ const GAMES = [
   { slug:'breachline', title:'Breachline', icon:'💣', genre:'Shooter', colors:['#14100a', '#f0a83c'], players:'1 player', isNew:true, featured:true,
     desc:'Round-based tactical shooter. Buy guns, plant or defuse the charge against bots on three maps, and open weapon cases for skins.' },
   { slug:'stick-brawl-td', title:'Stick Brawl TD', icon:'🛡️', genre:'Strategy', colors:['#0a0d18', '#d9480f'], players:'1 player', isNew:true, featured:true,
-    desc:'Every Stick Brawl fighter becomes a tower. Pick a squad of 8, dig for gold with the Gold Miner, and hold the road against 30 waves of zombies and the original bosses.' },
+    desc:'98 fighters become towers, including Brody Hallam and his ice-cold bucket. Hold 12 stages against 46 enemies from across 2trapz games, beat wave 40, then chase Brody\'s endless record.' },
   { slug:'power-hungry', title:'Power Hungry', icon:'♚', genre:'Strategy', colors:['#3b2a8c', '#e8b64c'], players:'1 player', isNew:true, featured:true,
     desc:'Seize a nation, wage real-time wars on a living world map, hunt down your nemesis, then conquer the stars until the universe runs dry.' },
   { slug:'vector-terminal', title:'Vector Terminal', icon:'📈', genre:'Strategy', colors:['#02110a', '#39ff8a'], players:'1 player', isNew:true, featured:true,
