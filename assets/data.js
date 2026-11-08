@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'gilded-comet', title:'Gilded Comet Casino', icon:'🎰', genre:'Casino', colors:['#1a0910', '#ecc66e'], players:'1 player', isNew:true, featured:true,
+    desc:'A whole art-deco casino on one play-money bankroll: a 20-line slot with free spins and a progressive jackpot, blackjack, Texas Hold\'em against AI regulars, video poker, baccarat, roulette, craps, horse racing, crash, plinko, mines, keno, scratch tickets and more.' },
   { slug:'nightwire', title:'Nightwire', icon:'🌑', genre:'Stealth', colors:['#05080d', '#ffb45a'], players:'1 player', isNew:true, featured:true,
     desc:'Top-down stealth across four night operations. Stay in the shadows, shoot out the lights, grab and interrogate guards, hide the bodies and crack the case on Ansel Varga.' },
   { slug:'burner-line', title:'Burner Line', icon:'☎️', genre:'Simulation', colors:['#170f05', '#ffb341'], players:'1 player', isNew:true, featured:true,
@@ -123,6 +125,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-08', tag:'New game', title:'Gilded Comet Casino opens its doors', game:'gilded-comet',
+    text:'Fifteen casino games on one play-money bankroll. Spin Comet Riches for free spins and the progressive jackpot, sit at a six-deck blackjack shoe with a strategy coach and card counter, play no-limit Hold\'em against six AI regulars, or bet win, place, exacta and trifecta at Gilded Downs. Level up through six VIP tiers and chase 24 achievements. No real money, ever.' },
   { date:'2026-11-08', tag:'Update', title:'Airfryer Chef: pizza, pasta and rice', game:'airfryer-chef',
     text:'The air fryer can now do pizza night. Shape dough into a base and top it, cook rice, spaghetti, macaroni and noodles in a covered tin, simmer tomato sauce, ragu and curry, and turn them into bolognese, carbonara, egg fried rice, mac and cheese, pasta bakes and cookies. There is a new Pasta, Rice and Pizza aisle, three new themes, five new mystery baskets and three new pressure tests. Survive an episode to win prize money for sponsor kit, including a probe thermometer and a second air fryer, and collect 43 classic dishes in your cookbook.' },
   { date:'2026-11-07', tag:'Update', title:'Dachy: surf mode and knives', game:'dachy',
