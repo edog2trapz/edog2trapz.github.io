@@ -49,6 +49,10 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'primordial', title:'Primordial: Evolve', icon:'🧬', genre:'Survival', colors:['#064e3b', '#a3e635'], players:'1 player', isNew:true, featured:true,
+    desc:'Begin as a single cell and evolve through 40 living, procedurally animated forms on an island that is new every run. Design your species, hatch a brood, hunt seven legends, and survive the comet at the end of the world.' },
+  { slug:'shrimp-tycoon', title:'Shrimp Tycoon', icon:'🦐', genre:'Tycoon', colors:['#0b3a44', '#ff7b5c'], players:'1 player', isNew:true, featured:true,
+    desc:'Breed real-genetics shrimp in living aquariums. Master the nitrogen cycle, discover 40 morphs and rare mutations, run auctions and your own store, and beat Dex Krill at the World Shrimp Championship.' },
   { slug:'gilded-comet', title:'Gilded Comet Casino', icon:'🎰', genre:'Casino', colors:['#1a0910', '#ecc66e'], players:'1 player', isNew:true, featured:true,
     desc:'A whole art-deco casino on one play-money bankroll: a 20-line slot with free spins and a progressive jackpot, blackjack, Texas Hold\'em against AI regulars, video poker, baccarat, roulette, craps, horse racing, crash, plinko, mines, keno, scratch tickets and more.' },
   { slug:'nightwire', title:'Nightwire', icon:'🌑', genre:'Stealth', colors:['#05080d', '#ffb45a'], players:'1 player', isNew:true, featured:true,
@@ -85,16 +89,12 @@ const GAMES = [
     desc:'Ancient Rome. Catch Lewis, a monkey, a snake and a rooster, stuff them in a sack and sew it shut before the Senate loses patience.' },
   { slug:'shrimp-quest', title:'Shrimp Quest', icon:'🦐', genre:'RPG', colors:['#0f4c5c', '#ff8a6a'], players:'',
     desc:'A handheld-style creature-battling adventure across the seafloor.' },
-  { slug:'shrimp-tycoon', title:'Shrimp Tycoon', icon:'💰', genre:'Tycoon', colors:['#14532d', '#ffb37a'], players:'',
-    desc:'Breed high-pattern shrimp, keep the tank spotless and play the market.' },
   { slug:'penguin-polar-rush', title:'Penguin Polar Rush', icon:'🐧', genre:'Racing', colors:['#1e3a8a', '#e0f2fe'], players:'1–4 players',
     desc:'Belly-slide racing for up to four players on one keyboard, across Antarctica, the Arctic and a Svalbard blizzard.' },
   { slug:'find-nemo', title:'Find Nemo', icon:'🐠', genre:'Adventure', colors:['#0c4a6e', '#fb923c'], players:'',
     desc:'Cross the reef, the jellyfish, the abyss and Sydney Harbour to bring your son home.' },
   { slug:'dao-hunter', title:'Dao Hunter', icon:'☯️', genre:'Action', colors:['#111827', '#c4b5fd'], players:'',
     desc:'Roam open 3D hills, find high ground and dispel every wave of the Dao before your qi runs out.' },
-  { slug:'primordial', title:'Primordial: Evolve', icon:'🧬', genre:'Survival', colors:['#064e3b', '#a3e635'], players:'',
-    desc:'Start as something tiny. Hunt, survive and evolve into ever bigger, nastier forms.' },
   { slug:'outpost-zero', title:'Outpost Zero', icon:'🛰️', genre:'Shooter', colors:['#232619', '#e8552d'], players:'',
     desc:'Hold the base, explore the ruins, pick your archetype and call down the Hellstorm.' },
   { slug:'hoop-brawl', title:'Hoop Brawl', icon:'🏀', genre:'Sports', colors:['#7c2d12', '#fbbf24'], players:'1v1 · 2v2',
@@ -125,6 +125,10 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-08', tag:'Update', title:'Primordial: Evolve, rebuilt from the cell up', game:'primordial',
+    text:'Every creature is now procedurally animated: spines ripple, legs plant their feet and step, wings flap and tentacles trail. Evolve through 40 forms on a brand-new island every run, with oceans, reefs, jungles, deserts, tundra and a volcano. Design your species\' colors, pattern and name, hatch brood allies, chase quests, hunt seven legends, and earn fossils for permanent upgrades. Runs save so you can continue later, and it plays on phones too.' },
+  { date:'2026-11-08', tag:'Update', title:'Shrimp Tycoon 2: living tanks and real genetics', game:'shrimp-tycoon',
+    text:'Shrimp Tycoon is a whole new game. Watch your colony graze, swim and carry eggs in animated aquariums you aquascape yourself. Every shrimp has real genes, so colors blend and hide and two reds can surprise you. Keep the water right through the nitrogen cycle, raise Crystal Reds and Blue Bolts, breed rare Aurora and Void mutations and name your own lines. Sell on ShrimpBay and in your own store, and climb from your bedroom to the World Shrimp Championship. Your old save comes with you.' },
   { date:'2026-11-08', tag:'Update', title:'Dachy: better knives, missions and endless surf', game:'dachy',
     text:'Knives are held like in CS now: gloved hands that wrap the grip, viewmodel sway, and inspects that turn the blade at the wrist. The karambit and skeleton knife were rebuilt to look like the real ones, and the butterfly flips around its pivot. New: levels that give case keys, three daily missions, a collection book, 5-for-1 trade-ups, Tally knives that count your runs, and Endless Surf.' },
   { date:'2026-11-08', tag:'New game', title:'Gilded Comet Casino opens its doors', game:'gilded-comet',

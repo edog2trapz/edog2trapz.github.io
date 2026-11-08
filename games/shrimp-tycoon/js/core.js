@@ -388,7 +388,7 @@ function tankDay(t){
   /* each shrimp */
   const fb = t.fbd > 0 ? FOOD[t.fb] : null, suck = (F.suck || 0) * (t.gear.pre ? .05 : 1);
   const dead = [], born = [];
-  let free = cap * 1.25 - load;
+  let free = Math.floor(cap * 1.2 - t.sh.length);
   const males = t.sh.filter(s => !s.sex && isAdult(s));
   for (const s of t.sh){
     const pc = t.cm[s.sp] + (s.hd - s.inb * 30 - 50) * .25;
@@ -409,13 +409,13 @@ function tankDay(t){
       if (!s.egg){
         const kids = s.kids || []; s.kids = null; s.cd = 5;
         const surv = CL(.86 + hideD * .012 - (t.pl + t.hy) / 100 * .5 - suck + (t.bio > 50 ? .05 : 0), .15, .98);
-        for (const k of kids){ if (free <= 0 || Math.random() > surv) continue; free -= .25; born.push(k); }
+        for (const k of kids){ if (free <= 0 || Math.random() > surv) continue; free -= 1; born.push(k); }
       }
     } else if (s.sex && isAdult(s) && s.cd <= 0){
       const paired = t.pair && t.gear.bbox && t.pair[1] === s.id;
       let ch = .11 * Math.max(0, (pc - 35) / 65) * Math.min(1, t.fed / 60) * (.6 + s.ft / 100 * .8) * (1 - s.inb * .5);
       if (fb && fb.breed) ch *= 1.35; if (paired) ch *= 2;
-      const ld = load / cap; if (ld > .85) ch *= Math.max(0, (1.15 - ld) / .3);
+      const ld = Math.max(load, t.sh.length * .8) / cap; if (ld > .8) ch *= Math.max(0, (1.1 - ld) / .3);
       if (Math.random() < ch){
         let dad = null;
         if (paired) dad = t.sh.find(x => x.id === t.pair[0] && isAdult(x));
