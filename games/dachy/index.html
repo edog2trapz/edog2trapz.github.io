@@ -138,6 +138,29 @@ kbd { font-family: var(--f-mono); font-size: 12px; font-weight: 700; border: 2px
 #hint { position: absolute; left: 50%; bottom: 22%; transform: translateX(-50%); width: max-content; max-width: min(560px, calc(100vw - 40px)); box-sizing: border-box; text-align: center; font-size: 17px; font-weight: 600; line-height: 1.35; padding: 10px 16px; background: rgba(15,13,11,.55); border-left: 4px solid var(--red); opacity: 0; transition: opacity .35s; text-wrap: balance; }
 #hint.show { opacity: 1; }
 #hud.surfing #hint { bottom: 42%; }
+.badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.badges .coins { margin-top: 0; }
+.lvbadge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 12px; border: 2px solid var(--ink); padding: 2px 8px; }
+.lvbadge b { font-weight: 700; }
+.lvbadge .xp { width: 70px; height: 6px; background: rgba(23,20,15,.15); display: inline-block; }
+.lvbadge .xp i { display: block; height: 100%; background: var(--red); }
+.mlist { display: flex; flex-direction: column; gap: 8px; }
+.mis { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; padding: 10px 12px; background: #fff; box-shadow: inset 4px 0 0 var(--red); }
+.mis b { display: block; font-size: 14px; } .mis span { font-size: 11.5px; color: var(--ink-2); }
+.mis .bar { grid-column: 1; height: 6px; background: rgba(23,20,15,.12); } .mis .bar i { display: block; height: 100%; background: var(--ink); }
+.mis small { grid-column: 2; grid-row: 1 / 3; align-self: center; font-family: var(--f-mono); font-weight: 700; font-size: 13px; }
+.mis.done { box-shadow: inset 4px 0 0 #2aa84a; opacity: .8; } .mis.done .bar i { background: #2aa84a; }
+.tabs { display: flex; border: 2px solid var(--ink); margin-top: 4px; }
+.tabs button { flex: 1; font-family: var(--f-display); font-weight: 800; font-size: 16px; text-transform: uppercase; padding: 6px 4px 4px; }
+.tabs button.on { background: var(--ink); color: var(--paper); }
+.tradebar { display: flex; flex-direction: column; gap: 8px; }
+.tradebar .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+.kcard.pick { border-color: #2aa84a; } .kcard.dim { opacity: .35; }
+.kcard .tl { position: absolute; top: 4px; right: 4px; background: #e86a1a; color: #fff; font-family: var(--f-mono); font-size: 10px; font-weight: 700; padding: 1px 5px; }
+.coll { display: grid; grid-template-columns: 88px repeat(13, 1fr); gap: 3px; align-items: center; margin-top: 6px; }
+.coll .cl { font-size: 10.5px; font-weight: 600; line-height: 1.1; }
+.coll .ch { height: 5px; } .coll .cc { aspect-ratio: 1; background: rgba(23,20,15,.1); box-shadow: inset 0 0 0 1px rgba(23,20,15,.12); }
+.coll .cc.on { background: var(--rc); box-shadow: none; }
 #hint kbd { color: var(--ink); text-shadow: none; }
 #toast { position: absolute; left: 50%; top: 30%; transform: translateX(-50%) scale(.9); font-family: var(--f-display); font-weight: 900; font-size: 44px; text-transform: uppercase; letter-spacing: .02em; opacity: 0; transition: opacity .25s, transform .25s; white-space: nowrap; }
 #toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
@@ -258,13 +281,14 @@ kbd { font-family: var(--f-mono); font-size: 12px; font-weight: 700; border: 2px
       <div class="title"><div class="band"></div><h1>DACHY</h1></div>
       <p class="sub" data-t="tagline">Rooftop parkour</p>
       <p class="sub2" data-t="tagline2">Run, slide and wall-run across the roofs of a Polish old town.</p>
-      <div class="coins" id="coinBadge" title="Coins"><i></i><b id="coinVal">0</b></div>
+      <div class="badges"><div class="coins" id="coinBadge" title="Coins"><i></i><b id="coinVal">0</b></div><div class="lvbadge" id="lvBadge"></div></div>
     </div>
     <div id="mainNav" class="nav">
       <button class="primary" id="bPlay"><span data-t="play">Play</span><small data-t="play_s">5 courses</small></button>
       <button id="bSurf"><span data-t="surf">Surf</span><small data-t="surf_s">3 maps</small></button>
       <button id="bEndless"><span data-t="endless">Endless</span><small id="endBest"></small></button>
       <button id="bKnives"><span data-t="knives">Knives</span><small id="knivesSub"></small></button>
+      <button id="bMissions"><span data-t="missions">Missions</span><small id="misSub"></small></button>
       <button id="bSettings"><span data-t="settings">Settings</span></button>
       <button id="bControls"><span data-t="controls">Controls</span></button>
     </div>
@@ -277,6 +301,11 @@ kbd { font-family: var(--f-mono); font-size: 12px; font-weight: 700; border: 2px
       <p class="navnote" data-t="surf_intro">CS-style surf: hold A or D toward the ramp to ride it, turn the mouse while strafing to steer in the air.</p>
       <div id="surfList" class="levels"></div>
     </div>
+    <div id="misNav" class="levels" hidden>
+      <button class="back" id="bBackM" data-t="back">← Back</button>
+      <div class="invhead"><b data-t="missions">Missions</b><span data-t="missions_s">New every day</span></div>
+      <div id="missionList" class="mlist"></div>
+    </div>
     <div id="knifeNav" class="levels" hidden>
       <button class="back" id="bBackK" data-t="back">← Back</button>
       <div class="casebox">
@@ -287,8 +316,11 @@ kbd { font-family: var(--f-mono); font-size: 12px; font-weight: 700; border: 2px
       </div>
       <div id="oddsBox" class="odds" hidden></div>
       <div id="knifeDetail" class="kdetail" hidden></div>
-      <div class="invhead"><b data-t="inventory">Inventory</b><span id="invCount"></span></div>
+      <div class="tabs" id="kTabs"><button data-tab="inv" class="on" data-t="tab_inv">Inventory</button><button data-tab="coll" data-t="tab_coll">Collection</button><button data-tab="trade" data-t="tab_trade">Trade up</button></div>
+      <div id="tradeBar" class="tradebar" hidden><p class="navnote" data-t="tradeup_hint">Pick 5 knives of the same rarity.</p><button class="btn red" id="bTrade">Trade 5 for 1</button></div>
+      <div class="invhead" id="invHead"><b data-t="inventory">Inventory</b><span id="invCount"></span></div>
       <div id="invList" class="inv"></div>
+      <div id="collGrid" hidden></div>
       <details class="admin" id="adminBox">
         <summary data-t="admin">Admin code</summary>
         <div class="adminrow"><input id="adminCode" type="password" autocomplete="off" spellcheck="false"><button class="btn" id="bAdmin" data-t="admin_go">Enter</button></div>
@@ -2712,12 +2744,12 @@ class Arms {
     } else if (!p.grounded) {
       const rise = p.vy > 0 ? 1 : 0;
       this.setP(R, 0.3, -0.3 + rise * 0.05, -0.18, 0.3 + rise * 0.2, -0.3, -0.25); this.setP(L, -0.3, -0.3 + rise * 0.05, -0.18, 0.3 + rise * 0.2, 0.3, 0.25); rate = 9;
-      if (this.knife) this.setP(R, 0.21, -0.27 + rise * 0.02, -0.06, 0.36, 0.42, 0.05);
+      if (this.knife) { const h = this.hold; this.setP(R, h.pos[0] + 0.008, h.pos[1] + 0.012 + rise * 0.014, h.pos[2], h.rot[0] + 0.05, h.rot[1], h.rot[2]); this.setP(L, -0.3, -0.5 + rise * 0.05, -0.12, 0.3, 0.3, 0.25); }
     } else {
       const sR = Math.max(-0.6, s), sL = Math.max(-0.6, -s);
-      if (this.knife) this.setP(R, 0.2 + s * 0.012, -0.285 + Math.abs(s) * 0.02 + breath, -0.05 - s * 0.03, 0.3 + s * 0.1, 0.42, 0.05);
+      if (this.knife) { const h = this.hold; this.setP(R, h.pos[0] + s * 0.007, h.pos[1] + Math.abs(s) * 0.014 + breath, h.pos[2] - s * 0.016, h.rot[0] + s * 0.05, h.rot[1], h.rot[2]); }
       else this.setP(R, 0.25, -0.39 + sR * 0.09 + breath, -0.13 - sR * 0.1, 0.08 + sR * 0.55, 0.08 - sR * 0.12, -0.1);
-      this.setP(L, -0.25, -0.39 + sL * 0.09 + breath, -0.13 - sL * 0.1, 0.08 + sL * 0.55, -0.08 + sL * 0.12, 0.1);
+      if (this.knife) this.setP(L, -0.28, -0.62, -0.05, 0.1, -0.1, 0.1); else this.setP(L, -0.25, -0.39 + sL * 0.09 + breath, -0.13 - sL * 0.1, 0.08 + sL * 0.55, -0.08 + sL * 0.12, 0.1);
     }
     R.y -= landK * 0.06; L.y -= landK * 0.06;
     const k = 1 - Math.exp(-rate * dt);
@@ -2819,10 +2851,12 @@ function rollKnife(rng = Math.random) {
   const f = pool[Math.floor(rng() * pool.length)];
   const t = KNIFE_TYPES[Math.floor(rng() * KNIFE_TYPES.length)];
   const w = Math.round((rar >= 3 ? rng() * 0.5 : rng() * rng() * 0.9 + rng() * 0.1) * 1e4) / 1e4;
-  return { id: Date.now().toString(36) + Math.floor(rng() * 1e6).toString(36), t, f: f.id, w, s: Math.floor(rng() * 1000), at: Date.now() };
+  const k = { id: Date.now().toString(36) + Math.floor(rng() * 1e6).toString(36), t, f: f.id, w, s: Math.floor(rng() * 1000), at: Date.now() };
+  if (rng() < 0.1) k.tally = 0;
+  return k;
 }
 const knifeRarity = (k) => FIN[k.f].r;
-function knifeName(k, lang) { return `★ ${KNIFE_NAMES[k.t][lang]} | ${FIN[k.f].name[lang]}`; }
+function knifeName(k, lang) { return `★ ${k.tally != null ? (lang === 'pl' ? 'Licznik ' : 'Tally ') : ''}${KNIFE_NAMES[k.t][lang]} | ${FIN[k.f].name[lang]}`; }
 
 // ---------------------------------------------------------------- finish textures
 const finishCache = new Map();
@@ -3039,10 +3073,10 @@ const jimp = (u, u0, u1, n, amp) => (u > u0 && u < u1 ? (Math.sin((u - u0) / (u1
 
 const BLADES = {
   butterfly: { L: 0.104, T: 0.0034, grind: 0.42, swedge: 0.6, spine: (u) => 0.0102 * (u < 0.6 ? 1 : 1 - Math.pow((u - 0.6) / 0.4, 1.35)) + jimp(u, 0.02, 0.14, 7, 0.0004), edge: (u) => -0.0102 * (u < 0.5 ? 1 : 1 - Math.pow((u - 0.5) / 0.5, 2.1)) },
-  karambit: { L: 0.075, T: 0.0038, grind: 0.5, tipT: 0.2, center: (u) => { const a = u * 1.0, R = 0.07; return [R * Math.sin(a), -R * (1 - Math.cos(a)) - 0.004]; }, spine: (u) => 0.0082 * Math.pow(1 - u, 0.8) + jimp(u, 0.03, 0.2, 6, 0.0005), edge: (u) => -0.0098 * Math.pow(1 - u, 1.15) },
+  karambit: { L: 0.083, T: 0.0043, grind: 0.5, tipT: 0.22, nu: 90, center: (u) => { const R = 0.052, t0 = 0.2, th = t0 - 1.6 * u; return [0.002 + R * (Math.sin(t0) - Math.sin(th)), R * (Math.cos(th) - Math.cos(t0))]; }, spine: (u) => 0.0088 * Math.pow(1 - u, 0.72) + 0.0012 * Math.exp(-Math.pow((u - 0.08) / 0.07, 2)) + jimp(u, 0.03, 0.17, 7, 0.0006), edge: (u) => -0.0108 * Math.pow(1 - u, 1.0) },
   m9: { L: 0.172, T: 0.0046, grind: 0.38, swedge: 0.64, nu: 170, fuller: { u0: 0.08, u1: 0.56, w0: 0.55, w1: 0.82, d: 0.4 }, spine: (u) => 0.0118 * (u < 0.64 ? 1 : 1 - Math.pow((u - 0.64) / 0.36, 1.25)) + saw(u, 0.14, 0.5, 14, 0.0024), edge: (u) => -0.0135 * (u < 0.66 ? 1 : 1 - Math.pow((u - 0.66) / 0.34, 2.3)) },
   paracord: { L: 0.112, T: 0.0041, grind: 0.4, swedge: 0.74, nu: 110, spine: (u) => 0.0112 * (u < 0.58 ? 1 : 1 - Math.pow((u - 0.58) / 0.42, 1.7)), edge: (u) => -0.0118 * (1 + 0.1 * Math.sin(u * Math.PI * 0.95)) * (u < 0.7 ? 1 : 1 - Math.pow((u - 0.7) / 0.3, 2.2)) + saw(u, 0.04, 0.27, 7, 0.0013) },
-  skeleton: { L: 0.098, T: 0.0038, grind: 0.55, spine: (u) => 0.0102 * (u < 0.6 ? 1 + u * 0.05 : 1 - Math.pow((u - 0.6) / 0.4, 1.6)), edge: (u) => -0.0108 * (1 - 0.12 * Math.sin(u * Math.PI * 1.6)) * (u < 0.72 ? 1 : 1 - Math.pow((u - 0.72) / 0.28, 2.0)) },
+  skeleton: { L: 0.102, T: 0.0042, grind: 0.5, swedge: 0.62, nu: 100, center: (u) => [u * 0.102, 0.006 * Math.pow(smoothstep((u - 0.5) / 0.5), 1.4)], spine: (u) => (u < 0.55 ? 0.0098 + 0.0019 * Math.exp(-Math.pow((u - 0.09) / 0.06, 2)) + jimp(u, 0.04, 0.15, 6, 0.0005) : 0.0098 * (1 - Math.pow((u - 0.55) / 0.45, 1.7))), edge: (u) => -0.0106 * (1 + 0.32 * Math.exp(-Math.pow((u - 0.52) / 0.2, 2))) * (u < 0.74 ? 1 : 1 - Math.pow((u - 0.74) / 0.26, 1.5)) },
   nomad: { L: 0.096, T: 0.0036, grind: 0.5, spine: (u) => 0.0115 * (u < 0.68 ? 1 : 1 - (u - 0.68) / 0.32 * 0.95) + jimp(u, 0.02, 0.13, 6, 0.0005), edge: (u) => -0.011 * (u < 0.8 ? 1 : 1 - (u - 0.8) / 0.2) },
 };
 
@@ -3052,10 +3086,10 @@ function roundRectShape(x0, y0, x1, y1, r) {
   s.lineTo(x0 + r, y1); s.quadraticCurveTo(x0, y1, x0, y1 - r); s.lineTo(x0, y0 + r); s.quadraticCurveTo(x0, y0, x0 + r, y0); return s;
 }
 function slotPath(cx, cy, len, w) { const p = new THREE.Path(); const r = w / 2; p.moveTo(cx - len / 2 + r, cy - r); p.lineTo(cx + len / 2 - r, cy - r); p.absarc(cx + len / 2 - r, cy, r, -Math.PI / 2, Math.PI / 2, false); p.lineTo(cx - len / 2 + r, cy + r); p.absarc(cx - len / 2 + r, cy, r, Math.PI / 2, Math.PI * 1.5, false); return p; }
-function extrude(shape, depth, bevel, mat, scaleUV = 8) {
+function extrude(shape, depth, bevel, mat, scaleUV = 8, off = mat && mat.userData && mat.userData.knife ? [0.8, 0.55] : [0, 0]) {
   const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 18 });
   g.translate(0, 0, -depth / 2);
-  const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * scaleUV, uv.getY(i) * scaleUV);
+  const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * scaleUV + off[0], uv.getY(i) * scaleUV + off[1]);
   g.computeVertexNormals();
   return new THREE.Mesh(g, mat);
 }
@@ -3091,47 +3125,80 @@ function bladeMaterial(item) {
   const m = new THREE.MeshStandardMaterial({ map: ft.map, roughnessMap: ft.orm, metalnessMap: ft.orm, roughness: 1, metalness: 1, side: THREE.DoubleSide, envMapIntensity: 1 });
   m.userData.knife = true; return m;
 }
-// Returns { root, parts:{...}, grip:{x0,x1,hy,hz}, setJoint(name, v) }
+// ---- handle outlines shared by the 3D models and the 2D icons (knife frame, metres)
+const KR = { ring: [-0.117, -0.021], ro: 0.0192, ri: 0.0128 };
+const SK = { ring: [-0.113, -0.004], ro: 0.0168, ri: 0.0109 };
+function quadPt(a, b, c, s) { const k = 1 - s; return [k * k * a[0] + 2 * k * s * b[0] + s * s * c[0], k * k * a[1] + 2 * k * s * b[1] + s * s * c[1]]; }
+function karambitOutline() {
+  const A = [0.003, 0], B = [-0.055, 0.0075], C = [-0.106, -0.0145], top = [], bot = [], N = 24;
+  for (let i = 0; i <= N; i++) {
+    const s = i / N, p = quadPt(A, B, C, s), q = quadPt(A, B, C, Math.min(1, s + 0.01)), r0 = quadPt(A, B, C, Math.max(0, s - 0.01));
+    let tx = q[0] - r0[0], ty = q[1] - r0[1]; const tl = Math.hypot(tx, ty); tx /= tl; ty /= tl; const nx = ty, ny = -tx; // normal pointing up (left of travel toward -x)
+    const hTop = 0.0098 + 0.0012 * Math.sin(s * Math.PI), groove = s > 0.12 && s < 0.86 ? 0.0024 * Math.max(0, Math.sin((s - 0.12) / 0.74 * Math.PI * 3)) : 0;
+    top.push([p[0] + nx * hTop, p[1] + ny * hTop]); bot.push([p[0] - nx * (0.0118 - groove), p[1] - ny * (0.0118 - groove)]);
+  }
+  // around the back of the ring, from the end of the top line to the end of the bottom line
+  const [rx, ry] = KR.ring, a0 = Math.atan2(top[N][1] - ry, top[N][0] - rx), a1 = Math.atan2(bot[N][1] - ry, bot[N][0] - rx);
+  const arc = []; let e = a1; while (e > a0) e -= TAU; for (let i = 1; i < 20; i++) { const a = a0 + (e + TAU - a0) * i / 20; arc.push([rx + Math.cos(a) * KR.ro, ry + Math.sin(a) * KR.ro]); }
+  return top.concat(arc, bot.slice().reverse());
+}
+function skeletonOutline() {
+  const pts = [[0.001, 0.0098], [-0.02, 0.0104], [-0.045, 0.0108], [-0.07, 0.0101], [-0.092, 0.0086]];
+  const [rx, ry] = SK.ring; const a0 = Math.atan2(pts[4][1] - ry, pts[4][0] - rx);
+  for (let i = 1; i <= 18; i++) { const a = a0 + i / 18 * (Math.PI * 1.18); pts.push([rx + Math.cos(a) * SK.ro, ry + Math.sin(a) * SK.ro]); }
+  pts.push([-0.094, -0.0122], [-0.07, -0.0116], [-0.045, -0.0119], [-0.028, -0.0124], [-0.019, -0.0102], [-0.0125, -0.0085], [-0.0068, -0.0118], [-0.002, -0.0168], [0.001, -0.0108]);
+  return pts;
+}
+function shapeFrom(pts, holes = []) {
+  const s = new THREE.Shape(); pts.forEach((p, i) => (i ? s.lineTo(p[0], p[1]) : s.moveTo(p[0], p[1])));
+  for (const h of holes) s.holes.push(h); return s;
+}
+function circlePath(cx, cy, r) { const p = new THREE.Path(); p.absarc(cx, cy, r, 0, TAU, true); return p; }
+
+// Returns { root, model, grip:{x0,x1,hy,hz}, hold, setJoint(name, v), ring? }
 function buildKnife(item) {
   const M = knifeMats(), bm = bladeMaterial(item), t = item.t, sp = BLADES[t];
   const root = new THREE.Group(); const model = new THREE.Group(); root.add(model);
-  const blade = new THREE.Mesh(bladeGeometry(sp), bm); blade.castShadow = true;
-  const K = { root, model, blade, grip: { x0: -0.1, x1: -0.012, hy: 0.011, hz: 0.008 }, joints: {}, type: t, bm };
+  const blade = new THREE.Mesh(bladeGeometry(sp), bm);
+  const K = { root, model, blade, grip: { x0: -0.1, x1: -0.012, hy: 0.011, hz: 0.008 }, joints: {}, type: t, bm, hold: 'forward' };
+  // knives with a pommel/finger ring spin around it during inspects
+  const ringPivot = (rc) => { const spin = new THREE.Group(); spin.position.set(rc[0], rc[1], 0); model.add(spin); const body = new THREE.Group(); body.position.set(-rc[0], -rc[1], 0); spin.add(body); K.joints.spin = spin; K.ringC = rc; return body; };
   if (t === 'butterfly') {
-    const bladeG = new THREE.Group(); bladeG.add(blade); model.add(bladeG);
-    // tang with pivot holes
-    const tang = roundRectShape(-0.022, -0.011, 0.001, 0.011, 0.003); tang.holes.push(slotPath(-0.012, 0.0055, 0.0035, 0.0035), slotPath(-0.012, -0.0055, 0.0035, 0.0035));
-    bladeG.add(extrude(tang, sp.T, 0.0003, bm, 4));
-    const mkHandle = (side) => {
-      const piv = new THREE.Group(); piv.position.set(-0.012, side * 0.0055, side * (sp.T / 2 + 0.0026));
-      const hs = roundRectShape(-0.13, -0.0088, 0.006, 0.0088, 0.0045);
+    // held by the safe handle; the blade and bite handle swing around one shared pivot
+    const P = [-0.012, 0];
+    const handle = (side) => {
+      const g = new THREE.Group(); g.position.set(P[0], P[1], side * (sp.T / 2 + 0.0027));
+      const hs = roundRectShape(-0.13, -0.0088, 0.0065, 0.0088, 0.0045);
       for (let k = 0; k < 5; k++) hs.holes.push(slotPath(-0.022 - k * 0.0215, 0, 0.0155, 0.0052));
-      const h = extrude(hs, 0.0042, 0.0006, M.gun, 30); h.position.y = -side * 0.0055; piv.add(h);
-      const inner = extrude(roundRectShape(-0.129, -0.0075, 0.004, 0.0075, 0.004), 0.0012, 0, M.dark, 30); inner.position.set(0, -side * 0.0055, -side * 0.0025); piv.add(inner);
-      for (const x of [0, -0.121]) { const p = pin(0.0024, 0.0062, M.steel, x, -side * 0.0055); piv.add(p); const cap = pin(0.0031, 0.0009, M.brass, x, -side * 0.0055); cap.position.z = side * 0.0026; piv.add(cap); }
-      if (side < 0) { const latch = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.0035, 0.0016), M.steel); latch.position.set(-0.112, 0.0055, side * 0.0035); latch.rotation.z = 0.06; piv.add(latch); }
-      model.add(piv); return piv;
+      g.add(extrude(hs, 0.0042, 0.0006, M.gun, 30));
+      const inner = extrude(roundRectShape(-0.129, -0.0075, 0.004, 0.0075, 0.004), 0.0012, 0, M.dark, 30); inner.position.z = -side * 0.0025; g.add(inner);
+      for (const x of [0, -0.121]) { g.add(pin(0.0024, 0.0062, M.steel, x, 0)); const cap = pin(0.0031, 0.0009, M.brass, x, 0); cap.position.z = side * 0.0026; g.add(cap); }
+      for (let k = 0; k < 4; k++) { const z = pin(0.0016, 0.0064, M.steel, -0.0325 - k * 0.0215, 0); g.add(z); }
+      return g;
     };
-    K.joints.safe = mkHandle(1); K.joints.bite = mkHandle(-1);
-    K.grip = { x0: -0.125, x1: -0.03, hy: 0.0105, hz: 0.0092 };
-    K.setJoint = (n, v) => { if (n === 'j1') K.joints.safe.rotation.z = v; if (n === 'j2') K.joints.bite.rotation.z = -v; };
+    const safe = handle(1); model.add(safe);
+    const bladeG = new THREE.Group(); bladeG.position.set(P[0], P[1], 0); model.add(bladeG);
+    const bladeIn = new THREE.Group(); bladeIn.position.set(-P[0], -P[1], 0); bladeG.add(bladeIn); bladeIn.add(blade);
+    const tang = roundRectShape(-0.022, -0.0102, 0.001, 0.0102, 0.003); tang.holes.push(circlePath(-0.012, 0, 0.0021));
+    bladeIn.add(extrude(tang, sp.T, 0.0003, bm, 4));
+    for (const y of [0.0068, -0.0068]) { const stop = pin(0.0016, sp.T + 0.002, M.steel, -0.019, y); bladeIn.add(stop); }
+    const bite = handle(-1); model.add(bite);
+    const latch = new THREE.Mesh(new THREE.BoxGeometry(0.032, 0.0036, 0.0016), M.steel); latch.position.set(-0.112, 0.004, -0.0036); bite.add(latch);
+    K.joints = { safe, bladeG, bite }; K.grip = { x0: -0.135, x1: -0.032, hy: 0.0098, hz: 0.0072 };
+    K.setJoint = (n, v) => { if (n === 'j1') bladeG.rotation.z = v; if (n === 'j2') bite.rotation.z = v; };
   } else if (t === 'karambit') {
-    const spin = new THREE.Group(); model.add(spin); const body = new THREE.Group(); spin.add(body);
-    const ringC = [-0.113, -0.012]; spin.position.set(ringC[0], ringC[1], 0); body.position.set(-ringC[0], -ringC[1], 0);
-    body.add(blade);
-    const hs = new THREE.Shape(); hs.moveTo(0.002, 0.0072); hs.quadraticCurveTo(-0.05, 0.0085, -0.098, 0.0005); hs.absarc(ringC[0], ringC[1], 0.0185, 0.75, -2.1, false);
-    hs.quadraticCurveTo(-0.085, -0.03, -0.07, -0.016); hs.quadraticCurveTo(-0.062, -0.022, -0.054, -0.016); hs.quadraticCurveTo(-0.046, -0.022, -0.038, -0.016); hs.quadraticCurveTo(-0.025, -0.02, -0.012, -0.0135); hs.lineTo(0.002, -0.0105); hs.lineTo(0.002, 0.0072);
-    const hole = new THREE.Path(); hole.absarc(ringC[0], ringC[1], 0.0118, 0, TAU, true); hs.holes.push(hole);
-    const sc = extrude(hs, 0.0118, 0.0012, M.g10green, 40); body.add(sc);
-    const liner = extrude(hs, 0.0043, 0.0003, bm, 9); liner.scale.set(1.004, 1.03, 1); body.add(liner);
-    for (const [x, y] of [[-0.02, -0.002], [-0.058, -0.004], [-0.088, -0.006]]) { const b = pin(0.0021, 0.0136, M.steel, x, y); body.add(b); for (const s of [1, -1]) { const hd = pin(0.0026, 0.0008, M.dark, x, y); hd.position.z = s * 0.0068; body.add(hd); } }
-    K.joints.spin = spin; K.grip = { x0: -0.1, x1: -0.018, hy: 0.0115, hz: 0.0075 }; K.ring = ringC;
-    K.setJoint = (n, v) => { if (n === 'j1') spin.rotation.z = -v; };
+    const body = ringPivot(KR.ring); body.add(blade);
+    const out = karambitOutline(), hole = circlePath(KR.ring[0], KR.ring[1], KR.ri);
+    const scales = extrude(shapeFrom(out, [hole]), 0.0122, 0.0013, M.g10black, 40); body.add(scales);
+    const tang = extrude(shapeFrom(out, [circlePath(KR.ring[0], KR.ring[1], KR.ri)]), 0.0044, 0.0003, bm, 5); tang.scale.set(1.012, 1.045, 1); tang.position.set(0.0012, -0.0004, 0); body.add(tang);
+    const ringRim = new THREE.Mesh(new THREE.TorusGeometry(KR.ri + 0.0004, 0.0016, 8, 40), bm); ringRim.position.set(KR.ring[0], KR.ring[1], 0); ringRim.scale.z = 2.6; body.add(ringRim);
+    for (const [x, y] of [[-0.018, -0.0005], [-0.056, 0.0025], [-0.088, -0.0055]]) { body.add(pin(0.0021, 0.0141, M.steel, x, y)); for (const s of [1, -1]) { const hd = pin(0.0027, 0.0008, M.dark, x, y); hd.position.z = s * 0.0071; body.add(hd); } }
+    K.grip = { x0: -0.095, x1: -0.012, hy: 0.0118, hz: 0.0078 }; K.ringFinger = 3;
   } else if (t === 'm9') {
     model.add(blade);
-    const gs = roundRectShape(-0.0095, -0.027, 0, 0.026, 0.0045); const guard = extrude(gs, 0.021, 0.0012, M.dark, 20); model.add(guard);
+    const gs = roundRectShape(-0.0095, -0.027, 0, 0.026, 0.0045); model.add(extrude(gs, 0.021, 0.0012, M.dark, 20));
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0095, 0.0031, 12, 28), M.dark); ring.rotation.y = Math.PI / 2; ring.position.set(-0.0048, 0.036, 0); model.add(ring);
-    // ribbed handle: elliptical tube with grip ridges
+    for (const s of [1, -1]) { const hole = new THREE.Mesh(new THREE.CircleGeometry(1, 28), M.black); hole.scale.set(0.012, 0.0042, 1); hole.position.set(0.028, 0.0035, s * (sp.T / 2 + 0.00005)); if (s < 0) hole.rotation.y = Math.PI; model.add(hole); }
     const NX = 64, NA = 26, pos = [], uv = [], idx = [];
     for (let i = 0; i <= NX; i++) {
       const u = i / NX, x = -0.01 - u * 0.118, rib = 1 + 0.07 * Math.max(0, Math.sin(u * TAU * 9)) - 0.12 * Math.pow(Math.abs(u - 0.5) * 2, 6), sw = 1 + 0.08 * Math.sin(u * Math.PI);
@@ -3140,34 +3207,33 @@ function buildKnife(item) {
     for (let i = 0; i < NX; i++) for (let j = 0; j < NA; j++) { const a = i * (NA + 1) + j, b = a + NA + 1; idx.push(a, a + 1, b, b, a + 1, b + 1); }
     const hg = new THREE.BufferGeometry(); hg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); hg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); hg.setIndex(idx); hg.computeVertexNormals();
     model.add(new THREE.Mesh(hg, M.rubber));
-    const pom = extrude(roundRectShape(-0.143, -0.0135, -0.126, 0.0135, 0.004), 0.0215, 0.0012, M.dark, 20); model.add(pom);
+    model.add(extrude(roundRectShape(-0.143, -0.0135, -0.126, 0.0135, 0.004), 0.0215, 0.0012, M.dark, 20));
     const btn = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.004, 0.012), M.steel); btn.position.set(-0.134, 0.0145, 0); model.add(btn);
-    K.grip = { x0: -0.12, x1: -0.02, hy: 0.0135, hz: 0.011 };
+    K.grip = { x0: -0.12, x1: -0.022, hy: 0.0135, hz: 0.011 };
   } else if (t === 'paracord') {
-    model.add(blade);
-    const tang = extrude(roundRectShape(-0.108, -0.0095, 0.001, 0.0095, 0.003), 0.0041, 0.0003, bm, 9); model.add(tang);
-    const guard = extrude(roundRectShape(-0.004, -0.019, 0, 0.0155, 0.0018), 0.012, 0.0008, M.dark, 20); model.add(guard);
-    model.add(helixCord(-0.006, -0.102, 0.0118, 0.0062, 15.5, 0.0029, M.cordOlive));
-    model.add(helixCord(-0.006, -0.102, 0.0118, 0.0062, 15.5, 0.0029, M.cordOlive)).rotation.x = Math.PI;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0115, 0.0028, 12, 30), M.dark); ring.position.set(-0.118, 0, 0); model.add(ring);
-    K.grip = { x0: -0.1, x1: -0.012, hy: 0.0148, hz: 0.0095 };
+    const body = ringPivot([-0.119, 0]); body.add(blade);
+    body.add(extrude(roundRectShape(-0.108, -0.0095, 0.001, 0.0095, 0.003), 0.0041, 0.0003, bm, 5));
+    body.add(extrude(roundRectShape(-0.004, -0.019, 0, 0.0155, 0.0018), 0.012, 0.0008, M.dark, 20));
+    body.add(helixCord(-0.006, -0.102, 0.0118, 0.0062, 15.5, 0.0029, M.cordOlive));
+    const c2 = helixCord(-0.006, -0.102, 0.0118, 0.0062, 15.5, 0.0029, M.cordOlive); c2.rotation.x = Math.PI; body.add(c2);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0115, 0.0028, 12, 30), M.dark); ring.position.set(-0.119, 0, 0); body.add(ring);
+    K.grip = { x0: -0.1, x1: -0.014, hy: 0.0148, hz: 0.0095 };
   } else if (t === 'skeleton') {
-    model.add(blade);
-    const fs = new THREE.Shape(); fs.moveTo(0.001, 0.0102); fs.quadraticCurveTo(-0.05, 0.0118, -0.095, 0.0095); fs.quadraticCurveTo(-0.112, 0.0085, -0.112, -0.002); fs.quadraticCurveTo(-0.11, -0.014, -0.096, -0.0135);
-    fs.quadraticCurveTo(-0.06, -0.0105, -0.03, -0.012); fs.quadraticCurveTo(-0.016, -0.02, -0.006, -0.0125); fs.lineTo(0.001, -0.0108); fs.lineTo(0.001, 0.0102);
-    fs.holes.push(slotPath(-0.032, 0.0005, 0.024, 0.0105), slotPath(-0.064, 0.0005, 0.026, 0.011), slotPath(-0.095, -0.001, 0.013, 0.0085));
-    const frame = extrude(fs, 0.0038, 0.0004, bm, 9); model.add(frame);
-    model.add(helixCord(-0.043, -0.054, 0.0122, 0.0032, 2.5, 0.0024, M.cordGray));
-    model.add(helixCord(-0.076, -0.086, 0.0122, 0.0032, 2.2, 0.0024, M.cordGray));
-    K.grip = { x0: -0.098, x1: -0.012, hy: 0.0118, hz: 0.006 };
+    const body = ringPivot(SK.ring); body.add(blade);
+    const holes = [slotPath(-0.041, 0.0004, 0.023, 0.0098), slotPath(-0.072, 0.0, 0.024, 0.0094), circlePath(SK.ring[0], SK.ring[1], SK.ri)];
+    body.add(extrude(shapeFrom(skeletonOutline(), holes), 0.0042, 0.0005, bm, 5));
+    // criss-cross cord wrap through the cut-outs
+    body.add(helixCord(-0.029, -0.086, 0.0124, 0.0036, 4.5, 0.0021, M.cordGray));
+    const c2 = helixCord(-0.029, -0.086, 0.0124, 0.0036, 4.5, 0.0021, M.cordGray); c2.scale.z = -1; body.add(c2);
+    K.grip = { x0: -0.09, x1: -0.016, hy: 0.0125, hz: 0.0062 };
   } else if (t === 'nomad') {
     const fold = new THREE.Group(); fold.position.set(-0.004, 0.001, 0); model.add(fold); const bg = new THREE.Group(); bg.position.set(0.004, -0.001, 0); fold.add(bg);
     bg.add(blade);
     const tab = new THREE.Shape(); tab.moveTo(0.003, -0.009); tab.lineTo(-0.011, -0.009); tab.quadraticCurveTo(-0.016, -0.018, -0.008, -0.024); tab.quadraticCurveTo(0.0, -0.022, 0.003, -0.012); tab.lineTo(0.003, -0.009);
-    bg.add(extrude(tab, sp.T, 0.0003, bm, 9));
-    const tangS = roundRectShape(-0.012, -0.0105, 0.002, 0.0112, 0.004); bg.add(extrude(tangS, sp.T, 0.0002, bm, 9));
+    bg.add(extrude(tab, sp.T, 0.0003, bm, 5));
+    bg.add(extrude(roundRectShape(-0.012, -0.0105, 0.002, 0.0112, 0.004), sp.T, 0.0002, bm, 5));
     const hs = new THREE.Shape(); hs.moveTo(0.004, 0.0122); hs.quadraticCurveTo(-0.06, 0.0115, -0.112, 0.0085); hs.quadraticCurveTo(-0.122, 0.002, -0.114, -0.009); hs.quadraticCurveTo(-0.07, -0.0125, -0.04, -0.0105); hs.quadraticCurveTo(-0.025, -0.0145, -0.012, -0.0122); hs.quadraticCurveTo(0.004, -0.0125, 0.006, -0.002); hs.quadraticCurveTo(0.0065, 0.008, 0.004, 0.0122);
-    const lan = new THREE.Path(); lan.absarc(-0.108, 0.0, 0.0024, 0, TAU, true); hs.holes.push(lan);
+    hs.holes.push(circlePath(-0.108, 0.0, 0.0024));
     for (const s of [1, -1]) {
       const scale = extrude(hs, 0.0036, 0.0007, M.g10blue, 40); scale.position.z = s * 0.0046; model.add(scale);
       const liner = extrude(hs, 0.0009, 0, M.steel, 9); liner.scale.set(0.985, 0.96, 1); liner.position.z = s * 0.0024; model.add(liner);
@@ -3175,15 +3241,16 @@ function buildKnife(item) {
       const tx = new THREE.Mesh(new THREE.CylinderGeometry(0.0015, 0.0015, 0.0013, 6), M.black); tx.rotation.x = Math.PI / 2; tx.position.set(-0.004, 0.001, s * 0.0068); model.add(tx);
       for (const x of [-0.06, -0.1]) { const sc = pin(0.0018, 0.0009, M.dark, x, 0.001); sc.position.z = s * 0.0066; model.add(sc); }
     }
-    const spacer = extrude(roundRectShape(-0.105, 0.0035, -0.05, 0.0098, 0.002), 0.0055, 0, M.black, 9); model.add(spacer);
+    model.add(extrude(roundRectShape(-0.105, 0.0035, -0.05, 0.0098, 0.002), 0.0055, 0, M.black, 9));
     const clip = new THREE.Mesh(new THREE.BoxGeometry(0.068, 0.0055, 0.0011), M.dark); clip.position.set(-0.075, 0.004, -0.0071); clip.rotation.z = -0.03; model.add(clip);
-    K.joints.fold = fold; K.grip = { x0: -0.105, x1: -0.016, hy: 0.0125, hz: 0.0085 };
+    K.joints.fold = fold; K.grip = { x0: -0.105, x1: -0.018, hy: 0.0125, hz: 0.0085 };
     K.setJoint = (n, v) => { if (n === 'j1') fold.rotation.z = v; };
   }
-  K.setJoint = K.setJoint || (() => {});
-  root.traverse((o) => { if (o.isMesh) { o.castShadow = true; } });
+  if (!K.setJoint) K.setJoint = (n, v) => { if (n === 'j1' && K.joints.spin) K.joints.spin.rotation.z = -v; };
+  root.traverse((o) => { if (o.isMesh) o.castShadow = true; });
   return K;
 }
+
 function disposeKnife(K) { if (!K) return; K.root.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); if (o.material.userData.knife) o.material.dispose(); } }); }
 
 // ---------------------------------------------------------------- 2D icons (cards, roulette)
@@ -3201,16 +3268,16 @@ function knifeIcon(item, w = 220, h = 110) {
   const poly = (pts, fill, stroke) => { g.beginPath(); pts.forEach((p, i) => { const q = P(p[0], p[1]); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.closePath(); g.fillStyle = fill; g.fill(); if (stroke) { g.strokeStyle = stroke; g.lineWidth = 1.2; g.stroke(); } };
   const rr = (x0, y0, x1, y1, fill) => poly([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], fill, 'rgba(0,0,0,0.5)');
   if (item.t === 'butterfly') { rr(-0.13, -0.0088, 0.004, 0.0088, hcol); for (let k = 0; k < 5; k++) rr(-0.03 - k * 0.0215, -0.0026, -0.015 - k * 0.0215, 0.0026, '#1b1d22'); }
-  if (item.t === 'karambit') { poly([[0.002, 0.0072], [-0.05, 0.0085], [-0.098, 0.0005], [-0.125, -0.002], [-0.13, -0.022], [-0.11, -0.031], [-0.085, -0.028], [-0.07, -0.016], [-0.04, -0.019], [-0.012, -0.0135], [0.002, -0.0105]], hcol, 'rgba(0,0,0,0.5)'); g.beginPath(); const q = P(-0.113, -0.012); g.arc(q[0], q[1], 0.0118 * S, 0, TAU); g.fillStyle = 'rgba(0,0,0,0)'; g.globalCompositeOperation = 'destination-out'; g.fill(); g.globalCompositeOperation = 'source-over'; }
+  if (item.t === 'karambit') { poly(karambitOutline(), '#25272b', 'rgba(0,0,0,0.5)'); g.beginPath(); const q = P(KR.ring[0], KR.ring[1]); g.arc(q[0], q[1], KR.ri * S, 0, TAU); g.globalCompositeOperation = 'destination-out'; g.fill(); g.globalCompositeOperation = 'source-over'; }
   if (item.t === 'm9') { rr(-0.0095, -0.027, 0, 0.026, '#2b2e33'); rr(-0.126, -0.0125, -0.01, 0.0125, hcol); for (let k = 0; k < 9; k++) rr(-0.02 - k * 0.012, -0.0125, -0.017 - k * 0.012, 0.0125, '#22261f'); rr(-0.143, -0.0135, -0.126, 0.0135, '#2b2e33'); }
   if (item.t === 'paracord') { rr(-0.104, -0.012, -0.005, 0.012, hcol); for (let k = 0; k < 15; k++) poly([[-0.006 - k * 0.0062, 0.012], [-0.009 - k * 0.0062, 0.012], [-0.012 - k * 0.0062, -0.012], [-0.009 - k * 0.0062, -0.012]], '#20261a'); g.beginPath(); const q = P(-0.118, 0); g.arc(q[0], q[1], 0.0115 * S, 0, TAU); g.strokeStyle = '#2b2e33'; g.lineWidth = 0.005 * S; g.stroke(); }
   if (item.t === 'nomad') { poly([[0.004, 0.0122], [-0.06, 0.0115], [-0.112, 0.0085], [-0.12, 0.0], [-0.114, -0.009], [-0.07, -0.0125], [-0.04, -0.0105], [-0.012, -0.0122], [0.006, -0.002]], hcol, 'rgba(0,0,0,0.5)'); }
   // blade (+ skeleton frame) filled with the finish
   const pat = g.createPattern(ft.canvas, 'no-repeat'); const m = new DOMMatrix(); const L = sp.L;
   const fillBlade = (pts) => { g.beginPath(); pts.forEach((p, i) => { const q = P(p[0], p[1]); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.closePath(); pat.setTransform(m.translate(ox, oy - 0.02 * S).scale(L * S / 1024, 0.04 * S / 256)); g.fillStyle = pat; g.fill(); g.strokeStyle = 'rgba(0,0,0,0.45)'; g.lineWidth = 1; g.stroke(); };
-  if (item.t === 'skeleton') fillBlade([[0.001, 0.0102], [-0.05, 0.0118], [-0.095, 0.0095], [-0.112, -0.002], [-0.096, -0.0135], [-0.06, -0.0105], [-0.03, -0.012], [-0.006, -0.0125], [0.001, -0.0108]]);
+  if (item.t === 'skeleton') { fillBlade(skeletonOutline()); g.beginPath(); const q = P(SK.ring[0], SK.ring[1]); g.arc(q[0], q[1], SK.ri * S, 0, TAU); g.globalCompositeOperation = 'destination-out'; g.fill(); g.globalCompositeOperation = 'source-over'; }
   fillBlade(outline2D(sp));
-  if (item.t === 'skeleton') for (const [x, l] of [[-0.032, 0.024], [-0.064, 0.026]]) rr(x - l / 2, -0.005, x + l / 2, 0.006, 'rgba(10,10,12,0.9)');
+  if (item.t === 'skeleton') { for (const [x, l] of [[-0.041, 0.023], [-0.072, 0.024]]) rr(x - l / 2, -0.0047, x + l / 2, 0.005, 'rgba(10,10,12,0.9)'); for (let k = 0; k < 7; k++) poly([[-0.03 - k * 0.008, 0.012], [-0.034 - k * 0.008, 0.012], [-0.041 - k * 0.008, -0.012], [-0.037 - k * 0.008, -0.012]], 'rgba(150,155,160,0.85)'); }
   // highlight along the spine
   g.globalAlpha = 0.35; g.strokeStyle = '#fff'; g.lineWidth = 1.2; g.beginPath(); const ol = outline2D(sp, 40).slice(0, 41); ol.forEach((p, i) => { const q = P(p[0], p[1] - 0.0012); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke(); g.globalAlpha = 1;
   g.restore();
@@ -3231,43 +3298,63 @@ function sampleTrack(tr, t) {
   return cr(p0, p1, p2, p3);
 }
 const Z3 = [0, 0, 0];
-const showUp = { ap: [-0.07, 0.07, 0.03], ar: [0.15, 0.35, 0.1], kr: [-1.25, 0.15, 0.1] };
+// Inspect poses: the hand stays where it is and the wrist turns the blade toward you (CS style)
+const SH = { ap: [-0.018, 0.022, 0.016], ar: [0.04, 0.05, 0.02], w: [-0.18, 0.05, -0.62] };
+const SH2 = { w: [0.18, -0.22, 0.38] };
+const add3 = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 function CLIPS(t) {
-  const back = (d) => [[d - 0.45, null], [d, Z3]];
+  const hold = (d1, d2) => ({ ap: [[0, Z3], [0.45, SH.ap], [d1, SH.ap], [d2, Z3]], ar: [[0, Z3], [0.45, SH.ar], [d1, SH.ar], [d2, Z3]] });
   const common = {
-    slash: { dur: 0.42, ap: [[0, Z3], [0.08, [0.06, 0.04, 0.02]], [0.22, [-0.2, -0.04, -0.08]], [0.42, Z3]], ar: [[0, Z3], [0.08, [0.1, -0.35, -0.3]], [0.22, [-0.2, 0.75, 0.5]], [0.42, Z3]], snd: [[0.08, 'swish']] },
-    slash2: { dur: 0.42, ap: [[0, Z3], [0.08, [-0.05, 0.06, 0.02]], [0.22, [0.12, -0.08, -0.08]], [0.42, Z3]], ar: [[0, Z3], [0.08, [0.25, 0.4, 0.4]], [0.22, [-0.3, -0.5, -0.4]], [0.42, Z3]], snd: [[0.08, 'swish']] },
-    stab: { dur: 0.7, ap: [[0, Z3], [0.18, [0.02, 0.04, 0.12]], [0.32, [-0.06, 0.03, -0.24]], [0.7, Z3]], ar: [[0, Z3], [0.18, [0.35, 0.1, 0.0]], [0.32, [-0.15, -0.05, 0]], [0.7, Z3]], snd: [[0.27, 'swish']] },
+    slash: { dur: 0.42, ap: [[0, Z3], [0.07, [0.03, 0.03, 0.02]], [0.2, [-0.11, -0.03, -0.06]], [0.42, Z3]], ar: [[0, Z3], [0.07, [0.08, -0.22, -0.2]], [0.2, [-0.16, 0.5, 0.36]], [0.42, Z3]], w: [[0, Z3], [0.07, [-0.2, 0, -0.2]], [0.2, [0.25, 0, 0.35]], [0.42, Z3]], snd: [[0.07, 'swish']] },
+    slash2: { dur: 0.42, ap: [[0, Z3], [0.07, [-0.04, 0.05, 0.02]], [0.2, [0.07, -0.06, -0.06]], [0.42, Z3]], ar: [[0, Z3], [0.07, [0.2, 0.25, 0.3]], [0.2, [-0.25, -0.35, -0.3]], [0.42, Z3]], w: [[0, Z3], [0.07, [0.2, 0, 0.25]], [0.2, [-0.3, 0, -0.3]], [0.42, Z3]], snd: [[0.07, 'swish']] },
+    stab: { dur: 0.7, ap: [[0, Z3], [0.18, [0.015, 0.03, 0.06]], [0.32, [-0.04, 0.02, -0.13]], [0.7, Z3]], ar: [[0, Z3], [0.18, [0.22, 0.05, 0]], [0.32, [-0.1, -0.04, 0]], [0.7, Z3]], w: [[0, Z3], [0.18, [0.3, 0, 0]], [0.32, [-0.45, 0, 0]], [0.7, Z3]], snd: [[0.27, 'swish']] },
   };
-  const show = (d0, d1) => ({ ap: [[0, Z3], [0.35, showUp.ap], [d1, showUp.ap], [d1 + 0.45, Z3]], ar: [[0, Z3], [0.35, showUp.ar], [d1, showUp.ar], [d1 + 0.45, Z3]] });
+  const draw = { dur: 0.75, ap: [[0, [0.03, -0.17, 0.05]], [0.38, [0, 0.01, 0]], [0.75, Z3]], w: [[0, [0.7, 0.1, 1.5]], [0.42, [-0.08, 0, -0.1]], [0.75, Z3]], kr: [[0, [0, -TAU, 0]], [0.45, [0, -0.15, 0]], [0.6, Z3]], snd: [[0.12, 'whoosh']] };
   let c = {};
+  const show = (extra, d = 4.2) => Object.assign({ dur: d, ...hold(d - 0.75, d) }, extra);
   if (t === 'butterfly') c = {
-    deploy: { dur: 1.0, ap: [[0, [0.05, -0.25, 0.1]], [0.35, [0, 0.02, 0]], [1.0, Z3]], j1: [[0, PI], [0.3, PI], [0.55, PI * 0.2], [0.68, 0]], j2: [[0, PI], [0.12, PI * 0.6], [0.3, -0.4], [0.42, 0], [1, 0]], kr: [[0, [0, 0, 0]], [0.2, [PI * 0.7, 0, 0]], [0.5, [TAU, 0, 0]], [1, [TAU, 0, 0]]], snd: [[0.42, 'clack'], [0.68, 'clack']] },
-    inspect: { dur: 4.2, ...show(0, 3.6), kr: [[0, Z3], [0.35, [-1.25, 0.15, 0.1]], [0.7, [-1.25, 0.15, 0.1]], [1.0, [-1.25 + PI, 0.15, 0.1]], [1.4, [-1.25 + TAU, 0.15, 0.1]], [1.9, [-1.25 + TAU, 0.15, 0.1 + TAU]], [2.5, [-1.25 + TAU, 0.15, 0.1 + TAU]], [3.0, [TAU + 1.0, -0.2, TAU]], [3.6, [TAU + 1.0, -0.2, TAU]], [4.2, [TAU * 2, 0, TAU]]],
-      kp: [[0, Z3], [1.45, Z3], [1.65, [0.0, 0.09, 0.02]], [1.85, [0, 0.03, 0]], [2.0, Z3], [4.2, Z3]], fo: [[0, 0], [1.45, 0], [1.55, 1], [1.88, 1], [1.98, 0]],
-      j2: [[0, 0], [0.6, 0], [0.8, -PI], [1.0, -PI * 1.6], [1.2, -TAU], [2.5, -TAU], [2.7, -TAU - PI], [2.95, -TAU * 2], [4.2, -TAU * 2]],
-      j1: [[0, 0], [1.0, 0], [1.15, PI], [1.35, PI * 1.4], [1.5, 0], [2.6, 0], [2.85, PI], [3.1, 0], [4.2, 0]],
-      snd: [[0.8, 'clack'], [1.2, 'clack'], [1.15, 'clack'], [1.5, 'clack'], [1.65, 'whoosh'], [2.7, 'clack'], [2.95, 'clack'], [3.1, 'clack']] },
+    deploy: { dur: 1.0, ap: [[0, [0.03, -0.17, 0.05]], [0.35, [0, 0.01, 0]], [1.0, Z3]], w: [[0, [0.5, 0, 1.2]], [0.35, [0.1, 0, 0.2]], [1.0, Z3]],
+      j1: [[0, PI], [0.25, PI], [0.5, PI * 1.55], [0.7, TAU]], j2: [[0, 0], [0.18, -0.9], [0.4, -2.6], [0.62, -TAU], [1, -TAU]], snd: [[0.4, 'clack'], [0.66, 'clack']] },
+    inspect: show({
+      w: [[0, Z3], [0.45, SH.w], [0.6, SH.w], [1.0, add3(SH.w, [0.1, 0.1, 0.25])], [1.5, add3(SH.w, [-0.05, -0.05, -0.1])], [2.0, SH.w], [2.6, SH2.w], [3.45, add3(SH2.w, [0.05, 0.1, -0.1])], [4.4, Z3]],
+      j1: [[0, 0], [0.6, 0], [0.82, 1.3], [1.0, PI], [1.25, PI], [1.45, PI * 1.5], [1.65, TAU], [2.85, TAU], [3.05, TAU + PI], [3.3, TAU * 2]],
+      j2: [[0, 0], [0.6, 0], [0.72, -0.8], [0.95, -2.4], [1.12, -TAU], [1.3, -TAU - 1.2], [1.55, -TAU - 3.0], [1.72, -TAU * 2], [2.9, -TAU * 2], [3.1, -TAU * 2 - 2.6], [3.32, -TAU * 3]],
+      kp: [[0, Z3], [1.85, Z3], [2.08, [0, 0.055, 0.01]], [2.32, Z3]], kr: [[0, Z3], [1.85, Z3], [2.32, [0, 0, -TAU]], [4.4, [0, 0, -TAU]]], fo: [[0, 0], [1.85, 0], [1.92, 0.75], [2.28, 0.75], [2.36, 0]],
+      snd: [[0.98, 'clack'], [1.13, 'clack'], [1.66, 'clack'], [1.72, 'clack'], [1.9, 'whoosh'], [2.33, 'clack'], [3.05, 'clack'], [3.32, 'clack']],
+    }, 4.4),
   };
   else if (t === 'karambit') c = {
-    deploy: { dur: 0.9, ap: [[0, [0.05, -0.25, 0.1]], [0.4, [0, 0.02, 0]], [0.9, Z3]], j1: [[0, -TAU * 2], [0.55, -0.2], [0.75, 0]], snd: [[0.2, 'whoosh']] },
-    inspect: { dur: 4.0, ...show(0, 3.4), kr: [[0, Z3], [0.35, [-1.1, 0.2, 0]], [1.0, [-1.1, 0.2, 0]], [2.2, [-1.1, 0.2, 0]], [2.7, [1.0, -0.3, 0.15]], [3.4, [1.0, -0.3, 0.15]], [4.0, [TAU, 0, 0]]],
-      j1: [[0, 0], [0.6, 0], [0.75, -0.3], [1.3, TAU * 1.0], [1.8, TAU * 2], [1.95, TAU * 2 + 0.15], [2.1, TAU * 2], [4, TAU * 2]], fo: [[0, 0], [0.6, 0], [0.7, 0.85], [1.95, 0.85], [2.1, 0]], snd: [[0.8, 'whoosh'], [1.3, 'whoosh'], [1.95, 'clack']] },
+    deploy: { dur: 0.9, ap: [[0, [0.03, -0.17, 0.05]], [0.4, [0, 0.01, 0]], [0.9, Z3]], w: [[0, [0.4, 0, 0.9]], [0.45, Z3]], j1: [[0, -TAU * 2], [0.55, -0.15], [0.72, 0]], fo: [[0, 0.8], [0.5, 0.8], [0.62, 0]], snd: [[0.2, 'whoosh'], [0.62, 'clack']] },
+    inspect: show({
+      w: [[0, Z3], [0.45, SH.w], [0.7, SH.w], [1.8, add3(SH.w, [0.05, 0, 0.1])], [2.4, SH2.w], [3.4, add3(SH2.w, [0.1, 0.05, -0.1])], [4.2, Z3]],
+      j1: [[0, 0], [0.7, 0], [0.82, -0.35], [1.25, TAU], [1.62, TAU * 2], [1.74, TAU * 2 + 0.12], [1.85, TAU * 2]], fo: [[0, 0], [0.7, 0], [0.78, 0.85], [1.7, 0.85], [1.82, 0]],
+      snd: [[0.85, 'whoosh'], [1.3, 'whoosh'], [1.78, 'clack']],
+    }),
   };
   else if (t === 'nomad') c = {
-    deploy: { dur: 0.85, ap: [[0, [0.05, -0.25, 0.1]], [0.35, [0, 0.02, 0]], [0.85, Z3]], j1: [[0, PI * 0.97], [0.35, PI * 0.97], [0.48, 0.2], [0.52, -0.05], [0.58, 0]], snd: [[0.47, 'flick']] },
-    inspect: { dur: 3.8, ...show(0, 3.2), kr: [[0, Z3], [0.35, [-1.2, 0.15, 0.1]], [1.9, [-1.2, 0.15, 0.1]], [2.4, [0.9, -0.25, 0.1]], [3.2, [0.9, -0.25, 0.1]], [3.8, [TAU, 0, 0]]],
-      j1: [[0, 0], [0.7, 0], [1.1, PI * 0.97], [1.45, PI * 0.97], [1.55, 0.25], [1.6, -0.05], [1.66, 0], [3.8, 0]], snd: [[1.05, 'click'], [1.56, 'flick']] },
+    deploy: { dur: 0.85, ap: [[0, [0.03, -0.17, 0.05]], [0.35, [0, 0.01, 0]], [0.85, Z3]], w: [[0, [0.5, 0, 1.0]], [0.4, Z3]], j1: [[0, PI * 0.97], [0.36, PI * 0.97], [0.47, 0.2], [0.51, -0.05], [0.57, 0]], snd: [[0.46, 'flick']] },
+    inspect: show({
+      w: [[0, Z3], [0.45, SH.w], [0.75, SH.w], [1.1, add3(SH.w, [-0.1, 0, 0.15])], [1.55, add3(SH.w, [0.2, 0, -0.1])], [1.75, SH.w], [2.4, SH2.w], [3.4, add3(SH2.w, [0.06, 0.1, -0.12])], [4.2, Z3]],
+      j1: [[0, 0], [0.75, 0], [1.1, PI * 0.97], [1.45, PI * 0.97], [1.55, 0.22], [1.6, -0.05], [1.66, 0]], snd: [[1.08, 'click'], [1.56, 'flick']],
+    }),
   };
-  else { // m9, paracord, skeleton: show, toss-flip, show other side
-    const big = t === 'm9';
-    c = {
-      deploy: { dur: 0.9, ap: [[0, [0.05, -0.25, 0.1]], [0.4, [0, 0.02, 0]], [0.9, Z3]], kr: [[0, [0, 0, -TAU]], [0.5, [0, 0, -0.2]], [0.7, Z3]], snd: [[0.15, 'whoosh']] },
-      inspect: { dur: 4.0, ...show(0, 3.4), kr: [[0, Z3], [0.35, [-1.2, 0.2, 0.1]], [1.0, [-1.2, 0.2, 0.1]], [1.25, [-1.2, 0.2, 0.1]], [1.75, [-1.2, 0.2, 0.1 + (big ? PI : TAU)]], [2.1, [-1.2, 0.2, 0.1 + (big ? PI : TAU)]], [2.6, [0.95, -0.3, (big ? PI : TAU) + 0.1]], [3.4, [0.95, -0.3, (big ? PI : TAU) + 0.1]], [4.0, [TAU, 0, big ? PI * 2 : TAU]]],
-        kp: [[0, Z3], [1.2, Z3], [1.45, [0, 0.11, 0.03]], [1.75, [0, 0.0, 0]], [4, Z3]], fo: [[0, 0], [1.2, 0], [1.28, 1], [1.72, 1], [1.8, 0]], snd: [[1.25, 'whoosh'], [1.78, 'clack']] },
-    };
-    if (big) c.inspect.kr = c.inspect.kr.map(([tt, v]) => [tt, [v[0], v[1], tt >= 3.95 ? 0 : v[2]]]);
-  }
+  else if (t === 'm9') c = {
+    deploy: draw,
+    inspect: show({
+      w: [[0, Z3], [0.45, SH.w], [1.3, add3(SH.w, [0.08, 0.05, 0.12])], [1.55, add3(SH.w, [0.15, 0, 0.3])], [2.1, SH2.w], [3.4, add3(SH2.w, [-0.05, 0.08, -0.12])], [4.2, Z3]],
+      kp: [[0, Z3], [1.35, Z3], [1.6, [0, 0.04, 0.005]], [1.88, Z3]], kr: [[0, Z3], [1.35, Z3], [1.88, [0, TAU, 0]], [4.2, [0, TAU, 0]]], fo: [[0, 0], [1.35, 0], [1.42, 0.7], [1.82, 0.7], [1.9, 0]],
+      snd: [[1.4, 'whoosh'], [1.88, 'clack']],
+    }),
+  };
+  else c = { // paracord & skeleton: twirl around the pommel ring, then admire both sides
+    deploy: draw,
+    inspect: show({
+      w: [[0, Z3], [0.45, SH.w], [1.2, add3(SH.w, [0.06, 0.04, 0.1])], [2.3, add3(SH.w, [0.06, 0.04, 0.1])], [2.8, SH2.w], [3.45, add3(SH2.w, [0.05, 0.08, -0.12])], [4.2, Z3]],
+      j1: [[0, 0], [1.2, 0], [1.3, -0.3], [1.7, TAU], [2.05, TAU * 2], [2.15, TAU * 2 + 0.1], [2.25, TAU * 2]], fo: [[0, 0], [1.2, 0], [1.28, 0.9], [2.12, 0.9], [2.24, 0]],
+      snd: [[1.32, 'whoosh'], [1.75, 'whoosh'], [2.18, 'clack']],
+    }),
+  };
+  if (!c.deploy) c.deploy = draw;
   return Object.assign(c, common);
 }
 
@@ -3275,39 +3362,18 @@ function CLIPS(t) {
 class KnifeAnimator {
   constructor() { this.clip = null; this.t = 0; this.name = ''; this.sndIdx = 0; this.clips = {}; this.slashAlt = false; }
   setType(t) { this.clips = CLIPS(t); this.clip = null; }
-  play(name) { const c = this.clips[name]; if (!c) return; this.clip = c; this.name = name; this.t = 0; this.sndIdx = 0; }
+  play(name) { const c = this.clips[name]; if (!c) return; this.clip = c; this.name = name; this.t = 0; this.sndIdx = 0; this.snds = (c.snd || []).slice().sort((a, b) => a[0] - b[0]); }
   busy() { return !!this.clip; }
   update(dt, sfx) {
     if (!this.clip) return null;
     this.t += dt; const c = this.clip;
-    if (c.snd && sfx) { const ss = c.snd.slice().sort((a, b) => a[0] - b[0]); while (this.sndIdx < ss.length && ss[this.sndIdx][0] <= this.t) { sfx(ss[this.sndIdx][1]); this.sndIdx++; } }
-    const out = {}; for (const ch of ['ap', 'ar', 'kp', 'kr', 'fo', 'j1', 'j2']) { const tr = c[ch]; if (tr) { const clean = tr.filter((k) => k[1] !== null); out[ch] = sampleTrack(clean, this.t); } }
+    if (sfx) while (this.sndIdx < this.snds.length && this.snds[this.sndIdx][0] <= this.t) { sfx(this.snds[this.sndIdx][1]); this.sndIdx++; }
+    const out = {}; for (const ch of ['ap', 'ar', 'w', 'kp', 'kr', 'fo', 'j1', 'j2']) if (c[ch]) out[ch] = sampleTrack(c[ch], this.t);
     if (this.t >= c.dur) this.clip = null;
     return out;
   }
 }
 
-// ---------------------------------------------------------------- fist that wraps a knife's grip
-function buildFist(grip, type) {
-  const g = new THREE.Group();
-  const skin = new THREE.MeshStandardMaterial({ color: 0xd59b74, roughness: 0.62 }), glove = new THREE.MeshStandardMaterial({ color: 0x1d1d20, roughness: 0.85 });
-  const len = grip.x1 - grip.x0, R = Math.max(grip.hy, grip.hz) + 0.0085;
-  const fingers = [];
-  const xs = type === 'karambit' ? [grip.x0 - 0.012, grip.x0 + len * 0.42, grip.x0 + len * 0.62, grip.x0 + len * 0.82] : [0.86, 0.62, 0.38, 0.14].map((f) => grip.x0 + len * f);
-  xs.forEach((x, i) => {
-    const fr = (i === 0 && type === 'karambit') ? 0.0145 : R * (1 - i * 0.04);
-    const f = new THREE.Mesh(new THREE.TorusGeometry(fr, 0.0092 - i * 0.0005, 8, 18, Math.PI * 1.35), skin);
-    f.rotation.y = Math.PI / 2; f.rotation.z = -Math.PI * 0.18; f.position.set(x, (i === 0 && type === 'karambit') ? -0.012 : 0, 0);
-    if (i === 0 && type === 'karambit') f.position.x = -0.113;
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.0088, 10, 8), skin); tip.position.set(0, fr, 0); tip.rotation.set(0, 0, 0); f.add(tip);
-    g.add(f); fingers.push(f);
-  });
-  const palm = new THREE.Mesh(new THREE.BoxGeometry(len * 0.98, 0.04, 0.03), glove); palm.position.set(grip.x0 + len * 0.5, -0.006, -(grip.hz + 0.016)); g.add(palm);
-  const back = new THREE.Mesh(new THREE.BoxGeometry(len * 0.9, 0.034, 0.024), glove); back.position.set(grip.x0 + len * 0.45, -0.03, -(grip.hz + 0.004)); g.add(back);
-  const thumb = new THREE.Mesh(new THREE.CapsuleGeometry(0.0095, 0.038, 4, 8), skin); thumb.rotation.z = Math.PI / 2 - 0.25; thumb.position.set(grip.x1 - 0.012, grip.hy + 0.007, grip.hz * 0.4); g.add(thumb);
-  g.userData.fingers = fingers;
-  return g;
-}
 
 // ---- audio.js
 // ============================================================================
@@ -3453,45 +3519,6 @@ function c_osc(ctx, type, f, detune) { const o = ctx.createOscillator(); o.type 
 // VIEWMODEL + SHOWCASE + SURF GRAPHICS
 // ============================================================================
 
-// ---------------------------------------------------------------- knife in the first-person right hand
-Arms.prototype.setKnife = function (item) {
-  const R = this.R, arm = R.userData.arm, hand = R.userData.hand;
-  if (this.knife) { this.anchor.parent.remove(this.anchor); disposeKnife(this.knife); this.knife = null; }
-  this.item = item || null; this.anim = this.anim || new KnifeAnimator();
-  hand.visible = !item;
-  if (!item) return;
-  const K = buildKnife(item); this.knife = K;
-  this.anchor = new THREE.Group(); this.anchor.position.set(0.0, 0.004, -0.335); this.anchor.rotation.set(0.42, Math.PI / 2, 0, 'XYZ');
-  this.grip = new THREE.Group(); this.grip.rotation.x = -1.15; this.anchor.add(this.grip);
-  // the fist sits around the grip; the knife hangs off a holder we can animate (tosses, flips)
-  this.fist = buildFist(K.grip, K.type); this.grip.add(this.fist);
-  this.holder = new THREE.Group(); this.grip.add(this.holder); this.holder.add(K.root);
-  // hold position: the middle of the grip sits in the fist centre
-  const gm = (K.grip.x0 + K.grip.x1) / 2; this.fist.position.x = -gm; K.root.position.x = -gm;
-  this.anchor.scale.setScalar(1.12);
-  arm.add(this.anchor);
-  this.anim.setType(K.type); this.fx = null;
-  if (this.scene.environment) this.applyEnv();
-};
-Arms.prototype.applyEnv = function (k) {
-  if (k !== undefined) this.envK = k;
-  if (!this.knife) return;
-  this.knife.root.traverse((o) => { if (o.isMesh && o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = this.envK ?? 1; });
-};
-Arms.prototype.knifeUpdate = function (dt, sfx) {
-  if (!this.knife) { this.fx = null; return; }
-  const out = this.anim.update(dt, sfx) || {}; this.fx = out;
-  const K = this.knife;
-  const ap = out.ap || Z3, ar = out.ar || Z3, kp = out.kp || Z3, kr = out.kr || Z3;
-  // arm offsets are added after the base pose (Arms.update already placed R)
-  this.R.position.x += ap[0]; this.R.position.y += ap[1]; this.R.position.z += ap[2];
-  this.R.rotation.x += ar[0]; this.R.rotation.y += ar[1]; this.R.rotation.z += ar[2];
-  this.holder.position.set(kp[0], kp[1], kp[2]); this.holder.rotation.set(kr[0], kr[1], kr[2], 'XYZ');
-  const fo = out.fo || 0;
-  this.fist.userData.fingers.forEach((f, i) => { if (K.type === 'karambit' && i === 0) return; f.rotation.z = -Math.PI * 0.18 + fo * 1.1; f.scale.setScalar(1 + fo * 0.08); });
-  K.setJoint('j1', out.j1 ?? 0); K.setJoint('j2', out.j2 ?? 0);
-};
-
 // ---------------------------------------------------------------- environment map for metal reflections
 let ENV_TEX = null;
 function makeEnv(renderer) {
@@ -3602,6 +3629,154 @@ function buildSurfGroup(map, lang) {
   });
   return group;
 }
+
+// ---- hands.js
+// ============================================================================
+// HANDS — CS-style gloved hands and sleeves, a fist that wraps each knife's grip,
+// a wrist joint for inspects, and viewmodel sway/bob.
+// Hand frame: origin at the wrist, knuckles toward -Z, thumb +Y, palm faces -X.
+// ============================================================================
+const HAND = { cx: -0.004, cz: -0.07 };
+// Holds are set by direction: f = forearm direction, n = back-of-hand direction (both camera space); wrist = [flex, deviation, roll]
+const HOLDS = {
+  forward: { pos: [0.165, -0.235, -0.085], f: [-0.757, 0.435, -0.486], n: [0.3, 0.9, 0.1], wrist: [-0.9, 0, 0] },
+  reverse: { pos: [0.17, -0.235, -0.08], f: [-0.7, 0.4, -0.6], n: [0.42, -0.24, -0.875], wrist: [-0.4, 0, 0] },
+};
+function holdRot(h) {
+  const f = new THREE.Vector3(...h.f).normalize(), n0 = new THREE.Vector3(...h.n);
+  const X = n0.sub(f.clone().multiplyScalar(n0.dot(f))).normalize(), Z = f.clone().negate(), Y = new THREE.Vector3().crossVectors(Z, X);
+  const e = new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z), 'YXZ');
+  h.rot = [e.x, e.y, e.z]; return h;
+}
+Object.values(HOLDS).forEach(holdRot);
+let GLOVE_MATS = null;
+function gloveMats() {
+  if (GLOVE_MATS) return GLOVE_MATS;
+  const fabric = (base, line, n) => {
+    const S = 256, c = cnv(S, S), g = c.getContext('2d'); g.fillStyle = base; g.fillRect(0, 0, S, S);
+    for (let y = 0; y < S; y += 3) { g.fillStyle = (y / 3) % 2 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)'; g.fillRect(0, y, S, 1.5); }
+    for (let x = 0; x < S; x += 4) { g.fillStyle = 'rgba(0,0,0,0.06)'; g.fillRect(x, 0, 1, S); }
+    g.strokeStyle = line; g.lineWidth = 2; g.setLineDash([5, 4]);
+    for (let k = 0; k < n; k++) { g.beginPath(); g.moveTo(0, (k + 0.5) * S / n); g.lineTo(S, (k + 0.5) * S / n); g.stroke(); }
+    noiseFill(g, S, S, 3000, 0.12, '#ffffff', '#000000');
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+  };
+  const sleeveT = fabric('#3c4033', 'rgba(20,22,16,0.6)', 2); sleeveT.repeat.set(2, 3);
+  const gloveT = fabric('#24252a', 'rgba(120,120,125,0.35)', 3);
+  GLOVE_MATS = {
+    sleeve: new THREE.MeshStandardMaterial({ map: sleeveT, roughness: 0.92, metalness: 0, envMapIntensity: 0.35 }),
+    cuff: new THREE.MeshStandardMaterial({ color: 0x2e3127, roughness: 0.95, envMapIntensity: 0.3 }),
+    glove: new THREE.MeshStandardMaterial({ map: gloveT, roughness: 0.68, metalness: 0.05, envMapIntensity: 0.5 }),
+    knuckle: new THREE.MeshStandardMaterial({ color: 0x15161a, roughness: 0.4, metalness: 0.2, envMapIntensity: 0.8 }),
+    palm: new THREE.MeshStandardMaterial({ color: 0x4a3d30, roughness: 0.75, envMapIntensity: 0.4 }),
+    strap: new THREE.MeshStandardMaterial({ color: 0x3a3c40, roughness: 0.85 }),
+  };
+  return GLOVE_MATS;
+}
+// rounded box: push the vertices of a subdivided box out onto rounded corners
+function roundedBox(w, h, d, r, seg = 4) {
+  const g = new THREE.BoxGeometry(w, h, d, seg, seg, seg), p = g.attributes.position, v = new THREE.Vector3(), inner = new THREE.Vector3(w / 2 - r, h / 2 - r, d / 2 - r);
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i); const c = v.clone().clamp(inner.clone().negate(), inner); const dir = v.clone().sub(c);
+    if (dir.lengthSq() > 1e-12) v.copy(c).add(dir.normalize().multiplyScalar(r)); p.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.computeVertexNormals(); return g;
+}
+function capsuleBetween(a, b, r, mat) {
+  const d = new THREE.Vector3().subVectors(b, a), L = d.length();
+  const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, Math.max(0.001, L), 4, 10), mat);
+  m.position.copy(a).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); return m;
+}
+
+// Restyle the parkour arms to match: tactical sleeves and full gloves
+function restyleArms(arms) {
+  const M = gloveMats();
+  for (const root of [arms.R, arms.L]) root.traverse((o) => {
+    if (!o.isMesh) return; const c = o.material.color && o.material.color.getHex();
+    if (c === 0xd2382b) o.material = M.sleeve; else if (c === 0xc9c2b6 || c === 0xf2efe8) o.material = M.cuff;
+    else if (c === 0xd59b74) o.material = M.glove; else if (c === 0x1d1d20) o.material = M.palm;
+  });
+  arms.handle.material.envMapIntensity = 1;
+}
+
+// A gloved fist built around a knife's grip (hand frame)
+function buildGlovedFist(K) {
+  const M = gloveMats(), g = new THREE.Group(), rev = K.hold === 'reverse';
+  const { cx, cz } = HAND, rx = K.grip.hz + 0.0128, rz = K.grip.hy + 0.012;
+  const ell = (cxx, czz, ax, az, phi, y) => new THREE.Vector3(cxx + ax * Math.sin(phi), y, czz - az * Math.cos(phi));
+  const fingers = [];
+  const ys = [0.027, 0.0085, -0.0105, -0.0285], rad = [0.0099, 0.0103, 0.0097, 0.0086];
+  const angles = [1.05, 0.05, -1.3, -2.25];
+  ys.forEach((y, i) => {
+    const f = new THREE.Group(); f.position.set(cx, y, cz); g.add(f);
+    let ccx = 0, ccz = 0, ax = rx, az = rz;
+    if (K.ringFinger === i && K.ringC) { ax = az = 0.0125; ccz = K.ringC[1]; } // finger through the karambit ring
+    const pts = angles.map((a, k) => ell(ccx, ccz, ax * (1 + k * 0.04), az * (1 + k * 0.04), a - (i === 3 ? 0.15 : 0), 0));
+    for (let k = 0; k < 3; k++) f.add(capsuleBetween(pts[k], pts[k + 1], rad[i] * (1 - k * 0.1), M.glove));
+    const kn = new THREE.Mesh(new THREE.SphereGeometry(rad[i] * 1.12, 12, 10), M.glove); kn.position.copy(pts[0]); f.add(kn);
+    f.userData.base = f.rotation.y; fingers.push(f);
+  });
+  // back of the hand + palm, knuckle guard, wrist cuff with strap
+  const back = new THREE.Mesh(roundedBox(0.03, 0.082, 0.088, 0.012), M.glove); back.position.set(cx + rx * 0.62, -0.002, -0.026); back.rotation.y = -0.12; g.add(back);
+  const pad = new THREE.Mesh(roundedBox(0.016, 0.066, 0.05, 0.006), M.palm); pad.position.set(cx + rx * 0.05, -0.006, -0.02); g.add(pad);
+  const guard = new THREE.Mesh(roundedBox(0.012, 0.074, 0.024, 0.005), M.knuckle); guard.position.set(cx + rx * 1.05, 0, cz - rz * 0.55); guard.rotation.y = -0.6; g.add(guard);
+  for (let k = 0; k < 4; k++) { const b = new THREE.Mesh(roundedBox(0.006, 0.012, 0.012, 0.0025), M.knuckle); b.position.set(cx + rx * 1.12, ys[k], cz - rz * 0.62); b.rotation.y = -0.6; g.add(b); }
+  const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.037, 0.035, 0.034, 18), M.glove); cuff.rotation.x = Math.PI / 2; cuff.position.set(0.004, 0, 0.012); g.add(cuff);
+  const strap = new THREE.Mesh(roundedBox(0.012, 0.05, 0.022, 0.004), M.strap); strap.position.set(0.04, 0.0, 0.012); g.add(strap);
+  // thumb wraps over the index finger on the inner side
+  const tb = [new THREE.Vector3(cx + rx * 0.25, 0.04, -0.012), new THREE.Vector3(cx - rx * 0.25, 0.046, cz + rz * 0.35), new THREE.Vector3(cx - rx * 0.95, 0.037, cz - rz * 0.25)];
+  if (rev) { tb[1].y = 0.05; tb[2].set(cx - rx * 0.4, 0.052, cz - rz * 0.7); }
+  const thumb = new THREE.Group(); thumb.add(capsuleBetween(tb[0], tb[1], 0.0118, M.glove), capsuleBetween(tb[1], tb[2], 0.0102, M.glove)); g.add(thumb);
+  g.userData.fingers = fingers;
+  g.traverse((o) => { if (o.isMesh) o.castShadow = false; });
+  return g;
+}
+
+Arms.prototype.setKnife = function (item) {
+  const R = this.R, arm = R.userData.arm, hand = R.userData.hand;
+  if (this.knife) { this.wrist.parent.remove(this.wrist); disposeKnife(this.knife); this.knife = null; }
+  this.item = item || null; this.anim = this.anim || new KnifeAnimator();
+  hand.visible = !item;
+  if (!item) return;
+  const K = buildKnife(item); this.knife = K; const rev = K.hold === 'reverse';
+  this.hold = holdRot(HOLDS[K.hold]);
+  this.wrist = new THREE.Group(); this.wrist.position.set(0, 0, -0.3); arm.add(this.wrist);
+  this.wristBase = new THREE.Group(); this.wrist.add(this.wristBase);
+  this.wristAnim = new THREE.Group(); this.wristBase.add(this.wristAnim);
+  this.fist = buildGlovedFist(K); this.wristAnim.add(this.fist);
+  this.holder = new THREE.Group(); this.holder.position.set(HAND.cx, 0, HAND.cz); this.wristAnim.add(this.holder);
+  this.holderAnim = new THREE.Group(); this.holder.add(this.holderAnim); this.holderAnim.add(K.root);
+  const m = new THREE.Matrix4();
+  if (rev) m.makeBasis(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(-1, 0, 0));
+  else m.makeBasis(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(1, 0, 0));
+  K.root.quaternion.setFromRotationMatrix(m);
+  const gm = (K.grip.x0 + K.grip.x1) / 2;
+  if (K.ringFinger != null && K.ringC) K.root.position.set(0, (rev ? 0.027 + K.ringC[0] : -0.0285 - K.ringC[0]), 0); else K.root.position.set(0, -gm, 0);
+  this.anim.setType(K.type); this.fx = null;
+  if (this.scene.environment) this.applyEnv();
+};
+Arms.prototype.applyEnv = function (k) {
+  if (k !== undefined) this.envK = k;
+  if (!this.knife) return;
+  this.knife.root.traverse((o) => { if (o.isMesh && o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = (this.envK ?? 1) * 1.15; });
+};
+Arms.prototype.knifeUpdate = function (dt, sfx, lookDX = 0, lookDY = 0) {
+  // viewmodel sway: the arms lag a little behind mouse movement, like CS
+  this.swX = damp(this.swX || 0, clamp(-lookDX * 0.0016, -0.07, 0.07), 9, dt);
+  this.swY = damp(this.swY || 0, clamp(-lookDY * 0.0016, -0.05, 0.05), 9, dt);
+  for (const r of [this.R, this.L]) { r.rotation.y += this.swX; r.rotation.x += this.swY; r.position.x += this.swX * 0.12; r.position.y -= this.swY * 0.1; }
+  if (!this.knife) { this.fx = null; return; }
+  const out = this.anim.update(dt, sfx) || {}; this.fx = out;
+  const K = this.knife;
+  const ap = out.ap || Z3, ar = out.ar || Z3, w = G.wOver || out.w || Z3, kp = out.kp || Z3, kr = out.kr || Z3;
+  this.R.position.x += ap[0]; this.R.position.y += ap[1]; this.R.position.z += ap[2];
+  this.R.rotation.x += ar[0]; this.R.rotation.y += ar[1]; this.R.rotation.z += ar[2];
+  const hw = this.hold.wrist; this.wristBase.rotation.set(hw[0], hw[1], hw[2], 'XYZ'); this.wristAnim.rotation.set(w[0], w[1], w[2], 'XYZ');
+  this.holderAnim.position.set(kp[0], kp[1], kp[2]); this.holderAnim.rotation.set(kr[0], kr[1], kr[2], 'XYZ');
+  const fo = out.fo || 0;
+  this.fist.userData.fingers.forEach((f, i) => { if (K.ringFinger === i) return; f.rotation.y = -fo * 0.9; f.position.x = HAND.cx + fo * 0.008; });
+  K.setJoint('j1', out.j1 ?? 0); K.setJoint('j2', out.j2 ?? 0);
+};
 
 // ---- game.js
 // ============================================================================
@@ -3786,7 +3961,7 @@ function clearWorld() {
   for (const e of G.extras) disposeGroup(e); G.extras = []; G.lamps = null;
   scene.remove(pickups.group); pickups.group.traverse((o) => { if (o.geometry && o.geometry !== pickups.ringGeo) o.geometry.dispose(); });
   pickups = new Pickups(); scene.add(pickups.group);
-  pigeons.set([]); particles.clear(); G.endless = null;
+  pigeons.set([]); particles.clear(); G.endless = null; G.esurf = null;
 }
 function getCourse(i) { if (!G.courses[i]) G.courses[i] = buildCourse(LEVELS[i]); return G.courses[i]; }
 function setupLevelWorld(i) {
@@ -3934,7 +4109,7 @@ function enterMenu() {
   if (document.pointerLockElement) document.exitPointerLock();
   showMainNav(); refreshMenu(); startAttract(G.attractIdx ?? 0);
 }
-function showMainNav() { $('mainNav').hidden = false; $('levelNav').hidden = true; $('surfNav').hidden = true; $('knifeNav').hidden = true; G.view = 'main'; }
+function showMainNav() { $('mainNav').hidden = false; $('levelNav').hidden = true; $('surfNav').hidden = true; $('knifeNav').hidden = true; $('misNav').hidden = true; G.view = 'main'; }
 function startAttract(i) {
   G.attractIdx = i; setupLevelWorld(i); newRun(); G.mode = 'attract'; G.bot = new Bot(G.course); G.attractEnd = 0; G.ghostData = null; ghost.apply(null);
 }
@@ -3975,7 +4150,7 @@ function enterPlay() {
   requestLock(); updateHudStatic();
 }
 function updateHudStatic() {
-  const c = G.course; if (G.mode === 'surf') { $('hCp').textContent = `${T('stage')} ${G.run.stage + 1}/${G.run.m.stages.length}`; return; }
+  const c = G.course; if (G.mode === 'surf') { $('hCp').textContent = G.esurf ? `${T('stage')} ${G.esurf.cleared + 1}` : `${T('stage')} ${G.run.stage + 1}/${G.run.m.stages.length}`; return; }
   $('hRings').textContent = `${G.run ? G.run.rings.size : 0}/${c.rings.length}`;
   if (G.mode === 'surf') { $('hCp').textContent = `${T('stage')} ${G.run.stage + 1}/${G.run.m.stages.length}`; return; }
   if (G.mode === 'level') $('hCp').textContent = `${T('cps')} ${G.run.cpIndex}/${c.cps.length - 1}`;
@@ -3983,7 +4158,7 @@ function updateHudStatic() {
 }
 function restartRun() {
   if (G.mode === 'endless') { startEndless(); return; }
-  if (G.mode === 'surf') { startSurf(G.surfIdx); return; }
+  if (G.mode === 'surf') { if (G.surfIdx === -1) startESurf(); else startSurf(G.surfIdx); return; }
   if (G.mode !== 'level') return;
   newRun(); $('startmsg').hidden = false; updateHudStatic(); $('timer').textContent = fmt(0); sound.play('spawn');
 }
@@ -4002,6 +4177,7 @@ function finishLevel() {
   const prevMedal = lv.medal || 0, newMedal = medalFor(i, t);
   lv.rings = Math.max(lv.rings || 0, run.rings.size); lv.medal = Math.max(prevMedal, newMedal);
   const earned = 15 + run.rings.size * 5 + medalBonus(prevMedal, newMedal) + (isPB && prevBest ? 10 : 0); addCoins(earned);
+  addXP(120 + newMedal * 40); track('course'); if (newMedal >= 2) track('medal2'); tallyRun();
   persist();
   G.state = 'results'; if (document.pointerLockElement) document.exitPointerLock(); sound.silenceLoops();
   showScreen('results', true); showScreen('touch', false);
@@ -4018,7 +4194,7 @@ function finishLevel() {
 function endEndless() {
   const d = G.endless.dist, prev = SAVE.endless.best || 0, isBest = d > prev;
   if (isBest) { SAVE.endless.best = d; }
-  const earned = Math.floor(d / 20); addCoins(earned); persist();
+  const earned = Math.floor(d / 20); addCoins(earned); addXP(d / 5); trackMax('endless', Math.round(d)); tallyRun(); persist();
   G.state = 'results'; if (document.pointerLockElement) document.exitPointerLock(); sound.silenceLoops(); sound.play('finish');
   showScreen('results', true); showScreen('touch', false);
   $('rTitle').innerHTML = `<span class="hl">${T('gameover')}</span>`;
@@ -4039,13 +4215,13 @@ function handleEvents(live) {
       case 'jump': if (live) sound.play('jump'); particles.burst(p.x, p.y + 0.05, p.z, 6, 1.6, 0.6, 0.3, dust, { alpha: 0.35 }); break;
       case 'land': if (live) sound.play('land', e.v); G.springV -= Math.min(e.v, 22) * 0.028; particles.burst(p.x, p.y + 0.05, p.z, 6 + (e.v | 0), 2 + e.v * 0.08, 0.8, 0.4, dust, { alpha: 0.4 }); if (e.v > 8) pigeons.scare(p.x, p.y, p.z, 9, null); break;
       case 'hardland': if (live) { sound.play('hardland'); toast(T('ouch'), 0.8); } G.springV -= 0.9; G.shake = 0.5; particles.burst(p.x, p.y + 0.05, p.z, 24, 4, 1, 0.6, dust, { alpha: 0.5 }); break;
-      case 'roll': if (live) { sound.play('roll'); toast(T('roll'), 0.8); } particles.burst(p.x, p.y + 0.05, p.z, 18, 3, 0.9, 0.5, dust, { alpha: 0.45 }); break;
+      case 'roll': if (live) { sound.play('roll'); toast(T('roll'), 0.8); track('roll'); } particles.burst(p.x, p.y + 0.05, p.z, 18, 3, 0.9, 0.5, dust, { alpha: 0.45 }); break;
       case 'slide': if (live) sound.play('slide'); break;
       case 'vault': case 'mantle': if (live) sound.play('mantle'); G.springV -= 0.12; break;
-      case 'wallrun': if (live) sound.play('wallrun'); break;
+      case 'wallrun': if (live) { sound.play('wallrun'); track('wallrun'); } break;
       case 'walljump': if (live) sound.play('walljump'); G.springV += 0.08; break;
       case 'climb': if (live) sound.play('climb'); break;
-      case 'zipon': if (live) sound.play('zipon'); G.springV -= 0.25; break;
+      case 'zipon': if (live) { sound.play('zipon'); track('zipon'); } G.springV -= 0.25; break;
       case 'zipoff': if (live) sound.play('zipoff'); break;
       case 'spawn': G.prev = { x: p.x, y: p.y, z: p.z }; G.camYaw = p.yaw; G.eyeH = PC.eye; G.fadeTarget = 0; if (live) sound.play('spawn'); break;
     }
@@ -4066,7 +4242,7 @@ function handleEvents(live) {
       }
       case 'ring': {
         const pos = pickups.take(e.v); if (pos) particles.burst(pos.x, pos.y, pos.z, 30, 5, 0.9, 0.35, [1, 0.78, 0.35], { alpha: 0.9, drag: 3 });
-        if (live) { sound.play('ring'); toast(T('ring'), 0.9); if (G.mode === 'endless') G.endless.left += 3; } updateHudStatic(); break;
+        if (live) { sound.play('ring'); toast(T('ring'), 0.9); if (G.mode === 'endless') G.endless.left += 3; track('ring'); addXP(15); } updateHudStatic(); break;
       }
       case 'die': G.fadeTarget = 1; if (live) sound.play('die'); break;
       case 'finish': {
@@ -4194,7 +4370,7 @@ function loop(now) {
     if (playing) {
       const s = 0.0022 * SAVE.settings.sens;
       if (!p.yawTween && p.state !== 'roll') { p.yaw -= G.mdx * s; p.pitch = clamp(p.pitch - G.mdy * s * (SAVE.settings.inv ? -1 : 1), -1.53, 1.53); }
-      G.mdx = G.mdy = 0;
+      G.lookDX = G.mdx; G.lookDY = G.mdy; G.mdx = G.mdy = 0;
     }
     const sdt = dt * G.slowmo;
     physicsSteps(sdt, live && playing);
@@ -4204,7 +4380,7 @@ function loop(now) {
     }
     if (G.finishT > 0) { G.finishT -= dt; G.slowmo = damp(G.slowmo, 1, 1.5, dt); if (G.finishT <= 0) { G.slowmo = 1; (G.mode === 'surf' ? finishSurf : finishLevel)(); } }
     if (G.mode === 'endless' && playing) updateEndless(dt);
-    if (G.mode === 'surf' && playing) updateSurfHud();
+    if (G.mode === 'surf' && playing) { updateSurfHud(); if (G.esurf) updateESurf(dt); }
   }
   const alpha = clamp(G.acc / DT, 0, 1);
   const sp = updateCamera(dt, p, alpha);
@@ -4217,7 +4393,7 @@ function loop(now) {
   pigeons.update(dt, G.time); pickups.update(dt, G.time);
   const mk = p.state === 'mantle' && p.mantle ? p.mantle.t / p.mantle.dur : 0;
   arms.update(dt, p, G.time, clamp(-G.springY * 3, 0, 1), mk);
-  arms.knifeUpdate(dt, live && playing ? (k) => sound.play('k_' + k) : null);
+  arms.knifeUpdate(dt, live && playing ? (k) => sound.play('k_' + k) : null, playing ? G.lookDX || 0 : 0, playing ? G.lookDY || 0 : 0); G.lookDX = G.lookDY = 0;
   sky.position.copy(camera.position); sky.material.uniforms.time.value = G.time;
   // ghost
   if (G.ghostData && run.started && (G.mode === 'level' || G.mode === 'surf')) ghost.apply(ghostAt(G.ghostData, run.time), dt, camera.position); else ghost.apply(null);
@@ -4314,7 +4490,7 @@ function wireUI() {
   click('pCp', () => { resumeGame(); toCheckpoint(); });
   click('pSettings', openSettings);
   click('pQuit', () => { showScreen('pause', false); enterMenu(); });
-  click('rRetry', () => { if (G.mode === 'endless') startEndless(); else if (G.mode === 'surf') startSurf(G.surfIdx); else startLevel(G.levelIdx); });
+  click('rRetry', () => { if (G.mode === 'endless') startEndless(); else if (G.mode === 'surf') { if (G.surfIdx === -1) startESurf(); else startSurf(G.surfIdx); } else startLevel(G.levelIdx); });
   click('rNext', () => { if (G.mode === 'surf') startSurf(Math.min(SURF_MAPS.length - 1, G.surfIdx + 1)); else startLevel(Math.min(LEVELS.length - 1, G.levelIdx + 1)); });
   click('rMenu', enterMenu);
   document.querySelectorAll('.nav button, .rowbtn').forEach((b) => b.addEventListener('mouseenter', () => sound.play('hover')));
@@ -4336,7 +4512,7 @@ async function boot() {
   motes = new Motes(170); scene.add(motes.mesh);
   pigeons = new Pigeons(90); scene.add(pigeons.group);
   pickups = new Pickups(); scene.add(pickups.group);
-  arms = new Arms(); ghost = new Ghost(); scene.add(ghost.g);
+  arms = new Arms(); restyleArms(arms); ghost = new Ghost(); scene.add(ghost.g);
   const env = makeEnv(renderer); arms.scene.environment = env; showcase = new Showcase(env);
   equipKnife(SAVE.equipped, true);
   composer = new EffectComposer(renderer);
@@ -4351,16 +4527,202 @@ async function boot() {
   for (let i = 0; i < LEVELS.length; i++) { simulateDev(i); await nextFrame(); }
   for (let i = 0; i < SURF_MAPS.length; i++) { simulateSurf(i); await nextFrame(); }
   $('loadmsg').textContent = T('loading2'); await nextFrame();
-  wireUI(); if (IS_TOUCH) setupTouch();
+  wireUI(); if (IS_TOUCH) setupTouch(); progressInit(); updateProgressUI();
   G.attractIdx = 0; enterMenu();
   // warm up shaders
   renderer.compile(scene, camera);
   $('loading').style.opacity = 0; setTimeout(() => { $('loading').hidden = true; }, 650);
   window.__dachy = { G, SAVE, LEVELS, startLevel, startEndless, enterMenu, startSurf, openKnives, equipKnife, openCase, get arms() { return arms; },
     giveKnife: (t, f, w = 0.02, s = 3) => { const k = { id: 'dbg' + t + f, t, f, w, s, at: Date.now() }; SAVE.knives.push(k); equipKnife(k.id); return k.id; },
-    pose: (name, t) => { arms.anim.play(name); arms.anim.t = t; } };
+    pose: (name, t) => { arms.anim.play(name); arms.anim.t = t; }, HOLDS, holdRot, hideWorld: (on) => { scene.visible = !on; }, startESurf };
 }
 function startGame() { requestAnimationFrame(loop); boot().catch((e) => { console.error(e); $('loadmsg').textContent = 'Error: ' + e.message; }); }
+
+// ---- progress.js
+// ============================================================================
+// PROGRESS — XP & levels (each level = a case key), daily missions, collection,
+// trade-up contracts, Tally knives, and Endless Surf.
+// ============================================================================
+Object.assign(STR.en, {
+  missions: 'Missions', missions_s: 'New every day', level: 'Level', keys: 'keys', key1: 'key', open_key: 'Open with key', levelup: 'Level up! +1 case key', mission_done: 'Mission complete',
+  collection: 'Collection', tradeup: 'Trade up', tradeup_hint: 'Pick 5 knives of the same rarity (not Legendary). You get one knife of the next rarity.', tradeup_go: 'Trade 5 for 1', tradeup_need: 'Selected', tally: 'Tally', tally_runs: 'runs finished with this knife',
+  esurf: 'Endless surf', esurf_s: 'New stages until the clock runs out', stages_cleared: 'Stages cleared', time_left: 'Time', reward: 'Reward', resets: 'Resets at midnight',
+  tab_inv: 'Inventory', tab_coll: 'Collection', tab_trade: 'Trade up',
+  m_course: 'Finish {n} courses', m_medal: 'Get silver or better on a course', m_rings: 'Collect {n} pretzel rings', m_wall: 'Wall-run {n} times', m_roll: 'Roll {n} big landings', m_zip: 'Ride {n} ziplines',
+  m_sstage: 'Clear {n} surf stages', m_sspeed: 'Reach {n} u/s in surf', m_endless: 'Run {n} m in one endless run', m_inspect: 'Inspect your knife {n} times', m_hit: 'Hit {n} walls with your knife', m_case: 'Open {n} case', m_esurf: 'Clear {n} stages in one Endless Surf run',
+});
+Object.assign(STR.pl, {
+  missions: 'Misje', missions_s: 'Nowe codziennie', level: 'Poziom', keys: 'klucze', key1: 'klucz', open_key: 'Otwórz kluczem', levelup: 'Nowy poziom! +1 klucz do skrzyni', mission_done: 'Misja wykonana',
+  collection: 'Kolekcja', tradeup: 'Wymiana', tradeup_hint: 'Wybierz 5 noży tej samej rzadkości (nie legendarnych). Dostaniesz jeden nóż wyższej rzadkości.', tradeup_go: 'Wymień 5 na 1', tradeup_need: 'Wybrano', tally: 'Licznik', tally_runs: 'ukończonych biegów z tym nożem',
+  esurf: 'Surf bez końca', esurf_s: 'Nowe etapy, aż skończy się czas', stages_cleared: 'Ukończone etapy', time_left: 'Czas', reward: 'Nagroda', resets: 'Odnawiają się o północy',
+  tab_inv: 'Ekwipunek', tab_coll: 'Kolekcja', tab_trade: 'Wymiana',
+  m_course: 'Ukończ {n} trasy', m_medal: 'Zdobądź srebro lub lepiej na trasie', m_rings: 'Zbierz {n} obwarzanków', m_wall: 'Biegnij po ścianie {n} razy', m_roll: 'Zrób {n} przewroty', m_zip: 'Zjedź na linie {n} razy',
+  m_sstage: 'Ukończ {n} etapów surfu', m_sspeed: 'Osiągnij {n} u/s w surfie', m_endless: 'Przebiegnij {n} m w jednym biegu bez końca', m_inspect: 'Obejrzyj nóż {n} razy', m_hit: 'Uderz nożem w ścianę {n} razy', m_case: 'Otwórz {n} skrzynię', m_esurf: 'Ukończ {n} etapów w jednym surfie bez końca',
+});
+
+// ---------------------------------------------------------------- save fields
+function progressInit() {
+  SAVE.level = SAVE.level || 1; SAVE.xp = SAVE.xp || 0; SAVE.keys = SAVE.keys || 0; SAVE.coll = SAVE.coll || {}; SAVE.esurfBest = SAVE.esurfBest || 0;
+  if (SAVE.freeCase) { SAVE.keys += 1; SAVE.freeCase = false; }
+  for (const k of SAVE.knives) SAVE.coll[k.t + ':' + k.f] = 1;
+  ensureMissions(); persist();
+}
+const xpFor = (lv) => 450 + lv * 150;
+function addXP(n) {
+  if (!n) return; SAVE.xp += Math.round(n); let up = false;
+  while (SAVE.xp >= xpFor(SAVE.level)) { SAVE.xp -= xpFor(SAVE.level); SAVE.level++; SAVE.keys = (SAVE.keys || 0) + 1; up = true; }
+  if (up) { sound.play('case_reveal', 2); if (G.state === 'playing') toast(T('levelup'), 1.6, true); }
+  updateProgressUI();
+}
+
+// ---------------------------------------------------------------- daily missions
+const MISSIONS = [
+  { id: 'm_course', ev: 'course', n: 2, coins: 50 }, { id: 'm_medal', ev: 'medal2', n: 1, coins: 60 }, { id: 'm_rings', ev: 'ring', n: 6, coins: 50 },
+  { id: 'm_wall', ev: 'wallrun', n: 20, coins: 45 }, { id: 'm_roll', ev: 'roll', n: 4, coins: 45 }, { id: 'm_zip', ev: 'zipon', n: 5, coins: 45 },
+  { id: 'm_sstage', ev: 'sstage', n: 6, coins: 60 }, { id: 'm_sspeed', ev: 'sspeed', n: 1500, max: true, coins: 70 }, { id: 'm_endless', ev: 'endless', n: 800, max: true, coins: 60 },
+  { id: 'm_inspect', ev: 'inspect', n: 10, coins: 30 }, { id: 'm_hit', ev: 'hit', n: 25, coins: 40 }, { id: 'm_case', ev: 'case', n: 1, coins: 40 }, { id: 'm_esurf', ev: 'esurf', n: 5, max: true, coins: 80 },
+];
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+function ensureMissions() {
+  const day = today(); if (SAVE.missions && SAVE.missions.day === day) return;
+  const rng = RNG([...day].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) >>> 0), pool = MISSIONS.slice(), list = [];
+  while (list.length < 3) { const m = pool.splice(Math.floor(rng() * pool.length), 1)[0]; list.push({ id: m.id, p: 0, done: false }); }
+  SAVE.missions = { day, list };
+}
+function track(ev, amount = 1, isMax = false) {
+  if (G.mode === 'attract') return; ensureMissions(); let changed = false;
+  for (const m of SAVE.missions.list) {
+    const def = MISSIONS.find((x) => x.id === m.id); if (!def || def.ev !== ev || m.done) continue;
+    m.p = def.max ? Math.max(m.p, amount) : m.p + amount; changed = true;
+    if (m.p >= def.n) { m.done = true; m.p = def.n; addCoins(def.coins); addXP(200); if (G.state === 'playing') toast(`${T('mission_done')} +${def.coins}`, 1.6, true); }
+  }
+  if (changed) { persist(); updateProgressUI(); }
+}
+const trackMax = (ev, v) => track(ev, v, true);
+function missionText(m) { const def = MISSIONS.find((x) => x.id === m.id); return T(m.id).replace('{n}', def.n); }
+function renderMissions() {
+  ensureMissions(); const box = $('missionList'); if (!box) return;
+  box.innerHTML = SAVE.missions.list.map((m) => { const def = MISSIONS.find((x) => x.id === m.id); const f = Math.min(1, m.p / def.n);
+    return `<div class="mis ${m.done ? 'done' : ''}"><div><b>${missionText(m)}</b><span>${T('reward')}: ${def.coins} · 200 XP</span></div><div class="bar"><i style="width:${(f * 100).toFixed(0)}%"></i></div><small>${m.done ? '✓' : `${Math.floor(m.p)}/${def.n}`}</small></div>`; }).join('') + `<p class="navnote">${T('resets')}</p>`;
+}
+function updateProgressUI() {
+  const el = $('lvBadge'); if (!el) return;
+  el.innerHTML = `<b>${T('level')} ${SAVE.level}</b><span class="xp"><i style="width:${(SAVE.xp / xpFor(SAVE.level) * 100).toFixed(1)}%"></i></span><span>${SAVE.keys || 0} ${(SAVE.keys || 0) === 1 ? T('key1') : T('keys')}</span>`;
+  const ms = $('misSub'); if (ms) { ensureMissions(); ms.textContent = `${SAVE.missions.list.filter((m) => m.done).length}/3`; }
+  updateCoins(); renderMissions();
+}
+
+// ---------------------------------------------------------------- Tally knives (count finished runs while equipped)
+function tallyRun() { const k = knifeById(SAVE.equipped); if (k && k.tally != null) { k.tally++; persist(); } }
+
+// ---------------------------------------------------------------- collection + trade-up
+function renderCollection() {
+  const box = $('collGrid'); const have = SAVE.coll || {}; let n = 0;
+  let h = '<div class="coll"><span></span>' + FINISHES.map((f) => `<i class="ch" style="background:${RARITIES[f.r].col}" title="${f.name[LANG]}"></i>`).join('');
+  for (const t of KNIFE_TYPES) { h += `<span class="cl">${KNIFE_NAMES[t][LANG]}</span>`; for (const f of FINISHES) { const own = have[t + ':' + f.id]; if (own) n++; h += `<i class="cc ${own ? 'on' : ''}" style="--rc:${RARITIES[f.r].col}" title="${KNIFE_NAMES[t][LANG]} | ${f.name[LANG]}"></i>`; } }
+  box.innerHTML = h + `</div><p class="navnote"><b>${n}/${KNIFE_TYPES.length * FINISHES.length}</b> · ${FINISHES.map((f) => f.name[LANG]).slice(0, 0).join('')}${LANG === 'pl' ? 'Otwieraj skrzynie i wymieniaj noże, by uzupełnić kolekcję.' : 'Open cases and trade up to fill the book.'}</p>`;
+}
+function tradeUp() {
+  const sel = G.tradeSel || []; if (sel.length !== 5) return;
+  const ks = sel.map(knifeById); const r = knifeRarity(ks[0]); if (r >= 4 || ks.some((k) => !k || knifeRarity(k) !== r)) return;
+  const pool = FINISHES.filter((f) => f.r === r + 1); const f = pool[Math.floor(Math.random() * pool.length)];
+  const t = ks[Math.floor(Math.random() * 5)].t, w = Math.round(ks.reduce((a, k) => a + k.w, 0) / 5 * 1e4) / 1e4;
+  const item = { id: Date.now().toString(36) + 't' + Math.floor(Math.random() * 1e5).toString(36), t, f: f.id, w, s: Math.floor(Math.random() * 1000), at: Date.now() };
+  if (ks.some((k) => k.tally != null)) item.tally = 0;
+  SAVE.knives = SAVE.knives.filter((k) => !sel.includes(k.id)); if (sel.includes(SAVE.equipped)) equipKnife(null, true);
+  SAVE.knives.push(item); SAVE.coll[t + ':' + f.id] = 1; G.tradeSel = []; addXP(100); persist();
+  runRoulette(item);
+}
+
+// ---------------------------------------------------------------- Endless Surf
+function genSurfStage(rng, n) {
+  const d = Math.min(1, n / 12), k = rng.int(2, 3 + (d > 0.5 ? 1 : 0)), ramps = [];
+  const W = () => lerp(13, 9.2, d) + rng.range(-0.5, 0.5);
+  ramps.push({ L: rng.range(55, 80), W: W(), H: rng.range(19, 22), drop: rng.range(7, 11) });
+  for (let i = 1; i < k; i++) {
+    const turn = (rng.chance(0.5) ? 1 : -1) * rng.range(0, 0.25 + d * 0.4);
+    ramps.push({ gap: rng.range(16, 22 + d * 6), dy: -8, L: rng.range(50, 80), W: W(), H: rng.range(18, 22), drop: rng.range(5, 10), turn, side: rng.chance(0.3) ? rng.range(-3, 3) : 0 });
+  }
+  return { ramps };
+}
+function makeESurfMap(n, seed) {
+  const themes = ['noon', 'sunset', 'dusk', 'night', 'morning'];
+  for (let tries = 0; tries < 8; tries++) {
+    const rng = RNG(seed + n * 977 + tries * 31);
+    const def = { id: 'esurf', theme: themes[Math.floor(n / 3) % themes.length], tier: 2, y0: 440, name: { pl: 'Bez końca', en: 'Endless' }, desc: { pl: '', en: '' }, stages: [genSurfStage(rng, n)] };
+    const map = buildSurfMap(def), run = new SurfRun(map), bot = new SurfBot(map); let t = 0;
+    while (t < 40 && !run.finished && run.fails === 0) { run.step(bot.input(run), DT); t += DT; run.p.events.length = 0; run.events.length = 0; }
+    if (run.finished) { map.botTime = run.time; return map; }
+  }
+  return buildSurfMap({ id: 'esurf', theme: 'noon', tier: 1, y0: 440, name: { pl: '', en: '' }, desc: { pl: '', en: '' }, stages: [SURF_MAPS[0].stages[n % 4]] });
+}
+function startESurf() {
+  sound.init(); clearWorld(); G.mode = 'surf'; G.surfIdx = -1;
+  const seed = (Math.random() * 1e9) | 0;
+  G.esurf = { seed, n: 0, left: 40, cleared: 0, started: false, group: null };
+  const map = makeESurfMap(0, seed);
+  const city = { objs: [], props: [], decor: [], zips: [], signs: [], bg: [], step: 20 };
+  genBackground({ minx: -500, maxx: 500, minz: -700, maxz: 300 }, new World(), RNG(seed), 0, 0, city);
+  const cg = buildChunkGroup(city, 3); cg.traverse((o) => { if (o.isMesh) o.castShadow = false; }); scene.add(cg); G.extras.push(cg);
+  const lm = makeLandmarks({ minx: -200, maxx: 200, minz: -400, maxz: 100 }, THEMES.noon, 9); scene.add(lm); G.extras.push(lm);
+  G.course = { hints: [], rings: [], cps: [], finish: null }; ground.position.set(0, 0, 0);
+  loadESurfStage(map); G.ghostData = null; ghost.apply(null);
+  enterPlay();
+  $('hLevel').textContent = T('esurf'); $('hBest').textContent = `${T('endBest')} ${SAVE.esurfBest || 0}`;
+  $('endless').hidden = false; $('timer').parentElement.parentElement.hidden = true;
+}
+function loadESurfStage(map) {
+  const E = G.esurf;
+  if (E.group) disposeGroup(E.group);
+  E.group = buildSurfGroup(map, LANG); scene.add(E.group); E.map = map;
+  G.groups = G.groups.filter((g) => g !== E.group); G.groups.push(E.group);
+  applyTheme(surfTheme(map.def.theme));
+  G.run = new SurfRun(map); const p = G.run.p;
+  G.prev = { x: p.x, y: p.y, z: p.z }; G.acc = 0; G.rec = []; G.eyeH = PC.eye; G.springY = G.springV = 0; G.finishT = 0; G.slowmo = 1; G.fade = 0.8;
+  if (G.autoBot) G.bot = new SurfBot(map);
+}
+function esurfStageDone() {
+  const E = G.esurf; E.cleared++; E.n++;
+  const bonus = Math.round(clamp((E.map.botTime || 14) * 1.7, 18, 32)); E.left += bonus;
+  addCoins(8); addXP(50); track('sstage'); trackMax('esurf', E.cleared);
+  sound.play('cp'); toast(`${T('stage')} ${E.cleared + 1} · +${bonus}s`, 1.3);
+  loadESurfStage(makeESurfMap(E.n, E.seed)); updateHudStatic();
+}
+function updateESurf(dt) {
+  const E = G.esurf; if (!E || G.state !== 'playing') return;
+  if (G.run.started) E.started = true;
+  if (E.started) { E.left -= dt; if (E.left <= 5 && Math.floor(E.left + dt) !== Math.floor(E.left)) sound.play('tick'); }
+  $('eLeft').textContent = Math.max(0, E.left).toFixed(1); $('eLeft').classList.toggle('low', E.left < 6); $('eDist').textContent = `${T('stages_cleared')}: ${E.cleared}`;
+  if (E.left <= 0) endESurf();
+}
+function endESurf() {
+  const E = G.esurf, best = SAVE.esurfBest || 0, isBest = E.cleared > best; if (isBest) SAVE.esurfBest = E.cleared;
+  const earned = E.cleared * 4; addCoins(earned); tallyRun(); persist();
+  G.state = 'results'; if (document.pointerLockElement) document.exitPointerLock(); sound.silenceLoops(); sound.play('finish');
+  showScreen('results', true); showScreen('touch', false);
+  $('rTitle').innerHTML = `<span class="hl">${T('gameover')}</span>`;
+  $('rTime').textContent = `${E.cleared}`; $('rPB').hidden = !isBest; $('rPB').textContent = T('newBest');
+  $('rMeta').innerHTML = `<span>${T('stages_cleared')} <b>${E.cleared}</b></span><span>${T('endBest')} <b>${Math.max(best, E.cleared)}</b></span><span>${T('coins_earned')} <b>+${earned + E.cleared * 8}</b></span>`;
+  $('rMedal').innerHTML = ''; $('rTargets').innerHTML = ''; $('rNext').hidden = true;
+}
+
+// ---------------------------------------------------------------- knives screen tabs, trade-up selection, missions menu
+function setKnifeTab(tab) {
+  G.ktab = tab; G.tradeSel = [];
+  document.querySelectorAll('#kTabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+  $('invList').hidden = tab === 'coll'; $('invHead').hidden = tab === 'coll'; $('collGrid').hidden = tab !== 'coll'; $('tradeBar').hidden = tab !== 'trade';
+  $('knifeDetail').hidden = tab !== 'inv';
+  if (tab === 'coll') renderCollection(); else renderInventory();
+  updateTradeBtn();
+}
+function updateTradeBtn() { const b = $('bTrade'); if (!b) return; const n = (G.tradeSel || []).length; b.textContent = `${T('tradeup_go')} (${n}/5)`; b.disabled = n !== 5; }
+function wireProgress() {
+  const click = (id, fn) => $(id).addEventListener('click', (e) => { sound.init(); sound.play('click'); fn(e); });
+  click('bMissions', () => { $('mainNav').hidden = true; $('misNav').hidden = false; G.view = 'missions'; renderMissions(); });
+  click('bBackM', showMainNav);
+  document.querySelectorAll('#kTabs button').forEach((b) => b.addEventListener('click', () => { sound.play('click'); setKnifeTab(b.dataset.tab); }));
+  click('bTrade', tradeUp);
+}
 
 // ---- modes.js
 // ============================================================================
@@ -4396,8 +4758,8 @@ function addCoins(n) { SAVE.coins = (SAVE.coins || 0) + n; if (n > 0) sound.play
 function updateCoins() {
   $('coinVal').textContent = SAVE.coins || 0;
   const b = $('bOpenCase'); if (!b) return;
-  b.textContent = SAVE.freeCase ? T('open_free') : `${T('open_case')} · ${CASE_COST}`;
-  b.disabled = !SAVE.freeCase && (SAVE.coins || 0) < CASE_COST;
+  b.textContent = (SAVE.keys || 0) > 0 ? `${T('open_key')} (${SAVE.keys})` : `${T('open_case')} · ${CASE_COST}`;
+  b.disabled = !(SAVE.keys > 0) && (SAVE.coins || 0) < CASE_COST;
 }
 
 // ---------------------------------------------------------------- surf mode
@@ -4456,17 +4818,19 @@ function surfPhysics(dt, live) {
   if (G.acc > DT * 4) G.acc = 0;
 }
 function surfEvents(live) {
-  const run = G.run, def = SURF_MAPS[G.surfIdx], rec = SAVE.surf[def.id] || (SAVE.surf[def.id] = {});
+  const run = G.run, def = G.surfIdx >= 0 ? SURF_MAPS[G.surfIdx] : { id: 'esurf' }, rec = SAVE.surf[def.id] || (SAVE.surf[def.id] = {});
   for (const e of run.events) {
     if (e.type === 'start') $('startmsg').hidden = true;
     if (e.type === 'stage' && live) {
       sound.play('cp'); G.flash = 0.2; G.flashCol.setRGB(0.6, 1, 0.75);
       if (rec.splits && rec.splits[e.v - 1] != null) split(run.time - rec.splits[e.v - 1]); else toast(`${T('stage')} ${e.v + 1}`, 1.1);
       if ((rec.cleared || 0) < e.v) { rec.cleared = e.v; addCoins(10); persist(); }
+      track('sstage'); addXP(40);
       updateHudStatic();
     }
     if (e.type === 'fail') { if (live) sound.play('die'); G.flash = 0.35; G.flashCol.set(0, 0, 0); }
-    if (e.type === 'finish' && live) { sound.play('finish'); G.finishT = 1.2; G.slowmo = 0.4; $('timer').textContent = fmt(run.time); if ((rec.cleared || 0) < run.m.stages.length) { rec.cleared = run.m.stages.length; } }
+    if (e.type === 'finish' && live && G.esurf) { esurfStageDone(); run.events.length = 0; return; }
+    if (e.type === 'finish' && live) { track('sstage'); addXP(150); tallyRun(); sound.play('finish'); G.finishT = 1.2; G.slowmo = 0.4; $('timer').textContent = fmt(run.time); if ((rec.cleared || 0) < run.m.stages.length) { rec.cleared = run.m.stages.length; } }
   }
   run.events.length = 0;
   handleEvents(live);
@@ -4474,8 +4838,9 @@ function surfEvents(live) {
 function updateSurfHud() {
   const p = G.run.p, hs = Math.hypot(p.vel[0], p.vel[2]) / SU;
   $('uSpeed').textContent = Math.round(hs);
+  if (hs > (G.trackedSpeed || 0) + 100) { G.trackedSpeed = Math.floor(hs / 100) * 100; trackMax('sspeed', G.trackedSpeed); }
   document.querySelectorAll('#sKeys i').forEach((el) => { const k = el.dataset.k; el.classList.toggle('on', !!K[k] || (k === 'KeyW' && G.touch.fz > 0.3) || (k === 'KeyS' && G.touch.fz < -0.3) || (k === 'KeyA' && G.touch.fx < -0.3) || (k === 'KeyD' && G.touch.fx > 0.3) || (k === 'Space' && G.touch.jump)); });
-  const rec = SAVE.surf[SURF_MAPS[G.surfIdx].id];
+  const rec = SAVE.surf[G.surfIdx >= 0 ? SURF_MAPS[G.surfIdx].id : 'esurf'];
   showHint(G.run.stage === 0 && (!rec || !rec.best) && G.run.time < 9 ? 'surf' : null);
 }
 function finishSurf() {
@@ -4508,7 +4873,7 @@ function equipKnife(id, silent) {
 function knifeInspect() {
   if (G.state !== 'playing' || !arms.knife) return;
   if (arms.anim.busy() && (arms.anim.name === 'inspect' || arms.anim.name === 'deploy')) return;
-  arms.anim.play('inspect');
+  arms.anim.play('inspect'); track('inspect');
 }
 function knifeAttack(kind) {
   if (G.state !== 'playing' || !arms.knife) return;
@@ -4538,7 +4903,7 @@ function knifeHit() {
     const hx = o.x + d.x * best, hy = o.y + d.y * best, hz = o.z + d.z * best;
     particles.burst(hx, hy, hz, 16, 4.5, 0.35, 0.05, [1, 0.85, 0.5], { alpha: 1, grav: 9, grow: 0, drag: 1 });
     particles.burst(hx, hy, hz, 5, 1, 0.6, 0.18, [0.7, 0.68, 0.64], { alpha: 0.35 });
-    sound.play('clink'); G.shake = Math.max(G.shake, 0.12);
+    sound.play('clink'); G.shake = Math.max(G.shake, 0.12); track('hit');
   } else if (G.mode !== 'surf') pigeons.scare(o.x + d.x, o.y - 1, o.z + d.z, 3, null);
 }
 
@@ -4556,6 +4921,9 @@ function refreshModes() {
       b.addEventListener('mouseenter', () => sound.play('hover'));
       sl.appendChild(b);
     });
+    const e = document.createElement('button'); e.className = 'lvl';
+    e.innerHTML = `<span class="num">∞</span><span class="nm"><b>${T('esurf')}</b><span>${T('esurf_s')}</span></span><span class="rec">${SAVE.esurfBest ? `<small>${T('endBest')}</small>${SAVE.esurfBest}` : '—'}</span>`;
+    e.addEventListener('click', () => { sound.play('click'); startESurf(); }); sl.appendChild(e);
   }
   const n = (SAVE.knives || []).length; const ks = $('knivesSub'); if (ks) ks.textContent = `${n} ${T('knives_n')}`;
   if (G.view === 'knives') renderInventory();
@@ -4563,9 +4931,9 @@ function refreshModes() {
 
 // ---------------------------------------------------------------- menus: knives
 function openKnives() {
-  $('mainNav').hidden = true; $('levelNav').hidden = true; $('surfNav').hidden = true; $('knifeNav').hidden = false; G.view = 'knives';
+  $('mainNav').hidden = true; $('levelNav').hidden = true; $('surfNav').hidden = true; $('misNav').hidden = true; $('knifeNav').hidden = false; G.view = 'knives';
   G.selKnife = SAVE.equipped || (SAVE.knives[0] && SAVE.knives[0].id) || null; G.scrapArm = null;
-  renderInventory(); selectKnife(G.selKnife);
+  setKnifeTab('inv'); selectKnife(G.selKnife);
 }
 function renderInventory() {
   const list = $('invList'), ks = SAVE.knives || []; list.innerHTML = '';
@@ -4573,8 +4941,14 @@ function renderInventory() {
   if (!ks.length) { const p = document.createElement('p'); p.className = 'navnote'; p.style.gridColumn = '1 / -1'; p.textContent = T('no_knives'); list.appendChild(p); }
   ks.slice().sort((a, b) => knifeRarity(b) - knifeRarity(a) || b.at - a.at).forEach((k) => {
     const b = document.createElement('button'); b.className = 'kcard' + (k.id === G.selKnife ? ' sel' : ''); b.style.setProperty('--rc', RARITIES[knifeRarity(k)].col);
-    b.innerHTML = `${k.id === SAVE.equipped ? `<span class="eq">${T('equipped')}</span>` : ''}<img src="${knifeIcon(k)}" alt=""><b>${KNIFE_NAMES[k.t][LANG]}</b><span>${FIN[k.f].name[LANG]} · ${wearOf(k.w).name[LANG]}</span>`;
-    b.addEventListener('click', () => { sound.play('click'); selectKnife(k.id); });
+    const trade = G.ktab === 'trade', picked = trade && (G.tradeSel || []).includes(k.id), r0 = (G.tradeSel || []).length ? knifeRarity(knifeById(G.tradeSel[0])) : null;
+    if (picked) b.classList.add('pick'); if (trade && (knifeRarity(k) >= 4 || (r0 !== null && knifeRarity(k) !== r0))) b.classList.add('dim');
+    b.innerHTML = `${k.id === SAVE.equipped ? `<span class="eq">${T('equipped')}</span>` : ''}${k.tally != null ? `<span class="tl">${T('tally')} ${k.tally}</span>` : ''}<img src="${knifeIcon(k)}" alt=""><b>${KNIFE_NAMES[k.t][LANG]}</b><span>${FIN[k.f].name[LANG]} · ${wearOf(k.w).name[LANG]}</span>`;
+    b.addEventListener('click', () => {
+      sound.play('click');
+      if (G.ktab === 'trade') { const sel = G.tradeSel || (G.tradeSel = []), i = sel.indexOf(k.id); if (i >= 0) sel.splice(i, 1); else if (sel.length < 5 && knifeRarity(k) < 4 && (!sel.length || knifeRarity(knifeById(sel[0])) === knifeRarity(k))) sel.push(k.id); renderInventory(); updateTradeBtn(); showcase.set(k); return; }
+      selectKnife(k.id);
+    });
     list.appendChild(b);
   });
   $('oddsBox').innerHTML = RARITIES.map((r) => `<span><i style="background:${r.col}"></i>${r.name[LANG]}</span><span>${(r.w / RARITIES.reduce((a, x) => a + x.w, 0) * 100).toFixed(1)}%</span>`).join('');
@@ -4589,7 +4963,7 @@ function selectKnife(id) {
   const r = RARITIES[knifeRarity(k)], eq = SAVE.equipped === k.id;
   box.hidden = false;
   box.innerHTML = `<span class="rar" style="color:${r.col}">${r.name[LANG]}</span><b>${knifeName(k, LANG)}</b>
-    <div class="meta"><span>${T('wear')}: ${wearOf(k.w).name[LANG]}</span><span>${T('float')} ${k.w.toFixed(4)}</span><span>${T('pattern')} #${k.s}</span></div>
+    <div class="meta"><span>${T('wear')}: ${wearOf(k.w).name[LANG]}</span><span>${T('float')} ${k.w.toFixed(4)}</span><span>${T('pattern')} #${k.s}</span>${k.tally != null ? `<span>${T('tally')}: ${k.tally} ${T('tally_runs')}</span>` : ''}</div>
     <div class="btnrow"><button class="btn ${eq ? '' : 'red'}" id="kdEquip">${eq ? T('unequip') : T('equip')}</button><button class="btn solid" id="kdInspect">${T('inspect')}</button><button class="btn" id="kdScrap">${T('scrap')} +${r.scrap}</button></div><p class="note" id="kdNote"></p>`;
   $('kdEquip').onclick = () => { sound.play('click'); equipKnife(eq ? null : k.id); selectKnife(k.id); };
   $('kdInspect').onclick = () => { sound.play('click'); showcase.inspect(); };
@@ -4604,9 +4978,9 @@ function toastMenu(text) { const n = $('adminMsg'); if (n) n.textContent = text;
 
 // ---------------------------------------------------------------- case opening
 function openCase() {
-  if (!SAVE.freeCase && (SAVE.coins || 0) < CASE_COST) { $('adminBox').open = false; const d = $('knifeDetail'); d.hidden = false; d.insertAdjacentHTML('afterbegin', `<p class="note">${T('not_enough')}</p>`); return; }
-  if (SAVE.freeCase) SAVE.freeCase = false; else SAVE.coins -= CASE_COST;
-  const item = rollKnife(); SAVE.knives.push(item); persist(); updateCoins();
+  if (!(SAVE.keys > 0) && (SAVE.coins || 0) < CASE_COST) { $('adminBox').open = false; const d = $('knifeDetail'); d.hidden = false; d.insertAdjacentHTML('afterbegin', `<p class="note">${T('not_enough')}</p>`); return; }
+  if (SAVE.keys > 0) SAVE.keys--; else SAVE.coins -= CASE_COST;
+  const item = rollKnife(); SAVE.knives.push(item); SAVE.coll[item.t + ':' + item.f] = 1; track('case'); addXP(40); persist(); updateCoins(); updateProgressUI();
   runRoulette(item);
 }
 function runRoulette(item) {
@@ -4637,7 +5011,7 @@ function reveal(item, card) {
   $('rvEquip').onclick = () => { sound.play('click'); equipKnife(item.id); closeCase(item.id); };
   $('rvClose').onclick = () => { sound.play('click'); closeCase(item.id); };
 }
-function closeCase(id) { showScreen('caseOv', false); if (G.view === 'knives') selectKnife(id); refreshModes(); }
+function closeCase(id) { showScreen('caseOv', false); if (G.view === 'knives') { setKnifeTab('inv'); selectKnife(id); } refreshModes(); updateProgressUI(); }
 
 // ---------------------------------------------------------------- admin code + knife forge
 const ADMIN_HASH = '13b7f89d'; // FNV-1a of the code, so it is not sitting in the page source as plain text
@@ -4656,7 +5030,7 @@ function fillForge() {
 }
 function forgeKnife() {
   const item = { id: Date.now().toString(36) + 'a' + Math.floor(Math.random() * 1e5).toString(36), t: $('fType').value, f: $('fFin').value, w: clamp(+$('fWear').value, 0, 1), s: clamp(Math.round(+$('fSeed').value) || 0, 0, 999), at: Date.now() };
-  SAVE.knives.push(item); persist(); sound.play('case_reveal', FIN[item.f].r);
+  SAVE.knives.push(item); SAVE.coll[item.t + ':' + item.f] = 1; persist(); sound.play('case_reveal', FIN[item.f].r);
   $('adminMsg').textContent = `${T('added')}: ${knifeName(item, LANG)}`; selectKnife(item.id); refreshModes();
 }
 
@@ -4673,6 +5047,7 @@ function wireModes() {
   $('fSeed').addEventListener('keydown', (e) => e.stopPropagation());
   click('bForge', forgeKnife);
   click('bCoins', () => { addCoins(1000); persist(); });
+  wireProgress();
   fillForge();
   // drag to rotate the showcase knife
   let drag = null;
