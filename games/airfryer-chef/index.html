@@ -153,7 +153,7 @@ kbd{font-family:var(--ui);font-weight:700;font-size:12px;padding:1px 6px;border:
 
 /* pantry */
 .aisles{position:absolute;left:16px;top:76px;width:1116px;display:flex;gap:6px}
-.aisles button{flex:1;padding:10px 6px;border-radius:10px 10px 0 0;border:1px solid var(--line);border-bottom:none;background:#1e1a17;color:var(--mute);font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+.aisles button{flex:1;padding:10px 4px;border-radius:10px 10px 0 0;border:1px solid var(--line);border-bottom:none;background:#1e1a17;color:var(--mute);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aisles button.on{background:linear-gradient(#3a2f22,#2d2620);color:var(--gold2);border-color:rgba(242,182,50,.4)}
 .shelf{position:absolute;left:16px;top:116px;width:1116px;height:768px;border-radius:0 0 14px 14px;border:1px solid var(--line);background:linear-gradient(#2b241f,#1f1a17);padding:16px;display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:204px;gap:14px;overflow:auto;align-content:start}
 .prod{position:relative;border-radius:12px;background:linear-gradient(#f7f0e2,#e6dccb);color:#2a211b;display:flex;flex-direction:column;align-items:center;padding:8px 10px 10px;cursor:pointer;border:2px solid transparent;transition:transform .08s,border-color .15s;box-shadow:0 5px 0 #8a7b68,0 10px 18px rgba(0,0,0,.35)}
@@ -225,6 +225,19 @@ kbd{font-family:var(--ui);font-weight:700;font-size:12px;padding:1px 6px;border:
 .bowlpred{font-size:14px;color:var(--mute);min-height:20px}
 .bowlpred b{font-family:var(--serif);font-style:italic;font-weight:600;color:var(--gold2);font-size:17px}
 .bowlbtns{display:flex;gap:6px;margin-top:auto}
+.bowlhead{display:flex;align-items:center;gap:6px}.bowlhead h3{flex:1}.bowlhead .btn{padding:4px 10px;font-size:13px}
+select.rack{background:#2a231e;color:var(--cream);border:1px solid var(--line);border-radius:8px;padding:5px 6px;font:600 13px var(--ui);max-width:170px;cursor:pointer}
+.arow select.rack{font-size:14px;padding:6px 8px;border-radius:8px}
+.kit{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.kit .chip{font-size:13px}.kit .btn{margin-left:auto}
+.shop{display:flex;flex-direction:column;gap:8px}
+.shop .gi{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.shop .gi.own{border-color:rgba(114,184,95,.5)}
+.shop .ic{font-size:26px;width:34px;text-align:center}.shop .tx{flex:1;display:flex;flex-direction:column;gap:2px}.shop .tx b{font-size:16px;color:var(--cream)}.shop .tx span{font-size:13px;color:var(--mute)}
+.shop .btn{min-width:64px}
+.codex{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cx{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.cx b{font-family:var(--serif);font-size:17px;font-weight:600}.cx span{font-size:13px;color:var(--mute)}
+.cx.on{border-color:rgba(242,182,50,.6);background:rgba(242,182,50,.07)}.cx.on b{color:var(--gold2)}
 .fryer{left:1032px;top:108px;width:552px;height:776px;overflow:hidden}
 #cvFryer{position:absolute;left:6px;top:4px;cursor:pointer}
 .fctl{position:absolute;left:12px;right:12px;top:428px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -466,7 +479,7 @@ kbd{font-family:var(--ui);font-weight:700;font-size:12px;padding:1px 6px;border:
   <div class="panel acts" id="acts"></div>
   <div class="panel bowlp">
     <canvas id="cvBowl" data-w="222" data-h="212"></canvas>
-    <div class="bowlside"><h3>Mixing bowl</h3><div class="bowlitems" id="bowlItems"></div><div class="bowlpred" id="bowlPred"></div>
+    <div class="bowlside"><div class="bowlhead"><h3>Mixing bowl</h3><button class="btn sm" id="bWater" title="Add water: rice, pasta and noodles need it">+ Water</button><select id="selStaple" class="rack" aria-label="Add from your spice rack or herb planter" hidden></select></div><div class="bowlitems" id="bowlItems"></div><div class="bowlpred" id="bowlPred"></div>
       <div class="bowlbtns"><button class="btn sm" id="bMix">Mix</button><button class="btn sm" id="bWhisk">Whisk</button><button class="btn sm" id="bMash">Mash &amp; blend</button><button class="btn sm ghost" id="bBowlEmpty">Empty bowl</button></div></div>
   </div>
   <div class="panel fryer">
@@ -523,13 +536,13 @@ kbd{font-family:var(--ui);font-weight:700;font-size:12px;padding:1px 6px;border:
 </section>
 
 <section class="scr" id="s-book" aria-label="Cookbook">
-  <div class="hdr"><button class="btn ghost" data-go="title">‹ Back</button><h2>Cookbook</h2><span class="muted" id="bookCount"></span></div>
+  <div class="hdr"><button class="btn ghost" data-go="title">‹ Back</button><h2>Cookbook</h2><span class="muted" id="bookCount"></span><div class="grow"></div><button class="btn" id="bCodex">Classic dishes</button></div>
   <div class="bookgrid" id="bookGrid"></div>
 </section>
 
 <section class="scr" id="s-practice" aria-label="Practice kitchen">
   <div class="hdr"><button class="btn ghost" data-go="title">‹ Back</button><h2>Practice kitchen</h2></div>
-  <p class="pr-lede muted">No eliminations. A bigger budget and no rush in the pantry. The judges still score every plate.</p>
+  <p class="pr-lede muted">No eliminations. A bigger budget, no rush in the pantry, and the sponsor kits out your station with every gadget. The judges still score every plate.</p>
   <div class="prgrid" id="prGrid"></div>
 </section>
 
@@ -661,8 +674,8 @@ const AU = (() => {
    the air fryer.
    ===================================================================== */
 const AISLES = [
-  ['butcher', 'Butcher & Fishmonger'], ['garden', 'Garden'], ['dairy', 'Dairy & Fridge'], ['bakery', 'Bakery & Dry Goods'],
-  ['fruit', 'Fruit'], ['jars', 'Jars & Sauces'], ['spice', 'Spice Rack'],
+  ['butcher', 'Butcher & Deli'], ['garden', 'Garden'], ['dairy', 'Dairy & Freezer'], ['bakery', 'Bakery & Dry'],
+  ['pasta', 'Pasta, Rice & Pizza'], ['fruit', 'Fruit'], ['jars', 'Jars & Sauces'], ['spice', 'Spices'],
 ];
 const ING = {};
 function I(id, name, aisle, price, fam, raw, ckd, o){
@@ -1002,6 +1015,124 @@ const PRESSURE = [
 ];
 
 /* =====================================================================
+   EXPANSION DATA: pasta, rice, noodles, pizza and friends
+   ===================================================================== */
+I('rice', 'Basmati rice', 'pasta', 2, 'rice', '#f3eee0', '#fbf8f1', { box: 'bag', label: '#3a7d6b', uses: 2, u: '2 portions', kind: 'starch', sz: 18, needsWater: 1, fl: { sweet: .2 }, tags: ['grain', 'rice'], cn: { whole: 'Uncooked rice' }, one: 'Uncooked rice' });
+I('spaghetti', 'Spaghetti', 'pasta', 2, 'spag', '#eed49a', '#f3dfa8', { box: 'pastabox', label: '#2c4f7c', uses: 2, u: '2 portions', kind: 'starch', sz: 18, needsWater: 1, fl: { sweet: .2 }, tags: ['pasta'], cn: { whole: 'Dry spaghetti' }, one: 'Dry spaghetti' });
+I('macaroni', 'Macaroni', 'pasta', 2, 'mac', '#eed49a', '#f3dfa8', { box: 'bag', label: '#c2412d', uses: 2, u: '2 portions', kind: 'starch', sz: 18, needsWater: 1, fl: { sweet: .2 }, tags: ['pasta'], cn: { whole: 'Dry macaroni' }, one: 'Dry macaroni' });
+I('noodles', 'Egg noodles', 'pasta', 2, 'noodle', '#e6c06e', '#efd18a', { box: 'bag', label: '#d0503a', uses: 2, u: '2 nests', kind: 'starch', sz: 18, needsWater: 1, fl: { sweet: .2, umami: .2 }, tags: ['noodles', 'asian'], cn: { whole: 'Dry egg noodles' }, one: 'Dry egg noodles' });
+I('pizza_dough', 'Pizza dough', 'pasta', 3, 'dough', '#f2e4c6', '#efd9a8', { uses: 2, u: '2 dough balls', kind: 'bake', dk: 'bake', fat: 1, crisp: 1, core: [1, 1.35], brown: [.55, 1], sz: 34, def: 'block', cuts: { block: null, base: [9, .8, 1], balls: [8, .8, 6], strips: [7, .85, 6] }, cv: { balls: 'Roll dough balls', strips: 'Breadsticks' }, fl: { umami: .3, rich: .4 }, tags: ['bread', 'pizza'], cn: { block: 'Pizza dough', base: 'Pizza base', balls: 'Dough balls', strips: 'Breadsticks' }, one: 'Pizza dough' });
+I('gnocchi', 'Gnocchi', 'pasta', 3, 'gnocchi', '#efdcae', '#f3e3b8', { u: '1 pack', kind: 'starch', dk: 'crisp', crisp: 1, brown: [.55, 1.05], sz: 30, cuts: { whole: [11, .85, 16] }, fl: { rich: .5, sweet: .2 }, tags: ['pasta'] });
+I('passata', 'Passata', 'pasta', 2, 'jar', '#c8302a', '#b8402a', { uses: 3, u: '1 jar', liquid: 1, kind: 'sauce', sz: 8, fl: { sweet: .6, sour: .8, umami: 1, fresh: .3 }, tags: ['tomato'] });
+I('coconut_milk', 'Coconut milk', 'pasta', 2, 'can', '#f7f3ea', '#f7f3ea', { uses: 2, u: '1 tin', liquid: 1, kind: 'sauce', sz: 8, label: '#3a7d6b', fl: { rich: 2.2, sweet: .8 }, tags: ['asian'] });
+I('pepperoni', 'Pepperoni', 'butcher', 4, 'pepperoni', '#c2402e', '#a8301e', { u: '1 stick, sliced', kind: 'protein', dk: 'crisp', eatRaw: 1, crisp: 1, brown: [.25, 1], sz: 14, def: 'sliced', cuts: { sliced: [5, .7, 14] }, fl: { salt: 2, spicy: .8, umami: 1.5, rich: 2 }, tags: ['pork', 'meat', 'cured'], cn: { sliced: 'Pepperoni' } });
+I('ham', 'Smoked ham', 'butcher', 3, 'ham', '#f0a8a0', '#e89890', { u: '4 slices', kind: 'protein', dk: 'crisp', eatRaw: 1, brown: [.05, .9], sz: 16, def: 'sliced', cuts: { sliced: [5, .55, 4], diced: [4, .6, 14] }, fl: { salt: 2, umami: 1.5, rich: 1 }, tags: ['pork', 'meat', 'cured', 'breakfast'], cn: { sliced: 'Ham', diced: 'Diced ham' } });
+I('olives', 'Black olives', 'jars', 2, 'olive', '#2e2a26', '#2e2a26', { box: 'jar', uses: 2, u: '1 jar', kind: 'veg', eatRaw: 1, sz: 10, n: 10, cuts: { whole: null, sliced: null }, fl: { salt: 1.5, rich: 1, bitter: .4 }, tags: ['med'], cn: { whole: 'Black olives', sliced: 'Sliced olives' }, one: 'Black olives' });
+I('peas', 'Frozen peas', 'dairy', 1, 'peas', '#7cc05a', '#6cb04a', { box: 'bag', label: '#5aa045', uses: 2, u: '1 bag', kind: 'veg', dk: 'veg', eatRaw: 1, core: [.7, 1.4], brown: [0, .7], sz: 18, cuts: { whole: [6, .3, 30] }, fl: { sweet: 1, fresh: 1 }, tags: ['veg', 'green'], cn: { whole: 'Peas' }, one: 'Peas' });
+I('water', 'Water', 'none', 0, 'water', '#cfe6f2', '#cfe6f2', { kind: 'staple', liquid: 1, sz: 4, fl: {} });
+Object.assign(ING.potatoes.cuts, { shredded: [12, .85, 2] });
+Object.assign(ING.potatoes.cn, { shredded: 'Hash browns' }); ING.potatoes.cv = { shredded: 'Grate' };
+Object.assign(ING.beef_mince.cuts, { crumbled: [9, .8, 22] });
+Object.assign(ING.beef_mince.cn, { crumbled: 'Loose mince' }); ING.beef_mince.ckn = { crumbled: 'Browned mince' }; ING.beef_mince.cv = { crumbled: 'Break it up' };
+Object.assign(ING.mozzarella, { def: 'block', dk: 'crisp', cuts: { block: null, torn: null, sticks: [5, .8, 5, { core: [.4, 1.5], brown: [.55, 1] }] }, cn: { block: 'Mozzarella', torn: 'Torn mozzarella', sticks: 'Mozzarella sticks' }, cv: { sticks: 'Cut sticks' }, one: 'Mozzarella' });
+CUT.base = { v: 'Pizza base', g: 2, o: 2 };
+Object.assign(FAM, {
+  rice: { whole: ['rice', 70, 50] }, spag: { whole: ['spagraw', 120, 30] }, mac: { whole: ['macraw', 60, 44] }, noodle: { whole: ['noodleraw', 70, 56] },
+  dough: { block: ['doughball', 80, 70], base: ['pizza', 210, 210], balls: ['ball', 30, 30], strips: ['stick', 100, 14] },
+  gnocchi: { whole: ['gnocchi', 22, 16] }, pepperoni: { sliced: ['pepperoni', 26, 26] }, ham: { sliced: ['ham', 80, 60], diced: ['cube', 12, 12] },
+  olive: { whole: ['olive', 14, 12], sliced: ['olivering', 11, 11] }, peas: { whole: ['ball', 10, 10] }, water: { whole: ['pot', 50, 50] },
+  can: { whole: ['can', 58, 74] }, pastabox: { whole: ['pastabox', 50, 100] },
+});
+FAM.potato.shredded = ['rosti', 76, 70];
+FAM.mince.crumbled = ['chunk', 12, 10];
+FAM.mozz = { block: ['ball', 60, 60], torn: ['blob', 34, 28], sticks: ['stick', 66, 16] };
+('rice coconut_milk|rice soy|rice eggs|rice prawns|rice chicken_thigh|rice spring_onion|rice peas|rice salmon|rice curry|spaghetti passata|spaghetti basil|spaghetti parmesan|spaghetti garlic|spaghetti bacon|spaghetti beef_mince|spaghetti prawns|spaghetti chilli|spaghetti olive_oil|' +
+ 'macaroni cheddar|macaroni bacon|macaroni passata|noodles soy|noodles ginger|noodles spring_onion|noodles tofu|noodles chicken_thigh|noodles prawns|noodles sriracha|pizza_dough passata|pizza_dough mozzarella|mozzarella passata|pepperoni mozzarella|pepperoni pizza_dough|' +
+ 'ham pineapple|ham cheddar|ham eggs|ham peas|pizza_dough basil|pizza_dough olives|gnocchi butter|gnocchi parmesan|gnocchi basil|gnocchi tomatoes|gnocchi passata|coconut_milk curry|coconut_milk chickpeas|coconut_milk prawns|coconut_milk lime|coconut_milk chicken_thigh|coconut_milk cauliflower|' +
+ 'peas mint|peas bacon|olives feta|olives tomatoes|passata basil|passata garlic|passata oregano|*pepperoni honey|*peas feta|*coconut_milk mango')
+  .split('|').forEach(p => { const inv = p[0] === '*'; const [a, b] = p.replace('*', '').split(' '); PAIRS.set(a + ' ' + b, inv); PAIRS.set(b + ' ' + a, inv); });
+['pepperoni', 'ham', 'olives', 'passata', 'noodles', 'spaghetti', 'macaroni', 'pizza_dough', 'gnocchi', 'peas'].forEach(x => SAVOURY_ONLY.add(x));
+THEMES.push(
+  { key: 'italian', name: 'Italian Night', desc: 'Pasta, pizza or gnocchi. Cook something an Italian grandmother would approve of, using nothing but an air fryer.', needs: 'pasta, pizza or gnocchi' },
+  { key: 'fakeaway', name: 'The Fakeaway', desc: 'Beat the delivery driver. Cook a takeaway favourite that tastes better than the real thing: fried rice, curry, noodles, pizza, burgers, wings...', needs: 'a takeaway favourite' },
+  { key: 'comfort', name: 'Comfort Food', desc: 'Make the judges feel looked after. Rich, warm, generous food: pasta bakes, mac and cheese, curry, mash, crumble.', needs: 'proper comfort food' });
+BASKETS.push(
+  { ids: ['spaghetti', 'prawns', 'chilli'], dishes: ['Chilli prawn spaghetti with lemon crumbs', 'Prawn and chilli spaghetti nest, bisque sauce', 'Crispy spaghetti cake with chilli prawns', 'Spaghetti aglio e olio with blistered prawns', 'Prawn tails, chilli oil, spaghetti fritter', 'Garlic prawn linguine-style spaghetti'] },
+  { ids: ['pizza_dough', 'mushrooms', 'feta'], dishes: ['Mushroom and feta flatbread with thyme oil', 'Wild mushroom pizza bianca, whipped feta', 'Feta-stuffed dough balls, mushroom ragù', 'Mushroom calzone with a feta dip', 'Garlic mushroom pizzette, feta crumb', 'Pull-apart feta bread with roasted mushrooms'] },
+  { ids: ['gnocchi', 'tomatoes', 'basil'], dishes: ['Crispy gnocchi, roasted tomatoes, basil oil', 'Gnocchi with blistered tomatoes and pesto', 'Golden gnocchi in a fresh tomato sauce', 'Gnocchi caprese with basil dressing', 'Tomato-braised gnocchi, basil crumb', 'Pan-crisp gnocchi, tomato salsa, torn basil'] },
+  { ids: ['noodles', 'tofu', 'soy'], dishes: ['Crispy tofu noodles with a soy glaze', 'Sticky soy tofu on sesame noodles', 'Salt and pepper tofu, soy noodle salad', 'Tofu chow mein with crispy shallots', 'Soy-glazed tofu, noodle nest, chilli oil', 'Dan dan-style noodles with crispy tofu'] },
+  { ids: ['rice', 'coconut_milk', 'chickpeas'], dishes: ['Chickpea coconut curry with jewelled rice', 'Coconut rice, crispy chickpeas, lime pickle', 'Chickpea dhal with crispy-bottom rice', 'Spiced chickpea pilaf with coconut sauce', 'Crispy rice cake, coconut chickpea stew', 'Chickpea and coconut biryani-style rice'] });
+Object.assign(AI_DISH, {
+  italian: ['Lobster linguine', 'Osso buco with saffron gremolata', 'Wild mushroom risotto', 'Hand-rolled orecchiette with broccoli', 'Pizza bianca with truffle', 'Veal saltimbocca', 'Pumpkin tortelloni with sage butter', 'Cacio e pepe'],
+  fakeaway: ['Crispy chilli beef', 'Butter chicken with garlic naan', 'Salt and pepper squid', 'Kung pao chicken', 'Lamb doner with chilli sauce', 'Massaman curry', 'Sweet and sour pork', 'Katsu curry'],
+  comfort: ['Shepherd\'s pie', 'Chicken and leek pie', 'Lasagne al forno', 'Toad in the hole', 'Beef stew with dumplings', 'Fish pie', 'Cottage pie with cheesy mash', 'Bread and butter pudding'],
+});
+Object.assign(IDEAS, {
+  italian: ['Margherita pizza on a homemade base', 'Spaghetti carbonara: pasta, egg, parmesan, bacon', 'Crispy gnocchi with pesto and blistered tomatoes'],
+  fakeaway: ['Egg fried rice with sticky honey-soy wings', 'Chickpea coconut curry with fluffy rice', 'Pepperoni pizza with garlic dough balls'],
+  comfort: ['Macaroni cheese with a crispy top', 'Bangers and buttery mash', 'Apple crumble with chantilly cream'],
+});
+IDEAS.open.push('Spaghetti and meatballs in tomato sauce', 'Coconut curry with steamed rice');
+IDEAS.dessert.push('Chocolate chip cookies with whipped cream', 'Cinnamon sugar doughnut bites');
+PRESSURE.push(
+  { key: 'pizza', name: 'Margherita Pizza', sub: 'with fresh basil', cook: 40, plate: 'board',
+    bench: ['pizza_dough', 'passata', 'mozzarella', 'basil', 'olive_oil'],
+    steps: [
+      'Select the <b>pizza dough</b>, <b>Take one</b>, then press <b>Pizza base</b> to shape it.',
+      'Add <b>Top: Passata</b>, then <b>Top: Mozzarella</b>.',
+      'Give it an <b>oil spray</b> for a golden crust.',
+      'Air fry at <b>200°C for about 9 minutes</b>, until the crust is golden and the cheese has melted.',
+      '<b>Slice the pizza</b>, then plate it on the board with basil scattered over the top.'],
+    targets: [{ key: 'pizza', label: 'margherita', find: it => it.id === 'pizza_dough' && it.cut === 'base', check: it => it.core < 1 ? 'The base is raw underneath.' : it.brown < .55 ? 'The crust is pale.' : !it.adds.some(a => a.kind === 'sauce') ? 'There is no tomato sauce.' : !it.adds.some(a => a.id === 'mozzarella') ? 'Where is the mozzarella?' : !it.adds.some(a => a.cheese && a.melt >= 2.2) ? 'The cheese has not melted.' : !it.sliced ? 'It is not sliced.' : null }],
+    garnish: 'basil',
+    ref: { comps: [['pizza', 0, 0, 'pile']], strokes: [], sprinkle: [['basil', 0, 0]] } },
+  { key: 'friedrice', name: 'Egg Fried Rice', sub: 'with peas and spring onion', cook: 50, plate: 'bowl',
+    bench: ['rice', 'eggs', 'soy', 'peas', 'spring_onion'],
+    steps: [
+      'Put the <b>rice</b> in the bowl, press <b>+ Water</b>, then <b>Mix</b>.',
+      'Air fry it (it goes in a covered tin) at <b>180°C for about 22 minutes</b>, until it reads <b>Fluffy</b>.',
+      'Put the cooked rice in the bowl with an <b>egg</b>, <b>soy sauce</b> and <b>peas</b>, then <b>Mix</b>.',
+      'Air fry the fried rice at <b>200°C for about 8 minutes</b>, until the egg has set.',
+      'Plate it in the bowl and scatter <b>spring onion</b> over the top.'],
+    targets: [{ key: 'friedrice', label: 'egg fried rice', find: it => it.mix && it.mix.type === 'friedrice', check: it => it.core < 1 ? 'The egg is still runny.' : it.core > 1.7 ? 'It has dried out.' : !it.mix.parts.includes('peas') ? 'Where are the peas?' : it.mix.q < .7 ? 'The rice was not cooked properly.' : null }],
+    garnish: 'spring_onion',
+    ref: { comps: [['friedrice', 0, 0, 'pile']], strokes: [], sprinkle: [['spring_onion', 0, -10]] } },
+  { key: 'meatballs', name: 'Spaghetti & Meatballs', sub: 'in a rich tomato sauce with parmesan', cook: 55, plate: 'bowl',
+    bench: ['spaghetti', 'beef_mince', 'passata', 'garlic', 'basil', 'parmesan'],
+    steps: [
+      'Select the <b>beef mince</b>, press <b>Roll meatballs</b>, season with <b>salt</b>, then air fry at <b>200°C for about 11 minutes</b>.',
+      'Put <b>passata</b>, <b>garlic</b> and <b>basil</b> in the bowl and <b>Mix</b>. Air fry the sauce in its tin at <b>180°C for about 10 minutes</b>.',
+      'Put the <b>spaghetti</b> in the bowl with <b>+ Water</b> and <b>Mix</b>. Air fry it at <b>180°C for about 15 minutes</b>, until it reads <b>Al dente</b>.',
+      'Put the cooked spaghetti and the tomato sauce in the bowl and <b>Mix</b>.',
+      'Plate the spaghetti in the bowl with the meatballs on top, then <b>parmesan</b>.'],
+    targets: [
+      { key: 'pasta', label: 'spaghetti in tomato sauce', find: it => it.mix && it.mix.type === 'pasta', check: it => !it.mix.parts.includes('passata') ? 'It is not in tomato sauce.' : it.mix.q < .7 ? 'The pasta is not cooked right.' : null },
+      { key: 'balls', label: 'meatballs', find: it => it.id === 'beef_mince' && it.cut === 'balls', check: it => it.core < 1 ? 'They are raw in the middle.' : it.core > 1.4 ? 'They are dry.' : null }],
+    garnish: 'parmesan',
+    ref: { comps: [['pasta', 0, 10, 'pile'], ['balls', 0, -5, 'pile']], strokes: [], sprinkle: [['parmesan', 0, 0], ['basil', 14, -30]] } });
+
+/* sponsor gear, bought with prize money between episodes */
+const GEAR = [
+  { id: 'knife', name: 'Chef\'s knife', price: 25, icon: '🔪', desc: 'A bigger timing window when you chop, and your cuts are never messy.' },
+  { id: 'whisk', name: 'Balloon whisk', price: 20, icon: '🥄', desc: 'Whisk 60% faster.' },
+  { id: 'probe', name: 'Probe thermometer', price: 30, icon: '🌡️', desc: 'Pings when food in the air fryer is cooked perfectly inside, and warns you before it overcooks.' },
+  { id: 'rack', name: 'Rack insert', price: 35, icon: '🧺', desc: 'A second layer in the basket: 45% more room before it overcrowds.' },
+  { id: 'spices', name: 'Spice rack', price: 30, icon: '🧂', desc: 'Every spice is free at your station, every episode.' },
+  { id: 'herbs', name: 'Herb planter', price: 30, icon: '🌿', desc: 'All six fresh herbs are free at your station, every episode.' },
+  { id: 'pass', name: 'Pantry pass', price: 25, icon: '🎟️', desc: '15 more seconds and $5 more to spend in the pantry.' },
+  { id: 'dual', name: 'Second air fryer', price: 90, icon: '♨️', desc: 'The sponsor sends a second air fryer, with its own temperature and timer.' },
+];
+const CHATTER = [
+  ['priya', 'Is that... an air fryer? Bold.'], ['dmitri', 'My whole station is on fire and yours is just humming.'], ['theo', 'Wait, can I borrow your air fryer after?'],
+  ['rosa', 'In my day we cooked over fire, dear.'], ['kwame', 'Fascinating. Pure convection at 200 degrees.'], ['june', 'I sell air-fried wings on the truck. Respect.'],
+  ['hannah', 'Do you want some of my herbs? I grew far too many.'], ['priya', 'Behind! Hot tray!'], ['dmitri', 'Who turned the heat up in here?'],
+  ['theo', 'I think my sauce just split. Is that bad?'], ['rosa', 'Taste, taste, taste. Always taste.'], ['kwame', 'Thirty seconds in the blast chiller...'],
+  ['june', 'Chef! Two minutes on the bao!'], ['hannah', 'Nothing beats a tomato straight off the vine.'], ['theo', 'How is your air fryer quieter than my extractor fan?'],
+  ['priya', 'The lamination is going perfectly. Don\'t jinx it.'], ['rosa', 'You remind me of my grandson. He also only has an air fryer.'], ['dmitri', 'Hey, air fryer! Save me a fry!'],
+  ['kwame', 'Your browning curve looks excellent.'], ['june', 'Smells good over there!'],
+];
+
+/* =====================================================================
    WORDS: what the judges say. [Ines, Lou, Margot]
    {c} component, {C} capitalised, {a} {b} extras, {d} detail
    ===================================================================== */
@@ -1049,6 +1180,11 @@ const NOTE = {
   kick: ['The heat is controlled. Nice.', 'That little kick of heat? Fantastic.', 'A lovely warmth that builds.'],
   balanced: ['Salt, acidity, richness, freshness. It\'s all there.', 'Every mouthful is balanced. That\'s cooking.', 'It\'s beautifully balanced. Every element earns its place.'],
   contrast: ['Crisp against creamy. That is what makes a dish.', 'I love the crunch with the soft stuff. Textures!', 'The contrast of textures is delightful.'],
+  crunchy: ['The {c} is still crunchy. It needed longer.', 'The {c} is hard! Another few minutes, please.', 'The {c} has rather too much bite.'],
+  mushy: ['The {c} has gone mushy.', 'The {c} is overcooked. It has gone soft and claggy.', 'The {c} has collapsed into mush.'],
+  overloaded: ['Too many toppings. The middle is soggy.', 'That is a lot of toppings! The base can\'t cope.', 'It is overdressed. The base is drowning.'],
+  puddle: ['Unbreaded mozzarella in an air fryer just melts into a puddle.', 'The cheese has melted everywhere!', 'The mozzarella has staged a jailbreak.'],
+  classic: ['A proper {a}. You respected the classic.', 'Now THAT is a {a}! I\'d know it anywhere.', 'A {a}, made with real affection.'],
   contrast2: ['Rich, creamy and sharp together. The textures work.', 'Gooey, creamy, fresh! I love that contrast!', 'A lovely interplay of textures.'],
   no_crunch: ['It\'s all one texture. It needs something crisp.', 'I\'m missing a crunch. Something to bite into.', 'It\'s rather soft all over. Nursery food.'],
   dry: ['It\'s dry. A sauce would tie it together.', 'I need a sauce with this. It\'s a bit dry.', 'It\'s rather parched. A sauce, a dressing, anything.'],
@@ -1102,7 +1238,7 @@ const NOTE_CAT = {
   raw_unsafe: 'tech', under: 'tech', raw_veg: 'tech', over: 'tech', perfect: 'tech', pale: 'tech', burnt: 'tech', golden: 'tech', patchy: 'tech', floury: 'tech', battered: 'tech', crumbs_off: 'tech',
   steamed: 'tech', cold: 'tech', soggy: 'tech', rested: 'tech', unrested: 'tech', cut_poor: 'tech', cut_good: 'tech', whisk_over: 'tech', whisk_under: 'tech', whisk_good: 'tech', lumpy: 'tech', raw_mix: 'tech',
   melted: 'tech', unmelted: 'tech', eggwash: 'tech', molten: 'tech', raw_bake: 'tech', doughy: 'tech', burnt_garlic: 'flavor', burnt_sugar: 'tech', sticky: 'flavor', crackling: 'tech',
-  under_seasoned: 'flavor', over_salted: 'flavor', seasoned: 'flavor', needs_acid: 'flavor', too_sweet: 'flavor', too_spicy: 'flavor', kick: 'flavor', balanced: 'flavor', contrast: 'flavor', contrast2: 'flavor', no_crunch: 'flavor', dry: 'flavor',
+  under_seasoned: 'flavor', over_salted: 'flavor', seasoned: 'flavor', needs_acid: 'flavor', too_sweet: 'flavor', too_spicy: 'flavor', kick: 'flavor', balanced: 'flavor', contrast: 'flavor', contrast2: 'flavor', crunchy: 'tech', mushy: 'tech', overloaded: 'tech', puddle: 'tech', classic: 'flavor', no_crunch: 'flavor', dry: 'flavor',
   pairing: 'flavor', inventive: 'creative', clash: 'flavor', fish_cheese: 'flavor', marinade: 'flavor', umami: 'flavor', fresh: 'flavor', bland: 'flavor', bitter: 'flavor', sweet_balance: 'flavor',
   messy_rim: 'present', off_plate: 'present', crowded: 'present', sparse: 'present', colourful: 'present', dull: 'present', sauce_art: 'present', drowning: 'present', garnish: 'present', overgarnish: 'present',
   height: 'present', focal: 'present', lopsided: 'present', low_contrast: 'present', pretty: 'present', messy: 'present', one_thing: 'present', empty: 'present',
@@ -1135,6 +1271,15 @@ const MIXCOOK = {
   crumble: { t: 9, b: .8, n: 1, T: 180, core: [0, 9], brown: [.45, 1] },
   crumblebake: { t: 18, b: .75, n: 1, T: 180, core: [1, 1.7], brown: [.45, 1] },
   ganachemix: { t: 5, b: 0, n: 1, T: 150, core: [.6, 9], brown: [0, 9] },
+  rice: { t: 22, b: .15, n: 1, T: 180, core: [.95, 1.25], brown: [0, .55] },
+  pastacook: { t: 15, b: .1, n: 1, T: 180, core: [.9, 1.12], brown: [0, .5] },
+  noodlecook: { t: 9, b: .1, n: 1, T: 180, core: [.9, 1.2], brown: [0, .5] },
+  macbake: { t: 18, b: .7, n: 1, T: 180, core: [.95, 1.3], brown: [.4, .95] },
+  pastabake: { t: 18, b: .7, n: 1, T: 180, core: [.95, 1.3], brown: [.4, .95] },
+  friedrice: { t: 8, b: .6, n: 1, T: 200, core: [1, 1.7], brown: [.3, .95] },
+  curry: { t: 18, b: .1, n: 1, T: 180, core: [1, 1.8], brown: [0, .6] },
+  sugo: { t: 10, b: .05, n: 1, T: 180, core: [.8, 9], brown: [0, 9] },
+  cookie: { t: 9, b: .7, n: 5, T: 170, core: [.85, 1.25], brown: [.35, .9] },
 };
 const TINMIX = new Set(Object.keys(MIXCOOK));
 const fc = T => Math.max(0, (T - 60) / 120);
@@ -1202,6 +1347,8 @@ function nameOf(it){
   const ing = ING[it.id];
   if (it.uses > 1) return ing.name;
   if (it.id === 'eggs' && isCooked(it)) return eggName(it.core);
+  if (isFlatbase(it) && it.adds.some(a => a.mode === 'top')) return flatName(it);
+  if (it.id === 'pizza_dough' && it.cut === 'balls' && it.adds.length){ if (it.adds.some(a => a.kind === 'butter' || /garlic/i.test(a.short || ''))) return 'Garlic dough balls'; if (it.adds.some(a => a.id === 'sugar')) return it.sea.cinnamon ? 'Cinnamon sugar doughnut bites' : 'Sugared doughnut bites'; }
   if (ing.cooked && isCooked(it) && it.brown > .3) return ing.cooked;
   if (ing.ckn && ing.ckn[it.cut] && isCooked(it)) return ing.ckn[it.cut];
   if (ing.cn[it.cut]) return ing.cn[it.cut];
@@ -1212,6 +1359,8 @@ function nameOf(it){
 function mixName(it){
   const m = it.mix;
   if (!isCooked(it)) return m.title;
+  if (m.type === 'rice' && it.brown > .45) return 'Crispy-bottom ' + (m.done || 'rice').toLowerCase();
+  if (m.done) return m.done;
   switch (m.type){
     case 'chocbatter': return it.core <= .85 ? 'Chocolate fondant' : 'Chocolate pudding';
     case 'sponge': return m.title.replace(/ batter$/, '');
@@ -1235,6 +1384,14 @@ function insideWord(it){
       case 'eggmix': return k < .8 ? 'Runny' : k < 1 ? 'Almost set' : k <= 1.35 ? 'Set' : 'Rubbery';
       case 'crumblebake': return k < 1 ? 'Fruit still firm' : k <= 1.7 ? 'Bubbling' : 'Collapsed';
       case 'ganachemix': return k < .6 ? 'Not melted yet' : 'Melted and glossy';
+      case 'rice': return k < .6 ? 'Hard' : k < .95 ? 'Still crunchy' : k <= 1.25 ? 'Fluffy' : 'Mushy';
+      case 'pastacook': return k < .6 ? 'Hard' : k < .9 ? 'Still crunchy' : k <= 1.12 ? 'Al dente' : 'Soft and overcooked';
+      case 'noodlecook': return k < .6 ? 'Hard' : k < .9 ? 'Still firm' : k <= 1.2 ? 'Tender' : 'Mushy';
+      case 'macbake': case 'pastabake': return k < .95 ? 'Not hot through' : k <= 1.3 ? 'Bubbling' : 'Dried out';
+      case 'friedrice': return k < 1 ? 'Egg still runny' : k <= 1.7 ? 'Sizzling' : 'Dried out';
+      case 'curry': return k < 1 ? (it.mix.rawMeat ? 'Meat not cooked yet' : 'Warming through') : k <= 1.8 ? 'Simmering' : 'Reduced too far';
+      case 'sugo': return k < (it.mix.rawMeat ? 1 : .8) ? (it.mix.rawMeat ? 'Meat not cooked yet' : 'Still raw') : 'Rich and thick';
+      case 'cookie': return k < .85 ? 'Raw dough' : k <= 1.25 ? 'Chewy' : 'Hard';
       default: return '';
     }
   }
@@ -1353,6 +1510,8 @@ function classify(parts, act){
   const fruitWord = fruits.length ? (fruits.length > 1 ? 'Mixed fruit' : FRUITNAME[fruits[0]]) : '';
   const herbs = HERBS.filter(has);
   const R = (type, title, o) => Object.assign({ type, title, liquid: false, q: 1 }, o || {});
+  const nr = classifyNew(parts, act, P, R, fruits, sweet);
+  if (nr) return nr;
   // already-mixed things just merge into a bigger version of themselves
   if (has('chocolate') && has('eggs') && any('butter', 'cream') && sweet && act !== 'mash') return R('chocbatter', 'Chocolate fondant batter');
   if (has('flour') && has('eggs') && sweet && act !== 'mash'){
@@ -1450,12 +1609,14 @@ function makeMix(parts, act, q){
   if (r.type === 'dressing') col = ids.includes('balsamic') ? '#5a3422' : ids.includes('mustard') ? '#d6b54a' : ids.includes('lime') ? '#c8cc6a' : '#e4d37a';
   if (r.type === 'glaze') col = ids.includes('soy') ? '#6a3014' : ids.includes('bbq') ? '#6a2414' : ids.includes('balsamic') ? '#4a2216' : ids.includes('sriracha') || ids.includes('chilli') ? '#d8641e' : '#d9921e';
   if (r.title === 'Pesto') col = '#4f8a34';
+  col = newMixCol(r, ids, col);
   const sugar = parts.reduce((s, p) => s + (p.mix ? (p.mix.sugar || 0) : (ING[p.id].sugar || 0) + (p.id === 'sugar' ? .6 : 0)), 0);
   const whiskTypes = ['whipped', 'chocbatter', 'sponge', 'eggmix', 'custard'];
   let qq = r.q;
   if (whiskTypes.includes(r.type)) qq = Math.min(qq, act === 'whisk' ? q : .78);
   const mix = { type: r.type, title: r.title, parts: ids, fl, col, liquid: r.liquid, q: qq, sugar: Math.min(sugar, 2), lumpy: !!r.lumpy, rawPuree: !!r.rawPuree, dressed: r.dressed, act, whisk: act === 'whisk' ? q : null,
-    pcols: parts.filter(p => !p.mix && ING[p.id].kind !== 'spice' && !ING[p.id].liquid && p.id !== 'sugar' && p.id !== 'flour').map(p => itemCol(p)).slice(0, 6) };
+    pcols: parts.filter(p => !p.mix && ING[p.id].kind !== 'spice' && !ING[p.id].liquid && p.id !== 'sugar' && p.id !== 'flour' && !ING[p.id].needsWater).map(p => itemCol(p)).slice(0, 6),
+    done: r.done || null, rawMeat: !!r.rawMeat, conv: !!r.conv, starch: r.starch || null };
   const it = makeItem('mix', { mix, uses: 1, amt: r.liquid ? 100 : 0, cut: 'whole', cq: 1 });
   return it;
 }
@@ -1467,7 +1628,7 @@ const MEATREST = new Set(['steak', 'lamb_chops', 'chicken_breast', 'pork_belly',
 function roleOf(it){
   if (it.mix){
     if (['sauce', 'glaze', 'dressing', 'coulis', 'puree', 'batter', 'whipped', 'cbutter', 'hummus', 'guac', 'ganachemix'].includes(it.mix.type)) return 'sauce';
-    if (['chocbatter', 'sponge', 'crumblebake', 'custard', 'eggmix'].includes(it.mix.type)) return 'star';
+    if (['chocbatter', 'sponge', 'crumblebake', 'custard', 'eggmix'].includes(it.mix.type) || STARMIX.has(it.mix.type)) return 'star';
     return 'side';
   }
   const ing = ING[it.id];
@@ -1475,8 +1636,9 @@ function roleOf(it){
   return 'side';
 }
 function mainScore(it){
-  if (it.mix) return ['chocbatter', 'sponge', 'crumblebake', 'custard', 'eggmix'].includes(it.mix.type) ? 4.5 : 0;
+  if (it.mix) return ['chocbatter', 'sponge', 'crumblebake', 'custard', 'eggmix'].includes(it.mix.type) ? 4.5 : STARMIX.has(it.mix.type) ? 4.6 : ['rice', 'pastacook', 'noodlecook', 'ricedish'].includes(it.mix.type) ? 1.8 : 0;
   const ing = ING[it.id];
+  if (isFlatbase(it) && it.adds.some(a => a.mode === 'top') && it.id === 'pizza_dough') return 5.2;
   return { protein: 5, bake: 4, starch: 2.5, fruit: 2.5, veg: it.cut === 'steak' || it.cut === 'whole' ? 2.6 : 2, bread: 1.5, dairy: 2.2 }[ing.kind] || 1;
 }
 const WROLE = { main: 1, star: .9, side: .65, sauce: .5, garnish: .2 };
@@ -1519,6 +1681,12 @@ function evaluateDish(ctx){
       if (['mash', 'hummus', 'guac', 'puree', 'coulis', 'crushed'].includes(t)) techs.add('mash');
       if (it.mix.whisk != null) techs.add('whisk');
       if (it.mix.ganache){ techs.add('bake'); wows.push('ganache'); }
+      if (it.mix.rawMeat && !(TINMIX.has(t) && cooked && it.core >= 1) && !(it.mix.conv && it.mix.cookedMeat)){ N('raw_unsafe', -6, { c: nm }); flags.unsafe = true; T -= 4; allIdeal = false; continue; }
+      if (it.mix.cookedMeat === false){ N('raw_unsafe', -6, { c: nm }); flags.unsafe = true; T -= 4; allIdeal = false; continue; }
+      if (['pasta', 'noodledish', 'ricedish'].includes(t)){ techs.add('sauce'); techs.add('steam'); if (it.mix.starch === 'under'){ N('crunchy', -1.8 * w, { c: nm }); T -= 1.8 * w; allIdeal = false; } else if (it.mix.starch === 'over'){ N('mushy', -1.4 * w, { c: nm }); T -= 1.3 * w; allIdeal = false; } else { cookedCount++; wows.push(t === 'pasta' ? 'pasta' : t === 'noodledish' ? 'noodles' : 'fluffy rice'); } }
+      if (['pasta', 'curry', 'macbake', 'pastabake', 'noodledish'].includes(t)) creamy++;
+      if (t === 'cookie' && cooked && it.brown >= .35) crispy++;
+      if (t === 'friedrice' && cooked && it.brown >= .4) crispy++;
       if (['whipped', 'mash', 'hummus', 'guac', 'cbutter', 'custard', 'sauce', 'puree', 'coulis', 'ganachemix', 'dressing', 'glaze', 'crushed'].includes(t) || (t === 'chocbatter' && it.core <= .82)) creamy++;
       if (t === 'whipped'){ if (it.mix.whisk != null && it.mix.whisk > .88) { N('whisk_over', -1.4 * Math.max(w, .6), { c: nm }); T -= 1.2 * Math.max(w, .6); } else if (it.mix.q < .62){ N('whisk_under', -1.1 * Math.max(w, .6), { c: nm }); T -= 1 * Math.max(w, .6); } else if (it.mix.q >= .85){ N('whisk_good', .8, { c: nm }); T += .3; } }
       if (['sponge', 'chocbatter', 'custard', 'eggmix'].includes(t)){ if (it.mix.q < .65) T -= .5; else if (it.mix.q >= .9) T += .2; }
@@ -1527,7 +1695,11 @@ function evaluateDish(ctx){
       if (t === 'mess'){ T -= .6; }
       if (t === 'batter' && role.get(it) === 'sauce'){ T -= .8; }
       if (TINMIX.has(t)){
-        if (!cooked){ N('raw_bake', -3 * w, { c: nm }); T -= 3 * w; allIdeal = false; continue; }
+        const starchy = ['rice', 'pastacook', 'noodlecook'].includes(t);
+        if (!cooked){ N(starchy ? 'crunchy' : 'raw_bake', -3 * w, { c: nm }); T -= 3 * w; allIdeal = false; continue; }
+        if (starchy) techs.add('steam');
+        if (cooked){ const ww = { rice: 'fluffy rice', pastacook: 'pasta', noodlecook: 'noodles', macbake: 'mac and cheese', pastabake: 'a pasta bake', friedrice: 'fried rice', curry: 'a curry', cookie: 'cookies' }[t]; if (ww && it.core >= idealCore(it)[0]) wows.push(ww); }
+        if (starchy && cooked){ const [lo2, hi2] = idealCore(it); if (it.core < lo2){ N('crunchy', -2 * w, { c: nm }); T -= 2 * w; allIdeal = false; } else if (it.core > hi2){ N('mushy', -1.5 * w, { c: nm }); T -= 1.4 * w; allIdeal = false; } else cookedCount++; if (it.mix.q < .6){ N(it.mix.q < .5 ? 'crunchy' : 'mushy', -1 * w, { c: nm }); T -= .9 * w; } const [b0, b1] = idealBrown(it); if (it.brown > b1 + .05){ N('burnt', -1.4 * w, { c: nm }); T -= 1.2 * w; } continue; }
         if (cooked){ techs.add('bake'); cookedCount++; }
         const [lo, hi] = idealCore(it);
         if (t === 'chocbatter'){
@@ -1621,6 +1793,9 @@ function evaluateDish(ctx){
       if (a.mode === 'glaze' || (a.mode === 'marinade' && a.sugar > .4)){ techs.add('glaze'); if (okBrown && it.brown >= blo){ N('sticky', 1.1, { c: nm }); } }
       if (a.mode === 'marinade'){ if (it.marMin >= 12){ techs.add('marinate'); N('marinade', 1 + Math.min(.6, it.marMin / 60), { c: nm }); } }
     }
+    if (isFlatbase(it)){ const tp = it.adds.filter(a => a.mode === 'top' && (a.kind === 'item' || a.kind === 'fruit')).length; if (tp > 5){ N('overloaded', -1.2 * w, { c: nm }); T -= 1 * w; } if (it.id === 'pizza_dough' && okCore && okBrown && it.adds.some(a => a.mode === 'top')){ wows.push('a proper pizza'); techs.add('pizza'); } else if (it.adds.some(a => a.mode === 'top')) techs.add('pizza'); }
+    if (it.id === 'mozzarella' && it.cut === 'sticks' && !isBreaded(it)){ N('puddle', -2 * w, { c: nm }); T -= 1.8 * w; }
+    if (it.id === 'gnocchi' && okBrown) wows.push('crispy gnocchi');
     if (it.id === 'pork_belly' && ['whole', 'sliced'].includes(it.cut) && it.brown >= .85 && okBrown){ N('crackling', 1.8, { c: nm }); T += .5; wows.push('crackling'); }
     if (it.id === 'parmesan' && okBrown) { wows.push('parmesan crisps'); crispy++; }
     if (it.id === 'garlic' && it.cut === 'whole' && okCore) wows.push('roasted garlic');
@@ -1651,7 +1826,7 @@ function evaluateDish(ctx){
   for (const it of comps){
     const ing = ingOf(it), r = role.get(it);
     if (r === 'garnish' || r === 'sauce') continue;
-    const savoury = it.mix ? ['mash', 'crushed', 'eggmix', 'hummus', 'guac'].includes(it.mix.type) : ['protein', 'veg', 'starch'].includes(ing.kind) && (isCooked(it) || ing.kind === 'protein');
+    const savoury = it.mix ? ['mash', 'crushed', 'eggmix', 'hummus', 'guac', 'pasta', 'noodledish', 'friedrice', 'curry', 'macbake', 'pastabake'].includes(it.mix.type) : ['protein', 'veg', 'starch'].includes(ing.kind) && (isCooked(it) || ing.kind === 'protein');
     if (!savoury || sweetDish) continue;
     const fl = flavorOf(it), salt = (fl.salt || 0) + sauceSalt * .6, w = W(it), nm = lname(it);
     if (salt < .75){ N('under_seasoned', -(1.2 + (.75 - salt) * 1.4) * w, { c: nm }); F -= (1 + (.75 - salt) * 1.6) * w; seasonedBad++; }
@@ -1683,7 +1858,7 @@ function evaluateDish(ctx){
   if (crispy && creamy){ N('contrast', 1.4, {}); F += .6; }
   else if (sweetDish && creamy && freshFruit){ N('contrast2', 1.4, {}); F += .6; }
   else if (!crispy && comps.length >= 1 && !sweetDish){ N('no_crunch', -.6, {}); F -= .4; }
-  const sauced = sauces.length > 0 || comps.some(it => it.mix && ['salsa', 'slaw', 'salad', 'mash', 'crushed', 'guac', 'hummus', 'whipped', 'cbutter', 'fruitsalad', 'custard'].includes(it.mix.type)) || comps.some(it => it.adds.some(a => a.mode === 'glaze' || (a.mode === 'top' && a.cheese)) || (it.mix && it.mix.type === 'chocbatter' && it.core <= .82));
+  const sauced = sauces.length > 0 || comps.some(it => it.mix && ['salsa', 'slaw', 'salad', 'mash', 'crushed', 'guac', 'hummus', 'whipped', 'cbutter', 'fruitsalad', 'custard', 'pasta', 'curry', 'macbake', 'pastabake', 'noodledish'].includes(it.mix.type)) || comps.some(it => it.adds.some(a => a.kind === 'sauce')) || comps.some(it => it.adds.some(a => a.mode === 'glaze' || (a.mode === 'top' && a.cheese)) || (it.mix && it.mix.type === 'chocbatter' && it.core <= .82));
   if (!sauced && comps.length && !sweetDish){ N('dry', -1, {}); F -= .9; }
   /* pairings */
   const idl = [...ids].filter(x => ING[x] && ING[x].kind !== 'bake');
@@ -1706,6 +1881,8 @@ function evaluateDish(ctx){
   /* ---------- presentation ---------- */
   let P = 5.6;
   if (pa){
+    if (main && pa.plate === 'bowl' && main.mix && ['pasta', 'curry', 'noodledish', 'friedrice', 'macbake', 'pastabake'].includes(main.mix.type)) P += .3;
+    if (main && pa.plate === 'board' && main.id === 'pizza_dough') P += .3;
     const c = pa.coverage;
     if (c < .08){ N('sparse', -2, {}); P -= 2; } else if (c < .17){ N('sparse', -1.1, {}); P -= 1.1; } else if (c <= .55) P += .6; else if (c > .7){ N('crowded', -1.2, {}); P -= 1.2; }
     if (pa.rimFrac > .025){ N('messy_rim', -(1 + Math.min(1.2, pa.rimFrac * 20)), {}); P -= Math.min(2.2, .8 + pa.rimFrac * 25); }
@@ -1769,7 +1946,9 @@ function evaluateDish(ctx){
     if (rec.garnish && !garn.some(g => g.id === rec.garnish)) C -= .6;
     C = clamp(C, 0, 10);
   }
-  return { T: clamp(T, 0, 10), F: clamp(F, 0, 10), P, C: clamp(C, 0, 10), notes, flags, ids, techs, main, dish, sweetDish, crispy, creamy, briefPen };
+  const classics = flags.unsafe ? [] : recognise(comps, sauces);
+  if (classics.length){ N('classic', 1.5, { a: classics[0].name.toLowerCase().replace(/^bbq/, 'BBQ') }); F = Math.min(10, F + .4); C = Math.min(10, C + .3); }
+  return { T: clamp(T, 0, 10), F: clamp(F, 0, 10), P, C: clamp(C, 0, 10), notes, flags, ids, techs, main, dish, sweetDish, crispy, creamy, briefPen, classics };
 }
 function detailFor(it){
   const ing = ingOf(it);
@@ -1793,6 +1972,9 @@ function themeOK(key, comps, direct, ids, main){
     case 'breakfast': return ['eggs', 'bacon', 'sausages'].some(has) || comps.some(it => it.mix && ['eggmix'].includes(it.mix.type));
     case 'garden': return !meaty && !!main && (main.mix ? true : ['veg', 'starch', 'fruit', 'dairy', 'bake', 'protein'].includes(ING[main.id].kind) && !ING[main.id].tags.includes('meat'));
     case 'sea': return !!main && !main.mix && ING[main.id].tags.some(t => t === 'fish' || t === 'seafood');
+    case 'italian': return comps.some(it => (it.mix && ['pasta', 'pastacook', 'macbake', 'pastabake'].includes(it.mix.type)) || (it.id === 'pizza_dough') || it.id === 'gnocchi');
+    case 'fakeaway': return comps.some(it => (it.mix && ['friedrice', 'curry', 'noodledish', 'noodlecook'].includes(it.mix.type)) || it.id === 'pizza_dough' || it.id === 'chicken_wings' || (it.id === 'beef_mince' && it.cut === 'patties') || (it.id === 'chicken_breast' && isBreaded(it)) || (it.id === 'cod' && isBreaded(it))) || (has('buns') && has('beef_mince'));
+    case 'comfort': return comps.some(it => (it.mix && ['macbake', 'pastabake', 'mash', 'curry', 'crumblebake', 'pasta', 'sponge', 'chocbatter'].includes(it.mix.type)) || it.id === 'pizza_dough' || it.id === 'sausages' || (it.id === 'potatoes' && it.cut === 'whole')) || (has('buns') && has('beef_mince'));
   }
   return true;
 }
@@ -1820,6 +2002,226 @@ function judgeLines(ji, ev, score, used){
   if (!lines.length) lines.push(['It\'s a plate of food. I need to see more from you.', 'Hmm. I don\'t have much to say about that one.', 'It is... there.'][ji]);
   lines.push(VERDICT[j.id][vband(score)]);
   return lines;
+}
+
+/* =====================================================================
+   EXPANSION MODEL: pasta, rice, noodles, curry, pizza, classics
+   ===================================================================== */
+const STARMIX = new Set(['pasta', 'noodledish', 'friedrice', 'curry', 'macbake', 'pastabake', 'cookie']);
+const PASTAWORD = { spaghetti: 'spaghetti', macaroni: 'macaroni' };
+function classifyNew(parts, act, P, R, fruits, sweet){
+  const { has, any, mts } = P;
+  if (parts.every(p => p.id === 'water')) return R('mess', 'A bowl of water', { q: .2 });
+  const dry = parts.filter(p => !p.mix && ING[p.id].needsWater);
+  const water = parts.filter(p => p.id === 'water').length;
+  const cookedOf = t => parts.find(p => p.mix && p.mix.type === t && isCooked(p) && p.core >= .8);
+  const cheese = any('cheddar', 'parmesan', 'mozzarella', 'feta');
+  const rawMeat = parts.some(p => !p.mix && ((ING[p.id].kind === 'protein' && p.id !== 'eggs' && (ING[p.id].safe || ING[p.id].dk === 'meat')) || p.id === 'bacon') && !isCooked(p))
+    || parts.some(p => p.mix && p.mix.rawMeat && !p.mix.cookedMeat && !(TINMIX.has(p.mix.type) && isCooked(p) && p.core >= 1));
+  const others = ex => parts.filter(p => p !== ex && p.id !== 'water').map(p => p.mix ? p.mix.title.toLowerCase() : (SHORT[p.id] || ING[p.id].name.toLowerCase().replace(/^(fresh|dried|ground|smoked|mature|free-range|runny|red|king|chestnut|cherry) /, '')));
+  /* cookie dough: mixed, not whisked */
+  if (act === 'mix' && has('flour') && has('butter') && sweet && any('chocolate', 'oats', 'almonds') && !any('cream', 'milk') && !fruits.length && !dry.length)
+    return R('cookie', 'Cookie dough', { done: has('chocolate') ? 'Chocolate chip cookies' : has('oats') ? 'Oat cookies' : 'Almond cookies' });
+  /* dry rice, pasta and noodles cook in liquid, in a covered tin */
+  if (dry.length){
+    if (has('macaroni') && any('milk', 'cream') && cheese) return R('macbake', 'Macaroni cheese to bake', { done: has('bacon') ? 'Bacon mac and cheese' : 'Macaroni cheese', rawMeat });
+    if (any('macaroni', 'spaghetti') && (has('passata') || mts.has('sugo')) && cheese) return R('pastabake', 'Pasta bake to cook', { done: has('beef_mince') ? 'Beef and tomato pasta bake' : 'Tomato pasta bake', rawMeat });
+    const liquid = water + parts.filter(p => ['milk', 'coconut_milk', 'passata'].includes(p.id)).length;
+    if (!liquid) return R('needwater', 'Needs water', { q: 0 });
+    const q = liquid < dry.length ? .45 : liquid > dry.length + 1 ? .55 : 1;
+    if (has('rice')) return R('rice', 'Rice to steam', { q, done: has('coconut_milk') ? 'Coconut rice' : any('lime', 'lemon', 'coriander', 'parsley', 'spring_onion') ? 'Herby rice' : 'Steamed rice' });
+    if (has('noodles')) return R('noodlecook', 'Noodles to cook', { q, done: 'Egg noodles' });
+    const pw = has('spaghetti') ? 'spaghetti' : 'macaroni';
+    return R('pastacook', cap(pw) + ' to cook', { q, done: has('passata') ? 'One-pot tomato ' + pw : cap(pw), rawMeat });
+  }
+  /* cooked pasta tossed with a sauce */
+  const cp = cookedOf('pastacook');
+  if (cp && parts.length > 1){
+    const pw = cp.mix.parts.includes('macaroni') ? 'macaroni' : 'spaghetti', PW = cap(pw);
+    const tomato = has('passata') || has('tomatoes') || mts.has('sugo');
+    const meat = ['bacon', 'ham', 'pepperoni'].filter(has);
+    let t;
+    if (has('beef_mince') && tomato) t = PW + ' bolognese';
+    else if (has('eggs') && any('parmesan', 'cheddar')) t = meat.length ? PW + ' carbonara' : 'Egg and parmesan ' + pw;
+    else if (has('basil') && has('olive_oil') && any('parmesan', 'almonds')) t = 'Pesto ' + pw;
+    else if (has('prawns') && any('garlic', 'chilli', 'chilli_flakes')) t = 'Chilli prawn ' + pw;
+    else if (tomato) t = any('chilli', 'chilli_flakes') ? PW + ' arrabbiata' : PW + ' pomodoro';
+    else if (any('cream', 'milk') && cheese) t = has('mushrooms') ? 'Creamy mushroom ' + pw : 'Creamy parmesan ' + pw;
+    else if (has('olive_oil') && has('garlic')) t = PW + ' aglio e olio';
+    else if (has('butter') && cheese) t = PW + ' al burro';
+    else t = PW + ' with ' + listJoin(others(cp).slice(0, 2));
+    const [lo, hi] = MIXCOOK.pastacook.core;
+    const starch = cp.core < lo ? 'under' : cp.core > hi + .05 ? 'over' : 'ok';
+    return R('pasta', t, { q: starch === 'ok' ? cp.mix.q : .5, rawMeat, starch });
+  }
+  const cn = cookedOf('noodlecook');
+  if (cn && parts.length > 1){
+    const veg = parts.some(p => !p.mix && ['veg', 'protein'].includes(ING[p.id].kind) && p.id !== 'eggs' && p.id !== 'water');
+    const t = has('soy') && veg ? 'Chow mein-style noodles' : any('sriracha', 'chilli', 'chilli_flakes') ? 'Chilli noodles' : has('soy') ? (has('ginger') ? 'Soy and ginger noodles' : 'Soy noodles') : has('coconut_milk') ? 'Coconut noodles' : 'Dressed noodles';
+    const [lo, hi] = MIXCOOK.noodlecook.core;
+    const starch = cn.core < lo ? 'under' : cn.core > hi + .05 ? 'over' : 'ok';
+    return R('noodledish', t, { q: starch === 'ok' ? cn.mix.q : .5, rawMeat, starch });
+  }
+  const cr = cookedOf('rice');
+  if (cr && parts.length > 1){
+    const [lo, hi] = MIXCOOK.rice.core;
+    const starch = cr.core < lo ? 'under' : cr.core > hi + .05 ? 'over' : 'ok';
+    if (any('eggs', 'soy') || parts.some(p => !p.mix && ['peas', 'ham', 'prawns', 'chicken_thigh', 'chicken_breast', 'bacon', 'corn', 'peppers', 'tofu', 'mushrooms'].includes(p.id))){
+      const add = has('prawns') ? 'Prawn' : any('chicken_thigh', 'chicken_breast') ? 'Chicken' : has('ham') ? 'Ham and egg' : has('eggs') ? 'Egg' : 'Vegetable';
+      return R('friedrice', 'Fried rice to crisp', { q: starch === 'ok' ? cr.mix.q : .5, done: add + ' fried rice', rawMeat });
+    }
+    return R('ricedish', any('lime', 'lemon') ? 'Lime and herb rice' : any('coriander', 'parsley', 'spring_onion', 'mint') ? 'Herby rice' : 'Dressed rice', { q: starch === 'ok' ? cr.mix.q : .5, starch });
+  }
+  /* curries and sauces that simmer in a tin */
+  const spiced = any('curry', 'cumin', 'paprika', 'chilli', 'chilli_flakes', 'ginger', 'garlic');
+  if ((has('coconut_milk') || (has('passata') && any('curry', 'cumin'))) && spiced && !fruits.length){
+    const MAINS = { chickpeas: 'chickpea', chicken_thigh: 'chicken', chicken_breast: 'chicken', prawns: 'prawn', cauliflower: 'cauliflower', tofu: 'tofu', sweet_potato: 'sweet potato', peppers: 'pepper', mushrooms: 'mushroom', broccoli: 'broccoli', potatoes: 'potato', lamb_chops: 'lamb', peas: 'pea', courgette: 'courgette', salmon: 'salmon', cod: 'fish' };
+    const m = Object.keys(MAINS).find(has);
+    if (m) return R('curry', 'Curry to simmer', { done: cap(MAINS[m]) + (has('coconut_milk') ? ' coconut curry' : ' curry'), rawMeat });
+    return R('sugo', 'Curry sauce base', { done: has('coconut_milk') ? 'Coconut curry sauce' : 'Curry sauce', conv: 1 });
+  }
+  if (has('passata') && !any('mayo', 'yogurt') && !fruits.length){
+    if (has('beef_mince')) return R('sugo', 'Ragù to simmer', { done: 'Beef ragù', conv: 1, rawMeat });
+    return R('sugo', 'Tomato sauce base', { done: any('chilli', 'chilli_flakes') ? 'Arrabbiata sauce' : 'Rich tomato sauce', conv: 1 });
+  }
+  return null;
+}
+function newMixCol(r, ids, col){
+  const has = x => ids.includes(x), t = r.title || '';
+  switch (r.type){
+    case 'rice': return has('coconut_milk') ? '#f6efdc' : '#f4efe2';
+    case 'pastacook': return has('passata') ? '#d8643a' : '#efd59a';
+    case 'noodlecook': return '#e9c77a';
+    case 'macbake': return '#f2c65a';
+    case 'pastabake': return '#d0683a';
+    case 'friedrice': return has('soy') ? '#dcb46c' : '#ecd9a0';
+    case 'curry': return has('passata') && !has('coconut_milk') ? '#c8642a' : has('curry') ? '#e2a43a' : '#e8c27a';
+    case 'sugo': return has('coconut_milk') ? '#e2a43a' : has('beef_mince') ? '#9a3a24' : '#c8392a';
+    case 'cookie': return has('chocolate') ? '#d9a868' : '#d8b878';
+    case 'pasta': return /bolognese/i.test(t) ? '#a8452a' : /pomodoro|arrabbiata/i.test(t) ? '#d24a2a' : /pesto/i.test(t) ? '#7aa04a' : /carbonara|egg and/i.test(t) ? '#f2d78a' : /creamy/i.test(t) ? '#f3ead2' : '#efd59a';
+    case 'noodledish': return has('soy') ? '#b8803a' : '#e2bc6a';
+    case 'ricedish': return '#f2eedc';
+    case 'needwater': return '#cfe6f2';
+  }
+  return col;
+}
+/* pizza bases, tortillas, toast, puff pastry and jacket potatoes take toppings */
+function isFlatbase(it){
+  if (!it || it.mix) return false;
+  return (it.id === 'pizza_dough' && it.cut === 'base') || (it.id === 'tortillas' && it.cut === 'whole') || (it.id === 'sourdough' && it.cut === 'sliced')
+    || (it.id === 'pastry' && it.cut === 'squares') || (it.id === 'potatoes' && it.cut === 'whole' && isCooked(it));
+}
+function flatName(it){
+  const tops = it.adds.filter(a => a.mode === 'top');
+  const hasI = id => tops.some(a => a.id === id || (a.parts || []).includes(id));
+  const items = tops.filter(a => a.kind === 'item' || a.kind === 'fruit');
+  const sauce = tops.find(a => a.kind === 'sauce');
+  const cheeses = tops.filter(a => a.cheese);
+  const cooked = isCooked(it);
+  const kindOf = a => ING[a.id] ? ING[a.id].kind : 'mix';
+  if (it.id === 'pizza_dough'){
+    let n;
+    if (hasI('pepperoni')) n = 'Pepperoni pizza';
+    else if (hasI('ham') && hasI('pineapple')) n = 'Hawaiian pizza';
+    else if (hasI('bbq') && items.some(a => ['chicken_thigh', 'chicken_breast', 'chicken_wings'].includes(a.id))) n = 'BBQ chicken pizza';
+    else if (items.length && hasI('mushrooms') && items.every(a => ['mushrooms', 'basil', 'oregano'].includes(a.id))) n = 'Funghi pizza';
+    else if (sauce && (hasI('passata') || hasI('tomatoes')) && hasI('mozzarella') && items.every(a => ['basil', 'tomatoes'].includes(a.id))) n = 'Margherita pizza';
+    else if (cheeses.length >= 2 && !items.length) n = 'Four cheese pizza';
+    else if (items.filter(a => ['veg', 'fruit', 'herb'].includes(kindOf(a))).length >= 2 && !items.some(a => kindOf(a) === 'protein')) n = 'Veggie pizza';
+    else if (sauce && /pesto/i.test(sauce.short || '')) n = 'Pesto pizza';
+    else if (items.length) n = cap(listJoin(items.slice(0, 2).map(a => (a.short || '').replace(/^(sliced|diced|halved|torn|crumbled|grated|loose|browned) /, '')))) + ' pizza';
+    else n = cheeses.length ? 'Cheese pizza' : 'Tomato pizza';
+    return cooked ? n : n + ' (unbaked)';
+  }
+  if (it.id === 'tortillas'){
+    if (cheeses.length && cooked) return items.length ? 'Loaded quesadilla' : 'Quesadilla';
+    return cooked ? 'Loaded tortilla' : 'Topped tortilla';
+  }
+  if (it.id === 'sourdough'){
+    if (tops.some(a => a.kind === 'butter' && /garlic/i.test(a.short || ''))) return 'Garlic bread';
+    if (hasI('tomatoes')) return 'Bruschetta';
+    if (cheeses.length) return cooked ? 'Cheese on toast' : 'Cheese on bread';
+    return 'Topped toast';
+  }
+  if (it.id === 'pastry'){
+    const fr = items.find(a => ING[a.id] && ING[a.id].kind === 'fruit');
+    if (fr) return cap(FRUITNAME[fr.id] ? FRUITNAME[fr.id].toLowerCase() : ING[fr.id].name.toLowerCase()) + ' puff tart';
+    if (cheeses.length) return 'Cheese puff tart';
+    if (hasI('tomatoes')) return 'Tomato puff tart';
+    return 'Puff tart';
+  }
+  if (it.id === 'potatoes') return cheeses.length ? 'Cheesy jacket potato' : 'Loaded jacket potato';
+  return nameOf(Object.assign({}, it, { adds: [] }));
+}
+
+/* the classic dishes the judges recognise */
+function dishCtx(comps, sauces){
+  const items = [...comps, ...sauces.map(s => s.item)];
+  const all = new Set();
+  for (const it of items){
+    (it.mix ? it.mix.parts : [it.id]).forEach(x => all.add(x));
+    for (const a of it.adds) (a.parts || [a.id]).forEach(x => all.add(x));
+    for (const k in it.sea) if (it.sea[k] > 0) all.add(k);
+  }
+  const tops = it => it ? it.adds.filter(a => a.mode === 'top') : [];
+  return {
+    items, has: x => all.has(x),
+    mix: t => items.find(it => it.mix && it.mix.type === t && (!TINMIX.has(t) || isCooked(it))),
+    item: (id, f) => items.find(it => !it.mix && it.id === id && (!f || f(it))),
+    ck: id => items.find(it => !it.mix && it.id === id && isCooked(it)),
+    topHas: (it, id) => tops(it).some(a => a.id === id || (a.parts || []).includes(id)),
+    pizza: items.find(it => it.id === 'pizza_dough' && it.cut === 'base' && isCooked(it) && tops(it).length),
+    title: re => items.some(it => re.test(nameOf(it))),
+  };
+}
+const CLASSICS = [
+  { key: 'margherita', name: 'Margherita pizza', hint: 'A pizza base, passata and mozzarella', t: D => D.pizza && /Margherita/.test(nameOf(D.pizza)) },
+  { key: 'pepperoni', name: 'Pepperoni pizza', hint: 'A pizza with pepperoni', t: D => D.pizza && D.topHas(D.pizza, 'pepperoni') },
+  { key: 'hawaiian', name: 'Hawaiian pizza', hint: 'A pizza with ham and pineapple', t: D => D.pizza && D.topHas(D.pizza, 'ham') && D.topHas(D.pizza, 'pineapple') },
+  { key: 'funghi', name: 'Funghi pizza', hint: 'A pizza with mushrooms', t: D => D.pizza && /Funghi/.test(nameOf(D.pizza)) },
+  { key: 'bbqpizza', name: 'BBQ chicken pizza', hint: 'BBQ sauce and cooked chicken on a pizza', t: D => D.pizza && /BBQ chicken/.test(nameOf(D.pizza)) },
+  { key: 'veggiepizza', name: 'Veggie pizza', hint: 'A pizza loaded with vegetables', t: D => D.pizza && /Veggie/.test(nameOf(D.pizza)) },
+  { key: 'doughballs', name: 'Garlic dough balls', hint: 'Dough balls with garlic butter', t: D => D.items.some(it => it.id === 'pizza_dough' && it.cut === 'balls' && isCooked(it) && /Garlic/.test(nameOf(it))) },
+  { key: 'doughnuts', name: 'Cinnamon doughnut bites', hint: 'Dough balls, cinnamon and sugar', t: D => D.items.some(it => it.id === 'pizza_dough' && it.cut === 'balls' && isCooked(it) && /Cinnamon/.test(nameOf(it))) },
+  { key: 'meatballs', name: 'Spaghetti and meatballs', hint: 'Pasta in tomato sauce, with meatballs', t: D => D.mix('pasta') && D.has('passata') && D.item('beef_mince', it => it.cut === 'balls' && isCooked(it)) },
+  { key: 'bolognese', name: 'Spaghetti bolognese', hint: 'Pasta with a beef and tomato ragù', t: D => D.title(/bolognese/i) },
+  { key: 'carbonara', name: 'Spaghetti carbonara', hint: 'Pasta, egg, parmesan and bacon', t: D => D.title(/carbonara/i) },
+  { key: 'pomodoro', name: 'Spaghetti pomodoro', hint: 'Pasta in tomato sauce', t: D => D.title(/(pomodoro|arrabbiata)$|one-pot tomato/i) },
+  { key: 'aglio', name: 'Spaghetti aglio e olio', hint: 'Pasta, garlic and olive oil', t: D => D.title(/aglio e olio/i) },
+  { key: 'pesto', name: 'Pesto pasta', hint: 'Pasta with a homemade pesto', t: D => D.title(/^pesto (spaghetti|macaroni)/i) },
+  { key: 'maccheese', name: 'Macaroni cheese', hint: 'Macaroni, milk and cheese, baked', t: D => D.mix('macbake') },
+  { key: 'pastabake', name: 'Pasta bake', hint: 'Pasta, passata and cheese, baked', t: D => D.mix('pastabake') },
+  { key: 'friedrice', name: 'Egg fried rice', hint: 'Cooked rice, egg and soy, crisped up', t: D => { const f = D.mix('friedrice'); return !!f && f.mix.parts.includes('eggs'); } },
+  { key: 'curryrice', name: 'Curry and rice', hint: 'A curry served with fluffy rice', t: D => D.mix('curry') && (D.mix('rice') || D.mix('ricedish')) },
+  { key: 'chowmein', name: 'Chow mein', hint: 'Noodles, soy and vegetables', t: D => D.title(/chow mein/i) },
+  { key: 'gnocchi', name: 'Crispy gnocchi', hint: 'Air-fried gnocchi with a sauce', t: D => D.ck('gnocchi') && (D.has('passata') || D.has('basil') || D.has('parmesan') || D.has('butter')) },
+  { key: 'fishchips', name: 'Fish and chips', hint: 'Crumbed cod and chips', t: D => D.item('cod', it => (isBreaded(it) || coatType(it) === 'battered') && isCooked(it)) && D.item('potatoes', it => ['fries', 'wedges'].includes(it.cut) && isCooked(it)) },
+  { key: 'katsu', name: 'Chicken katsu', hint: 'Breaded chicken with a curry sauce', t: D => D.item('chicken_breast', it => isBreaded(it) && isCooked(it)) && D.has('curry') },
+  { key: 'cheeseburger', name: 'Cheeseburger', hint: 'A burger with melted cheese', t: D => D.item('buns') && D.item('beef_mince', it => it.cut === 'patties' && isCooked(it) && it.adds.some(a => a.cheese && a.melt >= 2)) },
+  { key: 'burger', name: 'Burger', hint: 'A beef patty in a bun', t: D => D.item('buns') && D.item('beef_mince', it => it.cut === 'patties' && isCooked(it)) },
+  { key: 'tacos', name: 'Tacos', hint: 'Tortillas, a filling and a salsa', t: D => D.item('tortillas', it => it.cut === 'whole') && D.items.some(it => !it.mix && ING[it.id].kind === 'protein' && isCooked(it)) && (D.mix('salsa') || D.mix('slaw') || D.mix('guac')) },
+  { key: 'nachos', name: 'Nachos', hint: 'Tortilla chips with cheese or salsa', t: D => D.item('tortillas', it => it.cut === 'wedges' && isCooked(it)) && (D.has('cheddar') || D.mix('salsa') || D.mix('guac')) },
+  { key: 'quesadilla', name: 'Quesadilla', hint: 'A tortilla with melted cheese', t: D => D.items.some(it => /Quesadilla/.test(nameOf(it))) },
+  { key: 'breakfast', name: 'Full breakfast', hint: 'Eggs, bacon and sausages', t: D => D.ck('eggs') && D.ck('bacon') && D.ck('sausages') },
+  { key: 'bangers', name: 'Bangers and mash', hint: 'Sausages with mash', t: D => D.ck('sausages') && D.mix('mash') },
+  { key: 'steakchips', name: 'Steak and chips', hint: 'Steak with chips', t: D => D.ck('steak') && D.item('potatoes', it => ['fries', 'wedges'].includes(it.cut) && isCooked(it)) },
+  { key: 'jacket', name: 'Loaded jacket potato', hint: 'A whole baked potato with toppings', t: D => D.title(/jacket potato/i) },
+  { key: 'bruschetta', name: 'Bruschetta', hint: 'Toast topped with tomatoes', t: D => D.items.some(it => /Bruschetta/.test(nameOf(it)) && isCooked(it)) },
+  { key: 'garlicbread', name: 'Garlic bread', hint: 'Toast with garlic butter', t: D => D.items.some(it => /Garlic bread/.test(nameOf(it)) && isCooked(it)) },
+  { key: 'caprese', name: 'Caprese salad', hint: 'Tomato, mozzarella and basil', t: D => D.mix('salad') && D.has('mozzarella') && D.has('tomatoes') },
+  { key: 'hummus', name: 'Hummus and crispy chickpeas', hint: 'Homemade hummus with something crunchy', t: D => D.mix('hummus') && (D.ck('chickpeas') || D.item('tortillas', isCooked) || D.ck('sourdough')) },
+  { key: 'hotwings', name: 'Sticky wings', hint: 'Wings glazed with something sweet', t: D => D.item('chicken_wings', it => isCooked(it) && it.adds.some(a => (a.sugar || 0) > .3)) },
+  { key: 'salmonrice', name: 'Teriyaki-style salmon and rice', hint: 'Soy-glazed salmon with rice', t: D => D.item('salmon', it => isCooked(it) && it.adds.some(a => (a.parts || [a.id]).includes('soy'))) && (D.mix('rice') || D.mix('ricedish')) },
+  { key: 'fondant', name: 'Chocolate fondant', hint: 'A chocolate pudding with a molten centre', t: D => { const f = D.mix('chocbatter'); return !!f && f.core <= .82; } },
+  { key: 'brulee', name: 'Crème brûlée', hint: 'Baked custard with a burnt-sugar top', t: D => D.title(/brûlée/) },
+  { key: 'crumble', name: 'Apple crumble', hint: 'Apples under a crumble topping', t: D => { const c = D.mix('crumblebake'); return !!c && c.mix.parts.includes('apples'); } },
+  { key: 'cookies', name: 'Chocolate chip cookies', hint: 'Flour, butter, sugar and chocolate', t: D => { const c = D.mix('cookie'); return !!c && c.mix.parts.includes('chocolate'); } },
+  { key: 'strawcream', name: 'Strawberries and cream', hint: 'Strawberries with whipped cream', t: D => D.item('strawberries') && D.mix('whipped') },
+  { key: 'tart', name: 'Fruit puff tart', hint: 'Puff pastry topped with fruit', t: D => D.items.some(it => /puff tart/i.test(nameOf(it)) && isCooked(it) && !/^(Cheese|Tomato|Puff)/.test(nameOf(it))) },
+];
+function recognise(comps, sauces){
+  const D = dishCtx(comps, sauces);
+  return CLASSICS.filter(c => { try { return !!c.t(D); } catch (e){ return false; } });
 }
 
 /* =====================================================================
@@ -1883,10 +2285,10 @@ const GOLD = { thigh: '#c88534', breast: '#c98a3a', wing: '#c47a2c', belly: '#c9
 function visualOf(it){
   const v = { id: it.id, cut: it.cut, core: +it.core.toFixed(3), brown: +it.brown.toFixed(3), uneven: +it.uneven.toFixed(3), seed: it.seed, sliced: it.sliced ? 1 : 0,
     coat: coatType(it), oil: it.oil ? 1 : 0, uses: it.uses, cooked: isCooked(it) ? 1 : 0 };
-  if (it.mix) v.mix = { type: it.mix.type, col: it.mix.col, pcols: it.mix.pcols || [], liquid: it.mix.liquid ? 1 : 0 };
+  if (it.mix) v.mix = { type: it.mix.type, col: it.mix.col, pcols: it.mix.pcols || [], liquid: it.mix.liquid ? 1 : 0, mac: it.mix.parts && it.mix.parts.includes('macaroni') && !it.mix.parts.includes('spaghetti') ? 1 : 0 };
   const tops = [];
   for (const a of it.adds){
-    if (a.mode === 'top') tops.push({ k: a.kind, col: a.col, melt: a.melt || 0 });
+    if (a.mode === 'top') tops.push(a.v ? { k: a.kind, col: a.col, melt: a.melt || 0, v: a.v } : { k: a.kind, col: a.col, melt: a.melt || 0 });
     else if (a.mode === 'glaze' || (a.mode === 'marinade' && a.vis)) v.glaze = a.col;
   }
   if (tops.length) v.tops = tops;
@@ -1935,12 +2337,20 @@ function specOf(v){
     if (v.mix.liquid) return { s: 'pot', w: 58, h: 58, n: 1 };
     if (TINMIX.has(t)){
       if (!v.cooked) return { s: 'ramekin', w: 78, h: 78, n: 1 };
+      if (t === 'rice' || t === 'friedrice') return { s: 'riceheap', w: 124, h: 100, n: 1 };
+      if (t === 'pastacook') return { s: 'pastanest', w: 124, h: 112, n: 1 };
+      if (t === 'noodlecook') return { s: 'noodles', w: 124, h: 112, n: 1 };
+      if (t === 'curry') return { s: 'stew', w: 136, h: 116, n: 1 };
+      if (t === 'cookie') return { s: 'cookie', w: 52, h: 52, n: 5 };
       if (t === 'chocbatter') return { s: 'fondant', w: 92, h: 92, n: 1 };
       if (t === 'sponge') return v.sliced ? { s: 'cakeslice', w: 84, h: 58, n: 3 } : { s: 'cake', w: 140, h: 140, n: 1 };
       if (t === 'eggmix') return v.sliced ? { s: 'fwedge', w: 90, h: 64, n: 4 } : { s: 'frittata', w: 140, h: 140, n: 1 };
       if (t === 'crumble') return { s: 'crumb', w: 9, h: 8, n: 34 };
       return { s: 'ramekin', w: 86, h: 86, n: 1 };
     }
+    if (t === 'pasta') return { s: 'pastanest', w: 128, h: 116, n: 1 };
+    if (t === 'noodledish') return { s: 'noodles', w: 128, h: 116, n: 1 };
+    if (t === 'ricedish') return { s: 'riceheap', w: 124, h: 100, n: 1 };
     const s = MIXSHAPE[t] || 'quenelle';
     if (s === 'heap') return { s: t === 'slaw' ? 'shred' : t === 'salad' ? 'leaf' : 'cube', w: t === 'slaw' ? 56 : t === 'salad' ? 44 : 14, h: t === 'slaw' ? 5 : t === 'salad' ? 30 : 14, n: t === 'slaw' ? 34 : t === 'salad' ? 14 : 24, heap: 1 };
     if (s === 'crushed') return { s: 'crushed', w: 40, h: 34, n: 7 };
@@ -1950,9 +2360,9 @@ function specOf(v){
   }
   const ing = ING[v.id];
   if (v.uses > 1){
-    if (ing.box) return { s: ing.box, w: 96, h: 52, n: 1, box: 1 };
+    if (ing.box){ const bx = FAM[ing.box] && FAM[ing.box].whole; return bx ? { s: bx[0], w: bx[1], h: bx[2], n: 1, box: 1 } : { s: ing.box, w: 96, h: 52, n: 1, box: 1 }; }
     const cf = FAM[ing.fam];
-    if (['jar', 'bottle', 'bag', 'carton', 'tub', 'shaker'].includes(ing.fam)) return { s: cf.whole[0], w: cf.whole[1], h: cf.whole[2], n: 1, box: 1 };
+    if (['jar', 'bottle', 'bag', 'carton', 'tub', 'shaker', 'can'].includes(ing.fam)) return { s: cf.whole[0], w: cf.whole[1], h: cf.whole[2], n: 1, box: 1 };
     if (ing.fam === 'cheese') return { s: 'cheesewedge', w: 80, h: 56, n: 1, box: 1 };
     if (ing.fam === 'herb') return { s: 'sprig', w: 62, h: 40, n: 3 };
     if (ing.fam === 'mozz') return { s: 'ball', w: 60, h: 60, n: 1 };
@@ -2035,13 +2445,18 @@ function drawFood(x, v, arr = 'pile', pcs = null, opt = {}){
     x.restore();
   }
   if (v.tops && !sp.box) drawTops(x, v, L);
+  if (sp.s === 'pizza' && v.sliced) pizzaCuts(x, L);
 }
+const TOPORDER = { sauce: 0, butter: 1, cheese: 2 };
 function drawTops(x, v, L){
   const sp = L.sp, r = mulberry(v.seed + 99);
+  const flat = ['pizza', 'breadslice', 'tortilla', 'pastry', 'potato'].includes(sp.s);
+  const tops = [...v.tops].sort((a, b) => (TOPORDER[a.k] ?? 3) - (TOPORDER[b.k] ?? 3));
   for (const p of L.p){
     x.save(); x.translate(p.x, p.y); x.rotate(p.rot);
-    for (const t of v.tops){
-      const w = sp.w * .7, h = sp.h * .7;
+    for (const t of tops){
+      const w = sp.w * (sp.s === 'pizza' ? .78 : .7), h = sp.h * (sp.s === 'pizza' ? .78 : .7);
+      if (flat && (t.k === 'sauce' || t.k === 'item' || (t.k === 'cheese' && sp.s === 'pizza'))){ drawFlatTop(x, v, sp, t, w, h, r); continue; }
       if (t.k === 'cheese'){
         const m = clamp(t.melt / 3, 0, 1);
         x.fillStyle = mixc(t.col, '#c98a2e', m * Math.min(1, v.brown) * .4);
@@ -2726,14 +3141,135 @@ function drawWhisk(x, cx, cy, s, t = 0){
 }
 
 /* =====================================================================
+   EXPANSION SHAPES: pizza, pasta, rice, noodles, curry, cookies...
+   ===================================================================== */
+function drawFlatTop(x, v, sp, t, w, h, r){
+  const round = sp.s === 'pizza' || sp.s === 'tortilla';
+  const area = (fn) => { x.save(); if (round) ell(x, 0, 0, w / 2, h / 2); else rr(x, -w / 2, -h / 2, w, h, 8); x.clip(); fn(); x.restore(); };
+  if (t.k === 'sauce'){
+    const col = v.cooked ? mixc(t.col, '#5a2010', clamp(v.brown * .35, 0, .4)) : t.col;
+    x.fillStyle = col; x.globalAlpha = .92;
+    if (round){ blob(x, w * .98, h * .98, (v.seed % 97) / 97, .05, 16); x.fill(); }
+    else { blob(x, w * .9, h * .85, (v.seed % 89) / 89, .08, 12); x.fill(); }
+    x.globalAlpha = 1;
+    x.fillStyle = 'rgba(255,255,255,.12)'; ell(x, -w * .15, -h * .18, w * .18, h * .06); x.fill();
+    return;
+  }
+  if (t.k === 'cheese'){
+    const m = clamp(t.melt / 3, 0, 1);
+    area(() => {
+      if (m > .5){
+        for (let i = 0; i < 9; i++){ const a = r() * 6.28, d = Math.sqrt(r()) * w * .36; x.fillStyle = mixc(t.col, '#e0a040', clamp(v.brown - .3, 0, .6)); x.save(); x.translate(Math.cos(a) * d, Math.sin(a) * d); blob(x, w * (.26 + r() * .12), h * (.22 + r() * .1), r(), .3, 8); x.fill(); x.restore(); }
+        if (v.brown > .7){ x.fillStyle = 'rgba(150,80,20,.45)'; for (let i = 0; i < 10; i++){ ell(x, (r() - .5) * w * .7, (r() - .5) * h * .7, 3 + r() * 4, 2 + r() * 3); x.fill(); } }
+      } else {
+        x.fillStyle = t.col; for (let i = 0; i < 26; i++){ x.save(); x.translate((r() - .5) * w * .8, (r() - .5) * h * .8); x.rotate(r() * 3); x.fillRect(-6, -1.3, 12, 2.6); x.restore(); }
+      }
+    });
+    return;
+  }
+  if (!t.v) return;
+  const tv = Object.assign({}, t.v, v.cooked ? { core: Math.max(t.v.core || 0, .9), brown: Math.max(t.v.brown || 0, v.brown * .55), cooked: 1 } : {});
+  const L2 = layout(tv, 'scatter', null), fn = SH[L2.sp.s] || SH.blob;
+  const n = Math.min(L2.p.length, sp.s === 'pizza' ? 9 : 6);
+  const s = clamp(Math.min(w, h) * .32 / Math.max(L2.sp.w, L2.sp.h), .18, .7);
+  for (let i = 0; i < n; i++){
+    const pp = L2.p[i], a = i * 2.39996 + (v.seed % 7), d = (round ? Math.sqrt((i + .5) / n) * .36 : Math.sqrt((i + .5) / n) * .3) * Math.min(w, h);
+    x.save(); x.translate(Math.cos(a) * d * (round ? 1 : w / h), Math.sin(a) * d); x.rotate(pp.rot); x.scale(s, s);
+    fn(x, L2.sp, cols(tv, pp.b * .1), tv, pp);
+    x.restore();
+  }
+}
+function pizzaCuts(x, L){
+  const p = L.p[0], R = L.sp.w / 2;
+  x.save(); x.translate(p.x, p.y); x.rotate(p.rot);
+  x.strokeStyle = 'rgba(60,30,10,.55)'; x.lineWidth = 2.4;
+  for (let i = 0; i < 6; i++){ const a = i / 6 * Math.PI * 2 + .3; x.beginPath(); x.moveTo(0, 0); x.lineTo(Math.cos(a) * R * .98, Math.sin(a) * R * .98); x.stroke(); }
+  x.restore();
+}
+SH.pizza = (x, sp, c, v, p) => {
+  const R = sp.w / 2, puff = clamp(v.core, 0, 1.1);
+  ell(x, 0, 3, R, R); x.fillStyle = shade(c.f, -.3); x.fill();
+  ell(x, 0, 0, R, R); fin(x, c, 1.4);
+  ell(x, 0, 0, R, R); spots(x, R * 2, R * 2, p.k, shade(c.f, -.22), 14, .35 + v.brown * .2, .05);
+  ell(x, 0, 0, R * .82, R * .82); x.fillStyle = mixc(c.f, '#f6ecd4', .45 - puff * .1); x.fill();
+  x.strokeStyle = rgba(shade(c.f, -.25), .5); x.lineWidth = 2; ell(x, 0, 0, R * .84, R * .84); x.stroke();
+  x.fillStyle = 'rgba(255,255,255,.14)'; ell(x, -R * .35, -R * .55, R * .4, R * .1); x.fill();
+};
+SH.doughball = (x, sp, c, v, p) => { blob(x, sp.w, sp.h, p.k, .08, 12); fin(x, c, 1.2); blob(x, sp.w, sp.h, p.k, .08, 12); hi(x, sp.w, sp.h, .3); x.fillStyle = 'rgba(0,0,0,.06)'; for (let i = 0; i < 6; i++){ ell(x, Math.cos(i) * sp.w * .2, Math.sin(i * 1.7) * sp.h * .2, 3, 2); x.fill(); } };
+SH.riceheap = (x, sp, c, v, p) => {
+  const w = sp.w, h = sp.h, base = c.f, rr2 = mulberry(p.k * 1e5 | 0);
+  blob(x, w, h, p.k, .1, 12); x.fillStyle = shade(base, -.06); x.fill();
+  if (v.brown > .45 && v.mix && v.mix.type === 'rice'){ x.save(); blob(x, w, h, p.k, .1, 12); x.clip(); x.strokeStyle = mixc(base, '#a0601e', clamp(v.brown, 0, 1)); x.lineWidth = 10; blob(x, w, h, p.k, .1, 12); x.stroke(); x.restore(); }
+  x.save(); blob(x, w, h, p.k, .1, 12); x.clip();
+  for (let i = 0; i < 150; i++){ const gx = (rr2() - .5) * w, gy = (rr2() - .5) * h; x.save(); x.translate(gx, gy); x.rotate(rr2() * 6.28); x.fillStyle = rr2() < .5 ? shade(base, .12) : shade(base, -.04); ell(x, 0, 0, 3.4, 1.4); x.fill(); x.restore(); }
+  const pc = v.mix ? v.mix.pcols : [];
+  if (pc.length) for (let i = 0; i < 36; i++){ x.fillStyle = pc[i % pc.length]; ell(x, (rr2() - .5) * w * .85, (rr2() - .5) * h * .85, 2.6 + rr2() * 2, 2 + rr2() * 2); x.fill(); }
+  x.restore();
+  blob(x, w, h, p.k, .1, 12); hi(x, w, h, .18);
+};
+SH.rice = SH.riceheap;
+SH.pastanest = (x, sp, c, v, p) => {
+  const w = sp.w, h = sp.h, rr2 = mulberry(p.k * 1e5 | 0), sauce = v.mix ? v.mix.col : c.f;
+  const noodle = '#f0d690', isPlainTomato = v.mix && v.mix.type === 'pastacook' && sauce !== '#efd59a';
+  ell(x, 0, 4, w * .5, h * .46); x.fillStyle = 'rgba(0,0,0,.12)'; x.fill();
+  if (v.mix && v.mix.mac){
+    for (let i = 0; i < 46; i++){ const a = rr2() * 6.28, d = Math.sqrt(rr2()) * .42; x.save(); x.translate(Math.cos(a) * w * d, Math.sin(a) * h * d); x.rotate(rr2() * 6.28); x.strokeStyle = shade(noodle, -.15); x.fillStyle = noodle; x.lineWidth = 1; x.beginPath(); x.arc(0, 0, 7, .3, 2.6); x.lineWidth = 6; x.strokeStyle = noodle; x.stroke(); x.lineWidth = 1; x.strokeStyle = shade(noodle, -.2); x.stroke(); x.restore(); }
+  } else {
+    x.lineCap = 'round';
+    for (let i = 0; i < 30; i++){ const a0 = rr2() * 6.28, r0 = (.12 + rr2() * .32); x.strokeStyle = i % 3 ? noodle : shade(noodle, -.08); x.lineWidth = 3.2; x.beginPath(); x.ellipse(Math.cos(a0) * w * .05, Math.sin(a0) * h * .05, w * r0, h * r0 * .9, rr2() * 3, rr2() * 6.28, rr2() * 6.28 + 2.4 + rr2() * 2); x.stroke(); }
+  }
+  if (sauce !== '#efd59a' && sauce !== noodle){
+    x.fillStyle = sauce; x.globalAlpha = isPlainTomato ? .55 : .78;
+    for (let i = 0; i < 12; i++){ const a = rr2() * 6.28, d = Math.sqrt(rr2()) * .3; const bw = w * (.14 + rr2() * .14), bh = h * (.12 + rr2() * .12), bs = rr2(); x.save(); x.translate(Math.cos(a) * w * d, Math.sin(a) * h * d); blob(x, bw, bh, bs, .3, 8); x.fill(); x.restore(); }
+    x.globalAlpha = 1;
+  }
+  const pc = v.mix ? v.mix.pcols.filter(q => q !== '#eed49a') : [];
+  if (pc.length) for (let i = 0; i < 26; i++){ x.fillStyle = pc[i % pc.length]; ell(x, (rr2() - .5) * w * .6, (rr2() - .5) * h * .6, 2.5 + rr2() * 2.5, 2 + rr2() * 2); x.fill(); }
+  x.fillStyle = 'rgba(255,255,255,.2)'; ell(x, -w * .12, -h * .16, w * .14, h * .05); x.fill();
+};
+SH.noodles = (x, sp, c, v, p) => {
+  const w = sp.w, h = sp.h, rr2 = mulberry(p.k * 1e5 | 0), col = v.mix ? v.mix.col : c.f;
+  ell(x, 0, 4, w * .5, h * .46); x.fillStyle = 'rgba(0,0,0,.12)'; x.fill();
+  x.lineCap = 'round'; x.lineWidth = 2.6;
+  for (let i = 0; i < 34; i++){
+    x.strokeStyle = i % 4 ? col : shade(col, .12); x.beginPath();
+    const y0 = (rr2() - .5) * h * .8, x0 = -w * .42;
+    x.moveTo(x0, y0); for (let k = 1; k <= 8; k++) x.lineTo(x0 + k * w * .105, y0 + Math.sin(k * 1.4 + i) * 6 + (rr2() - .5) * 4);
+    x.stroke();
+  }
+  const pc = v.mix ? v.mix.pcols.filter(q => q !== '#e6c06e') : [];
+  if (pc.length) for (let i = 0; i < 26; i++){ x.fillStyle = pc[i % pc.length]; ell(x, (rr2() - .5) * w * .7, (rr2() - .5) * h * .6, 3 + rr2() * 3, 2 + rr2() * 2); x.fill(); }
+};
+SH.spagraw = (x, sp, c, v, p) => { const w = sp.w, h = sp.h; x.lineCap = 'round'; for (let i = 0; i < 16; i++){ x.strokeStyle = i % 2 ? c.f : shade(c.f, -.08); x.lineWidth = 2; const y = (i - 8) * h / 18; x.beginPath(); x.moveTo(-w / 2, y + (i % 3)); x.lineTo(w / 2, y - (i % 2)); x.stroke(); } x.fillStyle = '#2c4f7c'; x.fillRect(-6, -h / 2 - 2, 12, h + 4); };
+SH.macraw = (x, sp, c, v, p) => { const rr2 = mulberry(p.k * 1e5 | 0); for (let i = 0; i < 18; i++){ x.save(); x.translate((rr2() - .5) * sp.w * .8, (rr2() - .5) * sp.h * .8); x.rotate(rr2() * 6.28); x.lineCap = 'round'; x.lineWidth = 6; x.strokeStyle = c.f; x.beginPath(); x.arc(0, 0, 6, .4, 2.5); x.stroke(); x.lineWidth = 1; x.strokeStyle = shade(c.f, -.25); x.stroke(); x.restore(); } };
+SH.noodleraw = (x, sp, c, v, p) => { ell(x, 0, 0, sp.w / 2, sp.h / 2); x.fillStyle = shade(c.f, -.1); x.fill(); x.save(); ell(x, 0, 0, sp.w / 2, sp.h / 2); x.clip(); x.strokeStyle = c.f; x.lineWidth = 1.6; for (let i = 0; i < 14; i++){ x.beginPath(); for (let k = 0; k <= 10; k++){ const xx = -sp.w / 2 + k * sp.w / 10, yy = -sp.h / 2 + i * sp.h / 13 + Math.sin(k * 1.6 + i) * 3; if (!k) x.moveTo(xx, yy); else x.lineTo(xx, yy); } x.stroke(); } x.restore(); };
+SH.gnocchi = (x, sp, c, v, p) => { const w = sp.w, h = sp.h; rr(x, -w / 2, -h / 2, w, h, h / 2); fin(x, c, 1); x.strokeStyle = rgba(shade(c.f, -.25), .7); x.lineWidth = 1; for (let i = -2; i <= 2; i++){ x.beginPath(); x.moveTo(i * w * .16, -h * .38); x.lineTo(i * w * .16, h * .38); x.stroke(); } rr(x, -w / 2, -h / 2, w, h, h / 2); hi(x, w, h, .22); };
+SH.cookie = (x, sp, c, v, p) => { const w = sp.w; blob(x, w, w, p.k, .1, 12); fin(x, c, 1.2); const rr2 = mulberry(p.k * 1e5 | 0); x.strokeStyle = rgba(shade(c.f, -.3), .6); x.lineWidth = 1.2; for (let i = 0; i < 3; i++){ x.beginPath(); x.moveTo((rr2() - .5) * w * .5, (rr2() - .5) * w * .5); x.lineTo((rr2() - .5) * w * .6, (rr2() - .5) * w * .6); x.stroke(); } const choc = v.mix && v.mix.col === '#d9a868'; x.fillStyle = choc ? '#3a2214' : shade(c.f, -.2); for (let i = 0; i < 6; i++){ rr(x, (rr2() - .5) * w * .6, (rr2() - .5) * w * .6, 5, 4, 1); x.fill(); } blob(x, w, w, p.k, .1, 12); hi(x, w, w, .18); };
+SH.rosti = (x, sp, c, v, p) => { const w = sp.w, h = sp.h; blob(x, w, h, p.k, .14, 12); fin(x, c, 1.3); x.save(); blob(x, w, h, p.k, .14, 12); x.clip(); const rr2 = mulberry(p.k * 1e5 | 0); x.lineWidth = 2; for (let i = 0; i < 40; i++){ x.strokeStyle = rr2() < .5 ? shade(c.f, -.15) : shade(c.f, .12); x.beginPath(); const xx = (rr2() - .5) * w, yy = (rr2() - .5) * h; x.moveTo(xx, yy); x.lineTo(xx + (rr2() - .5) * 18, yy + (rr2() - .5) * 6); x.stroke(); } x.restore(); blob(x, w, h, p.k, .14, 12); hi(x, w, h, .18); };
+SH.stew = (x, sp, c, v, p) => {
+  const w = sp.w, h = sp.h, rr2 = mulberry(p.k * 1e5 | 0), col = v.mix ? v.mix.col : c.f;
+  blob(x, w, h, p.k, .1, 14); x.fillStyle = col; x.fill(); x.strokeStyle = shade(col, -.25); x.lineWidth = 1.2; x.stroke();
+  const pc = v.mix ? v.mix.pcols : [];
+  for (let i = 0; i < 16; i++){ const a = rr2() * 6.28, d = Math.sqrt(rr2()) * .32; x.fillStyle = pc.length ? mixc(pc[i % pc.length], col, .35) : shade(col, .2); const bw = 12 + rr2() * 10, bh = 10 + rr2() * 8, bs = rr2(); x.save(); x.translate(Math.cos(a) * w * d, Math.sin(a) * h * d); blob(x, bw, bh, bs, .25, 7); x.fill(); x.restore(); }
+  x.fillStyle = 'rgba(255,255,255,.22)'; ell(x, -w * .15, -h * .2, w * .2, h * .06); x.fill();
+  x.fillStyle = 'rgba(255,240,200,.25)'; for (let i = 0; i < 5; i++){ ell(x, (rr2() - .5) * w * .6, (rr2() - .5) * h * .6, 3, 2); x.fill(); }
+};
+SH.pepperoni = (x, sp, c, v, p) => { const w = sp.w; ell(x, 0, 0, w / 2, w / 2); fin(x, c, 1); x.fillStyle = rgba('#f6d8c8', .55); const rr2 = mulberry(p.k * 1e5 | 0); for (let i = 0; i < 5; i++){ ell(x, (rr2() - .5) * w * .6, (rr2() - .5) * w * .6, 1.6, 1.4); x.fill(); } if (v.cooked){ x.strokeStyle = rgba('#3a0a04', .5); x.lineWidth = 2; ell(x, 0, 0, w / 2 - 1, w / 2 - 1); x.stroke(); } };
+SH.ham = (x, sp, c, v, p) => { const w = sp.w, h = sp.h; x.beginPath(); x.moveTo(-w / 2, -h * .3); x.quadraticCurveTo(0, -h * .7, w / 2, -h * .2); x.quadraticCurveTo(w * .4, h * .5, 0, h / 2); x.quadraticCurveTo(-w * .5, h * .4, -w / 2, -h * .3); x.closePath(); fin(x, c, 1.2); x.strokeStyle = rgba('#fbeee8', .9); x.lineWidth = 4; x.beginPath(); x.moveTo(-w / 2, -h * .3); x.quadraticCurveTo(0, -h * .7, w / 2, -h * .2); x.stroke(); };
+SH.olive = (x, sp, c, v, p) => { ell(x, 0, 0, sp.w / 2, sp.h / 2); fin(x, { f: '#2e2a26', e: '#141210' }, 1); ell(x, 0, 0, sp.w * .16, sp.h * .2); x.fillStyle = '#5a4030'; x.fill(); x.fillStyle = 'rgba(255,255,255,.35)'; ell(x, -sp.w * .18, -sp.h * .2, sp.w * .12, sp.h * .08); x.fill(); };
+SH.olivering = (x, sp, c, v, p) => { x.beginPath(); x.arc(0, 0, sp.w / 2, 0, Math.PI * 2); x.arc(0, 0, sp.w * .2, 0, Math.PI * 2, true); x.fillStyle = '#2e2a26'; x.fill(); };
+SH.can = (x, sp, c, v, p) => { const w = sp.w, h = sp.h, ing = ING[v.id]; rr(x, -w / 2, -h / 2, w, h, 6); x.fillStyle = '#c9ccd1'; x.fill(); x.strokeStyle = '#8a8e94'; x.lineWidth = 1.2; x.stroke(); x.fillStyle = ing.label || '#3a7d6b'; x.fillRect(-w / 2, -h * .3, w, h * .6); x.fillStyle = '#f7f3ea'; ell(x, 0, 0, w * .22, h * .14); x.fill(); x.fillStyle = 'rgba(255,255,255,.35)'; x.fillRect(-w * .38, -h / 2 + 3, 4, h - 6); };
+SH.pastabox = (x, sp, c, v, p) => { const w = sp.w, h = sp.h, ing = ING[v.id]; rr(x, -w / 2, -h / 2, w, h, 3); x.fillStyle = ing.label || '#2c4f7c'; x.fill(); rr(x, -w * .3, -h * .3, w * .6, h * .5, 3); x.fillStyle = '#f6efe0'; x.fill(); x.strokeStyle = ing.raw; x.lineWidth = 1.4; for (let i = 0; i < 6; i++){ x.beginPath(); x.moveTo(-w * .24 + i * w * .09, -h * .28); x.lineTo(-w * .24 + i * w * .09, h * .18); x.stroke(); } x.fillStyle = '#f2b632'; x.fillRect(-w / 2, h * .28, w, h * .08); };
+
+/* =====================================================================
    SAVE
    ===================================================================== */
 const SAVE_KEY = 'airfryer-chef.v1';
-function defaultSave(){ return { v: 1, settings: { sound: true, mini: true }, stats: { seasons: 0, wins: 0, best: 0, dishes: 0, finals: 0 }, season: null, book: [] }; }
+function defaultSave(){ return { v: 1, settings: { sound: true, mini: true }, stats: { seasons: 0, wins: 0, best: 0, dishes: 0, finals: 0 }, season: null, book: [], codex: {} }; }
 let SAVE = defaultSave();
 try {
   const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
-  if (s && s.v === 1){ const d = defaultSave(); SAVE = Object.assign(d, s, { settings: Object.assign(d.settings, s.settings || {}), stats: Object.assign(d.stats, s.stats || {}), book: Array.isArray(s.book) ? s.book : [] }); }
+  if (s && s.v === 1){ const d = defaultSave(); SAVE = Object.assign(d, s, { settings: Object.assign(d.settings, s.settings || {}), stats: Object.assign(d.stats, s.stats || {}), book: Array.isArray(s.book) ? s.book : [], codex: s.codex && typeof s.codex === 'object' ? s.codex : {} }); }
 } catch (e){}
 function persist(){
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }
@@ -2786,7 +3322,7 @@ ON.title = () => {
   if (S && !S.done) $('#bContinue').textContent = 'Continue season · Episode ' + (S.ep + 1);
   $('#bNew').classList.toggle('pri', !(S && !S.done));
   const st = SAVE.stats;
-  $('#tStats').textContent = st.dishes ? `Dishes cooked: ${st.dishes} · Best plate: ${st.best}/30 · Golden Whisks: ${st.wins}` : 'Best played on a PC with a mouse.';
+  $('#tStats').textContent = st.dishes ? `Dishes cooked: ${st.dishes} · Best plate: ${st.best}/30 · Classics found: ${codexCount()}/${CLASSICS.length} · Golden Whisks: ${st.wins}` : 'Best played on a PC with a mouse.';
   AU.setHum(0);
 };
 TICK.title = () => {
@@ -2859,7 +3395,7 @@ const rint = n => Math.floor(rnd() * n);
 function newSeason(){
   const nm = ($('#inName').value || '').trim().replace(/\s+/g, ' ').slice(0, 14) || 'Chef';
   SAVE.season = { v: 1, diff: DIFF_SEL, name: nm, look: { ...LOOK }, ep: 0, rivals: RIVALS.map(r => ({ id: r.id, out: null, scores: [] })), scores: [], dishes: [], mains: [],
-    pin: false, theme: rint(THEMES.length), basket: rint(BASKETS.length), pressure: rint(PRESSURE.length), usedAI: [], retries: 0, done: false, won: false, lastNight: null };
+    pin: false, theme: rint(THEMES.length), basket: rint(BASKETS.length), pressure: rint(PRESSURE.length), usedAI: [], retries: 0, done: false, won: false, lastNight: null, cash: 0, gear: {} };
   SAVE.stats.seasons++; persist();
   show('board');
 }
@@ -2874,6 +3410,7 @@ function epSub(S, i){
 ON.board = () => {
   const S = SAVE.season;
   if (!S){ show('title'); return; }
+  seasonKit(S);
   $('#boardTitle').textContent = S.name + '’s season';
   $('#boardPin').hidden = !S.pin;
   const tr = $('#track'); tr.innerHTML = '';
@@ -2907,9 +3444,11 @@ ON.board = () => {
   const cook = Math.round((d.type === 'pressure' ? PRESSURE[S.pressure].cook : d.cook) * dif.cook);
   nc.innerHTML = `<span class="eyebrow">Episode ${S.ep + 1} of 7 · ${left} cooks left</span><h2>${esc(d.name)}</h2><div class="sub">${esc(epSub(S, S.ep))}</div><p>${esc(d.type === 'theme' ? THEMES[S.theme].desc : d.desc)}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">${d.pantry ? `<span class="chip">Pantry ${d.pantry + dif.pantry}s</span><span class="chip">Budget $${d.budget}</span>` : '<span class="chip">No pantry</span>'}<span class="chip">Cook ${cook} min</span><span class="chip">Plate ${fmtClock(PLATE_SEC + dif.plate)}</span></div>
+    ${kitRow(S)}
     <p class="muted" style="font-size:15px">${S.ep >= 5 ? 'Immunity pins cannot be used from here on.' : S.pin ? 'Your immunity pin will save you if you finish bottom tonight.' : 'Cook the best dish of the night to win an immunity pin.'}</p>
     <button class="btn pri xl" id="bStartEp">Start episode ${S.ep + 1}</button>`;
   $('#bStartEp').onclick = () => { AU.play('ui'); beginEpisode(null); };
+  $('#bKit').onclick = () => { AU.play('click'); openShop(); };
 };
 
 /* =====================================================================
@@ -2932,13 +3471,15 @@ function beginEpisode(practice){
     cookLimit: Math.round((rec ? rec.cook : def.cook) * (practice ? 1.3 : dif.cook)),
     pantrySec: practice ? 0 : def.pantry + dif.pantry, plateSec: practice ? 0 : PLATE_SEC + dif.plate,
     budget: practice ? 80 : def.budget, cart: {}, items: [], now: 0, speed: 1, sel: null, bowl: [], aisle: 'butcher',
-    fryer: { on: false, set: 180, time: 10, temp: 24, shakeT: 0, over: false },
+    fryers: [mkFryer()], fb: 0,
     harsh: def.harsh + (practice ? 0 : dif.harsh), name: practice ? (SAVE.season ? SAVE.season.name : 'Chef') : S.name,
     look: practice ? (SAVE.season ? SAVE.season.look : LOOK) : S.look, aiAdj: practice ? 0 : dif.ai,
     warned: {}, hintT: 0, hint: '', briefT: 0,
   };
+  Object.defineProperty(E, 'fryer', { get(){ return this.fryers[this.fb] || this.fryers[0]; } });
   if (practice){ E.label = practice.label; E.practiceDef = practice; }
   else E.snap = JSON.parse(JSON.stringify(S));
+  if (!practice && gearOn('pass') && E.pantrySec > 0){ E.pantrySec += 15; E.budget += 5; }
   show('brief');
 }
 function subtitle(){
@@ -3111,15 +3652,21 @@ function checkout(){
 const SEC_PER_MIN = 2.5, FF = 6;
 const byUid = u => E.items.find(it => it.uid === u);
 const benchItems = () => E.items.filter(it => it.loc === 'bench');
-const fryerItems = () => E.items.filter(it => it.loc === 'fryer');
+const fryerItems = b => E.items.filter(it => it.loc === 'fryer' && (b == null || (it.bay || 0) === b));
 const bowlItems = () => E.bowl.map(byUid).filter(Boolean);
 const sizeOf = it => it.mix ? 42 : ING[it.id].sz;
 const removeItem = it => { E.items = E.items.filter(x => x !== it); E.bowl = E.bowl.filter(u => u !== it.uid); if (E.sel === it.uid) E.sel = null; };
 function startKitchen(){
+  if (gearOn('dual') && E.fryers.length < 2) E.fryers.push(mkFryer());
   E.now = 0; E.speed = 1; E.ended = false; E.chop = null; E.whisk = null; E.dirty = true; E.lastRead = ''; E.lastStat = 0;
   show('kitchen');
   const first = benchItems()[0]; select(first ? first.uid : null);
+  const rack = stapleIds(), sel = $('#selStaple');
+  sel.innerHTML = '<option value="">+ Spice / herb</option>' + rack.map(k => `<option value="${k}">${esc(stapleLabel(k))}</option>`).join('');
+  sel.hidden = !rack.length;
   toast(E.brief.type === 'pressure' ? 'Follow the recipe. Your ingredients are on the bench.' : 'Let\'s cook! The clock is running.', 'y', 3000);
+  const kit = GEAR.filter(g => gearOn(g.id) && g.id !== 'pass');
+  if (kit.length && !E.practice) setTimeout(() => toast('Sponsor kit at your station: ' + kit.map(g => g.icon).join(' '), 'g', 3000), 600);
   AU.play('fanfare');
 }
 ON.kitchen = () => {
@@ -3178,11 +3725,12 @@ function canCut(it, cut){
   if (!(cut in ing.cuts) || cut === it.cut) return false;
   return (CUT[cut].o || 0) > (CUT[it.cut] ? CUT[it.cut].o : 0);
 }
-const SLICEABLE = new Set(['steak', 'chicken_breast', 'chicken_thigh', 'pork_belly', 'tofu', 'cauliflower', 'lamb_chops']);
+const SLICEABLE = new Set(['steak', 'chicken_breast', 'chicken_thigh', 'pork_belly', 'tofu', 'cauliflower', 'lamb_chops', 'pizza_dough']);
 function addSources(it){
   const out = [];
   if (isMulti(it)) return out;
-  if (it.mix){ if (!TINMIX.has(it.mix.type)) return out; }
+  if (isFlatbase(it)) return flatSources(it);
+  if (it.mix){ if (!TINMIX.has(it.mix.type) || ['rice', 'pastacook', 'noodlecook', 'sugo', 'curry', 'friedrice'].includes(it.mix.type)) return out; }
   else if (!cookSpec(it) || ['herb', 'spice', 'sauce', 'sweet', 'nut'].includes(ING[it.id].kind)) return out;
   const ing = it.mix ? null : ING[it.id];
   const isPastry = it.id === 'pastry', isFruit = ing && ing.kind === 'fruit', tin = it.mix && TINMIX.has(it.mix.type);
@@ -3201,7 +3749,7 @@ function addSources(it){
     if (si.liquid && s.uses >= 1 && !tin && si.kind === 'sauce' && !(cookedOrCooking && ['mayo', 'mustard'].includes(s.id))) out.push([s, cookedOrCooking ? 'glaze' : 'marinade']);
     else if (['yogurt'].includes(s.id) && !tin && !cookedOrCooking) out.push([s, 'marinade']);
     else if (si.melt && s.uses >= 1 && s.cut === si.def && !isCooked(s)) out.push([s, 'top']);
-    else if (s.id === 'sugar' && (isFruit || isPastry || tin || (ing && ing.kind === 'bread'))) out.push([s, 'top']);
+    else if (s.id === 'sugar' && (isFruit || isPastry || tin || (ing && ing.kind === 'bread') || it.id === 'pizza_dough')) out.push([s, 'top']);
     else if (s.id === 'butter' && !tin) out.push([s, 'top']);
     else if (['almonds', 'oats', 'chocolate'].includes(s.id) && (isFruit || isPastry || tin) && s.uses >= 1 && !isCooked(s)) out.push([s, 'top']);
     else if (isPastry && si.kind === 'fruit' && s.uses === 1 && s.cut !== si.def && !isCooked(s)) out.push([s, 'top']);
@@ -3231,17 +3779,19 @@ function renderActs(){
   /* knife */
   if (!it.mix && !isMulti(it) && it.loc === 'bench'){
     const cuts = Object.keys(ing.cuts).filter(c => canCut(it, c));
-    const bs = cuts.map(c => B('cut:' + c, CUT[c].v));
-    if (SLICEABLE.has(it.id) && isCooked(it) && !it.sliced && ['whole', 'butterfly', 'steak'].includes(it.cut)) bs.push(B('slice', 'Slice to serve', { cls: 'pri' }));
+    const bs = cuts.map(c => B('cut:' + c, (ing.cv && ing.cv[c]) || CUT[c].v));
+    if (SLICEABLE.has(it.id) && isCooked(it) && !it.sliced && ['whole', 'butterfly', 'steak', 'base'].includes(it.cut)) bs.push(B('slice', it.id === 'pizza_dough' ? 'Slice the pizza' : 'Slice to serve', { cls: 'pri' }));
     if (bs.length) rows.push(['Knife', bs.join('')]);
   }
   if (it.mix && ['sponge', 'eggmix'].includes(it.mix.type) && isCooked(it) && !it.sliced && it.loc === 'bench') rows.push(['Knife', B('slice', 'Cut into slices', { cls: 'pri' })]);
   /* season */
-  if (!isMulti(it) && !isSpice(it) && !(ing && ['sauce', 'spice', 'herb', 'bake'].includes(ing.kind))){
+  if (!isMulti(it) && !isSpice(it) && !(ing && ['sauce', 'spice', 'herb', 'staple'].includes(ing.kind)) && !(ing && ing.kind === 'bake' && !['pizza_dough', 'pastry'].includes(it.id))){
     const bs = [B('sea:salt', 'Salt', { c: it.sea.salt ? '×' + it.sea.salt : '' }), B('sea:pepper', 'Pepper', { c: it.sea.pepper ? '×' + it.sea.pepper : '' })];
     const srcs = new Set();
     for (const s of E.items) if (s.loc === 'bench' && !s.mix && ING[s.id].season && s.uses >= 1 && s.cut === ING[s.id].def && !isCooked(s) && s.id !== it.id) srcs.add(s.id);
     for (const k of srcs){ const lbl = SEAS[k] ? SEAS[k].v : cap(ING[k].name.replace(/^(Smoked|Ground|Dried|Fresh) /, '')); bs.push(B('sea:' + k, lbl, { c: it.sea[k] ? '×' + it.sea[k] : '' })); }
+    const rack = stapleIds().filter(k => k !== it.id && !srcs.has(k));
+    if (rack.length) bs.push(`<select class="rack" data-sea="1" aria-label="Season from your rack"><option value="">From your rack…</option>${rack.map(k => `<option value="${k}">${esc(stapleLabel(k))}${it.sea[k] ? ' ×' + it.sea[k] : ''}</option>`).join('')}</select>`);
     rows.push(['Season', bs.join('')]);
   }
   /* coat */
@@ -3262,7 +3812,7 @@ function renderActs(){
   const srcs = addSources(it);
   if (srcs.length && !isMulti(it)){
     const bs = srcs.slice(0, 14).map(([s, mode]) => B('add:' + s.uid + ':' + mode, (mode === 'marinade' ? 'Marinate: ' : mode === 'glaze' ? 'Glaze: ' : 'Top: ') + esc(nameOf(s).replace(/^(Runny|Mature|Dijon|Greek|Caster|Rolled|Dark) /, ''))));
-    rows.push(['Add', bs.join('')]);
+    rows.push([isFlatbase(it) ? 'Top' : 'Add', bs.join('')]);
   }
   /* move */
   const mv = [];
@@ -3277,6 +3827,11 @@ function renderActs(){
   rows.push(['Move', mv.join('')]);
   box.innerHTML = rows.map(([l, h]) => `<div class="arow"><span>${l}</span><div class="bs">${h}</div></div>`).join('');
 }
+$('#acts').addEventListener('change', e => {
+  const s = e.target.closest('select[data-sea]'); if (!s || !s.value) return;
+  const it = selItem(); if (!it || E.ended) return;
+  doAct(it, 'sea:' + s.value); blurAll();
+});
 $('#acts').addEventListener('click', e => {
   const b = e.target.closest('button[data-a]'); if (!b || b.disabled) return;
   const it = selItem(); if (!it || E.ended) return;
@@ -3316,8 +3871,8 @@ function doAct(it, a){
       let portion;
       if (s.mix && s.mix.liquid){ s.amt -= 35; portion = s; if (s.amt < 15) removeItem(s); }
       else { portion = takePortion(s); removeItem(portion); }
-      const fl = flavorOf(portion);
-      const add = { id: s.mix ? 'mix' : s.id, mode, fl, col: s.mix ? s.mix.col : itemCol(s), sugar: s.mix ? (s.mix.sugar || 0) : ((ING[s.id].sugar || 0) + (s.id === 'sugar' ? 1 : 0)), cheese: !s.mix && !!ING[s.id].melt, kind: mode === 'top' ? topKind(s) : null, parts: s.mix ? s.mix.parts.slice() : [s.id], melt: 0, short: nameOf(s).replace(/^(Runny|Mature|Dijon|Greek|Caster|Rolled|Dark|Smoked) /, '').toLowerCase(), vis: mode !== 'marinade' || (s.mix ? ['glaze', 'sauce'].includes(s.mix.type) : ['honey', 'bbq', 'soy', 'sriracha', 'maple', 'balsamic'].includes(s.id)) };
+      const fl = flavorOf(portion), flat = mode === 'top' && isFlatbase(it), fk = flat ? flatKind(s) : null;
+      const add = { id: s.mix ? 'mix' : s.id, mode, fl, col: s.mix ? s.mix.col : itemCol(s), sugar: s.mix ? (s.mix.sugar || 0) : ((ING[s.id].sugar || 0) + (s.id === 'sugar' ? 1 : 0)), cheese: !s.mix && !!ING[s.id].melt, kind: flat ? fk : mode === 'top' ? topKind(s) : null, v: flat && fk === 'item' ? visualOf(portion) : null, parts: s.mix ? s.mix.parts.slice() : [s.id], melt: 0, short: nameOf(s).replace(/^(Runny|Mature|Dijon|Greek|Caster|Rolled|Dark|Smoked) /, '').toLowerCase(), vis: mode !== 'marinade' || (s.mix ? ['glaze', 'sauce'].includes(s.mix.type) : ['honey', 'bbq', 'soy', 'sriracha', 'maple', 'balsamic'].includes(s.id)) };
       it.adds.push(add);
       AU.play(mode === 'top' ? 'place' : 'pour'); E.dirty = true;
       toast((mode === 'marinade' ? 'Marinating in ' : mode === 'glaze' ? 'Glazed with ' : 'Topped with ') + esc(add.short) + '.', 'g', 1300);
@@ -3335,23 +3890,27 @@ function doAct(it, a){
   renderFryerList(); renderActs(); E.lastRead = ''; renderReadout();
 }
 function toFryer(it){
+  if (!it.mix && ING[it.id].needsWater){ AU.play('error'); toast('It needs water. Put it in the bowl, press <b>+ Water</b>, then Mix. It cooks in a covered tin.', 'y', 4200); return; }
+  if (!it.mix && it.id === 'pizza_dough' && (isMulti(it) || it.cut === 'block')){ AU.play('error'); toast('Shape it first: a pizza base, dough balls or breadsticks.', 'y', 3000); return; }
   if (isMulti(it)){ const p = takePortion(it); it = p; }
   if (!canFry(it)){ AU.play('error'); toast(ING[it.id] && ING[it.id].cuts.pack !== undefined && it.cut === 'pack' ? 'Shape the mince into patties or meatballs first.' : 'That doesn\'t belong in the air fryer.', 'r'); renderBench(); return; }
-  const load = fryerItems().reduce((s, x) => s + sizeOf(x), 0);
+  const load = fryerItems(E.fb).reduce((s, x) => s + sizeOf(x), 0), CAP = fryCap();
   if (load + sizeOf(it) > CAP * 1.6){ AU.play('error'); toast('The basket is full. Take something out first.', 'r'); renderBench(); return; }
-  it.loc = 'fryer'; it.addedAt = E.now; E.bowl = E.bowl.filter(u => u !== it.uid);
+  it.loc = 'fryer'; it.bay = E.fb; it.addedAt = E.now; E.bowl = E.bowl.filter(u => u !== it.uid); it.probed = 0;
   E.fryer.temp = Math.max(24, E.fryer.temp - 8);
   AU.play(E.fryer.temp > 110 ? 'sizzle' : 'place');
   if (load + sizeOf(it) > CAP) toast('Overcrowded! Food will steam instead of crisp.', 'y', 2000);
-  if (it.mix && TINMIX.has(it.mix.type)) toast('Poured into a lined tin.', 'g', 1400);
+  if (it.mix && TINMIX.has(it.mix.type)) toast(['rice', 'pastacook', 'noodlecook', 'curry', 'sugo'].includes(it.mix.type) ? 'Into a tin, covered with foil.' : 'Poured into a lined tin.', 'g', 1400);
   E.dirty = true; renderBench(); renderFryerList(); select(it.uid);
 }
 function removeFromFryer(it){
+  const FR = E.fryers[it.bay || 0] || E.fryer;
   it.loc = 'bench'; it.outAt = E.now;
+  if (it.mix && it.mix.conv && it.core >= (it.mix.rawMeat ? 1 : .8)){ const fl = Object.assign({}, it.mix.fl); fl.umami = (fl.umami || 0) + .6; it.mix = Object.assign({}, it.mix, { type: 'sauce', title: it.mix.done, liquid: true, cookedMeat: it.mix.rawMeat || undefined, fl }); it.amt = 100; toast('Your <b>' + esc(it.mix.title.toLowerCase()) + '</b> is ready. Use it on pasta, pizza or the plate.', 'g'); }
   if (it.mix && it.mix.type === 'ganachemix' && it.core >= .6){ it.mix = Object.assign({}, it.mix, { type: 'sauce', title: 'Chocolate ganache', liquid: true, ganache: true }); it.amt = 100; toast('The chocolate has melted into a glossy ganache. Drizzle it when you plate.', 'g'); }
   const r = rates(it);
-  if (r && isCooked(it) && E.fryer.temp > 110){ const big = !it.mix && ING[it.id].kind === 'protein' && pieceCount(it) <= 3; it.carry0 = r.core * fc(E.fryer.temp) * (big ? 1 : .35); it.carry = it.carry0; }
-  E.fryer.temp = Math.max(24, E.fryer.temp - 8);
+  if (r && isCooked(it) && FR.temp > 110 && !(it.mix && it.mix.liquid)){ const big = !it.mix && ING[it.id].kind === 'protein' && pieceCount(it) <= 3; it.carry0 = r.core * fc(FR.temp) * (big ? 1 : .35); it.carry = it.carry0; }
+  FR.temp = Math.max(24, FR.temp - 8);
 }
 function toBowl(it){
   if (E.bowl.length >= 8){ AU.play('error'); toast('The bowl is full.', 'r'); return; }
@@ -3375,7 +3934,8 @@ function chopPress(){
   const p = clamp((G.t - c.t0) / c.dur, 0, 1), kx = lerp(c.startX, c.endX, p);
   let best = -1, bd = 1e9;
   c.guides.forEach((gx, i) => { if (c.hit[i] == null){ const d = Math.abs(gx - kx); if (d < bd){ bd = d; best = i; } } });
-  if (best >= 0 && bd <= 36){ c.hit[best] = 1 - bd / 36; c.marks.push(kx); AU.play('chop'); }
+  const win = gearOn('knife') ? 54 : 36;
+  if (best >= 0 && bd <= win){ c.hit[best] = 1 - bd / win; c.marks.push(kx); AU.play('chop'); }
   else { c.whiff++; c.marks.push(kx); AU.play('chop'); }
 }
 function chopTick(){
@@ -3384,7 +3944,7 @@ function chopTick(){
   if (p >= 1 && !c.finished){
     c.finished = true;
     const acc = c.hit.reduce((s, v) => s + (v || 0), 0) / c.guides.length;
-    const q = clamp(acc - c.whiff * .06, .15, 1);
+    const q = clamp(acc - c.whiff * .06, gearOn('knife') ? .55 : .15, 1);
     const pct = Math.round(q * 100);
     $('#mini').textContent = (q >= .85 ? 'Beautiful knife work! ' : q >= .6 ? 'Decent cuts. ' : 'Messy cuts... ') + pct + '%';
     AU.play(q >= .85 ? 'good' : 'click');
@@ -3405,15 +3965,17 @@ function renderBowl(){
   if (!parts.length) box.innerHTML = '<span class="muted" style="font-size:14px">Empty. Send things here with "Into the bowl".</span>';
   for (const p of parts){
     const c = document.createElement('button'); c.className = 'chip'; c.textContent = nameOf(p) + ' ×'; c.title = 'Back to the bench';
-    c.addEventListener('click', () => { if (E.whisk) return; p.loc = 'bench'; E.bowl = E.bowl.filter(u => u !== p.uid); AU.play('remove'); renderBench(); renderBowl(); });
+    c.addEventListener('click', () => { if (E.whisk) return; if (p.id === 'water' || p.staple) removeItem(p); else { p.loc = 'bench'; E.bowl = E.bowl.filter(u => u !== p.uid); } AU.play('remove'); renderBench(); renderBowl(); });
     box.appendChild(c);
   }
   const pred = $('#bowlPred');
   if (E.whisk){ pred.innerHTML = 'Circle the mouse over the bowl (or tap <kbd>←</kbd> <kbd>→</kbd>). <b>Stop in the green.</b>'; }
   else if (parts.length){
     const seen = new Map();
-    for (const a of ['mix', 'whisk', 'mash']){ const r = classify(parts, a); if (r && r.type !== 'mess'){ const t = r.title; if (!seen.has(t)) seen.set(t, []); seen.get(t).push(cap(a)); } }
-    pred.innerHTML = seen.size ? [...seen].slice(0, 3).map(([t, a]) => `${a.join('/')} → <b>${esc(t)}</b>`).join(' &nbsp;·&nbsp; ') : '<span style="color:var(--tomato)">This doesn\'t make anything sensible yet.</span>';
+    const dry = classify(parts, 'mix').type === 'needwater';
+    if (dry) pred.innerHTML = 'Rice, pasta and noodles need liquid. Press <b>+ Water</b>.'; else
+    for (const a of ['mix', 'whisk', 'mash']){ const r = classify(parts, a); if (r && r.type !== 'mess' && r.type !== 'needwater'){ const t = r.title; if (!seen.has(t)) seen.set(t, []); seen.get(t).push(cap(a)); } }
+    if (!dry) pred.innerHTML = seen.size ? [...seen].slice(0, 3).map(([t, a]) => `${a.join('/')} → <b>${esc(t)}</b>`).join(' &nbsp;·&nbsp; ') : '<span style="color:var(--tomato)">This doesn\'t make anything sensible yet.</span>';
   } else pred.textContent = '';
   const none = !parts.length || !!E.whisk;
   $('#bMix').disabled = none; $('#bMash').disabled = none; $('#bBowlEmpty').disabled = none;
@@ -3423,6 +3985,7 @@ function renderBowl(){
 }
 function bowlMake(act){
   const parts = bowlItems(); if (!parts.length || E.ended) return;
+  if (!E.whisk && classify(parts, act).type === 'needwater'){ AU.play('error'); toast('Add water first: press <b>+ Water</b> in the bowl.', 'y', 3000); return; }
   if (act === 'whisk'){
     if (E.whisk){ finishWhisk(); return; }
     if (!SAVE.settings.mini){ finishMix(parts, 'whisk', .86, .7); return; }
@@ -3454,14 +4017,16 @@ function finishMix(parts, act, q, m){
 function whiskMove(x, y){
   const w = E.whisk; if (!w) return;
   const a = Math.atan2(y - 106, x - 110);
-  if (w.last != null){ let d = a - w.last; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; if (Math.abs(d) < 1.2){ w.m = Math.min(1.05, w.m + Math.abs(d) / (Math.PI * 2) * .085); w.acc = (w.acc || 0) + Math.abs(d); if (w.acc > 1.5){ w.acc = 0; AU.play('whisk'); } } }
+  if (w.last != null){ let d = a - w.last; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; if (Math.abs(d) < 1.2){ w.m = Math.min(1.05, w.m + Math.abs(d) / (Math.PI * 2) * .085 * (gearOn('whisk') ? 1.6 : 1)); w.acc = (w.acc || 0) + Math.abs(d); if (w.acc > 1.5){ w.acc = 0; AU.play('whisk'); } } }
   w.last = a;
 }
-function whiskKey(dir){ const w = E.whisk; if (!w) return; if (w.side !== dir){ w.side = dir; w.m = Math.min(1.05, w.m + .028); AU.play('whisk'); } }
+function whiskKey(dir){ const w = E.whisk; if (!w) return; if (w.side !== dir){ w.side = dir; w.m = Math.min(1.05, w.m + .028 * (gearOn('whisk') ? 1.6 : 1)); AU.play('whisk'); } }
 $('#bMix').onclick = () => { bowlMake('mix'); blurAll(); };
 $('#bWhisk').onclick = () => { bowlMake('whisk'); blurAll(); };
 $('#bMash').onclick = () => { bowlMake('mash'); blurAll(); };
-$('#bBowlEmpty').onclick = () => { for (const p of bowlItems()) p.loc = 'bench'; E.bowl = []; AU.play('remove'); renderBench(); renderBowl(); blurAll(); };
+$('#bBowlEmpty').onclick = () => { for (const p of bowlItems()){ if (p.id === 'water' || p.staple) removeItem(p); else p.loc = 'bench'; } E.bowl = []; AU.play('remove'); renderBench(); renderBowl(); blurAll(); };
+$('#bWater').onclick = () => { if (!E || E.ended || E.whisk) return; if (E.bowl.length >= 8){ AU.play('error'); toast('The bowl is full.', 'r'); return; } const w = makeItem('water', { uses: 1, loc: 'bowl' }); E.items.push(w); E.bowl.push(w.uid); AU.play('pour'); renderBowl(); blurAll(); };
+$('#selStaple').onchange = e => { const id = e.target.value; e.target.value = ''; if (!id || !E || E.ended || E.whisk) return; if (E.bowl.length >= 8){ AU.play('error'); toast('The bowl is full.', 'r'); return; } const s = makeItem(id, { uses: 1, loc: 'bowl', staple: true, portion: true }); E.items.push(s); E.bowl.push(s.uid); AU.play('shaker'); renderBowl(); blurAll(); };
 (() => {
   const o = cvGet('cvBowl');
   o.el.addEventListener('pointermove', e => { if (E && E.whisk){ const [x, y] = evPos(e, o); whiskMove(x, y); } });
@@ -3470,10 +4035,10 @@ $('#bBowlEmpty').onclick = () => { for (const p of bowlItems()) p.loc = 'bench';
 
 /* ---------- fryer ---------- */
 function renderFryerList(){
-  const box = $('#fList'), items = fryerItems();
-  const load = items.reduce((s, x) => s + sizeOf(x), 0), pct = Math.round(load / CAP * 100);
-  E.fryer.over = load > CAP;
-  let h = `<div class="cap"><span>Basket ${pct}% full</span><div class="bar"><div class="z" style="left:0;width:${Math.min(100, pct)}%;background:${pct > 100 ? 'rgba(232,69,46,.75)' : 'rgba(242,182,50,.6)'}"></div></div></div>`;
+  const box = $('#fList'), items = fryerItems(E.fb), cap = fryCap();
+  const load = items.reduce((s, x) => s + sizeOf(x), 0), pct = Math.round(load / cap * 100);
+  E.fryer.over = load > cap;
+  let h = `<div class="cap"><span>${E.fryers.length > 1 ? 'Air fryer ' + (E.fb + 1) + ': basket' : 'Basket'} ${pct}% full</span><div class="bar"><div class="z" style="left:0;width:${Math.min(100, pct)}%;background:${pct > 100 ? 'rgba(232,69,46,.75)' : 'rgba(242,182,50,.6)'}"></div></div></div>`;
   if (!items.length) h += '<div class="empty" style="padding:10px">The basket is empty. Preheating it is a pro move.</div>';
   box.innerHTML = h;
   for (const it of items){
@@ -3533,12 +4098,12 @@ function fryerToggle(){
   else {
     if (F.time <= 0) F.time = 10;
     F.on = true; AU.play('ui');
-    if (!fryerItems().length) toast('Preheating the empty air fryer.', '', 1500);
+    if (!fryerItems(E.fb).length) toast('Preheating the empty air fryer.', '', 1500);
   }
   updFryerCtl();
 }
 function shake(){
-  const items = fryerItems();
+  const items = fryerItems(E.fb);
   if (!items.length){ toast('There\'s nothing in the basket to shake.', '', 1400); return; }
   for (const it of items) it.uneven *= .3;
   E.fryer.temp = Math.max(24, E.fryer.temp - 6); E.fryer.shakeT = .5; E.lastShake = E.now;
@@ -3551,7 +4116,8 @@ $('#bShake').onclick = () => { if (E && !E.ended){ shake(); blurAll(); } };
   o.el.addEventListener('click', e => {
     if (!E || !E.slots) return;
     const [x, y] = evPos(e, o);
-    for (const s of E.slots) if (Math.abs(x - s.x) < s.w / 2 && Math.abs(y - s.y) < s.h / 2){ AU.play('click'); select(s.uid); return; }
+    for (const s of E.slots) if (Math.abs(x - s.x) < s.w / 2 && Math.abs(y - s.y) < s.h / 2){ AU.play('click'); if (s.bay !== E.fb) selectBay(s.bay); select(s.uid); return; }
+    if (E.fryers.length > 1) selectBay(x < 270 ? 0 : 1);
   });
 })();
 
@@ -3587,6 +4153,10 @@ function tipFor(it){
   if (it.mix && it.mix.type === 'batter') return 'Wet batter drips in an air fryer. Breading works better.';
   if (it.mix && it.mix.liquid) return 'A sauce. Use it to marinate or glaze, or swoosh it on the plate.';
   if (!it.mix && !sp && ing.cuts.pack !== undefined && it.cut === 'pack') return 'Shape it into patties or meatballs first.';
+  if (!it.mix && ing.needsWater) return 'Dry ' + (it.id === 'rice' ? 'rice' : 'pasta') + ' needs water. Put it in the bowl, press + Water, then Mix. It cooks covered in a tin.';
+  if (!it.mix && it.id === 'pizza_dough' && it.cut === 'block') return 'Shape it: a pizza base for toppings, dough balls, or breadsticks.';
+  if (isFlatbase(it) && !isCooked(it) && it.loc === 'bench') return 'Add toppings (sauce first, then cheese, then the rest), oil spray the crust, then air fry it.';
+  if (it.mix && it.mix.conv && !isCooked(it)) return 'Cook it in its tin and it turns into a ' + (it.mix.done || 'sauce').toLowerCase() + ' for pasta, rice or pizza.';
   if (sp && !isCooked(it) && it.loc !== 'fryer'){
     let s = `About ${fmtCookMin(cookMins(it, F.set))} min at ${F.set}°C${sp.T !== F.set && TINMIX.has(it.mix ? it.mix.type : '') ? ' (bakes best at ' + sp.T + '°C)' : ''}.`;
     if (isBreaded(it) && !it.oil) s += ' Oil spray it or the crumbs stay pale.';
@@ -3620,7 +4190,8 @@ function cookStep(it, T, air, d){
   else of = fatty ? (it.oil ? 1.05 : 1) : (it.oil ? 1 : .65);
   if (coat === 'eggwash') of *= 1.12;
   const gf = 1 + .45 * Math.min(sugarOn(it), 2.6);
-  const dc = r.core * fc(T) * d, db = r.brown * fb(T) * d * of * Math.pow(air, 1.5) * gf;
+  const tk = it.adds.reduce((n, a) => n + (a.mode === 'top' && (a.kind === 'item' || a.kind === 'fruit') ? 1 : a.mode === 'top' && a.kind === 'sauce' ? .5 : 0), 0);
+  const dc = r.core * fc(T) * d * Math.max(.62, 1 - .05 * tk), db = r.brown * fb(T) * d * of * Math.pow(air, 1.5) * gf;
   it.core += dc; it.brown += db;
   if (!it.mix || !TINMIX.has(it.mix.type)) it.uneven += db * (.3 + (1 - air) * 1.2 + (1 - it.cq) * .45);
   if (T > 100){ it.cookMin += d; it.airSum += air * d; it.lastHot = E.now; }
@@ -3632,12 +4203,16 @@ function benchStep(it, d){
   if (!isCooked(it) && it.adds.some(a => a.mode === 'marinade')) it.marMin += d;
 }
 function stepOnce(d){
-  const F = E.fryer;
-  const target = F.on ? F.set : 24, k = F.on ? (F.set > F.temp ? .7 : .3) : .1;
-  F.temp += (target - F.temp) * (1 - Math.exp(-k * d));
-  const items = fryerItems(), load = items.reduce((s, x) => s + sizeOf(x), 0), air = load > CAP ? CAP / load : 1;
-  if (F.on){ F.time -= d; if (F.time <= 0){ F.time = 0; F.on = false; E.ding = true; } }
-  for (const it of items) cookStep(it, F.temp, air, d);
+  const cap = fryCap();
+  E.fryers.forEach((F, b) => {
+    const target = F.on ? F.set : 24, k = F.on ? (F.set > F.temp ? .7 : .3) : .1;
+    F.temp += (target - F.temp) * (1 - Math.exp(-k * d));
+    const items = fryerItems(b), load = items.reduce((s, x) => s + sizeOf(x), 0), air = load > cap ? cap / load : 1;
+    F.over = load > cap;
+    if (F.on){ F.time -= d; if (F.time <= 0){ F.time = 0; F.on = false; E.ding = b + 1; } }
+    for (const it of items) cookStep(it, F.temp, air, d);
+  });
+  probeStep();
   for (const it of E.items) if (it.loc !== 'fryer') benchStep(it, d);
   E.now += d;
 }
@@ -3648,13 +4223,13 @@ TICK.kitchen = dt => {
     let gd = dt / SEC_PER_MIN * E.speed;
     if (E.chop || E.whisk) gd = Math.min(gd, dt / SEC_PER_MIN);
     while (gd > 1e-6){ const d = Math.min(.05, gd); stepOnce(d); gd -= d; }
-    if (E.ding){ E.ding = false; AU.play('ding'); toast('Ding! The air fryer timer is done.', 'y'); if (E.speed > 1){ E.speed = 1; updFF(); } updFryerCtl(); }
-    if (E.fryer.shakeT > 0) E.fryer.shakeT = Math.max(0, E.fryer.shakeT - dt);
+    if (E.ding){ const n = E.ding; E.ding = false; AU.play('ding'); toast(E.fryers.length > 1 ? 'Ding! Air fryer ' + n + '\'s timer is done.' : 'Ding! The air fryer timer is done.', 'y'); if (E.speed > 1){ E.speed = 1; updFF(); } updFryerCtl(); }
+    for (const F of E.fryers) if (F.shakeT > 0) F.shakeT = Math.max(0, F.shakeT - dt);
     chopTick();
     warnings();
     if (E.now >= E.cookLimit){ timeUp(); return; }
   }
-  const hl = E.fryer.on && !paused ? 1 : E.fryer.temp > 60 && !paused ? .25 : 0;
+  const hl = E.fryers.some(F => F.on) && !paused ? 1 : E.fryers.some(F => F.temp > 60) && !paused ? .25 : 0;
   if (hl !== E.humL){ E.humL = hl; AU.setHum(hl); }
   /* clock */
   const left = E.cookLimit - E.now, ck = $('#kClock');
@@ -3662,7 +4237,7 @@ TICK.kitchen = dt => {
   ck.classList.toggle('warn', left <= 5);
   /* fryer */
   const o = cvGet('cvFryer'), x = begin(o);
-  E.slots = drawFryer(x, E.fryer, 270, 14, 1, G.t, { items: fryerItems(), steam: true, sel: E.sel });
+  E.slots = drawFryers(x);
   const tt = $('#fTime'), tv = Math.ceil(E.fryer.time - 1e-6) + 'm'; if (tt.textContent !== tv) tt.textContent = tv;
   if (E.fryer.on !== E.lastOn){ E.lastOn = E.fryer.on; updFryerCtl(); }
   drawBoard(); drawBowl();
@@ -3684,23 +4259,23 @@ function hints(){
   const items = fryerItems(), bench = benchItems();
   let h = '';
   const raw = bench.find(it => canFry(it) && !isCooked(it) && !(ingOf(it) && ingOf(it).eatRaw));
-  if (E.fryer.over) h = 'The basket is <b>overcrowded</b>. Cook in batches for crisp food.';
+  if (E.fryers.some(F => F.over)) h = 'The basket is <b>overcrowded</b>. Cook in batches for crisp food.';
   else if (items.some(it => isBreaded(it) && !it.oil)) h = 'Breaded food needs <b>oil spray</b> to go golden.';
   else if (items.some(it => sugarOn(it) > .5 && it.brown > idealBrown(it)[1] - .15)) h = 'That glaze is close to <b>burning</b>.';
-  else if (items.length && E.fryer.on && E.now - (E.lastShake || 0) > 7) h = 'Give the basket a <b>shake</b> (S) for even colour.';
+  else if (items.length && E.fryers.some(F => F.on) && E.now - (E.lastShake || 0) > 7) h = 'Give the basket a <b>shake</b> (S) for even colour.';
   else if (!items.length && raw && E.now > 3) h = 'The air fryer is <b>empty</b>. Get something cooking!';
-  else if (items.length && !E.fryer.on && items.some(it => !isCooked(it))) h = 'The air fryer is <b>off</b>. Press Start (Space).';
+  else if (items.length && !E.fryers.some(F => F.on) && items.some(it => !isCooked(it))) h = 'The air fryer is <b>off</b>. Press Start (Space).';
   else if (E.cookLimit - E.now < 8 && !bench.some(it => it.mix && it.mix.liquid) && E.brief.type !== 'pressure') h = 'No sauce yet. A quick <b>bowl sauce</b> takes seconds.';
-  else if (E.speed === 1 && items.length && E.fryer.on && !E.chop && !E.whisk) h = 'Waiting? Press <b>F</b> to fast-forward.';
-  else h = pick(['Hot food goes cold if it sits. Time things to finish together.', 'Season every component. The judges notice.', 'Something crisp plus something creamy is a winning combo.', 'Acidity (lemon, lime, vinegar, yogurt) lifts rich food.', 'The Guide (H) has every air fryer time.', 'Meat keeps cooking a little after it comes out.']);
-  const el = $('#kHint'); if (el) el.innerHTML = '🎙️ ' + h;
+  else if (E.speed === 1 && items.length && E.fryers.some(F => F.on) && !E.chop && !E.whisk) h = 'Waiting? Press <b>F</b> to fast-forward.';
+  else h = (rnd() < .5 && chatterLine()) || pick(['Hot food goes cold if it sits. Time things to finish together.', 'Season every component. The judges notice.', 'Something crisp plus something creamy is a winning combo.', 'Acidity (lemon, lime, vinegar, yogurt) lifts rich food.', 'The Guide (H) has every air fryer time.', 'Meat keeps cooking a little after it comes out.']);
+  const el = $('#kHint'); if (el) el.innerHTML = (h.startsWith('💬') ? '' : '🎙️ ') + h;
 }
 function timeUp(){ AU.play('sting'); toast('TIME! Hands off!', 'r', 3500); endCooking(); }
 function endCooking(){
   if (E.ended) return; E.ended = true;
   for (const it of fryerItems()) removeFromFryer(it);
   for (const it of bowlItems()) it.loc = 'bench';
-  E.bowl = []; E.fryer.on = false; E.chop = null; E.whisk = null; E.speed = 1;
+  E.bowl = []; for (const F of E.fryers) F.on = false; E.chop = null; E.whisk = null; E.speed = 1;
   $('#mini').hidden = true;
   AU.setHum(0);
   startPlating();
@@ -3776,6 +4351,151 @@ function drawBowl(){
   const o = cvGet('cvBoard');
   o.el.addEventListener('pointerdown', e => { if (E && E.chop){ e.preventDefault(); chopPress(); } });
 })();
+
+/* =====================================================================
+   SPONSOR KIT, SECOND AIR FRYER, PROBE, CODEX, CHATTER
+   ===================================================================== */
+function mkFryer(){ return { on: false, set: 180, time: 10, temp: 24, shakeT: 0, over: false }; }
+function gearOn(k){
+  if (!E) return false;
+  if (E.practice) return true;
+  const S = SAVE.season;
+  return !!(S && S.gear && S.gear[k]);
+}
+const fryCap = () => CAP * (gearOn('rack') ? 1.45 : 1);
+function stapleIds(){
+  const o = [];
+  if (gearOn('spices')) for (const k in ING) if (ING[k].kind === 'spice') o.push(k);
+  if (gearOn('herbs')) o.push(...HERBS);
+  return o;
+}
+function stapleLabel(k){ return SEAS[k] ? SEAS[k].n : cap(ING[k].name.replace(/^(Smoked|Ground|Dried|Fresh) /, '')); }
+
+/* ---------- toppings for pizza bases, tortillas, toast, tarts, jackets ---------- */
+function flatKind(s){
+  if (s.mix) return s.mix.type === 'cbutter' ? 'butter' : s.mix.liquid ? 'sauce' : 'crumb';
+  const si = ING[s.id];
+  if (si.melt) return 'cheese';
+  if (si.liquid) return 'sauce';
+  if (s.id === 'sugar') return 'sugar'; if (s.id === 'butter') return 'butter'; if (s.id === 'almonds') return 'nut'; if (s.id === 'oats') return 'oats'; if (s.id === 'chocolate') return 'choc';
+  return 'item';
+}
+function flatSources(it){
+  const out = [], done = isCooked(it);
+  for (const s of benchItems()){
+    if (s === it || isFlatbase(s)) continue;
+    if (done && !s.mix && (s.id === 'passata' || (ING[s.id].melt && !['parmesan', 'feta'].includes(s.id)) || ['sugar', 'butter'].includes(s.id))) continue;
+    if (s.mix){
+      if (s.mix.type === 'cbutter') out.push([s, 'top']);
+      else if (s.mix.liquid && s.amt >= 15 && s.mix.type !== 'batter') out.push([s, 'top']);
+      else if (s.mix.type === 'crumble' && !isCooked(s)) out.push([s, 'top']);
+      continue;
+    }
+    const si = ING[s.id];
+    if (s.uses < 1 || si.needsWater || ['spice', 'herb', 'staple', 'bake', 'bread'].includes(si.kind)) continue;
+    if (si.melt){ if (!isCooked(s)) out.push([s, 'top']); continue; }
+    if (si.liquid){ if (si.kind === 'sauce' || s.id === 'passata' || s.id === 'olive_oil') out.push([s, 'top']); continue; }
+    if (['sugar', 'butter', 'chocolate', 'almonds', 'oats'].includes(s.id)){ out.push([s, 'top']); continue; }
+    if (!['protein', 'veg', 'fruit'].includes(si.kind)) continue;
+    const small = s.cut !== si.def || si.sz <= 26 || (pieceCount(s) >= 4 && si.sz <= 30);
+    if (!small) continue;
+    if (si.kind === 'protein' && si.safe && !isCooked(s) && !si.eatRaw && s.id !== 'beef_mince') continue;
+    if (s.id === 'beef_mince' && s.cut !== 'crumbled') continue;
+    out.push([s, 'top']);
+  }
+  const ord = { sauce: 0, cheese: 1, butter: 1, item: 2 };
+  out.sort((a, b) => (ord[flatKind(a[0])] ?? 3) - (ord[flatKind(b[0])] ?? 3));
+  return out;
+}
+
+/* ---------- two air fryers ---------- */
+function selectBay(b){
+  if (!E || b === E.fb || b < 0 || b >= E.fryers.length) return;
+  E.fb = b; AU.play('click'); E.lastOn = null;
+  updFryerCtl(); renderFryerList();
+}
+function drawFryers(x){
+  if (E.fryers.length < 2) return drawFryer(x, E.fryers[0], 270, 14, 1, G.t, { items: fryerItems(0), steam: true, sel: E.sel }).map(s => ({ ...s, bay: 0 }));
+  let slots = [];
+  E.fryers.forEach((F, b) => {
+    const cx = 135 + b * 270, act = b === E.fb;
+    if (act){ x.fillStyle = 'rgba(242,182,50,.08)'; rr(x, cx - 130, 4, 260, 346, 18); x.fill(); x.strokeStyle = 'rgba(242,182,50,.75)'; x.lineWidth = 2; x.stroke(); }
+    slots = slots.concat(drawFryer(x, F, cx, 46, .7, G.t + b * .37, { items: fryerItems(b), steam: true, sel: E.sel }).map(s => ({ ...s, bay: b })));
+    x.font = '800 13px Archivo, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = act ? '#ffd36b' : 'rgba(255,255,255,.45)';
+    x.fillText((act ? '▶ ' : '') + 'AIR FRYER ' + (b + 1) + '  ·  KEY ' + (b + 1), cx, 24);
+    if (F.over){ x.fillStyle = '#ff8f7a'; x.font = '800 11px Archivo, Arial'; x.fillText('OVERCROWDED', cx, 336); }
+  });
+  x.font = '600 13px Archivo, Arial'; x.fillStyle = 'rgba(255,255,255,.4)'; x.textAlign = 'center';
+  x.fillText('Click an air fryer (or press 1 / 2) to control it', 270, 396);
+  return slots;
+}
+
+/* ---------- probe thermometer ---------- */
+function probeStep(){
+  if (!gearOn('probe')) return;
+  for (const it of E.items){
+    if (it.loc !== 'fryer' || (it.probed || 0) >= 2) continue;
+    const c = idealCore(it), ing = ingOf(it);
+    if (c[1] >= 9 && !(ing && ing.dk === 'meat')) continue;
+    const nm = esc(nameOf(it).toLowerCase());
+    if (!it.probed && it.core >= c[0] + .02){ it.probed = 1; AU.play('tick'); toast('🌡️ Probe: the <b>' + nm + '</b> ' + (it.mix ? 'is ready inside.' : 'is cooked inside.'), 'g', 2800); }
+    else if (it.probed === 1 && c[1] < 9 && it.core >= c[1] - .07){
+      it.probed = 2; AU.play('error'); toast('🌡️ Probe: take the <b>' + nm + '</b> out now or it will overcook!', 'r', 3400);
+      if (E.speed > 1){ E.speed = 1; updFF(); }
+    }
+  }
+}
+
+/* ---------- rival chatter ---------- */
+function chatterLine(){
+  const S = SAVE.season;
+  const ids = E.practice || !S ? RIVALS.map(r => r.id) : S.rivals.filter(r => r.out == null).map(r => r.id);
+  const lines = CHATTER.filter(([id]) => ids.includes(id));
+  if (!lines.length) return '';
+  const [id, line] = pick(lines), r = RIVALS.find(q => q.id === id);
+  return r ? `💬 <b>${esc(r.name.split(' ')[0])}:</b> “${esc(line)}”` : '';
+}
+
+/* ---------- classic dishes codex ---------- */
+function recordClassics(list, total){
+  if (!list || !list.length) return [];
+  if (!SAVE.codex || typeof SAVE.codex !== 'object') SAVE.codex = {};
+  const fresh = [];
+  for (const c of list){ const o = SAVE.codex[c.key]; if (o == null) fresh.push(c); SAVE.codex[c.key] = Math.max(o || 0, total); }
+  return fresh;
+}
+const codexCount = () => CLASSICS.filter(c => SAVE.codex && SAVE.codex[c.key] != null).length;
+function codexHTML(){
+  const got = SAVE.codex || {};
+  return `<p>The judges know ${CLASSICS.length} classic dishes. Nail one and they give you a bonus for it, and it goes into this book. You have found <b>${codexCount()}</b>.</p><div class="codex">${CLASSICS.map(c => got[c.key] != null
+    ? `<div class="cx on"><b>${esc(c.name)}</b><span>Best plate ${got[c.key]}/30</span></div>`
+    : `<div class="cx"><b>? ? ?</b><span>${esc(c.hint)}</span></div>`).join('')}</div>`;
+}
+
+/* ---------- prize money + sponsor shop ---------- */
+function prizeFor(N){ return 10 + Math.round(E.result.total * 1.5) + (N.top && N.top.you ? 20 : 0); }
+function seasonKit(S){ if (typeof S.cash !== 'number') S.cash = 0; if (!S.gear || typeof S.gear !== 'object') S.gear = {}; return S; }
+function kitRow(S){
+  seasonKit(S);
+  const own = GEAR.filter(g => S.gear[g.id]);
+  return `<div class="kit"><span class="chip y">Sponsor fund $${S.cash}</span>${own.map(g => `<span class="chip" title="${esc(g.name)}">${g.icon} ${esc(g.name)}</span>`).join('')}<button class="btn sm" id="bKit">Sponsor kit ›</button></div>`;
+}
+function openShop(){
+  const S = SAVE.season; if (!S) return;
+  seasonKit(S);
+  const rows = GEAR.map(g => {
+    const own = !!S.gear[g.id], can = S.cash >= g.price;
+    return `<div class="gi${own ? ' own' : ''}"><span class="ic">${g.icon}</span><span class="tx"><b>${esc(g.name)}</b><span>${esc(g.desc)}</span></span>${own ? '<span class="chip g">Yours</span>' : `<button class="btn sm${can ? ' pri' : ''}" data-buy="${g.id}"${can ? '' : ' disabled'}>$${g.price}</button>`}</div>`;
+  }).join('');
+  modal('Sponsor kit', `<p>Prize money from each episode goes into your sponsor fund. Kit you buy stays at your station for the rest of the season. You have <b>$${S.cash}</b>.</p><div class="shop">${rows}</div>`, [{ t: 'Done', cls: 'pri', fn: () => ON.board() }], () => { closeModal(); ON.board(); });
+  for (const b of $$('#mBody [data-buy]')) b.addEventListener('click', () => {
+    const g = GEAR.find(q => q.id === b.dataset.buy); if (!g || S.gear[g.id] || S.cash < g.price) return;
+    S.cash -= g.price; S.gear[g.id] = 1; persist(); AU.play('good');
+    toast(g.icon + ' <b>' + esc(g.name) + '</b> is now at your station.', 'g');
+    openShop();
+  });
+}
 
 /* =====================================================================
    PLATING
@@ -4130,6 +4850,8 @@ function autoName(){
   const items = [...new Set(PL.comps.filter(c => !c.pot).map(c => byUid(c.uid)).filter(Boolean))];
   const sauces = [...new Set([...PL.strokes.map(s => s.src), ...PL.comps.filter(c => c.pot).map(c => c.uid)])].map(byUid).filter(Boolean);
   if (!items.length && !sauces.length) return '';
+  const cl = recognise(items, sauces.map(s => ({ item: s, used: 20 })));
+  if (cl.length) return cl[0].name.replace(/^./, c => c.toUpperCase());
   const main = pickMain(items) || sauces[0];
   const rest = items.filter(i => i !== main && roleOf(i) !== 'garnish').concat(sauces.filter(s => s !== main));
   const mainAdj = descName(main).split(' ')[0];
@@ -4180,7 +4902,7 @@ function analysePlate(data){
   }
   return { coverage: wellFood / Math.max(1, well), rimFrac: rimFood / Math.max(1, rim), offPx: off, colors, beige: food > 0 && beigeN / food > .75,
     contrast: food ? Math.abs(lum / food - P.L) : 1, strokes: data.strokes.length > 0, sauceFrac: food ? sp / food : 0,
-    garnish: data.sprinkles.reduce((s, q) => s + q.pts.length, 0), stacks, offset: food ? Math.hypot(sx / food, sy / food) / wellR : 0, solids, wellR };
+    garnish: data.sprinkles.reduce((s, q) => s + q.pts.length, 0), stacks, offset: food ? Math.hypot(sx / food, sy / food) / wellR : 0, solids, wellR, plate: data.type };
 }
 function snapshot(data){
   return { type: data.type,
@@ -4222,7 +4944,9 @@ function serve(forced){
   SAVE.stats.dishes++; SAVE.stats.best = Math.max(SAVE.stats.best, total);
   SAVE.book.unshift({ name: E.result.name, total, scores, label: E.practice ? 'Practice · ' + E.label : 'Episode ' + (E.epIdx + 1) + ' · ' + E.def.name, who: E.name, date: new Date().toISOString().slice(0, 10), snap });
   SAVE.book = SAVE.book.slice(0, 24);
+  E.result.fresh = recordClassics(ev.classics, total);
   persist();
+  for (const c of E.result.fresh.slice(0, 2)) setTimeout(() => toast('📖 New classic for your book: <b>' + esc(c.name) + '</b>', 'g', 4200), forced ? 1400 : 500);
   if (forced) setTimeout(() => show('judge'), 900); else show('judge');
 }
 function likeness(rec, comps, sauces, garn){
@@ -4243,6 +4967,8 @@ function likeness(rec, comps, sauces, garn){
   L += PL.type === rec.plate ? .05 : -.1;
   return clamp(L, 0, 1);
 }
+const refRaw = id => makeItem(id, { uses: 1 });
+function realMix(parts, o){ const m = makeMix(parts, 'mix', 1); return Object.assign(m, o || {}); }
 function refDish(rec){
   const mixIt = (type, col, pcols, o) => makeItem('mix', Object.assign({ mix: { type, title: '', parts: [], fl: {}, col, liquid: false, q: 1, pcols: pcols || [] }, uses: 1, cut: 'whole' }, o || {}));
   const mk = {
@@ -4254,6 +4980,13 @@ function refDish(rec){
     aspar: () => makeItem('asparagus', { core: .95, brown: .55, cookMin: 7, seed: 6 }),
     katsu: () => makeItem('chicken_breast', { cut: 'butterfly', core: 1.05, brown: .85, cookMin: 12, oil: true, coat: ['flour', 'egg', 'crumbs'], sliced: true, seed: 7 }),
     slaw: () => mixIt('slaw', '#c9a0c0', ['#7a3a76', '#ec7a28', '#f6efcf']),
+    pizza: () => { const it = makeItem('pizza_dough', { cut: 'base', uses: 1, core: 1.05, brown: .8, cookMin: 9, oil: true, sliced: true, seed: 8 });
+      it.adds.push({ id: 'passata', mode: 'top', kind: 'sauce', col: ING.passata.raw, fl: {}, parts: ['passata'], melt: 4, short: 'passata', vis: true },
+        { id: 'mozzarella', mode: 'top', kind: 'cheese', cheese: true, col: ING.mozzarella.raw, fl: {}, parts: ['mozzarella'], melt: 4, short: 'mozzarella', vis: true }); return it; },
+    friedrice: () => { const rice = realMix([refRaw('rice'), refRaw('water')], { core: 1.05, brown: .2 }); return realMix([rice, refRaw('eggs'), refRaw('soy'), refRaw('peas')], { core: 1.2, brown: .55, cookMin: 8 }); },
+    pasta: () => { const sp = realMix([refRaw('spaghetti'), refRaw('water')], { core: 1, brown: .1 }); const sauce = realMix([refRaw('passata'), refRaw('garlic'), refRaw('basil')]);
+      sauce.mix = Object.assign({}, sauce.mix, { type: 'sauce', title: 'Tomato sauce', liquid: true }); return realMix([sp, sauce]); },
+    balls: () => makeItem('beef_mince', { cut: 'balls', uses: 1, core: 1.15, brown: .8, cookMin: 11, seed: 9 }),
   };
   const comps = rec.ref.comps.map(([key, x, y, arr], i) => ({ v: visualOf(mk[key]()), x, y, rot: 0, arr, z: i + 1, pcs: null }));
   const scol = { sauce: '#eef0e2', cmayo: '#ebc04a' };
@@ -4336,6 +5069,7 @@ function rivalDish(r, def, S){
   let pool;
   if (t === 'dessert') pool = AI_DISH.dessert;
   else if (t === 'theme') pool = AI_DISH[THEMES[S.theme].key];
+  else if (t === 'mystery' && BASKETS[S.basket].dishes) pool = BASKETS[S.basket].dishes;
   else if (t === 'mystery'){ const n = BASKETS[S.basket].ids.map(i => ING[i].name.toLowerCase().replace(/^(king|red|chicken|pork) /, '')); pool = [`${cap(n[0])} with ${n[1]} and ${n[2]}`, `${cap(n[1])}-glazed ${n[0]}, ${n[2]} dressing`, `Spiced ${n[0]}, ${n[1]} purée and ${n[2]} oil`, `${cap(n[0])} three ways with ${n[1]}`, `Roasted ${n[0]}, pickled ${n[1]}, ${n[2]} crumb`, `${cap(n[0])} tartlet with ${n[1]} and ${n[2]}`]; }
   else if (t === 'pressure') return 'Their version of the ' + PRESSURE[S.pressure].name.toLowerCase();
   else pool = AI_DISH.open;
@@ -4443,6 +5177,7 @@ function resultsStep(){
   if (N.pinUsed) big('Your immunity pin saves you!', esc(o.name) + ' leaves the competition tonight. Your pin is gone, so be careful.');
   else if (o.you) big('It\'s you. Please leave your apron.', 'You cooked your way to episode ' + (N.ep + 1) + ' with nothing but an air fryer.');
   else big(esc(o.name) + ' is going home.', N.bottom.some(c => c.you) ? 'You survive, but only just.' : 'You\'re through to the next episode.');
+  if (!o.you || N.pinUsed) st.insertAdjacentHTML('beforeend', '<div class="say2" style="color:var(--gold2)">Prize money: <b>+$' + prizeFor(N) + '</b> for your sponsor kit.</div>');
   fillList();
   btn(o.you && !N.pinUsed ? 'Continue ›' : 'Continue ›', () => { applyNight(); if (o.you && !N.pinUsed) show('end'); else show('board'); });
 }
@@ -4469,7 +5204,7 @@ function applyNight(){
     if (N.pinUsed) S.pin = false;
     if (N.pinWon) S.pin = true;
     if (N.out.you){ S.done = true; S.won = false; S.outEp = N.ep; E.endKind = 'out'; }
-    else { const rs = S.rivals.find(r => r.id === N.out.id); rs.out = N.ep; S.ep++; }
+    else { const rs = S.rivals.find(r => r.id === N.out.id); rs.out = N.ep; S.ep++; seasonKit(S); S.cash += prizeFor(N); }
     for (const c of N.all) if (!c.you){ const rs = S.rivals.find(r => r.id === c.id); rs.scores[N.ep] = c.total; }
   }
   S.lastNight = { ep: N.ep, total: E.result.total };
@@ -4532,7 +5267,7 @@ const PRACTICE = [
   { label: 'Open kitchen', i: 'Cook anything', d: 'Learn the air fryer with no brief at all.', mk: () => ({ def: { ...EPS[0], cook: 70, sub: 'Anything goes', desc: 'No brief, no rivals, no eliminations. Cook whatever you like and see what the judges think.' }, brief: { type: 'open' } }) },
   { label: 'Dessert round', i: 'Sweet Tooth', d: 'It must be sweet, and it must be beautiful.', mk: () => ({ def: { ...EPS[4] }, brief: { type: 'dessert' } }) },
   { label: 'Mystery basket', i: 'Three surprises', d: 'Use at least two of three mystery ingredients.', mk: () => ({ def: { ...EPS[1], budget: 30 }, brief: { type: 'mystery', ids: pick(BASKETS).ids.slice() } }) },
-  { label: 'Invention test', i: 'A random theme', d: 'Street food, breakfast, garden or sea.', mk: () => ({ def: { ...EPS[2] }, brief: { type: 'theme', theme: pick(THEMES).key } }) },
+  { label: 'Invention test', i: 'A random theme', d: 'Street food, Italian, fakeaway, comfort food and more.', mk: () => ({ def: { ...EPS[2] }, brief: { type: 'theme', theme: pick(THEMES).key } }) },
   { label: 'Restaurant standard', i: 'The semi-final rules', d: 'Three elements, a sauce and something crisp.', mk: () => ({ def: { ...EPS[5] }, brief: { type: 'semi' } }) },
   ...PRESSURE.map(p => ({ label: 'Pressure: ' + p.name, i: p.sub, d: 'Follow the judges\' recipe exactly.', mk: () => ({ def: { ...EPS[3] }, brief: { type: 'pressure', recipe: p.key } }) })),
 ];
@@ -4566,7 +5301,7 @@ function bookView(i){
   const c = mkCanvas(540, 420); c.x.fillStyle = '#1a1613'; rr(c.x, 0, 0, 540, 420, 12); c.x.fill(); c.x.save(); c.x.translate(270, 210); c.x.scale(.52, .52); drawDish(c.x, b.snap); c.x.restore();
   $('#bookBig').appendChild(c.el);
 }
-const GTABS = [['recipe', 'Recipe card'], ['times', 'Air fryer times'], ['bowl', 'Bowl recipes'], ['tips', 'Technique'], ['plating', 'Plating'], ['judges', 'The judges'], ['keys', 'Controls']];
+const GTABS = [['recipe', 'Recipe card'], ['times', 'Air fryer times'], ['bowl', 'Bowl recipes'], ['tips', 'Technique'], ['plating', 'Plating'], ['classics', 'Classic dishes'], ['judges', 'The judges'], ['keys', 'Controls']];
 let GTAB = 'times';
 function openGuide(tab){
   GTAB = tab || 'times';
@@ -4605,25 +5340,27 @@ function renderGuide(){
     }
     rows.sort((a, b) => b.own - a.own);
     h = `<p>Times are for a basket that isn't overcrowded. Your ingredients are highlighted. Higher heat browns the outside faster than it cooks the inside.</p><table class="gt"><thead><tr><th>Food</th><th>200°C</th><th>180°C</th><th>Done when</th><th>Tips</th></tr></thead><tbody>${rows.map(r => r.html).join('')}</tbody></table>
-    <h4>Baking in a tin</h4><table class="gt"><tbody><tr><td>Chocolate fondant</td><td>200°C · 8–10 min</td><td>Inside reads "Molten centre"</td></tr><tr><td>Sponge cake</td><td>160°C · ~20 min</td><td>"Springy, baked"</td></tr><tr><td>Baked custard</td><td>150°C · ~16 min</td><td>"Set with a wobble". Top with sugar and blast at 200°C for a brûlée.</td></tr><tr><td>Frittata (egg mix)</td><td>170°C · ~14 min</td><td>"Set"</td></tr><tr><td>Fruit crumble</td><td>180°C · ~18 min</td><td>"Bubbling", golden on top</td></tr><tr><td>Chocolate + cream</td><td>150°C · ~3 min</td><td>Melts into ganache, a sauce</td></tr></tbody></table>`;
+    <h4>Baking in a tin</h4><table class="gt"><tbody><tr><td>Chocolate fondant</td><td>200°C · 8–10 min</td><td>Inside reads "Molten centre"</td></tr><tr><td>Sponge cake</td><td>160°C · ~20 min</td><td>"Springy, baked"</td></tr><tr><td>Baked custard</td><td>150°C · ~16 min</td><td>"Set with a wobble". Top with sugar and blast at 200°C for a brûlée.</td></tr><tr><td>Frittata (egg mix)</td><td>170°C · ~14 min</td><td>"Set"</td></tr><tr><td>Fruit crumble</td><td>180°C · ~18 min</td><td>"Bubbling", golden on top</td></tr><tr><td>Chocolate + cream</td><td>150°C · ~3 min</td><td>Melts into ganache, a sauce</td></tr><tr><td>Rice + water</td><td>180°C · ~22 min</td><td>"Fluffy". Leave it longer for a crispy bottom.</td></tr><tr><td>Spaghetti or macaroni + water</td><td>180°C · ~15 min</td><td>"Al dente"</td></tr><tr><td>Noodles + water</td><td>180°C · ~9 min</td><td>"Tender"</td></tr><tr><td>Tomato sauce, ragù or curry sauce</td><td>180°C · ~10 min</td><td>Turns into a sauce when you take it out</td></tr><tr><td>Curry (with meat, fish or veg)</td><td>180°C · ~18 min</td><td>Cooked through, bubbling</td></tr><tr><td>Mac and cheese, pasta bake</td><td>180°C · ~18 min</td><td>Golden on top</td></tr><tr><td>Fried rice</td><td>200°C · ~8 min</td><td>Egg set, crisp edges</td></tr><tr><td>Cookie dough</td><td>170°C · ~9 min</td><td>Golden edges, soft middle</td></tr></tbody></table>`;
   } else if (GTAB === 'bowl'){
     h = `<p>Put things in the bowl, then press <b>Mix</b>, <b>Whisk</b> or <b>Mash &amp; blend</b>. The bowl tells you what you'll get before you commit.</p><div class="gcols">
     <div><h4>Sauces</h4><ul><li><b>Aioli:</b> mayo + garlic (+ lemon)</li><li><b>Flavoured mayo:</b> mayo + sriracha, curry powder, herbs, mustard...</li><li><b>Yogurt sauces:</b> yogurt + mint, dill, garlic, lemon, curry...</li><li><b>Glaze:</b> honey, maple or BBQ + soy, chilli, garlic, ginger, mustard or balsamic</li><li><b>Dressing:</b> olive oil + lemon, lime, balsamic or mustard</li><li><b>Pesto:</b> olive oil + basil + parmesan or almonds, then Mash</li><li><b>Roasted veg sauce:</b> cook peppers, tomatoes, garlic or cauliflower first, then Mash</li><li><b>Coulis:</b> berries or fruit, then Mash</li></ul></div>
     <div><h4>Sides</h4><ul><li><b>Mash:</b> cooked potatoes (+ butter, milk, cheese), then Mash</li><li><b>Crushed potatoes:</b> cooked potatoes + butter or herbs, then Mix</li><li><b>Hummus:</b> chickpeas + lemon + garlic + olive oil, then Mash</li><li><b>Guacamole:</b> avocado + lime + chilli or onion</li><li><b>Salsa:</b> tomatoes, mango, pineapple or corn + onion, chilli, lime or coriander</li><li><b>Slaw:</b> shredded cabbage or carrot batons + mayo, yogurt or lime</li><li><b>Salad:</b> leaves + a dressing</li><li><b>Compound butter:</b> butter + garlic, herbs or chilli. Top hot food with it.</li></ul></div>
     <div><h4>Bakes (go into the air fryer in a tin)</h4><ul><li><b>Chocolate fondant:</b> chocolate + butter + egg + sugar (+ a little flour), Whisk</li><li><b>Sponge:</b> flour + egg + sugar (+ butter or milk), Whisk</li><li><b>Custard:</b> egg + cream or milk + sugar</li><li><b>Frittata:</b> eggs + cheese or veg, Whisk</li><li><b>Crumble:</b> flour or oats + butter (+ sugar). Add fruit for a fruit crumble.</li><li><b>Ganache:</b> chocolate + cream, then heat it</li></ul></div>
-    <div><h4>Other tricks</h4><ul><li><b>Whipped cream:</b> cream (+ sugar), Whisk to soft peaks. Don't overdo it.</li><li><b>Wet batter:</b> flour + egg or milk. It drips in an air fryer, so bread things instead.</li><li>Any sauce can be used to <b>marinate</b> raw food or <b>glaze</b> cooked food.</li><li>Cheese, crumble, sugar, butter and nuts can <b>top</b> food before it cooks.</li></ul></div></div>`;
+    <div><h4>Other tricks</h4><ul><li><b>Whipped cream:</b> cream (+ sugar), Whisk to soft peaks. Don't overdo it.</li><li><b>Wet batter:</b> flour + egg or milk. It drips in an air fryer, so bread things instead.</li><li>Any sauce can be used to <b>marinate</b> raw food or <b>glaze</b> cooked food.</li><li>Cheese, crumble, sugar, butter and nuts can <b>top</b> food before it cooks.</li></ul></div><div><h4>Rice, pasta, noodles and curry</h4><ul><li><b>Rice, pasta or noodles:</b> put them in the bowl, press <b>+ Water</b>, then <b>Mix</b>. They cook in a covered tin in the air fryer.</li><li><b>Tomato sauce:</b> passata (+ garlic, basil, chilli), Mix, then cook it. Add beef mince and it becomes a <b>ragù</b>.</li><li><b>Pasta dishes:</b> cooked pasta + a sauce, then Mix. Ragù makes bolognese. Bacon + egg + parmesan makes carbonara. Pesto, cream, butter or garlic and oil all work.</li><li><b>Curry:</b> coconut milk or passata + curry powder or cumin + chicken, prawns, chickpeas or veg. Mix, then cook.</li><li><b>Fried rice:</b> cooked rice + egg + soy + veg or meat. Mix, then crisp it at 200°C.</li><li><b>Mac and cheese:</b> macaroni + milk or cream + cheese. No water. <b>Pasta bake:</b> pasta + passata + cheese.</li></ul></div><div><h4>Pizza and toppings</h4><ul><li><b>Pizza:</b> take a dough ball and press <b>Pizza base</b>. Top it with a sauce first, then cheese, then toppings. Oil spray the crust, air fry at 200°C for about 9 minutes, then slice it.</li><li>The judges know a margherita, pepperoni, Hawaiian, funghi, BBQ chicken, four cheese and veggie pizza.</li><li>Dough also makes <b>dough balls</b> and <b>breadsticks</b>. Garlic butter on top is a winner.</li><li>Sourdough slices, whole tortillas, puff pastry squares and cooked jacket potatoes take toppings too: garlic bread, bruschetta, quesadillas, fruit tarts.</li><li><b>Cookies:</b> flour + butter + sugar + chocolate, oats or almonds. Mix, then bake.</li></ul></div></div>`;
   } else if (GTAB === 'tips'){
     h = `<div class="gcols"><div><h4>The air fryer</h4><ul><li><b>Preheat.</b> It takes about three minutes to get hot.</li><li><b>Don't overcrowd.</b> Over 100% full, food steams instead of crisping.</li><li><b>Shake</b> the basket (S) every few minutes for even colour.</li><li><b>Oil spray</b> helps veg and breaded food turn golden. Fatty meat doesn't need it.</li><li>Higher heat browns the outside faster than the inside cooks. Thick things like lower heat for longer.</li><li><b>Sugar burns.</b> Honey, maple and BBQ glazes darken fast.</li><li>Garlic seasoning burns above 185°C on long cooks.</li><li>Opening the basket loses heat.</li></ul></div>
     <div><h4>Cooking</h4><ul><li><b>Season everything.</b> One or two pinches of salt per component.</li><li><b>Breading:</b> flour, then egg, then panko, then oil spray.</li><li><b>Even knife work</b> means even cooking.</li><li><b>Marinate early.</b> Marinades get better for about 20 minutes.</li><li><b>Rest meat</b> for 2 minutes before slicing. It keeps cooking a little after it comes out.</li><li><b>Timing:</b> hot food cools and crisp food goes soft if it waits more than about 15 minutes.</li><li><b>Balance:</b> rich food needs acidity (lemon, lime, yogurt, vinegar). Sweet food needs something tart or bitter.</li><li><b>Texture:</b> something crisp plus something creamy.</li></ul></div></div>`;
   } else if (GTAB === 'plating'){
     h = `<div class="gcols"><div><h4>Plating tools</h4><ul><li><b>Move:</b> drag food around. Mouse wheel or Q/E rotates. A changes the arrangement. Split divides a portion in two.</li><li><b>Swoosh:</b> a classic sauce stroke, thick to thin. Paint it before you place food on it.</li><li><b>Dots:</b> click for sauce dots, hold for bigger ones.</li><li><b>Drizzle:</b> a thin line of sauce.</li><li><b>Pool:</b> a puddle of sauce to sit food on.</li><li><b>Garnish:</b> scatter herbs, zest, spices, flaky salt or icing sugar.</li><li><b>In a pot:</b> serve a sauce on the side.</li></ul></div>
     <div><h4>What Margot looks for</h4><ul><li>Use about a quarter to half of the plate. Leave space.</li><li><b>Keep the rim clean.</b> No food or sauce on the rim.</li><li><b>Colour:</b> three or four colours. Green garnish rescues a beige plate.</li><li><b>A focal point:</b> the star of the dish near the centre.</li><li><b>Height:</b> stack something on something.</li><li>Sauce should frame the food, not drown it.</li><li>Pick a plate that contrasts with the food. Dark food looks great on white, and pale food on slate.</li></ul></div></div>`;
+  } else if (GTAB === 'classics'){
+    h = codexHTML();
   } else if (GTAB === 'judges'){
     h = JUDGES.map((j, i) => `<div class="gjudge"><canvas data-j="${i}" width="10" height="10"></canvas><div><h4 style="margin:0">${esc(j.name)}</h4><p>${esc(j.role)}</p><p class="muted">Scores: technique ${Math.round(j.w[0] * 100)}% · flavour ${Math.round(j.w[1] * 100)}% · presentation ${Math.round(j.w[2] * 100)}% · creativity ${Math.round(j.w[3] * 100)}%</p></div></div>`).join('') +
       '<p>Each judge scores out of 10. The judges get stricter as the season goes on. Raw chicken, pork or mince caps every score. Missing the brief costs a lot.</p>';
   } else if (GTAB === 'keys'){
-    h = `<div class="gcols"><div><h4>Kitchen</h4><ul><li><kbd>Space</kbd> start or pause the air fryer. During knife work, chop.</li><li><kbd>↑</kbd> <kbd>↓</kbd> temperature · <kbd>[</kbd> <kbd>]</kbd> timer</li><li><kbd>S</kbd> shake the basket</li><li><kbd>F</kbd> fast-forward the clock</li><li><kbd>P</kbd> plate up</li><li><kbd>H</kbd> this guide · <kbd>Esc</kbd> pause</li><li><kbd>←</kbd> <kbd>→</kbd> whisk · <kbd>Enter</kbd> stop whisking</li><li>Shift-click the temperature or timer buttons for bigger steps.</li></ul></div>
-    <div><h4>Plating</h4><ul><li><kbd>1</kbd>–<kbd>6</kbd> tools</li><li><kbd>Q</kbd> <kbd>E</kbd> or mouse wheel to rotate</li><li><kbd>A</kbd> change the arrangement</li><li><kbd>Delete</kbd> remove the selected food</li><li><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo</li></ul><h4>Pantry</h4><ul><li><kbd>1</kbd>–<kbd>7</kbd> switch aisle</li></ul></div></div>`;
+    h = `<div class="gcols"><div><h4>Kitchen</h4><ul><li><kbd>Space</kbd> start or pause the air fryer. During knife work, chop.</li><li><kbd>↑</kbd> <kbd>↓</kbd> temperature · <kbd>[</kbd> <kbd>]</kbd> timer</li><li><kbd>S</kbd> shake the basket</li><li><kbd>F</kbd> fast-forward the clock</li><li><kbd>P</kbd> plate up</li><li><kbd>H</kbd> this guide · <kbd>Esc</kbd> pause</li><li><kbd>←</kbd> <kbd>→</kbd> whisk · <kbd>Enter</kbd> stop whisking</li><li>Shift-click the temperature or timer buttons for bigger steps.</li><li><kbd>1</kbd> <kbd>2</kbd> switch air fryer (once you own a second one)</li></ul></div>
+    <div><h4>Plating</h4><ul><li><kbd>1</kbd>–<kbd>6</kbd> tools</li><li><kbd>Q</kbd> <kbd>E</kbd> or mouse wheel to rotate</li><li><kbd>A</kbd> change the arrangement</li><li><kbd>Delete</kbd> remove the selected food</li><li><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo</li></ul><h4>Pantry</h4><ul><li><kbd>1</kbd>–<kbd>8</kbd> switch aisle</li></ul></div></div>`;
   }
   body.innerHTML = h; body.scrollTop = 0;
   for (const c of body.querySelectorAll('canvas[data-j]')){ const j = JUDGES[+c.dataset.j]; const k = mkCanvas(120, 110); c.replaceWith(k.el); drawPerson(k.x, personLook(j.look), 60, 124, .48, 'smile', 0); }
@@ -4639,10 +5376,12 @@ function openSettings(back){
 }
 function howTo(){
   modal('How to play', `<p><b>1. The brief.</b> Each episode has a challenge: a signature dish, a mystery basket, a theme, a pressure test, desserts, a semi-final and the grand finale.</p>
-    <p><b>2. The pantry.</b> Shop against the clock and a budget. Salt, pepper and oil spray are free.</p>
+    <p><b>2. The pantry.</b> Shop against the clock and a budget. Salt, pepper, oil spray and water are free.</p>
     <p><b>3. The kitchen.</b> Select an ingredient to cut, season, bread, marinate or top it. Send it into the air fryer: set the temperature and timer, press Start, and shake the basket. Use the bowl for sauces, mash, batters and more. Watch the Inside and Outside bars. Green is perfect.</p>
     <p><b>4. Plating.</b> Drag your food onto the plate, paint sauces, add garnish and name the dish.</p>
     <p><b>5. Judging.</b> Three judges score technique, flavour, presentation and creativity. The lowest score goes home. Win all seven episodes to lift the Golden Whisk.</p>
+    <p><b>6. Sponsor kit.</b> Survive an episode to earn prize money. Spend it between episodes on kit: a sharper knife, a probe thermometer, a spice rack, even a second air fryer.</p>
+    <p><b>Classic dishes.</b> Pizza, spaghetti bolognese, egg fried rice, curry, mac and cheese... the judges know dozens of classics. Nail one for a bonus and it goes into your cookbook.</p>
     <p class="muted" style="font-size:15px">Tip: try the Practice kitchen first. The Guide (H) has every air fryer time.</p>`, [{ t: 'Got it', cls: 'pri' }]);
 }
 
@@ -4657,6 +5396,7 @@ $('#bNew').onclick = () => {
 };
 $('#bPractice').onclick = () => { AU.play('ui'); show('practice'); };
 $('#bBook').onclick = () => { AU.play('ui'); show('book'); };
+$('#bCodex').onclick = () => { openGuide('classics'); };
 $('#bHow').onclick = () => { AU.play('ui'); howTo(); };
 $('#bSet').onclick = () => { AU.play('ui'); openSettings(null); };
 $('#bStartSeason').onclick = () => { AU.play('ui'); newSeason(); };
@@ -4670,6 +5410,7 @@ document.addEventListener('keydown', e => {
   if (!$('#guide').hidden){ if (k === 'Escape'){ e.preventDefault(); closeGuide(); } return; }
   if (!$('#modal').hidden){ if (k === 'Escape'){ e.preventDefault(); const f = modalEsc; closeModal(); if (f && f !== closeModal) f(); } return; }
   if (tag === 'INPUT'){ if (k === 'Enter' || k === 'Escape') e.target.blur(); return; }
+  if (tag === 'SELECT'){ if (k === 'Escape') e.target.blur(); return; }
   const onBtn = tag === 'BUTTON' && (k === ' ' || k === 'Enter');
   switch (G.scr){
     case 'kitchen': {
@@ -4688,6 +5429,7 @@ document.addEventListener('keydown', e => {
       else if (k === 'ArrowDown'){ e.preventDefault(); fctl('t-', e.shiftKey); }
       else if (k === ']'){ fctl('m+', e.shiftKey); }
       else if (k === '['){ fctl('m-', e.shiftKey); }
+      else if ((k === '1' || k === '2') && E.fryers.length > 1){ selectBay(+k - 1); }
       else if ((k === 'Delete' || k === 'Backspace') && selItem()){ e.preventDefault(); doAct(selItem(), 'bin'); }
       return;
     }
@@ -4707,7 +5449,7 @@ document.addEventListener('keydown', e => {
     case 'judge': if (k === ' ' || k === 'Enter'){ e.preventDefault(); judgeNext(); } return;
     case 'results': if ((k === ' ' || k === 'Enter') && !onBtn){ e.preventDefault(); if (G.t - RGUARD < .7) return; const b = E && E.practice ? null : ($('#rActions .btn.pri') || $('#rActions .btn')); if (b) b.click(); } return;
     case 'brief': if ((k === ' ' || k === 'Enter') && !onBtn){ e.preventDefault(); const b = $('#bBriefGo'); if (b) b.click(); } return;
-    case 'pantry': if (k >= '1' && k <= '7'){ E.aisle = AISLES[+k - 1][0]; renderAisles(); renderShelf(); AU.play('click'); } return;
+    case 'pantry': if (k >= '1' && k <= String(AISLES.length)){ E.aisle = AISLES[+k - 1][0]; renderAisles(); renderShelf(); AU.play('click'); } return;
   }
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden && G.scr === 'kitchen' && E && !E.ended && !modalOpen()) pauseMenu(); });
@@ -4733,7 +5475,7 @@ makeTitleItems();
 show('title');
 requestAnimationFrame(frame);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { STUDIO = null; fit(); });
-window.AirfryerChef = { get E(){ return E; }, get PL(){ return PL; }, get SAVE(){ return SAVE; }, ING, show, doAct, toFryer, removeFromFryer, toBowl, finishMix, bowlItems, benchItems, fryerItems, stepOnce, placeComp, serve, evaluateDish, judgeScores, classify, makeMix, makeItem, analysePlate, drawTest: (x, it) => drawFit(x, visualOf(it), 50, 50, 96, 96) };
+window.AirfryerChef = { get E(){ return E; }, get PL(){ return PL; }, get SAVE(){ return SAVE; }, ING, show, doAct, toFryer, removeFromFryer, toBowl, finishMix, bowlItems, benchItems, fryerItems, stepOnce, placeComp, serve, evaluateDish, judgeScores, classify, makeMix, makeItem, analysePlate, selectBay, gearOn, recognise, flatSources, openShop, select: uid => select(uid), endCooking, renderActs, nameOfTest: it => nameOf(it), drawTest: (x, it) => drawFit(x, visualOf(it), 50, 50, 96, 96) };
 })();
 </script>
 </body>
