@@ -56,7 +56,7 @@ const GAMES = [
   { slug:'burner-line', title:'Burner Line', icon:'☎️', genre:'Simulation', colors:['#170f05', '#ffb341'], players:'1 player', isNew:true, featured:true,
     desc:'Run a basement scam call center to pay off Uncle Vic. Dig through marks\' profiles, keep your cover story straight on live calls, wash the money, run a crew and rug-pull memecoins before the feds close the case.' },
   { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
-    desc:'First-person parkour across the rooftops of a Polish old town. Five timed courses, three CS-style surf maps, an endless mode, and six knives to unbox, each with its own inspect animation.' },
+    desc:'First-person parkour and CS-style surf over a Polish old town. Five courses, three surf maps, endless surf, six knives with CS-style inspects, daily missions, levels and trade-ups.' },
   { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
     desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry, then make pizza, spaghetti, rice, curry, fried rice, mac and cheese and more, plate up, and survive seven episodes of three tough judges. Win prize money for sponsor kit like a second air fryer.' },
   { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
@@ -125,6 +125,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-08', tag:'Update', title:'Dachy: better knives, missions and endless surf', game:'dachy',
+    text:'Knives are held like in CS now: gloved hands that wrap the grip, viewmodel sway, and inspects that turn the blade at the wrist. The karambit and skeleton knife were rebuilt to look like the real ones, and the butterfly flips around its pivot. New: levels that give case keys, three daily missions, a collection book, 5-for-1 trade-ups, Tally knives that count your runs, and Endless Surf.' },
   { date:'2026-11-08', tag:'New game', title:'Gilded Comet Casino opens its doors', game:'gilded-comet',
     text:'Fifteen casino games on one play-money bankroll. Spin Comet Riches for free spins and the progressive jackpot, sit at a six-deck blackjack shoe with a strategy coach and card counter, play no-limit Hold\'em against six AI regulars, or bet win, place, exacta and trifecta at Gilded Downs. Level up through six VIP tiers and chase 24 achievements. No real money, ever.' },
   { date:'2026-11-08', tag:'Update', title:'Airfryer Chef: pizza, pasta and rice', game:'airfryer-chef',
