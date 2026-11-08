@@ -58,7 +58,7 @@ const GAMES = [
   { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
     desc:'First-person parkour across the rooftops of a Polish old town. Five timed courses, three CS-style surf maps, an endless mode, and six knives to unbox, each with its own inspect animation.' },
   { slug:'airfryer-chef', title:'Airfryer Chef', icon:'🍟', genre:'Cooking', colors:['#1a1410', '#f2b632'], players:'1 player', isNew:true, featured:true,
-    desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry against the clock, prep, air-fry, plate up and survive seven episodes of three tough judges.' },
+    desc:'A TV cooking competition where every rival has a full kitchen and you only have an air fryer. Shop the pantry, then make pizza, spaghetti, rice, curry, fried rice, mac and cheese and more, plate up, and survive seven episodes of three tough judges. Win prize money for sponsor kit like a second air fryer.' },
   { slug:'hook-and-harpoon', title:'Hook & Harpoon', icon:'🎣', genre:'Sports', colors:['#041119', '#f2b134'], players:'1 player', isNew:true, featured:true,
     desc:'Fight it on the line, or hold your breath and go down after it. Rod, cast net, trawl and speargun across eight waters, with 62 fish, 9 legends, five boats, shark fishing and a living ocean full of bait balls, whales and dolphins.' },
   { slug:'orb-four', title:'Orb Four', icon:'🟠', genre:'Puzzle', colors:['#1b2230', '#ff8a00'], players:'1–2 players · online with friends', isNew:true, featured:true,
@@ -127,6 +127,8 @@ const REVIEWS = [
 const NEWS = [
   { date:'2026-11-08', tag:'New game', title:'Gilded Comet Casino opens its doors', game:'gilded-comet',
     text:'Fifteen casino games on one play-money bankroll. Spin Comet Riches for free spins and the progressive jackpot, sit at a six-deck blackjack shoe with a strategy coach and card counter, play no-limit Hold\'em against six AI regulars, or bet win, place, exacta and trifecta at Gilded Downs. Level up through six VIP tiers and chase 24 achievements. No real money, ever.' },
+  { date:'2026-11-08', tag:'Update', title:'Airfryer Chef: pizza, pasta and rice', game:'airfryer-chef',
+    text:'The air fryer can now do pizza night. Shape dough into a base and top it, cook rice, spaghetti, macaroni and noodles in a covered tin, simmer tomato sauce, ragu and curry, and turn them into bolognese, carbonara, egg fried rice, mac and cheese, pasta bakes and cookies. There is a new Pasta, Rice and Pizza aisle, three new themes, five new mystery baskets and three new pressure tests. Survive an episode to win prize money for sponsor kit, including a probe thermometer and a second air fryer, and collect 43 classic dishes in your cookbook.' },
   { date:'2026-11-07', tag:'Update', title:'Dachy: surf mode and knives', game:'dachy',
     text:'Dachy now has a CS-style surf mode: three maps high above the old town, from the wide ramps of Vistula to the night-time Dragon. Earn coins in every mode and open Rooftop Cases for six knives (butterfly, karambit, M9 bayonet, paracord, skeleton and nomad) in 13 finishes with real wear. Press F to inspect.' },
   { date:'2026-11-07', tag:'New game', title:'Nightwire: four nights in the dark', game:'nightwire',
