@@ -49,6 +49,10 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'stick-storm-showdown', title:'Stick Storm Showdown', icon:'🥊', genre:'Fighting', colors:['#1b1540', '#ff5d73'], players:'1–2 players', isNew:true, featured:true,
+    desc:'1v1 stick fighting in a 3D ring that swings around when you sidestep. Ten heroes, including four Stick Brawl originals, with parries, dodges, rhythm combos, juggles, throws and cinematic ultimates.' },
+  { slug:'stick-storm', title:'Stick Storm', icon:'⚡', genre:'Fighting', colors:['#110d24', '#ffd23f'], players:'1–4 players', isNew:true, featured:true,
+    desc:'Four-player stick figure brawling in a storm. Six heroes with ultimates, weapon drops, lightning and lava hazards, CPU rivals and an endless survival mode with a boss every fifth wave.' },
   { slug:'primordial', title:'Primordial: Evolve', icon:'🧬', genre:'Survival', colors:['#064e3b', '#a3e635'], players:'1 player', isNew:true, featured:true,
     desc:'Begin as a single cell and evolve through 40 living, procedurally animated forms on an island that is new every run. Design your species, hatch a brood, hunt seven legends, and survive the comet at the end of the world.' },
   { slug:'shrimp-tycoon', title:'Shrimp Tycoon', icon:'🦐', genre:'Tycoon', colors:['#0b3a44', '#ff7b5c'], players:'1 player', isNew:true, featured:true,
@@ -125,6 +129,10 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-08', tag:'New game', title:'Stick Storm Showdown: 1v1 in a 3D ring', game:'stick-storm-showdown',
+    text:'A Tekken-style 1v1 fighter where the camera swings around the ring as you sidestep. Neon Ronin, Plague Doctor, Mecha Pilot and Kraken Captain join from Stick Brawl, along with parries, dodges, rhythm combos with PERFECT hits and Combo Finishers, Awakening, and arena events like low gravity and eruption storms. Climb the Arcade ladder to the Storm King, fight a friend on one keyboard, or learn every move in Practice.' },
+  { date:'2026-11-08', tag:'New game', title:'Stick Storm: four fighters, one storm', game:'stick-storm',
+    text:'Up to four players brawl across Thunder Peak, Neon Rooftops, Lava Forge and Sky Garden. Grab katanas, hammers and rockets as they parachute in, fill your meter for a cinematic ultimate, and see how many waves you survive before the Storm King shows up. Coins, heroes and hats carry over to Showdown.' },
   { date:'2026-11-08', tag:'Update', title:'Primordial: Evolve, rebuilt from the cell up', game:'primordial',
     text:'Every creature is now procedurally animated: spines ripple, legs plant their feet and step, wings flap and tentacles trail. Evolve through 40 forms on a brand-new island every run, with oceans, reefs, jungles, deserts, tundra and a volcano. Design your species\' colors, pattern and name, hatch brood allies, chase quests, hunt seven legends, and earn fossils for permanent upgrades. Runs save so you can continue later, and it plays on phones too.' },
   { date:'2026-11-08', tag:'Update', title:'Shrimp Tycoon 2: living tanks and real genetics', game:'shrimp-tycoon',
