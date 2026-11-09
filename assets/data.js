@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'racket-cataclysm', title:'Racket Cataclysm', icon:'🎾', genre:'Sports', colors:['#26123d', '#ffd60a'], players:'1–2 players', isNew:true, featured:true,
+    desc:'Tennis inside a volcano, table tennis in orbit and badminton on a skyscraper in a lightning storm. Six absurd champions with ridiculous ultras, a ball that catches fire in long rallies, and chaos events like moon gravity, multiball and hurricane cows.' },
   { slug:'kickstorm', title:'Kickstorm Arena', icon:'⚽', genre:'Sports', colors:['#140f2b', '#ff5a36'], players:'1 player', isNew:true, featured:true,
     desc:'Over-the-top 3v3 soccer inside the walls. Pick one of five movesets, bend shots after you kick them, set the ball on fire, split it into clones, freeze the other team in time and survive meteor showers and multiball.' },
   { slug:'stick-storm-showdown', title:'Stick Storm Showdown', icon:'🥊', genre:'Fighting', colors:['#1b1540', '#ff5d73'], players:'1–2 players', isNew:true, featured:true,
@@ -131,6 +133,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-09', tag:'New game', title:'Racket Cataclysm: three racket sports, zero chill', game:'racket-cataclysm',
+    text:'Play tennis inside an erupting volcano, table tennis on a space station and badminton on a rooftop in a lightning storm. Pick from six champions, including Thunder Granny, The Entire Shark and Servinator-9000, and fill your meter to unleash an ultra: meteor smashes, lightning redirects, decoy balls, portals, orbital drops and a swarm of bees. Every rally hit makes the ball faster until it catches fire, chaos events rewrite physics between points, and a screaming announcer calls every point. Play the CPU on four difficulties, a friend on one keyboard, or just watch the CPUs go at it. Works with gamepads and on phones.' },
   { date:'2026-11-09', tag:'New game', title:'Kickstorm Arena: soccer, but ridiculous', game:'kickstorm',
     text:'Three on three plus keepers in a walled arena. Steer the ball after you shoot to bend it around the keeper, arm Fireball, Banana and Clone shots, freeze the other team with Time Warp, or spend a full meter on Supernova. Pick from five movesets: Street Wizard, Sky Pirate, Bulldozer, Phantom and Speedster, each with its own skill moves and a signature move. Every 25 seconds the stadium throws a chaos event at you, from low gravity to meteor showers. Plays on phones too.' },
   { date:'2026-11-08', tag:'New game', title:'Stick Storm Showdown: 1v1 in a 3D ring', game:'stick-storm-showdown',
