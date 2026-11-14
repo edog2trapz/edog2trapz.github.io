@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'dead-rude', title:'Dead Rude', icon:'👻', genre:'Horror', colors:['#07080c', '#ff3347'], players:'1 player', isNew:true, featured:true,
+    desc:'First-person 3D horror where you are the ghost. You died tonight and decided Blackthorn Manor is yours, so evict the five ghosts haunting it and their Landlord. Hit your Geekbar to reveal them, cross into the ghost dimension to smack them, and roast them until their dignity breaks.' },
   { slug:'racket-cataclysm', title:'Racket Cataclysm', icon:'🎾', genre:'Sports', colors:['#26123d', '#ffd60a'], players:'1–2 players', isNew:true, featured:true,
     desc:'Tennis inside a volcano, table tennis in orbit and badminton on a skyscraper in a lightning storm. Six absurd champions with ridiculous ultras, a ball that catches fire in long rallies, and chaos events like moon gravity, multiball and hurricane cows.' },
   { slug:'kickstorm', title:'Kickstorm Arena', icon:'⚽', genre:'Sports', colors:['#140f2b', '#ff5a36'], players:'1 player', isNew:true, featured:true,
@@ -133,6 +135,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-14', tag:'New game', title:'Dead Rude: you are the ghost, and you are awful', game:'dead-rude',
+    text:'A first-person 3D horror game set in Blackthorn Manor, haunted for three hundred years. You died tonight and decided the house is yours. In the living world you cannot see the other ghosts, but they can see you: listen for your heartbeat, watch the Presence meter, and blow a Geekbar cloud to show what is standing next to you. Cross into the Veil, the ghost dimension, where the furniture floats and you can finally smack them. Roast each tenant until its Dignity breaks, time an insult during a wind-up for a Counter-Roast, slap thrown plates and piano notes straight back, and fill your Ego for a Main Character Moment. Evict the Butler, the Bride, the Maestro, the Professor and the Nanny to unseal the Great Hall and meet the Landlord. Plays with mouse and keyboard or on phones.' },
   { date:'2026-11-09', tag:'New game', title:'Racket Cataclysm: three racket sports, zero chill', game:'racket-cataclysm',
     text:'Play tennis inside an erupting volcano, table tennis on a space station and badminton on a rooftop in a lightning storm. Pick from six champions, including Thunder Granny, The Entire Shark and Servinator-9000, and fill your meter to unleash an ultra: meteor smashes, lightning redirects, decoy balls, portals, orbital drops and a swarm of bees. Every rally hit makes the ball faster until it catches fire, chaos events rewrite physics between points, and a screaming announcer calls every point. Play the CPU on four difficulties, a friend on one keyboard, or just watch the CPUs go at it. Works with gamepads and on phones.' },
   { date:'2026-11-09', tag:'New game', title:'Kickstorm Arena: soccer, but ridiculous', game:'kickstorm',
