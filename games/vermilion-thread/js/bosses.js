@@ -53,7 +53,8 @@
     FX.slow(0.14, 1.5); FX.shake(1); FX.flashScreen('#fff', 0.7); A.sfx('bossdie');
     for (let i = 0; i < 7; i++) { const a = Math.random() * TAU, d = Math.random() * 90; FX.splat(e.x + Math.cos(a) * d, e.y + Math.sin(a) * d, 40 + Math.random() * 40, a, 1); }
     FX.ink(e.x, e.y, 80, null, 0, 800, undefined, 7); FX.ring(e.x, e.y, 20, 600, 0.9, VT.RED, 16); FX.petal(e.x, e.y, 60, VT.RED);
-    G.bullets.length = 0; G.hazards.length = 0;
+    /* mark rather than truncate: this can run from inside the bullet or hazard loops */
+    for (const b of G.bullets) b.life = 0; for (const h of G.hazards) { h.done = true; h.hit = true; h.dmg = 0; }
     for (const o of G.enemies) if (!o.dead && !o.boss) { o.noLoot = true; o.dead = true; FX.splat(o.x, o.y, o.r, null, 0.7); FX.ink(o.x, o.y, 8, null, 0, 300); }
     if (VT.Run) VT.Run.onBossDead();
   };

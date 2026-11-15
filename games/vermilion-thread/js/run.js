@@ -147,7 +147,7 @@
   function buildWaves(rr, node) {
     const run = G.run, s = run.sector, ci = NODES.slice(0, run.idx + 1).filter((n) => n === 'combat').length - 1;
     const pool = VT.POOLS[s], avail = Object.keys(pool).filter((t) => pool[t] <= ci);
-    let budget = 5.5 + s * 3.4 + ci * 1.5; if (node.elite) budget *= 1.25; if (run.pact.horde > 0) budget *= 1.5; if (run.depth >= 7) budget *= 1.25;
+    let budget = 6.5 + s * 3.8 + ci * 1.7; if (node.elite) budget *= 1.25; if (run.pact.horde > 0) budget *= 1.5; if (run.depth >= 7) budget *= 1.25;
     if (run.roomN === 0) return [[['blot', 3]], [['blot', 3], ['swarm', 5]]];
     const nw = run.roomN < 2 ? 2 : 3, shares = nw === 2 ? [0.42, 0.58] : [0.28, 0.32, 0.4], waves = [];
     const eliteChance = (s === 0 && ci < 2 ? 0 : 0.14) * (run.depth >= 2 ? 2 : 1);
@@ -446,13 +446,15 @@
     const dj = G.dj, P = G.player, run = G.run, room = G.room; if (!dj || dj.step >= LESSON.length) return;
     P.hp = P.S.maxHp;
     dj.moved += U.dist(P.x, P.y, dj.lx, dj.ly); dj.lx = P.x; dj.ly = P.y;
-    dj.zips = run.zips; dj.parries = run.parries;
+    dj.zips = run.zips - (dj.z0 || 0); dj.parries = run.parries - (dj.p0 || 0);
     if (P.state === 'dodge') dj.dodging = true; else if (dj.dodging) { dj.dodging = false; dj.dodges++; }
     const L = LESSON[dj.step];
     if (dj.flash > 0) dj.flash -= dt;
     if (L.spawn && !dj.spawned) { dj.spawned = true; const e = E.spawn(L.spawn, W / 2, 190, { spawnT: 0.6, hpMul: L.spawn === 'spit' ? 50 : 1 }); e.noCount = true; e.noLoot = true; if (L.spawn === 'shield') e.onDeath = () => { dj.guard = true; }; dj.pupil = e; }
     if (L.c()) {
-      dj.step++; dj.flash = 0.8; dj.spawned = false; A.sfx('confirm'); FX.pop(W / 2, 170, 'GOOD', { size: 30, col: '#3aa56b' });
+      dj.step++; dj.flash = 0.8; dj.spawned = false;
+      /* each lesson only counts what you do while it is the lesson */
+      dj.z0 = run.zips; dj.p0 = run.parries; dj.recalls = 0; dj.thread = 0; dj.dodges = 0; dj.throwHits = 0; A.sfx('confirm'); FX.pop(W / 2, 170, 'GOOD', { size: 30, col: '#3aa56b' });
       if (dj.pupil && !dj.pupil.dead) { dj.pupil.dead = true; FX.smoke(dj.pupil.x, dj.pupil.y, 8, 'rgba(60,50,40,'); } dj.pupil = null; G.bullets.length = 0;
       if (dj.step >= LESSON.length) { Save.data.tut = true; VT.unlock('dojo'); Save.save(); room.cleared = true; World.setGates([{ kind: 'exit', reward: 'mod', label: 'Begin' }]); room.gatesOpen = true; A.sfx('door'); G.banner = { t: 0, dur: 4, title: 'Lesson complete', sub: 'Walk through the gate to begin', line: 'Everything else you will learn by bleeding.' }; }
     }

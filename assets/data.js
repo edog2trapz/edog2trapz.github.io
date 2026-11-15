@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'vermilion-thread', title:'Vermilion Thread', icon:'🗡️', genre:'Roguelike', colors:['#16110f', '#e2372b'], players:'1 player', isNew:true, featured:true,
+    desc:'An ink-painting action roguelike. Your blade is tied to you by a red thread: throw it, call it back through their spines, zip down the line and parry everything else. Five blades, 56 inscriptions, style ranks from D to SSS, four bosses, nine depths, a daily scroll, endless waves and a boss rush.' },
   { slug:'racket-cataclysm', title:'Racket Cataclysm', icon:'🎾', genre:'Sports', colors:['#26123d', '#ffd60a'], players:'1–2 players', isNew:true, featured:true,
     desc:'Tennis inside a volcano, table tennis in orbit and badminton on a skyscraper in a lightning storm. Six absurd champions with ridiculous ultras, a ball that catches fire in long rallies, and chaos events like moon gravity, multiball and hurricane cows.' },
   { slug:'kickstorm', title:'Kickstorm Arena', icon:'⚽', genre:'Sports', colors:['#140f2b', '#ff5a36'], players:'1 player', isNew:true, featured:true,
@@ -133,6 +135,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-15', tag:'New game', title:'Vermilion Thread: one blade, one thread', game:'vermilion-thread',
+    text:'The biggest game on the site so far. You are a small figure in a straw hat inside a living ink painting, and your blade is tied to you by a red thread. Throw it and it cuts on the way out. Call it back and it cuts again from behind, which is the only way through a Screen Guard. Zip along the thread to slash everything on the line, untouchable the whole way, and a zip that kills gives its knot back so you can chain them. With the blade in hand you can parry: bolts fly home to whoever fired them. Even the thread cuts if you walk it through a crowd. Build a run from 56 inscriptions, pick from five blades (three needles with three threads, a curving moon ring, a charged spear and an anchor that shakes the floor), climb the style rank from D to SSS, and break four seals: the Calligrapher, Kuro and Shiro, the Lantern Shogun and the Blot. Then go deeper through nine Depths, or play the Daily Scroll, Thousand Cuts and the Boss Rush. Mouse and keyboard, gamepad or touch.' },
   { date:'2026-11-09', tag:'New game', title:'Racket Cataclysm: three racket sports, zero chill', game:'racket-cataclysm',
     text:'Play tennis inside an erupting volcano, table tennis on a space station and badminton on a rooftop in a lightning storm. Pick from six champions, including Thunder Granny, The Entire Shark and Servinator-9000, and fill your meter to unleash an ultra: meteor smashes, lightning redirects, decoy balls, portals, orbital drops and a swarm of bees. Every rally hit makes the ball faster until it catches fire, chaos events rewrite physics between points, and a screaming announcer calls every point. Play the CPU on four difficulties, a friend on one keyboard, or just watch the CPUs go at it. Works with gamepads and on phones.' },
   { date:'2026-11-09', tag:'New game', title:'Kickstorm Arena: soccer, but ridiculous', game:'kickstorm',

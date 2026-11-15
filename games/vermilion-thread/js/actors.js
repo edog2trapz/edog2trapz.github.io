@@ -210,7 +210,8 @@
   C.updateBullets = function (dt) {
     const P = G.player, S = P.S, list = G.bullets;
     for (let i = list.length - 1; i >= 0; i--) {
-      const b = list[i];
+      const b = list[i]; if (!b) continue;
+      if (b.life <= 0 && b.delay > 0) b.delay = 0;
       if (b.delay > 0) { b.delay -= dt; continue; }
       b.t += dt; b.life -= dt;
       /* a returned bolt hunts whoever fired it */
@@ -268,7 +269,8 @@
   C.updateHazards = function (dt) {
     const P = G.player, list = G.hazards;
     for (let i = list.length - 1; i >= 0; i--) {
-      const h = list[i]; h.t += dt;
+      const h = list[i]; if (!h) continue; h.t += dt;
+      if (h.done) { list.splice(i, 1); continue; }
       if (h.owner && (h.owner.dead || h.owner.stagger > 0) && !h.fired && !h.keep) { list.splice(i, 1); continue; }
       if (h.follow && h.owner && !h.fired) { h.x = h.owner.x + (h.ox || 0); h.y = h.owner.y + (h.oy || 0); if (h.followAng) h.ang = h.owner.face; }
       if (h.t >= h.tele) {
