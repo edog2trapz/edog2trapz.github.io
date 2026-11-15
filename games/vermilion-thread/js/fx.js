@@ -36,9 +36,8 @@
       }
       lx = ex; ly = ey;
     }
-    /* close through the first point */
-    const ex2 = fx + (Math.cos(TAU / n) * 0), mx = (lx + fx) / 2, my = (ly + fy) / 2; void ex2;
-    ctx.quadraticCurveTo(lx, ly, mx, my); ctx.quadraticCurveTo(fx, fy, px, py);
+    /* the loop ended on the first point again: curve through it back to where the path began */
+    ctx.quadraticCurveTo(fx, fy, px, py);
     ctx.closePath();
   };
   /* tapered brush stroke between two points */
@@ -109,7 +108,7 @@
       c.fillRect(x, y, w, h);
     }
     /* inner edge line */
-    c.strokeStyle = biome.light ? 'rgba(0,0,0,0.25)' : `rgba(${biome.wash},0.22)`; c.lineWidth = 2;
+    c.strokeStyle = biome.light ? 'rgba(0,0,0,0.25)' : `rgba(${biome.wash},0.5)`; c.lineWidth = biome.light ? 2 : 3;
     c.strokeRect(WL + 5, WL + 5, W - WL * 2 - 10, H - WL * 2 - 10);
     /* decals layer */
     const d = FX.decal || (FX.decal = document.createElement('canvas'));
@@ -122,8 +121,7 @@
     c.save();
     if (biome.id === 'plains') {
       /* a great enso and tufts of grass */
-      c.strokeStyle = `rgba(${biome.inkRGB},0.07)`; c.lineCap = 'round';
-      for (let i = 0; i < 46; i++) { c.lineWidth = 10 + r() * 22; const a0 = -1.2 + (i / 46) * 5.6; c.beginPath(); c.arc(W / 2 + (r() - 0.5) * 6, H / 2 + (r() - 0.5) * 6, 250 + (r() - 0.5) * 12, a0, a0 + 0.2); c.stroke(); }
+      enso(c, W / 2, H / 2, 252, `rgba(${biome.inkRGB},`, 0.085, r);
       for (let i = 0; i < 70; i++) {
         const x = 70 + r() * (W - 140), y = 70 + r() * (H - 140);
         c.strokeStyle = `rgba(90,110,70,${0.12 + r() * 0.16})`; c.lineWidth = 1.5;
@@ -172,13 +170,30 @@
     c.restore(); void room;
   }
 
+  /* one loaded brush stroke around a circle: fat where it lands, dry where it lifts */
+  function enso(c, x, y, R, rgb, alpha, r) {
+    const a0 = -2.2 + r() * 0.6, sweep = 5.5, n = 120, out = [], inn = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, a = a0 + sweep * t;
+      const w = (30 * Math.pow(Math.sin(Math.min(1, t * 6) * Math.PI / 2), 0.7) * (1 - 0.72 * t * t) + 4) * (0.9 + 0.2 * Math.sin(t * 23 + a0 * 9));
+      const rr = R + Math.sin(t * 5 + a0) * 5;
+      out.push([x + Math.cos(a) * (rr + w / 2), y + Math.sin(a) * (rr + w / 2)]); inn.push([x + Math.cos(a) * (rr - w / 2), y + Math.sin(a) * (rr - w / 2)]);
+    }
+    c.fillStyle = rgb + alpha + ')'; c.beginPath(); c.moveTo(out[0][0], out[0][1]);
+    for (const p of out) c.lineTo(p[0], p[1]); for (let i = inn.length - 1; i >= 0; i--) c.lineTo(inn[i][0], inn[i][1]); c.closePath(); c.fill();
+    /* dry-brush hairs trailing off the end */
+    c.lineWidth = 1.4; c.lineCap = 'round';
+    for (let k = 0; k < 16; k++) { const off = (r() - 0.5) * 30, s = 0.35 + r() * 0.5, e = Math.min(1.06, s + 0.12 + r() * 0.3); c.strokeStyle = rgb + (alpha * (0.4 + r() * 0.7)) + ')'; c.beginPath(); c.arc(x, y, R + off, a0 + sweep * s, a0 + sweep * e); c.stroke(); }
+  }
+  FX.enso = enso;
+
   function drawObstacle(c, o, biome, r) {
     c.save();
     /* soft shadow */
     c.fillStyle = biome.light ? 'rgba(40,30,20,0.16)' : 'rgba(0,0,0,0.4)';
     if (o.t === 'c') { c.beginPath(); c.ellipse(o.x + 7, o.y + 9, o.r * 1.04, o.r * 1.0, 0, 0, TAU); c.fill(); }
     else c.fillRect(o.x + 6, o.y + 8, o.w, o.h);
-    const dark = biome.light ? `rgba(${biome.inkRGB},0.93)` : (biome.id === 'pond' ? '#3a4a6a' : '#2a2530');
+    const dark = biome.light ? `rgba(${biome.inkRGB},0.93)` : (biome.id === 'pond' ? '#3a4a6a' : '#3b3446');
     const lite = biome.light ? `rgba(255,255,255,0.14)` : `rgba(${biome.wash},0.2)`;
     if (o.t === 'c') {
       c.fillStyle = dark; FX.blob(c, o.x, o.y, o.r, 0, o.x * 0.01 + o.y, 0.06, 11); c.fill();
@@ -188,6 +203,7 @@
         for (let k = 1; k <= 3; k++) { c.beginPath(); c.arc(o.x + (r() - 0.5) * 3, o.y + (r() - 0.5) * 3, o.r * (0.25 * k), r() * TAU, r() * TAU + 3.6); c.stroke(); }
         if (biome.id === 'pond') { c.fillStyle = 'rgba(150,180,230,0.14)'; c.beginPath(); c.arc(o.x - o.r * 0.25, o.y - o.r * 0.3, o.r * 0.45, 0, TAU); c.fill(); }
       }
+      if (!biome.light) { c.strokeStyle = `rgba(${biome.wash},0.55)`; c.lineWidth = 2; c.beginPath(); c.arc(o.x, o.y, o.r, 0, TAU); c.stroke(); }
     } else {
       c.fillStyle = dark;
       c.beginPath();
@@ -196,6 +212,7 @@
       c.lineTo(o.x + o.w + j(), o.y + o.h * 0.5); c.lineTo(o.x + o.w + j(), o.y + o.h + j());
       c.lineTo(o.x + o.w * 0.5, o.y + o.h + j()); c.lineTo(o.x + j(), o.y + o.h + j()); c.lineTo(o.x + j(), o.y + o.h * 0.5);
       c.closePath(); c.fill();
+      if (!biome.light) { c.strokeStyle = `rgba(${biome.wash},0.55)`; c.lineWidth = 2; c.stroke(); }
       if (biome.id === 'court') { c.fillStyle = '#9c2a1c'; c.fillRect(o.x + 5, o.y + 5, o.w - 10, o.h - 10); c.strokeStyle = 'rgba(255,220,140,0.7)'; c.lineWidth = 2; c.strokeRect(o.x + 5, o.y + 5, o.w - 10, o.h - 10); }
       c.fillStyle = lite;
       const horiz = o.w > o.h;
@@ -209,8 +226,8 @@
     const c = FX.dctx, b = FX.biome; if (!c) return;
     const light = b.light;
     c.save();
-    c.fillStyle = `rgba(${b.inkRGB},${(alpha || 1) * (light ? 0.72 : 0.13)})`;
-    FX.blob(c, x, y, size * (0.75 + Math.random() * 0.4), 0, Math.random() * 100, 0.3, 9); c.fill();
+    c.fillStyle = `rgba(${b.inkRGB},${(alpha || 1) * (light ? 0.86 : 0.15)})`;
+    FX.blob(c, x, y, size * (0.75 + Math.random() * 0.4), 0, Math.random() * 100, 0.22, 10); c.fill();
     const n = 5 + Math.floor(size / 3);
     for (let i = 0; i < n; i++) {
       const a = dir === undefined || dir === null ? Math.random() * TAU : dir + (Math.random() - 0.5) * 1.5;
