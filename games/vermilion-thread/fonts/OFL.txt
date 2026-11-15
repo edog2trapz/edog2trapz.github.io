@@ -1,0 +1,5 @@
+Reggae One - Copyright 2020 The Reggae Project Authors (https://github.com/fontworks-fonts/Reggae/)
+Shippori Mincho - Copyright 2021 The Shippori Mincho Project Authors (https://github.com/fontdasu/ShipporiMincho) ShipporiMincho-Medium.ttf: Copyright 2021 The Shippori Mincho Project Authors (https://github.com/fontdasu/ShipporiMincho) ShipporiMincho-SemiBold.ttf: Copyright 2021 The Shippori Mincho Project Authors (https://github.com/fontdasu/ShipporiMincho) ShipporiMincho-Bold.ttf: Copyright 2021 The Shippori Mincho Project Authors (https://github.com/fontdasu/ShipporiMincho) ShipporiMincho-ExtraBold.ttf: Copyright 2021 The Shippori Mincho Project Authors (https://github.com/fontdasu/ShipporiMincho)
+
+Both fonts are licensed under the SIL Open Font License, Version 1.1.
+https://openfontlicense.org
