@@ -82,6 +82,19 @@ button.play:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px
 .tbtn { position: absolute; pointer-events: auto; border-radius: 50%; border: 2px solid rgba(241,238,228,.45); background: rgba(13,17,16,.4); color: var(--paper); font-family: var(--hud); font-weight: 700; font-size: 13px; letter-spacing: .1em; display: grid; place-items: center; }
 #tfire { right: max(28px, env(safe-area-inset-right, 0px)); bottom: calc(120px + env(safe-area-inset-bottom, 0px)); width: 84px; height: 84px; border-color: var(--cinnabar); }
 #tjump { right: calc(max(28px, env(safe-area-inset-right, 0px)) + 96px); bottom: calc(100px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; }
+#tburst { right: calc(max(28px, env(safe-area-inset-right, 0px)) + 84px); bottom: calc(208px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; border-color: var(--jade); }
+#tdash { right: calc(max(28px, env(safe-area-inset-right, 0px)) + 168px); bottom: calc(100px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; }
+#tform { right: calc(max(28px, env(safe-area-inset-right, 0px)) + 154px); bottom: calc(176px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; border-color: var(--gold); }
+#combo { font-family: var(--display); font-size: 16px; color: var(--gold); min-height: 20px; }
+#burstcd { font-size: 12px; letter-spacing: .14em; font-weight: 700; }
+#forms { display: flex; gap: 6px; }
+#forms span { font-size: 11px; font-weight: 700; padding: 2px 7px; border: 1px solid rgba(241,238,228,.35); opacity: .55; }
+#forms span.on { opacity: 1; background: var(--paper); color: var(--ink); }
+.cards3 { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.insight { width: 170px; min-height: 150px; padding: 14px; text-align: left; background: rgba(13,17,16,.8); border: 2px solid var(--jade); color: var(--paper); font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
+.insight:hover { background: rgba(63,216,160,.18); }
+.insight b { font-family: var(--display); font-size: 15px; color: var(--jade); }
+.insight i { font-style: normal; font-size: 12px; opacity: .7; margin-top: auto; }
 #treload { right: calc(max(28px, env(safe-area-inset-right, 0px)) + 14px); bottom: calc(216px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; }
 @media (max-width: 600px) { #minimap { width: 100px; height: 100px; } .big { font-size: 20px; } #feed { top: calc(130px + env(safe-area-inset-top, 0px)); } }
 @media (prefers-reduced-motion: reduce) { .mark { animation: none; } }
@@ -98,6 +111,7 @@ button.play:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px
     <span class="big" id="wave">1</span>
     <span id="score">0</span>
     <span id="left"></span>
+    <span id="combo"></span>
   </div>
   <div class="corner" id="tr">
     <canvas id="minimap" width="280" height="280"></canvas>
@@ -110,7 +124,9 @@ button.play:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px
   <div class="corner" id="br">
     <span id="reloadtxt" hidden>RELOADING</span>
     <span id="ammo">30<small> / 30</small></span>
-    <span class="label">Talisman rifle</span>
+    <span class="label" id="wname">Talisman rifle</span>
+    <span id="forms"><span>1</span><span>2</span><span>3</span></span>
+    <span id="burstcd">QI BURST READY</span>
   </div>
   <div id="banner"></div>
 </div>
@@ -120,6 +136,9 @@ button.play:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px
   <div class="tbtn" id="tfire">FIRE</div>
   <div class="tbtn" id="tjump">JUMP</div>
   <div class="tbtn" id="treload">R</div>
+  <div class="tbtn" id="tburst">BURST</div>
+  <div class="tbtn" id="tdash">DASH</div>
+  <div class="tbtn" id="tform">FORM</div>
 </div>
 
 <div class="overlay" id="menu">
@@ -135,6 +154,7 @@ button.play:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px
     <div class="roster">
       <div><b>Drone</b>Fast, rams you</div>
       <div><b>Sentinel</b>Keeps distance, fires orbs</div>
+      <div><b>Wisp, Bloat, Splitter</b>Swarm, burst and divide</div>
       <div><b>Elder</b>Boss every 5th wave</div>
     </div>
     <div class="keys" id="keys">
@@ -144,6 +164,9 @@ button.play:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px
       <kbd>Shift</kbd><span>Sprint</span>
       <kbd>Space</kbd><span>Jump</span>
       <kbd>R</kbd><span>Reload</span>
+      <kbd>1 2 3 / wheel</kbd><span>Rifle, Scatter seal, Spirit lance</span>
+      <kbd>F / right click</kbd><span>Qi Burst: blast and clear orbs</span>
+      <kbd>C</kbd><span>Dash (untouchable)</span>
       <kbd>Q / E or ← →</kbd><span>Turn without mouse lock</span>
     </div>
     <button class="play" id="playbtn">PLAY</button>
@@ -161,6 +184,14 @@ button.play:focus-visible { outline: 3px solid var(--paper); outline-offset: 3px
     </div>
     <div class="best" id="obest"></div>
     <button class="play" id="againbtn">PLAY AGAIN</button>
+  </div>
+</div>
+
+<div class="overlay" id="insight" hidden>
+  <div class="panel" style="max-width:620px">
+    <h2>An insight</h2>
+    <p class="lede" style="margin:0">The wave is dispelled. Take one thing from it. Press 1, 2 or 3.</p>
+    <div class="cards3" id="icards"></div>
   </div>
 </div>
 
@@ -316,8 +347,11 @@ function glowTex(color) {
   g.fillStyle = gr; g.fillRect(0, 0, s, s); return new THREE.CanvasTexture(cv);
 }
 const TYPES = {
-  drone:    { name: "Dao Drone",    r: 1.1, hp: 50,   speed: 8,   hover: 2.2, score: 100,  tex: yinYang("#0d1110", "#f1eee4", "#3fd8a0"), ring: "#3fd8a0", glow: "rgba(63,216,160,.55)" },
+  drone:    { name: "Dao Drone",    r: 1.1, hp: 50,   speed: 8,   hover: 2.2, score: 100,  touch: 12, wob: 3,  tex: yinYang("#0d1110", "#f1eee4", "#3fd8a0"), ring: "#3fd8a0", glow: "rgba(63,216,160,.55)" },
   sentinel: { name: "Dao Sentinel", r: 1.6, hp: 110,  speed: 5,   hover: 5,   score: 250,  tex: yinYang("#1a0d0b", "#f1e4dc", "#e8452c", "#e8452c"), ring: "#e8452c", glow: "rgba(232,69,44,.55)" },
+  wisp:     { name: "Dao Wisp",     r: 0.65, hp: 22,  speed: 13,  hover: 1.9, score: 60,   touch: 7,  wob: 7, tex: yinYang("#1a1030", "#efe4ff", "#b48cff"), ring: "#b48cff", glow: "rgba(180,140,255,.55)" },
+  bloat:    { name: "Dao Bloat",    r: 2.1, hp: 95,   speed: 4.6, hover: 2.6, score: 300,  tex: yinYang("#2a1505", "#ffe9c9", "#ff9a3d", "#ff9a3d"), ring: "#ff9a3d", glow: "rgba(255,154,61,.6)" },
+  splitter: { name: "Dao Splitter", r: 1.5, hp: 85,   speed: 6.5, hover: 2.4, score: 200,  touch: 10, tex: yinYang("#0b1a2a", "#e4f3ff", "#5cc8ff"), ring: "#5cc8ff", glow: "rgba(92,200,255,.55)" },
   elder:    { name: "Elder Dao",    r: 4.2, hp: 1600, speed: 3.6, hover: 9,   score: 3000, tex: yinYang("#0d1110", "#f6e7bd", "#e6b84a", "#e6b84a"), ring: "#e6b84a", glow: "rgba(230,184,74,.6)" }
 };
 for (const k in TYPES) TYPES[k].glowT = glowTex(TYPES[k].glow);
@@ -388,9 +422,62 @@ const keys = {};
 const player = { pos: new V3(), vy: 0, yaw: 0, pitch: 0, hp: 100, onGround: true };
 const S = { mode: "menu", wave: 0, score: 0, kills: 0, queue: [], spawnT: 0, nextWaveT: 0, ammo: 30, reloadT: 0, fireT: 0, firing: false, recoil: 0, shake: 0, hurtT: 0, bob: 0 };
 const MAG = 30;
+const WEAPONS = [
+  { name: "Talisman rifle", mag: 30, rate: 0.11, dmg: 25, pellets: 1, spread: 0.012, reload: 1.4, color: "#fff3c4", kick: 1 },
+  { name: "Scatter seal", mag: 8, rate: 0.62, dmg: 12, pellets: 9, spread: 0.1, reload: 1.7, range: 95, color: "#ffd166", kick: 2.2 },
+  { name: "Spirit lance", mag: 5, rate: 0.85, dmg: 170, pellets: 1, spread: 0, reload: 2.1, pierce: true, color: "#9be8ff", kick: 3 }
+];
+const freshPerks = () => ({ dmg: 1, reload: 1, mag: 1, speed: 1, leech: 0, burstCd: 1, burstR: 1, core: 2, twin: 0, maxHp: 100 });
+S.P = freshPerks(); S.w = 0; S.am = WEAPONS.map(w => w.mag); S.combo = 0; S.comboT = 0; S.burstT = 0; S.dashT = 0; S.dashCd = 0; S.dashDir = new V3(); S.booms = [];
+const magOf = i => Math.round(WEAPONS[i].mag * S.P.mag);
+let bestWave = 0; try { bestWave = +localStorage.getItem("daoHunterBestWave") || 0; } catch (e) {}
+const INSIGHTS = [
+  ["Sharper Talismans", "All damage +20%.", P => P.dmg *= 1.2],
+  ["Deep Breath", "+25 max qi, and restore 40.", P => { P.maxHp += 25; player.hp = Math.min(P.maxHp, player.hp + 40); }],
+  ["Swift Steps", "Move 10% faster.", P => P.speed *= 1.1],
+  ["Quick Hands", "Reload 25% faster.", P => P.reload *= 0.75],
+  ["Deep Satchel", "Every form holds 30% more.", P => { P.mag *= 1.3; S.am = WEAPONS.map((w, i) => magOf(i)); }],
+  ["Leeching Strike", "Each Dao you dispel restores 3 qi.", P => P.leech += 3],
+  ["Resonance", "Qi Burst recharges 25% faster and reaches 30% further.", P => { P.burstCd *= 0.75; P.burstR *= 1.3; }],
+  ["Core Sight", "Hits on the centre of a Dao deal even more.", P => P.core += 1],
+  ["Twin Seal", "15% chance for a shot to fire twice.", P => P.twin += 0.15]
+];
+const burstRing = new THREE.Mesh(new THREE.TorusGeometry(1, 0.06, 6, 48), new THREE.MeshBasicMaterial({ color: "#3fd8a0", transparent: true, fog: false })); burstRing.rotation.x = Math.PI / 2; burstRing.visible = false; scene.add(burstRing);
+function setWeapon(i) { i = (i + WEAPONS.length) % WEAPONS.length; if (i === S.w) return; S.w = i; S.reloadT = 0; S.fireT = 0.2; $("reloadtxt").hidden = true; sfxTone(700, 900, 0.06, 0.06); updateHud(); }
+function qiBurst() {
+  if (S.burstT > 0 || S.mode !== "play") return;
+  S.burstT = 12 * S.P.burstCd; const R = 16 * S.P.burstR;
+  burstRing.visible = true; burstRing.position.copy(player.pos); burstRing.position.y -= 0.9; burstRing.userData.t = 0; burstRing.userData.R = R;
+  for (const e of enemies.slice()) {
+    const d = e.grp.position.distanceTo(player.pos); if (d > R + e.T.r) continue;
+    tmp2.subVectors(e.grp.position, player.pos).setY(0).normalize(); if (e.type !== "elder") e.grp.position.addScaledVector(tmp2, 10);
+    damage(e, 70 * S.P.dmg, e.grp.position.clone());
+  }
+  for (let i = shots.length - 1; i >= 0; i--) if (shots[i].m.position.distanceTo(player.pos) < R) { burst(shots[i].m.position, 3, 5); scene.remove(shots[i].m); shots.splice(i, 1); }
+  S.shake = Math.max(S.shake, 0.25); sfxNoise(500, 0.5, 0.4); sfxTone(180, 700, 0.4, 0.2, "triangle");
+}
+function dash() {
+  if (S.dashCd > 0 || S.mode !== "play") return;
+  mv.set(0, 0, 0); fwd.set(-Math.sin(player.yaw), 0, -Math.cos(player.yaw)); right.set(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+  if (keys.KeyW || keys.ArrowUp) mv.add(fwd); if (keys.KeyS || keys.ArrowDown) mv.sub(fwd); if (keys.KeyD) mv.add(right); if (keys.KeyA) mv.sub(right);
+  if (joy.id !== null) { mv.addScaledVector(fwd, -joy.y); mv.addScaledVector(right, joy.x); }
+  if (mv.lengthSq() < 0.01) mv.copy(fwd);
+  S.dashDir.copy(mv.normalize()); S.dashT = 0.18; S.dashCd = 2.2; sfxNoise(900, 0.2, 0.25);
+}
+function offerInsight() {
+  S.mode = "insight"; S.firing = false; try { document.exitPointerLock(); } catch (e) {}
+  const pool = INSIGHTS.slice(), opts = []; while (opts.length < 3) opts.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  S.opts = opts; $("icards").innerHTML = "";
+  opts.forEach((o, i) => { const b = document.createElement("button"); b.className = "insight"; b.innerHTML = "<b>" + o[0] + "</b><span>" + o[1] + "</span><i>Press " + (i + 1) + "</i>"; b.onclick = () => takeInsight(i); $("icards").append(b); });
+  $("insight").hidden = false; sfxTone(440, 880, 0.4, 0.12, "triangle");
+}
+function takeInsight(i) {
+  if (S.mode !== "insight" || !S.opts[i]) return;
+  S.opts[i][2](S.P); feed("Insight: " + S.opts[i][0], "#3fd8a0"); $("insight").hidden = true; S.mode = "play"; S.nextWaveT = 2.2; updateHud(); if (!isTouch) requestLock();
+}
 let enemies = [];
 let best = 0; try { best = +localStorage.getItem("daoHunterBest") || 0; } catch (e) {}
-const showBest = () => { const t = best ? "Best score " + best.toLocaleString() : ""; $("best").textContent = t; $("obest").textContent = t; };
+const showBest = () => { const t = best ? "Best score " + best.toLocaleString() + (bestWave ? "  ·  best wave " + bestWave : "") : ""; $("best").textContent = t; $("obest").textContent = t; };
 showBest();
 if (isTouch) $("keys").innerHTML = "<kbd>Left stick</kbd><span>Move</span><kbd>Drag right side</kbd><span>Aim</span><kbd>FIRE</kbd><span>Hold to shoot</span><kbd>JUMP / R</kbd><span>Jump, reload</span>";
 
@@ -416,11 +503,14 @@ function queueWave(n) {
   const drones = 3 + n * 2, sentinels = Math.floor(n / 2) + (n > 3 ? 1 : 0);
   for (let i = 0; i < drones; i++) q.push("drone");
   for (let i = 0; i < sentinels; i++) q.splice(Math.floor(Math.random() * q.length), 0, "sentinel");
+  const ins = (t, c) => { for (let i = 0; i < c; i++) q.splice(Math.floor(Math.random() * (q.length + 1)), 0, t); };
+  if (n >= 3) ins("wisp", Math.floor(n * 0.9)); if (n >= 4) ins("bloat", Math.floor((n - 1) / 3)); if (n >= 6) ins("splitter", Math.floor((n - 3) / 3));
   if (n % 5 === 0) q.unshift("elder");
   return q;
 }
 function startWave() {
-  S.wave++; S.queue = queueWave(S.wave); S.spawnT = 0.5;
+  S.wave++; S.queue = queueWave(S.wave); S.spawnT = 0.5; S.pendingInsight = true;
+  if (S.wave > bestWave) { bestWave = S.wave; try { localStorage.setItem("daoHunterBestWave", bestWave); } catch (e) {} }
   const boss = S.wave % 5 === 0;
   banner("WAVE " + S.wave, boss ? "The Elder Dao descends" : S.queue.length + " Dao incoming");
   sfxTone(220, 440, 0.6, 0.15, "triangle");
@@ -454,42 +544,60 @@ function resetGame() {
   for (const s of shots) scene.remove(s.m); shots.length = 0;
   for (const p of pickups) scene.remove(p.m); pickups.length = 0;
   player.pos.copy(SPAWN); player.pos.y += 1.7; player.vy = 0; player.hp = 100; player.yaw = 0; player.pitch = 0;
-  Object.assign(S, { wave: 0, score: 0, kills: 0, queue: [], ammo: MAG, reloadT: 0, fireT: 0, firing: false, nextWaveT: 1.2, hurtT: 0 });
+  Object.assign(S, { wave: 0, score: 0, kills: 0, queue: [], ammo: MAG, reloadT: 0, fireT: 0, firing: false, nextWaveT: 1.2, hurtT: 0, P: freshPerks(), w: 0, combo: 0, comboT: 0, burstT: 0, dashT: 0, dashCd: 0, booms: [], pendingInsight: false });
+  S.am = WEAPONS.map(w => w.mag); burstRing.visible = false; $("insight").hidden = true;
   updateHud();
 }
 
 // ---------- combat ----------
 const tmp = new V3(), tmp2 = new V3(), dir = new V3(), camPos = new V3();
-function fire() {
-  if (S.reloadT > 0) return;
-  if (S.ammo <= 0) { reload(); return; }
-  S.ammo--; S.fireT = 0.11; S.recoil = 1; S.shake = Math.max(S.shake, 0.04);
-  flash.visible = true; flash.material.rotation = Math.random() * 6; setTimeout(() => flash.visible = false, 45);
-  sfxNoise(1400, 0.12, 0.35); sfxTone(160, 60, 0.1, 0.2, "square");
+function castShot(w) {
   camera.getWorldPosition(camPos); camera.getWorldDirection(dir);
-  dir.x += (Math.random() - 0.5) * 0.012; dir.y += (Math.random() - 0.5) * 0.012; dir.normalize();
-  let best = Infinity, hit = null;
+  dir.x += (Math.random() - 0.5) * w.spread; dir.y += (Math.random() - 0.5) * w.spread; dir.z += (Math.random() - 0.5) * w.spread; dir.normalize();
+  const hits = [], maxR = w.range || 260;
   for (const e of enemies) {
     tmp.subVectors(e.grp.position, camPos); const tca = tmp.dot(dir); if (tca < 0) continue;
     const d2 = tmp.lengthSq() - tca * tca, r2 = e.T.r * e.T.r * 1.1; if (d2 > r2) continue;
-    const t = tca - Math.sqrt(r2 - d2); if (t < best) { best = t; hit = e; }
+    hits.push({ e, t: tca - Math.sqrt(r2 - d2), core: d2 < r2 * 0.13 });
   }
-  const range = Math.min(best, 260);
+  hits.sort((a, b) => a.t - b.t);
+  let end = w.pierce || !hits.length ? maxR : Math.min(maxR, hits[0].t), blocked = false;
   // terrain occlusion
-  let end = range;
-  for (let t = 2; t < range; t += 1.5) { tmp.copy(dir).multiplyScalar(t).add(camPos); if (tmp.y < height(tmp.x, tmp.z)) { end = t; hit = null; break; } }
+  for (let t = 2; t < end; t += 1.5) { tmp.copy(dir).multiplyScalar(t).add(camPos); if (tmp.y < height(tmp.x, tmp.z)) { end = t; blocked = true; break; } }
   tmp2.copy(dir).multiplyScalar(end).add(camPos);
   muzzle.getWorldPosition(tmp);
-  const tr = tracers.find(t => !t.l.visible) || tracers[0];
+  const tr = tracers.find(t => !t.l.visible) || tracers[Math.floor(Math.random() * tracers.length)];
   const a = tr.l.geometry.attributes.position; a.setXYZ(0, tmp.x, tmp.y, tmp.z); a.setXYZ(1, tmp2.x, tmp2.y, tmp2.z); a.needsUpdate = true;
-  tr.l.visible = true; tr.t = 0.06; tr.l.material.opacity = 1;
-  if (hit) damage(hit, 25, tmp2); else if (end < 260) burst(tmp2, 4, 4, true);
+  tr.l.visible = true; tr.t = w.pierce ? 0.16 : 0.06; tr.max = tr.t; tr.l.material.opacity = 1; tr.l.material.color.set(w.color);
+  let any = false;
+  for (const h of hits) {
+    if (h.t > end + 0.01) break;
+    if (enemies.indexOf(h.e) < 0) continue;
+    damage(h.e, w.dmg * S.P.dmg * (h.core ? S.P.core : 1), new V3().copy(dir).multiplyScalar(h.t).add(camPos), h.core); any = true;
+    if (!w.pierce) break;
+  }
+  if (!any && blocked) burst(tmp2, 4, 4, true);
+}
+function fire() {
+  const w = WEAPONS[S.w];
+  if (S.reloadT > 0) return;
+  if (S.am[S.w] <= 0) { reload(); return; }
+  S.am[S.w]--; S.fireT = w.rate; S.recoil = w.kick; S.shake = Math.max(S.shake, 0.04 * w.kick);
+  flash.visible = true; flash.material.rotation = Math.random() * 6; setTimeout(() => flash.visible = false, 45);
+  if (S.w === 1) { sfxNoise(900, 0.22, 0.5); sfxTone(120, 50, 0.16, 0.25, "square"); }
+  else if (S.w === 2) { sfxTone(1400, 200, 0.3, 0.2, "sawtooth"); sfxNoise(2400, 0.2, 0.3); }
+  else { sfxNoise(1400, 0.12, 0.35); sfxTone(160, 60, 0.1, 0.2, "square"); }
+  const n = w.pellets * (Math.random() < S.P.twin ? 2 : 1);
+  for (let i = 0; i < n; i++) castShot(w);
   updateHud();
 }
-function reload() { if (S.reloadT > 0 || S.ammo === MAG) return; S.reloadT = 1.4; $("reloadtxt").hidden = false; sfxTone(500, 300, 0.15, 0.1, "square"); }
+function reload() { const w = WEAPONS[S.w]; if (S.reloadT > 0 || S.am[S.w] === magOf(S.w)) return; S.reloadT = w.reload * S.P.reload; S.reloadW = S.w; $("reloadtxt").hidden = false; sfxTone(500, 300, 0.15, 0.1, "square"); }
 let hmTimer = 0;
-function damage(e, amt, at) {
+function damage(e, amt, at, core) {
+  if (enemies.indexOf(e) < 0) return;
   e.hp -= amt; e.flash = 0.08; e.hpG.visible = true;
+  $("hitmark").style.filter = core ? "hue-rotate(40deg) brightness(1.8)" : ""; $("hitmark").style.transform = "translate(-50%,-50%) rotate(45deg) scale(" + (core ? 1.5 : 1) + ")";
+  if (core) sfxTone(1500, 1100, 0.07, 0.1);
   $("hitmark").style.opacity = 1; clearTimeout(hmTimer); hmTimer = setTimeout(() => $("hitmark").style.opacity = 0, 90);
   sfxTone(900, 600, 0.06, 0.08);
   burst(at, 3, 6);
@@ -497,10 +605,15 @@ function damage(e, amt, at) {
 }
 function kill(e) {
   scene.remove(e.grp); enemies.splice(enemies.indexOf(e), 1);
-  S.kills++; S.score += e.T.score * S.wave;
+  S.combo = S.comboT > 0 ? S.combo + 1 : 1; S.comboT = 4;
+  const mult = Math.min(3, 1 + (S.combo - 1) * 0.1), pts = Math.round(e.T.score * S.wave * mult);
+  S.kills++; S.score += pts;
+  if (S.P.leech) player.hp = Math.min(S.P.maxHp, player.hp + S.P.leech);
+  if (e.type === "bloat") { S.booms.push({ p: e.grp.position.clone(), r: 11, dmg: 70 }); burst(e.grp.position, 40, 14); sfxNoise(400, 0.5, 0.5); S.shake = Math.max(S.shake, 0.15); }
+  if (e.type === "splitter") for (let i = 0; i < 2; i++) { const w = makeEnemy("wisp", e.grp.position.clone().add(new V3((i ? 1 : -1) * 1.5, 0, 0))); w.maxHp = w.hp; enemies.push(w); }
   burst(e.grp.position, e.type === "elder" ? 80 : 22, e.type === "elder" ? 18 : 10);
   sfxTone(e.type === "elder" ? 300 : 700, 80, e.type === "elder" ? 1.2 : 0.35, 0.18, "triangle");
-  feed(e.T.name + " dispelled  +" + (e.T.score * S.wave), e.T.ring);
+  feed(e.T.name + " dispelled  +" + pts + (mult > 1 ? "  x" + mult.toFixed(1) : ""), e.T.ring);
   if (e.type === "elder") { banner("ELDER DAO DISPELLED", "Balance restored, briefly"); for (let i = 0; i < 4; i++) dropPickup(e.grp.position, i); }
   else if (Math.random() < 0.18) dropPickup(e.grp.position, 0);
   updateHud();
@@ -531,7 +644,7 @@ function enemyShoot(e, spread) {
   sfxTone(spread ? 200 : 380, 120, 0.25, 0.05, "sawtooth");
 }
 function hurt(amt) {
-  if (S.mode !== "play") return;
+  if (S.mode !== "play" || S.dashT > 0) return;
   player.hp = Math.max(0, player.hp - amt); S.hurtT = 0.35; S.shake = Math.max(S.shake, 0.18);
   sfxTone(120, 40, 0.25, 0.25, "sawtooth");
   updateHud();
@@ -545,9 +658,11 @@ function updateHud() {
   const left = enemies.length + S.queue.length;
   $("left").textContent = left ? left + " Dao remaining" : "";
   $("hpnum").textContent = Math.ceil(player.hp);
-  $("hpbar").style.width = player.hp + "%";
+  $("hpbar").style.width = Math.min(100, player.hp / S.P.maxHp * 100) + "%";
   $("hpbar").style.background = player.hp > 50 ? "var(--jade)" : player.hp > 25 ? "var(--gold)" : "var(--cinnabar)";
-  $("ammo").firstChild.textContent = S.ammo;
+  $("ammo").firstChild.textContent = S.am[S.w]; $("ammo").lastChild.textContent = " / " + magOf(S.w);
+  $("wname").textContent = WEAPONS[S.w].name; [...$("forms").children].forEach((c, i) => c.classList.toggle("on", i === S.w));
+  $("combo").textContent = S.combo > 1 ? "x" + Math.min(3, 1 + (S.combo - 1) * 0.1).toFixed(1) + "  " + S.combo + " chain" : "";
 }
 const mm = $("minimap").getContext("2d");
 function drawMinimap() {
@@ -563,7 +678,7 @@ function drawMinimap() {
     mm.fillStyle = col; mm.beginPath(); mm.arc(c + sx, c + syy, r, 0, Math.PI * 2); mm.fill();
   };
   for (const p of pickups) plot(p.m.position.x, p.m.position.z, "#3fd8a0", 5);
-  for (const e of enemies) plot(e.grp.position.x, e.grp.position.z, e.T.ring, e.type === "elder" ? 11 : 6);
+  for (const e of enemies) plot(e.grp.position.x, e.grp.position.z, e.T.ring, e.type === "elder" ? 11 : e.type === "wisp" ? 4 : 6);
   mm.restore();
   mm.fillStyle = "#f1eee4"; mm.beginPath(); mm.moveTo(c, c - 12); mm.lineTo(c - 8, c + 8); mm.lineTo(c + 8, c + 8); mm.closePath(); mm.fill();
 }
@@ -580,6 +695,8 @@ document.addEventListener("pointerlockchange", () => {
 addEventListener("keydown", e => {
   keys[e.code] = true;
   if (e.code === "KeyR" && S.mode === "play") reload();
+  if (S.mode === "insight" && /^Digit[123]$/.test(e.code)) { takeInsight(+e.code.slice(5) - 1); return; }
+  if (S.mode === "play" && !e.repeat) { if (/^Digit[123]$/.test(e.code)) setWeapon(+e.code.slice(5) - 1); if (e.code === "KeyF") qiBurst(); if (e.code === "KeyC") dash(); }
   if (e.code === "Space") e.preventDefault();
   if (e.code === "KeyP" && S.mode === "play") { S.mode = "pause"; $("pause").hidden = false; try { document.exitPointerLock(); } catch (er) {} }
 });
@@ -589,7 +706,10 @@ canvas.addEventListener("mousedown", e => {
   if (S.mode !== "play" || isTouch) return;
   if (!locked) requestLock();
   if (e.button === 0) { mouseDown = true; S.firing = true; }
+  if (e.button === 2) qiBurst();
 });
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+addEventListener("wheel", e => { if (S.mode === "play") setWeapon(S.w + (e.deltaY > 0 ? 1 : -1)); }, { passive: true });
 addEventListener("mouseup", e => { if (e.button === 0) { mouseDown = false; S.firing = false; } });
 addEventListener("mousemove", e => {
   if (S.mode !== "play" || isTouch) return;
@@ -610,6 +730,7 @@ function bindHold(el, down, up) {
 bindHold($("tfire"), () => S.firing = true, () => S.firing = false);
 bindHold($("tjump"), () => keys.Space = true, () => keys.Space = false);
 bindHold($("treload"), () => reload());
+bindHold($("tburst"), () => qiBurst()); bindHold($("tdash"), () => dash()); bindHold($("tform"), () => setWeapon(S.w + 1));
 canvas.addEventListener("touchstart", e => {
   e.preventDefault(); initAudio();
   for (const t of e.changedTouches) {
@@ -671,8 +792,12 @@ function update(dt) {
   if (keys.KeyE || keys.ArrowRight) player.yaw -= 2.2 * dt;
   const len = mv.length(); if (len > 1) mv.divideScalar(len);
   const inWater = height(player.pos.x, player.pos.z) < WATER - 0.3;
-  const speed = (keys.ShiftLeft || keys.ShiftRight ? 15 : 9) * (inWater ? 0.55 : 1);
+  const speed = (keys.ShiftLeft || keys.ShiftRight ? 15 : 9) * (inWater ? 0.55 : 1) * S.P.speed;
   player.pos.addScaledVector(mv, speed * dt);
+  if (S.dashT > 0) { S.dashT -= dt; player.pos.addScaledVector(S.dashDir, 46 * dt); }
+  S.dashCd -= dt; S.burstT -= dt;
+  if (S.comboT > 0) { S.comboT -= dt; if (S.comboT <= 0) { S.combo = 0; updateHud(); } }
+  const bc = $("burstcd"), bt = S.burstT > 0 ? "QI BURST " + Math.ceil(S.burstT) : "QI BURST READY"; if (bc.textContent !== bt) { bc.textContent = bt; bc.style.color = S.burstT > 0 ? "" : "var(--jade)"; }
   for (const c of colliders) {
     const dx = player.pos.x - c.x, dz = player.pos.z - c.z, rr = c.r + 0.45;
     if (Math.abs(dx) < rr && Math.abs(dz) < rr) { const d = Math.hypot(dx, dz); if (d < rr && d > 0.0001) { player.pos.x = c.x + dx / d * rr; player.pos.z = c.z + dz / d * rr; } }
@@ -687,29 +812,32 @@ function update(dt) {
 
   // weapon
   S.fireT -= dt;
-  if (S.reloadT > 0) { S.reloadT -= dt; if (S.reloadT <= 0) { S.ammo = MAG; $("reloadtxt").hidden = true; updateHud(); } }
+  if (S.reloadT > 0) { S.reloadT -= dt; if (S.reloadT <= 0) { S.am[S.reloadW] = magOf(S.reloadW); $("reloadtxt").hidden = true; updateHud(); } }
   if (S.firing && S.fireT <= 0) fire();
   S.recoil = Math.max(0, S.recoil - dt * 9);
 
   // waves
   if (S.queue.length) { S.spawnT -= dt; if (S.spawnT <= 0 && enemies.length < 26) { spawnFromQueue(); S.spawnT = 0.7; updateHud(); } }
-  else if (!enemies.length) { S.nextWaveT -= dt; if (S.nextWaveT <= 0) { startWave(); S.nextWaveT = 4; updateHud(); } }
+  else if (!enemies.length) {
+    if (S.wave > 0 && S.pendingInsight) { S.pendingInsight = false; offerInsight(); return; }
+    S.nextWaveT -= dt; if (S.nextWaveT <= 0) { startWave(); S.nextWaveT = 4; updateHud(); }
+  }
 
   // enemies
   camera.getWorldPosition(camPos);
   const t = performance.now() / 1000;
   for (let i = enemies.length - 1; i >= 0; i--) {
-    const e = enemies[i], p = e.grp.position, T = e.T;
+    const e = enemies[i]; if (!e) continue; const p = e.grp.position, T = e.T;
     tmp.subVectors(player.pos, p); tmp.y = 0; const dist = tmp.length(); tmp.normalize();
     let sp = T.speed * (1 + Math.min(0.6, (S.wave - 1) * 0.05));
     if (e.type === "sentinel") { if (dist < 22) sp = -sp * 0.7; else if (dist < 32) sp = 0; }
     if (e.type === "elder" && dist < 18) sp = 0;
     // strafe wobble
     p.addScaledVector(tmp, sp * dt);
-    p.x += Math.cos(t * 1.3 + e.phase) * dt * (e.type === "drone" ? 3 : 2) * tmp.z;
-    p.z -= Math.cos(t * 1.3 + e.phase) * dt * (e.type === "drone" ? 3 : 2) * tmp.x;
+    p.x += Math.cos(t * (T.wob > 5 ? 3.1 : 1.3) + e.phase) * dt * (T.wob || 2) * tmp.z;
+    p.z -= Math.cos(t * (T.wob > 5 ? 3.1 : 1.3) + e.phase) * dt * (T.wob || 2) * tmp.x;
     let targetY = groundAt(p.x, p.z) + T.hover + Math.sin(t * 2 + e.phase) * 0.6;
-    if (e.type === "drone" && dist < 10) targetY = player.pos.y - 0.4;
+    if ((T.touch || e.type === "bloat") && dist < 10) targetY = player.pos.y - 0.4;
     p.y += (targetY - p.y) * Math.min(1, dt * 2.5);
     // separation
     for (const o of enemies) if (o !== e) { const dx = p.x - o.grp.position.x, dz = p.z - o.grp.position.z, d = Math.hypot(dx, dz), m = T.r + o.T.r + 0.5; if (d < m && d > 0.01) { p.x += dx / d * (m - d) * 0.5; p.z += dz / d * (m - d) * 0.5; } }
@@ -723,14 +851,21 @@ function update(dt) {
     // attacks
     e.contactCd -= dt; e.cd -= dt;
     const d3 = p.distanceTo(camPos);
-    if (e.type === "drone" && d3 < T.r + 1.2 && e.contactCd <= 0) { hurt(12); e.contactCd = 0.9; tmp2.subVectors(p, player.pos).setY(0).normalize(); p.addScaledVector(tmp2, 4); }
+    if (e.type === "bloat") {
+      const sw = 1 + Math.max(0, 1 - d3 / 14) * 0.5 + Math.sin(t * 14) * 0.04 * (d3 < 14 ? 1 : 0); e.grp.scale.setScalar(sw);
+      if (d3 < T.r + 4.5) { if (d3 < 10) hurt(28); S.booms.push({ p: p.clone(), r: 11, dmg: 70 }); burst(p, 40, 14); sfxNoise(400, 0.5, 0.5); S.shake = Math.max(S.shake, 0.3); feed("A Bloat burst on you", T.ring); scene.remove(e.grp); enemies.splice(i, 1); updateHud(); continue; }
+    }
+    if (T.touch && d3 < T.r + 1.2 && e.contactCd <= 0) { hurt(T.touch); e.contactCd = 0.9; tmp2.subVectors(p, player.pos).setY(0).normalize(); p.addScaledVector(tmp2, 4); }
     if (e.type === "sentinel" && dist < 80 && e.cd <= 0) { enemyShoot(e, false); e.cd = Math.max(1.1, 2.4 - S.wave * 0.08) + Math.random(); }
     if (e.type === "elder") {
       if (dist < 100 && e.cd <= 0) { enemyShoot(e, true); e.cd = 1.7; }
+      if (e.hp < e.maxHp * 0.5) { e.ringT = (e.ringT === undefined ? 2 : e.ringT) - dt; if (e.ringT <= 0) { e.ringT = 4.5; for (let k = 0; k < 14; k++) { const a2 = k / 14 * Math.PI * 2, v = new V3(Math.cos(a2), -0.12, Math.sin(a2)); const m = new THREE.Mesh(orbGeo, orbGoldMat); m.position.copy(p).addScaledVector(v, T.r + 0.5); scene.add(m); shots.push({ m, v: v.multiplyScalar(20), t: 6, dmg: 12 }); } sfxTone(160, 90, 0.5, 0.1, "sawtooth"); feed("The Elder sheds a ring", T.ring); } }
       if (e.summonT -= dt, e.summonT <= 0) { e.summonT = 10; S.queue.push("drone", "drone"); feed("The Elder summons drones", T.ring); }
       if (d3 < T.r + 1.5 && e.contactCd <= 0) { hurt(25); e.contactCd = 1.2; }
     }
   }
+  // bursting bloats hurt other Dao too
+  if (S.booms.length) { const bs = S.booms; S.booms = []; for (const b of bs) for (const e of enemies.slice()) if (e.grp.position.distanceTo(b.p) < b.r + e.T.r) damage(e, b.dmg, e.grp.position.clone()); }
   // enemy shots
   for (let i = shots.length - 1; i >= 0; i--) {
     const s = shots[i]; s.m.position.addScaledVector(s.v, dt); s.t -= dt;
@@ -741,13 +876,14 @@ function update(dt) {
   // pickups
   for (let i = pickups.length - 1; i >= 0; i--) {
     const pk = pickups[i]; pk.m.rotation.y += dt * 2; pk.m.position.y += Math.sin(t * 3 + i) * dt * 0.5; pk.t -= dt;
-    if (pk.m.position.distanceTo(player.pos) < 2.4 && player.hp < 100) { player.hp = Math.min(100, player.hp + 30); feed("Qi restored +30", "#3fd8a0"); sfxTone(500, 1000, 0.25, 0.12); pk.t = 0; updateHud(); }
+    if (pk.m.position.distanceTo(player.pos) < 2.4 && player.hp < S.P.maxHp) { player.hp = Math.min(S.P.maxHp, player.hp + 30); feed("Qi restored +30", "#3fd8a0"); sfxTone(500, 1000, 0.25, 0.12); pk.t = 0; updateHud(); }
     if (pk.t <= 0) { scene.remove(pk.m); pickups.splice(i, 1); }
   }
 }
 function updateFx(dt) {
   for (const p of parts) if (p.m.visible) { p.t -= dt; p.v.y -= 20 * dt; p.m.position.addScaledVector(p.v, dt); p.m.rotation.x += dt * 5; p.m.rotation.y += dt * 4; if (p.t <= 0) p.m.visible = false; }
-  for (const tr of tracers) if (tr.l.visible) { tr.t -= dt; tr.l.material.opacity = Math.max(0, tr.t / 0.06); if (tr.t <= 0) tr.l.visible = false; }
+  for (const tr of tracers) if (tr.l.visible) { tr.t -= dt; tr.l.material.opacity = Math.max(0, tr.t / (tr.max || 0.06)); if (tr.t <= 0) tr.l.visible = false; }
+  if (burstRing.visible) { const u = burstRing.userData; u.t += dt; const k = Math.min(1, u.t / 0.4); burstRing.scale.setScalar(1 + (u.R - 1) * (1 - (1 - k) * (1 - k))); burstRing.material.opacity = 1 - k; if (k >= 1) burstRing.visible = false; }
 }
 
 // ---------- loop ----------
@@ -772,7 +908,7 @@ function frame(now) {
     gun.position.set(GUN_POS.x + Math.cos(S.bob * 0.5) * 0.012, GUN_POS.y + Math.abs(Math.sin(S.bob * 0.5)) * 0.012 - (S.reloadT > 0 ? 0.2 : 0), GUN_POS.z + S.recoil * 0.06);
     gun.rotation.x = S.recoil * 0.12 + (S.reloadT > 0 ? -0.6 : 0);
     S.hurtT = Math.max(0, S.hurtT - dt);
-    $("vignette").style.opacity = Math.min(0.8, S.hurtT * 2.2 + (player.hp < 30 ? 0.25 : 0));
+    $("vignette").style.opacity = Math.min(0.8, S.hurtT * 2.2 + (player.hp < S.P.maxHp * 0.3 ? 0.25 : 0));
     drawMinimap();
   }
   sky.position.copy(camera.position);
