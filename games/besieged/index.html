@@ -213,6 +213,7 @@ button{font:inherit;color:inherit}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<script src="../../assets/padmap.js"></script>
 </head>
 <body>
 <canvas id="cv" aria-label="Besieged game view"></canvas>
@@ -3008,7 +3009,7 @@ Object.assign(R, {
       ctx.fillStyle='rgba(8,12,16,0.75)'; ctx.fillRect(0,yb-50,w,84); ctx.fillStyle=b.col; ctx.font='800 '+(narrow?32:44)+'px '+FONT_D; ctx.fillText(b.title,cx,yb,w-32);
       ctx.fillStyle='#c9d3dd'; ctx.font='600 15px '+FONT_B; ctx.fillText(b.sub||'',cx,yb+24,w-32); ctx.globalAlpha=1; }
     if(typeof Net!=='undefined' && Net.role) Net.drawHUD(ctx,w,h,top,right);
-    if(!touch && !Input.locked && UI.cur==='game' && !G.paused && (!Input.lockFailed || G.t<6)){ const msg=Input.lockFailed?'MOUSE CAPTURE IS BLOCKED HERE · MOVE THE MOUSE TO LOOK':'CLICK TO CAPTURE THE MOUSE'; ctx.textAlign='center'; ctx.font='700 14px '+FONT_D; const tw=ctx.measureText(msg).width+30; ctx.fillStyle='rgba(12,17,23,0.85)'; ctx.fillRect(cx-tw/2,h*0.4-20,tw,30); ctx.fillStyle='#f2c14e'; ctx.fillText(msg,cx,h*0.4); }
+    if(!touch && !Input.locked && UI.cur==='game' && !G.paused && !(window.PadMap && PadMap.pad.used) && (!Input.lockFailed || G.t<6)){ const msg=Input.lockFailed?'MOUSE CAPTURE IS BLOCKED HERE · MOVE THE MOUSE TO LOOK':'CLICK TO CAPTURE THE MOUSE'; ctx.textAlign='center'; ctx.font='700 14px '+FONT_D; const tw=ctx.measureText(msg).width+30; ctx.fillStyle='rgba(12,17,23,0.85)'; ctx.fillRect(cx-tw/2,h*0.4-20,tw,30); ctx.fillStyle='#f2c14e'; ctx.fillText(msg,cx,h*0.4); }
     ctx.restore();
   },
 });
@@ -3859,6 +3860,35 @@ function boot(data){
 }
 try{ window.claude?.hot?.snapshot?.(()=>({save:Save.d})); }catch(e){}
 if(window.claude?.hot?.ready) window.claude.hot.ready(boot); else boot(window.claude?.hot?.data ?? {});
+/* gamepad: left stick moves, right stick looks (through the same virtual sticks as touch).
+   RT fire · LT aim · X reload · A use · B crouch · Y swap · RB gadget · LB grenade · R3 melee
+   d-pad left/right lean · d-pad up drone or cameras · d-pad down inspect · Start pause */
+if (window.PadMap) {
+  const held = new Set();
+  const hold = (k, on) => { if (on) { if (!held.has(k)) { held.add(k); Input.press(k); } } else if (held.has(k)) { held.delete(k); Input.release(k); } };
+  const tap = (k) => { Input.press(k); setTimeout(() => Input.release(k), 60); };
+  const sticksOff = () => { Input.stickL.active = Input.stickR.active = false; Input.stickL.x = Input.stickL.y = Input.stickR.x = Input.stickR.y = 0; };
+  PadMap.start(p => {
+    const inGame = G.running && !G.demo && !UI.overlayOpen();
+    if (!inGame) {
+      for (const k of [...held]) hold(k, false);
+      sticksOff();
+      PadMap.menu(p, '#menu, #pause, #roundov, #cacheov, #pick, #endscr, #netov');
+      if ((p.pr(1) || p.pr(9)) && UI.cur === 'pause') UI.resume();
+      return;
+    }
+    const L = Input.stickL, R = Input.stickR, ml = Math.hypot(p.ax, p.ay), mr = Math.hypot(p.rx, p.ry);
+    L.active = ml > 0.05; L.x = p.ax; L.y = p.ay; L.mag = Math.min(1, ml);
+    R.active = mr > 0.05; R.x = p.rx; R.y = p.ry; R.mag = Math.min(1, mr);
+    hold('Mouse0', p.B(7)); hold('Mouse2', p.B(6));
+    hold('KeyF', p.B(0)); hold('Space', p.B(0));
+    hold('KeyQ', p.B(14)); hold('KeyE', p.B(15)); hold('ShiftLeft', p.B(10));
+    if (p.pr(2)) tap('KeyR'); if (p.pr(1)) tap('KeyC'); if (p.pr(3)) tap('Digit9');
+    if (p.pr(5)) tap('KeyX'); if (p.pr(4)) tap('KeyG'); if (p.pr(11)) tap('KeyV');
+    if (p.pr(12)) tap('KeyT'); if (p.pr(13)) tap('KeyI');
+    if (p.pr(9)) tap('Escape');
+  }, () => { sticksOff(); for (const k of [...held]) { Input.release(k); held.delete(k); } });
+}
 </script>
 
 </body></html>

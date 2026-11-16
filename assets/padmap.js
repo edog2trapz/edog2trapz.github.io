@@ -42,7 +42,9 @@
   function visible(el) {
     if (!el || el.disabled) return false;
     const r = el.getBoundingClientRect();
-    if (r.width < 3 || r.height < 3 || r.bottom <= 0 || r.right <= 0 || r.top >= innerHeight || r.left >= innerWidth) return false;
+    if (r.width < 3 || r.height < 3) return false;
+    /* scrolled out of view inside a menu: count it if it is styled visible (focus scrolls it in) */
+    if (r.bottom <= 0 || r.right <= 0 || r.top >= innerHeight || r.left >= innerWidth) { const cs = getComputedStyle(el); return cs.visibility !== 'hidden' && cs.pointerEvents !== 'none'; }
     const cx = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2));
     const t = document.elementFromPoint(cx, cy);
     return !!t && (t === el || el.contains(t) || t.contains(el));
@@ -58,13 +60,18 @@
       const items = [];
       for (const r of roots) if (shown(r)) for (const el of r.querySelectorAll(SEL)) if (visible(el)) items.push(el);
       if (!items.length) return false;
+      /* the obvious default: an explicit primary button, else one whose label says play/start/resume */
+      const PRIMARY = /^(▶\s*)?(play|start|deploy|kick ?off|cast off|new (run|game)|continue|resume|go|ready|next|again|retry|ok)\b/i;
+      const pref = items.find((el) => el.matches('[autofocus], [data-primary], .primary, .cta, #play, #go, #playBtn, #start')) ||
+        items.find((el) => el.tagName === 'BUTTON' && /\bbig\b|\blg\b/.test(el.className) && PRIMARY.test(el.textContent.trim())) ||
+        items.find((el) => PRIMARY.test(el.textContent.trim())) || items[0];
       let cur = items.includes(document.activeElement) ? document.activeElement : null;
       let dir = p.pr(12) ? 'u' : p.pr(13) ? 'd' : p.pr(14) ? 'l' : p.pr(15) ? 'r' : '';
       const sd = p.ay < -0.5 ? 'u' : p.ay > 0.5 ? 'd' : p.ax < -0.5 ? 'l' : p.ax > 0.5 ? 'r' : '';
       if (sd) { if (sd !== p.navDir) { dir = sd; p.navT = 0.32; } else { p.navT -= p.dt; if (p.navT <= 0) { dir = sd; p.navT = 0.14; } } }
       p.navDir = sd;
       if (dir) {
-        if (!cur) cur = items[0];
+        if (!cur) cur = pref;
         else {
           const a = cur.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2;
           let best = null, bs = Infinity;
@@ -84,7 +91,7 @@
         if (cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
       }
       if (p.pr(0)) {
-        const el = cur || items[0];
+        const el = cur || pref;
         if (el.tagName === 'INPUT' && el.type === 'range') { /* A does nothing on a slider */ }
         else el.click();
       }
