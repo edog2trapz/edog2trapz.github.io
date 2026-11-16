@@ -49,6 +49,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'rhyme-cipher', title:'Rhyme Cipher', icon:'🎤', genre:'Rhythm', colors:['#120d1d', '#ffb547'], players:'1 player', isNew:true, featured:true,
+    desc:'A freestyle rhythm and rhyme game. Words drop on the beat and you type a rhyme before the gate closes, with on-beat bonuses, combos and multi-syllable rhymes. 12 original beats from boom bap to drill, a 75,000-word rhyme book, and your own songs: it reads their BPM, key and beat grid.' },
   { slug:'vermilion-thread', title:'Vermilion Thread', icon:'🗡️', genre:'Roguelike', colors:['#16110f', '#e2372b'], players:'1 player', isNew:true, featured:true,
     desc:'An ink-painting action roguelike. Your blade is tied to you by a red thread: throw it, call it back through their spines, zip down the line and parry everything else. Five blades, 56 inscriptions, style ranks from D to SSS, four bosses, nine depths, a daily scroll, endless waves and a boss rush.' },
   { slug:'dao-hunter', title:'Dao Hunter: Recon', icon:'🎯', genre:'Shooter', colors:['#0b0f0d', '#3fd8a0'], players:'1 player', isNew:true, featured:true,
@@ -137,6 +139,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-16', tag:'New game', title:'Rhyme Cipher: spit on the beat', game:'rhyme-cipher',
+    text:'A freestyle rhythm and rhyme game. A word drops on the beat, you type a rhyme and hit Enter right on a beat for a bonus. Perfect, slant and multi-syllable rhymes all count, judged by a 75,000-word rhyme book that knows how words sound. Play Rhyme Rush (one rhyme before the gate closes), Rhyme Storm (stack as many rhymes as you can) or Freestyle (words land on the downbeat with rhyme ideas, rap out loud). Twelve original beats from 78 to 142 BPM, or drop in your own songs: the game reads their BPM, key and beat grid and lets you fix the grid by hand. There is also a Rhyme Lab for looking up rhymes.' },
   { date:'2026-11-16', tag:'Update', title:'Nightwire goes 3D', game:'nightwire',
     text:'Nightwire is now a third-person 3D stealth game. Every lamp really lights the room, so shoot them out or EMP them and the shadows are yours. Guards carry flashlights and their awareness rings fill as they notice you. Climb into the ceiling vents through the hatches to crawl over their heads, knock them out from behind and carry the bodies into the dark, and get past security cameras, laser grids and keycard doors. Three alarms and the operation is blown. Go for a Ghost rating on all four operations. The original 2D Nightwire is still on the title screen.' },
   { date:'2026-11-16', tag:'Update', title:'Dao Hunter is now a tactical recon shooter', game:'dao-hunter',
