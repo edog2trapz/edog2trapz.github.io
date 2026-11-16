@@ -28,10 +28,12 @@
   D.puff = (pos) => spray(pos, 5, pmats.dust, 3, 1, 9, 0.5);
   D.blood = (pos) => spray(pos, 6, pmats.blood, 2.5, 0.8, 12, 0.5);
   const booms = [];
+  /* one explosion light, always in the scene, so the shader light count never changes */
+  const boomLight = new THREE.PointLight('#ffb35a', 0, 30, 2); scene.add(boomLight); let boomLT = 1;
   D.boom = function (pos, r) {
     spray(pos, 30, pmats.fire, r * 1.6, 2.2, 6, 0.7); spray(pos, 26, pmats.smoke, r * 0.6, 4, -1.5, 1.8);
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow('rgba(255,190,90,1)'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); s.position.copy(pos); s.position.y += 1; scene.add(s); booms.push({ s, t: 0, r });
-    const l = new THREE.PointLight('#ffb35a', 6, r * 6, 2); l.position.copy(pos); l.position.y += 2; scene.add(l); booms.push({ l, t: 0 });
+    boomLight.position.copy(pos); boomLight.position.y += 2; boomLight.distance = r * 6; boomLight.intensity = 6; boomLT = 0;
     D.kick && D.kick(Math.max(0, 1 - D.P.pos.distanceTo(pos) / 60) * 0.6);
     D.audio && D.audio.play('boom', D.P.pos.distanceTo(pos));
   };
@@ -39,6 +41,7 @@
     for (const tr of tracers) if (tr.l.visible) { tr.t -= dt; tr.l.material.opacity = Math.max(0, tr.t / 0.06) * tr.o; if (tr.t <= 0) tr.l.visible = false; }
     if (flashT > 0) { flashT -= dt; if (flashT <= 0) flash.visible = false; }
     for (const p of parts) if (p.m.visible) { p.t -= dt; p.v.y -= p.g * dt; p.m.position.addScaledVector(p.v, dt); p.m.rotation.x += dt * 6; if (p.t <= 0) p.m.visible = false; }
+    if (boomLT < 1) { boomLT += dt; boomLight.intensity = Math.max(0, 6 - boomLT * 14); }
     for (let i = booms.length - 1; i >= 0; i--) { const b = booms[i]; b.t += dt; if (b.s) { const k = b.t / 0.6; b.s.scale.setScalar(b.r * (1 + k * 3)); b.s.material.opacity = 1 - k; if (k >= 1) { scene.remove(b.s); booms.splice(i, 1); } } else { b.l.intensity = Math.max(0, 6 - b.t * 14); if (b.t > 0.5) { scene.remove(b.l); booms.splice(i, 1); } } }
   };
 

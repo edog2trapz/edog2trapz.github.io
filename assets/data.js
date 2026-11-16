@@ -51,6 +51,8 @@ const ABOUT = {
 const GAMES = [
   { slug:'vermilion-thread', title:'Vermilion Thread', icon:'🗡️', genre:'Roguelike', colors:['#16110f', '#e2372b'], players:'1 player', isNew:true, featured:true,
     desc:'An ink-painting action roguelike. Your blade is tied to you by a red thread: throw it, call it back through their spines, zip down the line and parry everything else. Five blades, 56 inscriptions, style ranks from D to SSS, four bosses, nine depths, a daily scroll, endless waves and a boss rush.' },
+  { slug:'dao-hunter', title:'Dao Hunter: Recon', icon:'🎯', genre:'Shooter', colors:['#0b0f0d', '#3fd8a0'], players:'1 player', isNew:true, featured:true,
+    desc:'A tactical third-person shooter in an occupied mountain valley. Scout with binoculars and a recon drone, tag targets, stay hidden in the long grass, cut the alarms and call sync shots. Seven guns and a full gunsmith, six operations, night missions and free roam.' },
   { slug:'racket-cataclysm', title:'Racket Cataclysm', icon:'🎾', genre:'Sports', colors:['#26123d', '#ffd60a'], players:'1–2 players', isNew:true, featured:true,
     desc:'Tennis inside a volcano, table tennis in orbit and badminton on a skyscraper in a lightning storm. Six absurd champions with ridiculous ultras, a ball that catches fire in long rallies, and chaos events like moon gravity, multiball and hurricane cows.' },
   { slug:'kickstorm', title:'Kickstorm Arena', icon:'⚽', genre:'Sports', colors:['#140f2b', '#ff5a36'], players:'1 player', isNew:true, featured:true,
@@ -103,8 +105,6 @@ const GAMES = [
     desc:'Belly-slide racing for up to four players on one keyboard, across Antarctica, the Arctic and a Svalbard blizzard.' },
   { slug:'find-nemo', title:'Find Nemo', icon:'🐠', genre:'Adventure', colors:['#0c4a6e', '#fb923c'], players:'',
     desc:'Cross the reef, the jellyfish, the abyss and Sydney Harbour to bring your son home.' },
-  { slug:'dao-hunter', title:'Dao Hunter', icon:'☯️', genre:'Action', colors:['#111827', '#c4b5fd'], players:'',
-    desc:'Roam open 3D hills, find high ground and dispel every wave of the Dao before your qi runs out.' },
   { slug:'outpost-zero', title:'Outpost Zero', icon:'🛰️', genre:'Shooter', colors:['#232619', '#e8552d'], players:'',
     desc:'Hold the base, explore the ruins, pick your archetype and call down the Hellstorm.' },
   { slug:'hoop-brawl', title:'Hoop Brawl', icon:'🏀', genre:'Sports', colors:['#7c2d12', '#fbbf24'], players:'1v1 · 2v2',
@@ -135,6 +135,10 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-16', tag:'Update', title:'Dao Hunter is now a tactical recon shooter', game:'dao-hunter',
+    text:'Dao Hunter has been rebuilt from the ground up. The Dao Order has occupied the valley: five camps, a relay mast and the man they call the Abbot. Watch from the ridges with binoculars or fly the recon drone to tag soldiers through walls. Crouch and go prone in the long grass, watch the detection arcs fill, and cut the alarms before anyone calls for help. Build your guns in the gunsmith with optics, suppressors, barrels, grips, magazines and stocks, then run six operations by day, dusk and night, or liberate the whole valley in free roam. Rank up to unlock the Ghost team and their sync shots. The original wave mode is still on the title screen.' },
+  { date:'2026-11-16', tag:'Feature', title:'Play together online or on the same Wi-Fi',
+    text:'Hoop Brawl, Stick Storm, Stick Storm Showdown, Racket Cataclysm, Penguin Polar Rush and Stick Brawl now have a Play together button. Host a room, send your friend the four-letter code, and they join as player 2 (or 3 and 4 in Penguin Polar Rush) from their own phone or computer. No account needed.' },
   { date:'2026-11-15', tag:'New game', title:'Vermilion Thread: one blade, one thread', game:'vermilion-thread',
     text:'The biggest game on the site so far. You are a small figure in a straw hat inside a living ink painting, and your blade is tied to you by a red thread. Throw it and it cuts on the way out. Call it back and it cuts again from behind, which is the only way through a Screen Guard. Zip along the thread to slash everything on the line, untouchable the whole way, and a zip that kills gives its knot back so you can chain them. With the blade in hand you can parry: bolts fly home to whoever fired them. Even the thread cuts if you walk it through a crowd. Build a run from 56 inscriptions, pick from five blades (three needles with three threads, a curving moon ring, a charged spear and an anchor that shakes the floor), climb the style rank from D to SSS, and break four seals: the Calligrapher, Kuro and Shiro, the Lantern Shogun and the Blot. Then go deeper through nine Depths, or play the Daily Scroll, Thousand Cuts and the Boss Rush. Mouse and keyboard, gamepad or touch.' },
   { date:'2026-11-09', tag:'New game', title:'Racket Cataclysm: three racket sports, zero chill', game:'racket-cataclysm',

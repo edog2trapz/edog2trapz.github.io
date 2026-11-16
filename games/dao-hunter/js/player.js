@@ -40,7 +40,7 @@
     P.slot = 0; mountGun();
   };
   D.resetPlayer = function (x, z) {
-    P.pos.set(x, D.groundAt(x, z), z); P.vel.set(0, 0, 0); P.vy = 0; P.hp = 100; P.dead = false; P.stance = 0; P.yaw = Math.PI; P.pitch = -0.05; P.ads = false; P.binos = false;
+    P.pos.set(x, D.groundAt(x, z), z); P.vel.set(0, 0, 0); P.vy = 0; P.hp = 100; P.dead = false; P.stance = 0; P.yaw = 0; P.bodyYaw = 0; P.pitch = -0.05; P.ads = false; P.binos = false;
     P.droneOn = false; P.battery = 1; P.syncCd = 0; P.syncT = 0; P.grenades = 2; P.nvg = false; P.hits = P.shots = P.kills = P.heads = 0; P.detected = false; P.lastHit = -99; P.reloadT = 0;
     model.root.visible = true; droneM.visible = false; D.nades.length = 0;
   };
@@ -282,7 +282,7 @@
   function toggleDrone() {
     if (P.droneOn) { P.droneOn = false; droneM.visible = false; D.audio && D.audio.drone(false); return; }
     if (P.battery < 0.15) { D.say && D.say('Drone battery too low'); return; }
-    P.droneOn = true; P.drone = { pos: new V3(P.pos.x, P.pos.y + 2.2, P.pos.z), yaw: P.yaw, pitch: -0.5, vel: new V3() };
+    P.droneOn = true; P.drone = { pos: new V3(P.pos.x - Math.sin(P.yaw) * 3, P.pos.y + 7, P.pos.z - Math.cos(P.yaw) * 3), yaw: P.yaw, pitch: -0.5, vel: new V3() };
     droneM.visible = true; D.audio && D.audio.drone(true); P.ads = false; P.binos = false;
   }
   function updateDrone(dt) {
@@ -321,7 +321,7 @@
       const z = P.binos ? 6 : s.zoom; camera.fov = 70 / z; model.root.visible = false;
     } else {
       model.root.visible = true;
-      const k = P.adsK, back = 3.4 - k * 1.9, rgt = (0.62 - k * 0.12) * P.side, upv = 0.32 - k * 0.12;
+      const k = P.adsK, back = 3.4 - k * 1.45, rgt = (0.62 + k * 0.16) * P.side, upv = 0.32 + k * 0.06;
       cd.set(Math.sin(P.yaw) * Math.cos(P.pitch), -Math.sin(P.pitch), Math.cos(P.yaw) * Math.cos(P.pitch));
       right.set(Math.cos(P.yaw), 0, -Math.sin(P.yaw));
       want.copy(pivot).addScaledVector(cd, back).addScaledVector(right, rgt); want.y += upv;

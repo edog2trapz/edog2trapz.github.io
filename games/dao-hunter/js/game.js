@@ -280,12 +280,15 @@
         if (Math.random() < dt * 2) liberatedCheck();
       }
       D.updateCamera(dt);
+      if ((D._lampT = (D._lampT || 0) - dt) < 0) { D._lampT = 0.5; D.placeLamps(D.camera.position.x, D.camera.position.z); }
       if (shake > 0) { D.camera.rotation.x += (Math.random() - 0.5) * shake * 0.02; D.camera.rotation.y += (Math.random() - 0.5) * shake * 0.02; shake = Math.max(0, shake - dt * 2.5); }
       if (sayT > 0) { sayT -= dt; if (sayT <= 0) $('say').hidden = true; }
       if (bannerT > 0) { bannerT -= dt; if (bannerT <= 0) $('banner').style.opacity = 0; }
       if (hmT > 0) { hmT -= dt; if (hmT <= 0) $('hm').style.opacity = 0; }
       if (popT > 0) popT -= dt;
       drawHud();
+    } else if (D.mode === 'freeze') {
+      /* test hook: hold whatever camera was set */
     } else {
       /* menus: slow orbit over the valley */
       menuA += dt * 0.03; D.updateFx(dt);

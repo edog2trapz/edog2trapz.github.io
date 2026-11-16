@@ -83,7 +83,7 @@
     const legL = limb(-0.12, 0, hips, 0.16, 0.92, cloth), legR = limb(0.12, 0, hips, 0.16, 0.92, cloth);
     part(0.17, 0.1, 0.26, dark, legL, 0, -0.9, -0.04); part(0.17, 0.1, 0.26, dark, legR, 0, -0.9, -0.04);
     /* the gun rides in the right hand, pointing forward (-Z) */
-    const gunMount = new THREE.Group(); gunMount.position.set(0.12, 0.38, -0.25); torso.add(gunMount);
+    const gunMount = new THREE.Group(); gunMount.position.set(0.14, 0.5, -0.32); torso.add(gunMount);
     return { root, body, hips, torso, head, armL, armR, legL, legR, gunMount, walk: 0 };
   };
   /* pose: stance 0 stand, 1 crouch, 2 prone; aim pitch; speed for the walk cycle */
@@ -96,7 +96,7 @@
     m.legL.rotation.x = stance === 1 ? -1.2 + sw * 0.4 : stance === 2 ? sw * 0.3 : sw; m.legR.rotation.x = stance === 1 ? 0.3 - sw * 0.4 : stance === 2 ? -sw * 0.3 : -sw;
     const ap = stance === 2 ? aimPitch + Math.PI / 2 - 0.12 : aimPitch;
     m.torso.rotation.x = U(m.torso.rotation.x, stance === 1 ? 0.25 : 0, dt * 8);
-    m.armR.rotation.x = -Math.PI / 2 + ap; m.armL.rotation.x = -Math.PI / 2 + ap + 0.15; m.armL.rotation.z = -0.5;
+    m.armR.rotation.x = Math.PI / 2 + ap; m.armR.rotation.z = -0.12; m.armL.rotation.x = Math.PI / 2 + ap - 0.05; m.armL.rotation.z = 0.55;
     m.gunMount.rotation.x = ap;
   };
   function U(a, b, k) { return a + (b - a) * Math.min(1, k); }

@@ -63,7 +63,7 @@
     skyMat.uniforms.top.value.set(T.top); skyMat.uniforms.hor.value.set(T.fog);
     hemi.intensity = T.hemi; sun.intensity = T.sun; sun.color.set(T.sunCol);
     if (t === 'dusk') sun.position.set(-200, 60, 80); else sun.position.set(120, 200, 60);
-    for (const l of D.lamps) l.visible = t !== 'day';
+    for (const l of D.lamps) l.intensity = t === 'day' ? 0 : 1.6;
   };
 
   /* -------------------------------------------------------------- terrain */
@@ -185,10 +185,17 @@
   function lamp(cx, cz) {
     const gy = D.groundAt(cx, cz), pole = new THREE.Mesh(new THREE.BoxGeometry(0.15, 3.2, 0.15), MAT.wood); pole.position.set(cx, gy + 1.6, cz); scene.add(pole);
     const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), new THREE.MeshBasicMaterial({ color: '#ffcf7a' })); bulb.position.set(cx, gy + 3.3, cz); scene.add(bulb);
-    const light = new THREE.PointLight('#ffb35a', 1.6, 22, 2); light.position.set(cx, gy + 3.2, cz); scene.add(light); D.lamps.push(light);
+    D.lampSpots.push({ x: cx, y: gy + 3.2, z: cz });
     D.lights.push({ x: cx, z: cz, r: 13 });
   }
-  D.lights = [];
+  D.lights = []; D.lampSpots = [];
+  /* only four real lights: they follow whichever lamps are nearest to the camera */
+  for (let i = 0; i < 4; i++) { const l = new THREE.PointLight('#ffb35a', 1.6, 22, 2); l.position.set(0, -100, 0); scene.add(l); D.lamps.push(l); }
+  D.placeLamps = function (x, z) {
+    if (D.time === 'day') return;
+    const near = D.lampSpots.map((p) => [(p.x - x) * (p.x - x) + (p.z - z) * (p.z - z), p]).sort((a, b) => a[0] - b[0]);
+    D.lamps.forEach((l, i) => { const p = near[i] && near[i][1]; if (p) l.position.set(p.x, p.y, p.z); });
+  };
   function banner(cx, cz) { const gy = D.groundAt(cx, cz); const pole = new THREE.Mesh(new THREE.BoxGeometry(0.12, 6, 0.12), MAT.wood); pole.position.set(cx, gy + 3, cz); scene.add(pole); const f = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 2.4), MAT.banner); f.position.set(cx + 0.82, gy + 4.6, cz); scene.add(f); return f; }
 
   /* each camp gets: spots (guard posts), towers (sniper decks), patrol loops, objective props */
