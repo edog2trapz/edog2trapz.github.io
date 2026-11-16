@@ -38,7 +38,7 @@
   const coverImg = (g, cls, hd, eager) => `<img class="${cls || 'cv-img'}" src="${coverURL(g, hd)}" alt="" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.parentNode.classList.remove('cv');this.remove()">`;
   const thumb = (g, cls) => `<span class="ti cv${cls ? ' ' + cls : ''}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}" aria-hidden="true"><i>${g.icon}</i>${coverImg(g)}</span>`;
   const genres = [...new Set(GAMES_.map(g => g.genre))].sort();
-  const GENRE_ICON = { Tycoon:'💼', Shooter:'🎯', Strategy:'♟️', Fighting:'🥊', Arcade:'🕹️', Party:'🎉', RPG:'🗡️', Racing:'🏁', Adventure:'🧭', Action:'💥', Survival:'🔥', Sports:'🏆', Puzzle:'🧩', Horror:'👻', Platformer:'🍄', Simulation:'🛠️', Cooking:'🍳', Parkour:'🧗', Casino:'🎲' };
+  const GENRE_ICON = { Tycoon:'💼', Shooter:'🎯', Strategy:'♟️', Fighting:'🥊', Arcade:'🕹️', Party:'🎉', RPG:'🗡️', Racing:'🏁', Adventure:'🧭', Action:'💥', Survival:'🔥', Sports:'🏆', Puzzle:'🧩', Horror:'👻', Platformer:'🍄', Simulation:'🛠️', Cooking:'🍳', Parkour:'🧗', Casino:'🎲', Rhythm:'🎤' };
   const genreIcon = g => GENRE_ICON[g] || '🎮';
 
   /* ---------- profile ---------- */
