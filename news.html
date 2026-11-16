@@ -69,7 +69,7 @@
     return `<div class="post reveal"><div class="node"><span class="orb">${ICON[String(n.tag || '').toLowerCase()] || '📡'}</span></div>
       <article class="panel"><div class="meta">${n.tag ? `<span class="tg">${esc(n.tag)}</span>` : ''}<span>${esc(fmtDate(n.date))}</span></div>
         <h2>${esc(n.title)}</h2><p>${esc(n.text)}</p>
-        ${g ? `<a class="gl" href="${detailHref(g)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}"><span class="ti">${g.icon}</span><span><b>${esc(g.title)}</b><small>${esc(g.genre)}</small></span><span class="go">›</span></a>` : ''}
+        ${g ? `<a class="gl" href="${detailHref(g)}">${TZ.thumb(g)}<span><b>${esc(g.title)}</b><small>${esc(g.genre)}</small></span><span class="go">›</span></a>` : ''}
       </article></div>`; }).join('')
     : `<div class="panel empty"><div class="big">📡</div><h3>No transmissions yet</h3><p>Check back soon.</p></div>`;
   TZ.reveal();

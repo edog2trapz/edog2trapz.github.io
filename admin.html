@@ -75,7 +75,7 @@
   const gate = (icon, title, text, btn) => { root.innerHTML = `<section class="panel gate"><div style="font-size:48px">${icon}</div><h2>${title}</h2><p>${text}</p>${btn || ''}</section>`; };
   function item(r, approved){
     const g = bySlug(r.game) || { title:r.game, icon:'🎮', colors:['#333','#777'] };
-    return `<article class="panel qi" data-id="${esc(r.id)}"><span class="ti" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}">${g.icon}</span>
+    return `<article class="panel qi" data-id="${esc(r.id)}">${TZ.thumb(g)}
       <div><b>${esc(g.title)}</b> ${stars(r.stars, 13)}<div class="meta">${esc(r.avatar || '')} ${esc(r.name)} · ${esc(fmtDate(r.date))}</div><q>${esc(r.text)}</q></div>
       <div class="acts">${approved ? '<button class="btn sm ghost" data-act="hidden">Hide</button>' : '<button class="btn sm" data-act="approved">✔ Approve</button><button class="btn sm ghost" data-act="hidden">Hide</button>'}<button class="btn sm red" data-act="delete">Delete</button></div></article>`;
   }

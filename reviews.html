@@ -95,7 +95,7 @@
       `<div class="panel empty"><div class="big">💬</div><h3>No reviews ${g ? 'for ' + esc(g.title) + ' ' : ''}yet</h3><p>Be the first. Pick a game, tap the stars and say what you think.</p></div>`;
 
     const ranked = GAMES.map(x => ({ g:x, r:rating(x.slug) })).filter(x => x.r.count).sort((a, b) => b.r.avg - a.r.avg || b.r.count - a.r.count).slice(0, 5);
-    $('#board').innerHTML = `<h3>🏆 Top rated</h3>` + (ranked.length ? ranked.map((x, i) => `<a class="lb" href="${detailHref(x.g)}"><span class="n">${i + 1}</span><span class="ti" style="--c1:${esc(x.g.colors[0])};--c2:${esc(x.g.colors[1])}">${x.g.icon}</span><span><b>${esc(x.g.title)}</b>${stars(x.r.avg, 13)} <small class="muted">${x.r.count}</small></span></a>`).join('')
+    $('#board').innerHTML = `<h3>🏆 Top rated</h3>` + (ranked.length ? ranked.map((x, i) => `<a class="lb" href="${detailHref(x.g)}"><span class="n">${i + 1}</span>${TZ.thumb(x.g)}<span><b>${esc(x.g.title)}</b>${stars(x.r.avg, 13)} <small class="muted">${x.r.count}</small></span></a>`).join('')
       : `<p class="muted" style="margin:0">The leaderboard fills up as games get reviewed.</p>`);
   }
   mountReviewForm($('#write'), { preselect: pre, onDone: paint });

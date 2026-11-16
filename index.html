@@ -50,6 +50,14 @@
 .slide{grid-area:1/1;position:relative;display:flex;align-items:flex-end;padding:40px 44px 70px;color:#fff;overflow:hidden;
   background:linear-gradient(125deg,var(--c1) 0%,var(--c1) 30%,var(--c2) 100%);opacity:0;visibility:hidden;transition:opacity .7s ease,visibility 0s .7s}
 .slide.on{opacity:1;visibility:visible;transition:opacity .7s ease}
+.slide.cv{isolation:isolate;background:#0b0d12}
+.slide:not(.on) .sl-txt{opacity:0;transition:opacity .2s}
+.sl-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;transform-origin:70% 50%}
+.slide.on .sl-bg{animation:kb 12s ease-out both}
+@keyframes kb{from{transform:scale(1.09)}to{transform:scale(1)}}
+.slide.cv .sw,.slide.cv .sl-art,.slide.cv::after{display:none}
+.slide.cv::before{background:linear-gradient(90deg,rgba(5,6,10,.86) 0%,rgba(5,6,10,.6) 34%,rgba(5,6,10,.08) 66%,transparent 80%),linear-gradient(0deg,rgba(5,6,10,.7),transparent 46%)}
+@media (prefers-reduced-motion:reduce){.slide.on .sl-bg{animation:none}}
 .slide::before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(0,0,0,.66) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,0) 75%),linear-gradient(0deg,rgba(0,0,0,.45),transparent 50%)}
 .slide::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(170deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.06) 30%,transparent 30.3%);pointer-events:none}
 .slide .sw{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.9}
@@ -84,8 +92,8 @@
 .stile{flex:1;display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;cursor:pointer;text-align:left;border:1px solid var(--glass-edge);background:var(--glass2);box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;min-height:72px}
 .stile:hover{transform:translateX(-4px)}
 .stile[aria-current="true"]{box-shadow:var(--glow)}
-.stile .ti{width:56px;height:56px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:30px;background:linear-gradient(135deg,var(--c1),var(--c2));position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
-.stile .ti::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.45),transparent 45%)}
+.stile .ti{width:78px;height:48px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,var(--c1),var(--c2));position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 3px 8px rgba(0,0,0,.3)}
+.stile .ti:not(.cv)::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.45),transparent 45%)}
 .stile b{display:block;font-family:var(--display);font-style:italic;font-weight:800;text-transform:uppercase;font-size:15px;line-height:1.15}
 .stile small{color:var(--ink3);font-weight:700;font-size:12.5px}
 @media (max-width:980px){
@@ -97,6 +105,9 @@
 @media (max-width:640px){
   .spot-main{min-height:520px;border-radius:20px}
   .slide{padding:24px 22px 60px;align-items:flex-end}
+  .sl-bg{height:auto;aspect-ratio:16/9;bottom:auto;-webkit-mask:linear-gradient(180deg,#000 62%,transparent);mask:linear-gradient(180deg,#000 62%,transparent)}
+  .slide.cv{padding-top:calc((100vw - 32px) * .42)}
+  .slide.cv::before{background:linear-gradient(0deg,rgba(5,6,10,1) 0%,rgba(5,6,10,.8) 50%,rgba(5,6,10,0) 75%)}
   .sl-art{right:50%;top:22%;width:58%;transform:translate(50%,-50%)}
   .slide::before{background:linear-gradient(0deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.05) 100%)}
   .sl-txt p{font-size:15px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -105,24 +116,41 @@
 }
 
 /* ---- stats ---- */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.stats{display:grid;grid-template-columns:1.9fr 1fr 1fr 1fr;gap:16px;margin-top:20px}
+.daily{text-decoration:none;color:inherit;padding:12px 16px 12px 12px;transition:transform .15s,box-shadow .15s}
+.daily:hover{transform:translateY(-3px);box-shadow:var(--glow)}
+.daily .dthumb .ti{width:104px;height:60px;border-radius:10px;display:grid;place-items:center;font-size:28px;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 0 0 1px rgba(255,255,255,.14),0 4px 12px rgba(0,0,0,.28)}
+.daily .dtxt{min-width:0;flex:1}
+.daily small{display:block;font-size:11.5px;letter-spacing:.14em;color:var(--o-text)}
+.daily strong{display:block;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:20px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily em{display:block;font-style:normal;color:var(--ink3);font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily .dgo{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:14px;background:linear-gradient(180deg,#ffb44d,#f26a00);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 3px 10px rgba(242,106,0,.4)}
 .stat{padding:18px 20px;display:flex;align-items:center;gap:14px}
 .stat .si{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;flex:none;background:linear-gradient(180deg,#ffb44d,#f26a00);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 12px rgba(255,110,0,.35)}
 .stat b{display:block;font-family:var(--display);font-weight:900;font-style:italic;font-size:32px;line-height:1;background:linear-gradient(180deg,#ffb13d,#f25c05);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .stat small{color:var(--ink2);font-weight:800;font-size:13px;letter-spacing:.04em}
-@media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.daily{grid-column:1/-1}}
+@media (max-width:640px){.stats{grid-template-columns:repeat(3,1fr);gap:10px}.stat:not(.daily){flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px}.stat:not(.daily) .si{display:none}.stat small{font-size:11px}.stat b{font-size:26px}}
 @media (max-width:420px){.stat{padding:14px}.stat .si{width:40px;height:40px;font-size:20px}.stat b{font-size:26px}}
 
 /* ---- genres ---- */
 .genres{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
-.gtile{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;text-decoration:none;border:1px solid var(--glass-edge);background:var(--glass2);box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
-.gtile::after{content:"";position:absolute;right:-30px;bottom:-30px;width:90px;height:90px;border-radius:50%;border:2px solid var(--tech);box-shadow:0 0 0 12px rgba(255,138,0,.05)}
+.gtile{position:relative;display:flex;align-items:flex-end;min-height:104px;padding:12px 14px;border-radius:14px;overflow:hidden;isolation:isolate;text-decoration:none;color:#fff;
+  background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
+.gtile .gt-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .6s cubic-bezier(.2,.8,.3,1)}
+.gtile::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(5,6,10,.88) 0%,rgba(5,6,10,.35) 62%,rgba(5,6,10,.1))}
+.gtile::after{content:"";position:absolute;left:14px;top:12px;width:22px;height:3px;border-radius:2px;background:var(--o2,#ff8a00);box-shadow:0 0 10px rgba(255,138,0,.7)}
 .gtile:hover{transform:translateY(-4px);box-shadow:var(--glow)}
-.gtile .orb{width:46px;height:46px;font-size:22px}
-.gtile b{display:block;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:16px}
-.gtile small{color:var(--ink3);font-weight:700}
+.gtile:hover .gt-bg{transform:scale(1.07)}
+.gtile b{display:block;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:16px;line-height:1.1;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.gtile small{color:rgba(255,255,255,.72);font-weight:700;font-size:12.5px}
 
 /* ---- style showcase ---- */
+.pt-intro{display:flex;gap:16px;align-items:center;padding:16px 20px;margin-bottom:16px}
+.pt-intro .pt-ico{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;font-weight:900;color:#06140c;background:linear-gradient(180deg,#9dffc6,#2bd47d);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 14px rgba(30,200,110,.35)}
+.pt-intro b{font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
+.pt-intro p{margin:2px 0 0;color:var(--ink2);font-size:14.5px;line-height:1.5}
+.pt-intro kbd{font:inherit;font-weight:800;font-size:12.5px;padding:1px 7px;border-radius:6px;border:1px solid var(--line);background:var(--glass2)}
 .styles.big{grid-template-columns:repeat(6,1fr);gap:14px}
 .styles.big .sopt{flex-direction:column;align-items:stretch;gap:10px;padding:10px 10px 14px;border-radius:18px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
 .styles.big .sopt:hover{transform:translateY(-4px)}
@@ -162,9 +190,9 @@
   </section>
 
   <section class="stats" aria-label="Site stats">
+    <a class="panel stat daily reveal" id="daily" href="games.html"><span class="dthumb" id="dThumb"></span><span class="dtxt"><small>GAME OF THE DAY</small><strong id="dTitle">…</strong><em id="dSub"></em></span><span class="dgo" aria-hidden="true">▶</span></a>
     <div class="panel stat reveal"><span class="si">🎮</span><span><b data-count id="stGames">0</b><small>GAMES</small></span></div>
     <div class="panel stat reveal"><span class="si">🧩</span><span><b data-count id="stGenres">0</b><small>GENRES</small></span></div>
-    <div class="panel stat reveal"><span class="si">💸</span><span><b><span data-count="100">0</span>%</b><small>FREE FOREVER</small></span></div>
     <div class="panel stat reveal"><span class="si">🏆</span><span><b data-count id="stAch">0</b><small id="stAchL">ACHIEVEMENTS</small></span></div>
   </section>
 
@@ -181,6 +209,12 @@
   <section>
     <div class="sec"><h2>New arrivals</h2><span class="rule"></span><a class="more" href="games.html?sort=new">See all ›</a></div>
     <div class="shelf" id="fresh"></div>
+  </section>
+
+  <section id="friendsSec">
+    <div class="sec"><h2>Play with friends</h2><span class="rule"></span><a class="more" href="games.html?online=1">See all ›</a></div>
+    <div class="pt-intro panel reveal"><span class="pt-ico" aria-hidden="true">⇄</span><div><b>Play Together</b><p>Open one of these games, press <kbd>Play together</kbd> and send the room code. Your friend joins from any browser, on the same Wi-Fi or across the internet. No account needed.</p></div></div>
+    <div class="shelf" id="friends"></div>
   </section>
 
   <section>
@@ -241,8 +275,8 @@
   const DUR = 7000;
   const swoosh = `<svg class="sw" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M-50 420C200 330 380 470 600 380S900 240 1100 260" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="3"/><path d="M-50 450C220 360 400 500 640 410S920 280 1100 300" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="18"/><path d="M-50 470C240 400 430 520 660 440S940 320 1100 330" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/></svg>`;
   $('#spotMain').innerHTML = feat.map((g, i) => { const r = rating(g.slug); return `
-    <div class="slide" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${feat.length}: ${esc(g.title)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}">
-      ${swoosh}
+    <div class="slide cv" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${feat.length}: ${esc(g.title)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}">
+      ${TZ.coverImg(g, 'sl-bg', true, i === 0)}${swoosh}
       <div class="sl-art" aria-hidden="true"><span class="stage"></span><span class="big">${g.icon}</span></div>
       <div class="sl-txt">
         <div class="sl-k">★ Featured${g.isNew ? ' · New' : ''} · ${esc(g.genre)}</div>
@@ -252,7 +286,7 @@
         <div class="row"><a class="btn lg" href="${playHref(g)}" data-play="${esc(g.slug)}">▶ Play now</a><a class="btn lg glass" href="${detailHref(g)}">Details</a></div>
       </div>
     </div>`; }).join('') + `<div class="dots">${feat.map((g, i) => `<button aria-label="Show ${esc(g.title)}" data-dot="${i}" style="--dur:${DUR}ms"><i></i></button>`).join('')}</div>`;
-  $('#spotSide').innerHTML = feat.map((g, i) => `<button class="stile" role="tab" data-go="${i}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}"><span class="ti">${g.icon}</span><span><b>${esc(g.title)}</b><small>${esc(g.genre)}${g.isNew ? ' · New' : ''}</small></span></button>`).join('');
+  $('#spotSide').innerHTML = feat.map((g, i) => `<button class="stile" role="tab" data-go="${i}">${TZ.thumb(g)}<span><b>${esc(g.title)}</b><small>${esc(g.genre)}${g.isNew ? ' · New' : ''}</small></span></button>`).join('');
   function show(i){
     cur = (i + feat.length) % feat.length;
     $$('#spotMain .slide').forEach((s, k) => s.classList.toggle('on', k === cur));
@@ -274,6 +308,11 @@
   show(0);
 
   /* stats */
+  /* game of the day: same pick for everyone on a given date */
+  { const d = TZ.today(); let h = 0; for (const c of d) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    const g = GAMES[h % GAMES.length], el = $('#daily');
+    el.href = playHref(g); el.dataset.play = g.slug; el.setAttribute('aria-label', 'Game of the day: ' + g.title);
+    $('#dThumb').innerHTML = TZ.thumb(g); $('#dTitle').textContent = g.title; $('#dSub').textContent = g.genre + ' · ' + (g.players || 'Free to play'); }
   $('#stGames').dataset.count = GAMES.length;
   $('#stGenres').dataset.count = genres.length;
   if ('IntersectionObserver' in window){
@@ -290,12 +329,14 @@
     $('#resumeSec').hidden = !rec.length;
     $('#resume').innerHTML = rec.map(card).join('');
     $('#fresh').innerHTML = GAMES.filter(g => g.isNew).map(card).join('') || GAMES.slice(0, 6).map(card).join('');
+    $('#friends').innerHTML = GAMES.filter(g => g.online).map(card).join('');
+    $('#friendsSec').hidden = !GAMES.some(g => g.online);
     $('#all').innerHTML = GAMES.map(card).join('');
   }
   shelves();
 
   /* genres */
-  $('#genres').innerHTML = genres.map(g => { const n = GAMES.filter(x => x.genre === g).length; return `<a class="gtile reveal" href="games.html?genre=${encodeURIComponent(g)}"><span class="orb">${genreIcon(g)}</span><span><b>${esc(g)}</b><small>${n} game${n === 1 ? '' : 's'}</small></span></a>`; }).join('');
+  $('#genres').innerHTML = genres.map(g => { const list = GAMES.filter(x => x.genre === g), n = list.length, lead = list.find(x => x.featured) || list[0]; return `<a class="gtile cv reveal" href="games.html?genre=${encodeURIComponent(g)}" style="--c1:${esc(lead.colors[0])};--c2:${esc(lead.colors[1])}">${TZ.coverImg(lead, 'gt-bg')}<span><b>${esc(g)}</b><small>${n} game${n === 1 ? '' : 's'}</small></span></a>`; }).join('');
 
   /* reviews */
   function reviews(){

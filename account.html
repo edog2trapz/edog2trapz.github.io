@@ -294,7 +294,7 @@ details.alt summary{cursor:pointer;font-weight:800;color:var(--o-text);font-size
     paintSync(account.sync());
     account.myReviews().then(list => {
       $('#myrv').innerHTML = list.length ? list.sort((a, b) => String(b.date).localeCompare(String(a.date))).map(r => { const g = bySlug(r.game) || { title:r.game, icon:'🎮', colors:['#333','#777'] };
-        return `<div class="myrv"><span class="ti" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}">${g.icon}</span><span><b>${esc(g.title)} · ${'★'.repeat(r.stars)}</b><small>${esc(r.text)}</small></span><span class="st ${r.status === 'approved' ? 'live' : r.status === 'hidden' ? 'hidden' : 'pending'}">${r.status === 'approved' ? 'Live' : r.status === 'hidden' ? 'Hidden' : 'Pending'}</span></div>`; }).join('')
+        return `<div class="myrv">${TZ.thumb(g)}<span><b>${esc(g.title)} · ${'★'.repeat(r.stars)}</b><small>${esc(r.text)}</small></span><span class="st ${r.status === 'approved' ? 'live' : r.status === 'hidden' ? 'hidden' : 'pending'}">${r.status === 'approved' ? 'Live' : r.status === 'hidden' ? 'Hidden' : 'Pending'}</span></div>`; }).join('')
         : `<p class="muted" style="margin:0 0 12px">No reviews yet.</p><a class="btn sm" href="reviews.html#write">Write one</a>`;
     }).catch(() => { $('#myrv').innerHTML = '<p class="muted" style="margin:0">Couldn\'t load your reviews right now.</p>'; });
     $('#del').addEventListener('click', async () => {

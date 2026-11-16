@@ -32,6 +32,11 @@
   const bySlug = s => GAMES_.find(g => g.slug === s);
   const detailHref = g => BASE + 'game.html?g=' + encodeURIComponent(g.slug);
   const playHref = g => BASE + 'games/' + encodeURIComponent(g.slug) + '/index.html';
+  /* real cover art lives in assets/covers/<slug>.webp (800 wide) and assets/covers/hd/ (1280 wide).
+     Every image sits on top of the old gradient + emoji, so a missing file just falls back to that. */
+  const coverURL = (g, hd) => BASE + 'assets/covers/' + (hd ? 'hd/' : '') + encodeURIComponent(g.slug) + '.webp';
+  const coverImg = (g, cls, hd, eager) => `<img class="${cls || 'cv-img'}" src="${coverURL(g, hd)}" alt="" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.parentNode.classList.remove('cv');this.remove()">`;
+  const thumb = (g, cls) => `<span class="ti cv${cls ? ' ' + cls : ''}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}" aria-hidden="true"><i>${g.icon}</i>${coverImg(g)}</span>`;
   const genres = [...new Set(GAMES_.map(g => g.genre))].sort();
   const GENRE_ICON = { Tycoon:'💼', Shooter:'🎯', Strategy:'♟️', Fighting:'🥊', Arcade:'🕹️', Party:'🎉', RPG:'🗡️', Racing:'🏁', Adventure:'🧭', Action:'💥', Survival:'🔥', Sports:'🏆', Puzzle:'🧩', Horror:'👻', Platformer:'🍄', Simulation:'🛠️', Cooking:'🍳', Parkour:'🧗', Casino:'🎲' };
   const genreIcon = g => GENRE_ICON[g] || '🎮';
@@ -345,7 +350,7 @@
 <aside class="guide panel" id="guide" role="dialog" aria-modal="true" aria-label="Guide" style="visibility:hidden"></aside>
 <div class="toasts" id="tzToasts" aria-live="polite"></div>
 <div class="launch" id="tzLaunch" role="status" aria-live="polite"><div>
-  <div class="stage"><div class="ring"></div><div class="core" id="lCore"><span id="lIcon"></span></div></div>
+  <div class="stage"><div class="ring"></div><div class="core" id="lCore"><span id="lIcon"></span><img id="lCover" alt="" hidden onload="this.hidden=false" onerror="this.hidden=true"></div></div>
   <h2 id="lTitle"></h2><p id="lStat">Loading</p><div class="pbar"><i id="lBar"></i></div></div></div>`);
     paintBadge();
   }
@@ -360,7 +365,7 @@
   /* ---------- guide panel (press G) ---------- */
   let guideOpen = false, guideTab = 'ach', lastFocus = null;
   function gameRow(g, sub){
-    return `<a class="gl" href="${detailHref(g)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}"><span class="ti">${g.icon}</span><span><b>${esc(g.title)}</b><small>${esc(sub)}</small></span><span class="go">›</span></a>`;
+    return `<a class="gl" href="${detailHref(g)}">${thumb(g)}<span><b>${esc(g.title)}</b><small>${esc(sub)}</small></span><span class="go">›</span></a>`;
   }
   function acctRow(){
     const u = account.user();
@@ -482,7 +487,7 @@
     sfx('launch');
     const L = $('#tzLaunch');
     $('#lCore').style.cssText = `--c1:${g.colors[0]};--c2:${g.colors[1]}`;
-    $('#lIcon').textContent = g.icon; $('#lTitle').textContent = g.title; $('#lStat').textContent = opts.random ? 'Rolling the dice…' : 'Loading';
+    $('#lIcon').textContent = g.icon; const lc = $('#lCover'); lc.hidden = true; lc.src = coverURL(g); $('#lTitle').textContent = g.title; $('#lStat').textContent = opts.random ? 'Rolling the dice…' : 'Loading';
     $('#lBar').style.width = '0'; L.classList.add('on');
     requestAnimationFrame(() => requestAnimationFrame(() => { $('#lBar').style.width = '100%'; }));
     if (account.user()) $('#lStat').textContent = 'Syncing your save…';
@@ -496,11 +501,11 @@
   function card(g, i){
     const r = rating(g.slug), fav = isFav(g.slug), n = plays()[g.slug] || 0;
     return `<article class="gcard" style="animation-delay:${Math.min(i || 0, 14) * 45}ms">
-  <a class="gc-cover" href="${detailHref(g)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}" aria-label="${esc(g.title)}: details and reviews">
-    ${g.isNew ? '<span class="badge-new">NEW</span>' : ''}<span class="gc-icon" aria-hidden="true">${g.icon}</span><span class="gc-genre">${esc(g.genre)}</span></a>
+  <a class="gc-cover cv" href="${detailHref(g)}" style="--c1:${esc(g.colors[0])};--c2:${esc(g.colors[1])}" aria-label="${esc(g.title)}: details and reviews">
+    <span class="gc-icon" aria-hidden="true">${g.icon}</span>${coverImg(g)}${g.isNew ? '<span class="badge-new">NEW</span>' : ''}<span class="gc-genre">${esc(g.genre)}</span>${g.online ? '<span class="badge-on" title="Play Together: online or same Wi-Fi">⇄ Online</span>' : ''}</a>
   <button class="fav" data-fav="${esc(g.slug)}" aria-pressed="${fav}" aria-label="Favorite ${esc(g.title)}" title="Favorite">${fav ? '♥' : '♡'}</button>
   <div class="gc-body"><h3><a href="${detailHref(g)}">${esc(g.title)}</a></h3>
-    <div class="rate">${r.count ? `${stars(r.avg)}<span>${r.avg.toFixed(1)} · ${r.count} review${r.count === 1 ? '' : 's'}</span>` : '<span>No reviews yet</span>'}</div>
+    ${r.count ? `<div class="rate">${stars(r.avg)}<span>${r.avg.toFixed(1)} · ${r.count} review${r.count === 1 ? '' : 's'}</span></div>` : ''}
     <p>${esc(g.desc)}</p>
     <div class="gc-foot"><span class="pl">${n ? `Played ${n}×` : esc(g.players || 'Free to play')}</span><a class="btn sm" href="${playHref(g)}" data-play="${esc(g.slug)}">▶ Play</a></div>
   </div></article>`;
@@ -712,7 +717,7 @@
   requestAnimationFrame(() => reveal());
 
   window.TZ = {
-    BASE, $, $$, esc, get, set, today, reduce, GAMES: GAMES_, REVIEWS: REVIEWS_, SITE, EMAIL, genres, genreIcon, bySlug, detailHref, playHref,
+    BASE, $, $$, esc, get, set, today, reduce, GAMES: GAMES_, REVIEWS: REVIEWS_, SITE, EMAIL, genres, genreIcon, bySlug, detailHref, playHref, coverURL, coverImg, thumb,
     profile: () => profile, plays, recent, favs, isFav, toggleFav, myReviews, allReviews, rating, stars, fmtDate,
     card, reviewCard, mountReviewForm, sendToCreator, mailto, launch, randomGame, unlock, toast, confetti, sfx, reveal, countUp,
     openGuide, score, level, ACH, unlocked, STYLES, stylesHTML, setTheme, themePref,

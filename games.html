@@ -59,6 +59,7 @@
         <option value="played">Sort: Most played by me</option>
       </select>
       <button class="chip" id="favOnly" aria-pressed="false">♥ Favorites</button>
+      <button class="chip" id="onOnly" aria-pressed="false" title="Games with Play Together: online or same Wi-Fi">⇄ Online</button>
       <button class="btn" data-random>🎲 Random</button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Genre"></div>
@@ -78,7 +79,7 @@
   let genre = genres.includes(P.get('genre')) ? P.get('genre') : 'All';
   let sort = P.get('sort') || 'featured';
   let query = P.get('q') || '';
-  let favOnly = P.get('fav') === '1';
+  let favOnly = P.get('fav') === '1', onOnly = P.get('online') === '1';
   $('#q').value = query; $('#sort').value = [...$('#sort').options].some(o => o.value === sort) ? sort : 'featured';
   if (P.get('focus')) setTimeout(() => $('#q').focus(), 300);
 
@@ -88,6 +89,7 @@
     if (sort !== 'featured') u.set('sort', sort);
     if (query.trim()) u.set('q', query.trim());
     if (favOnly) u.set('fav', '1');
+    if (onOnly) u.set('online', '1');
     history.replaceState(null, '', location.pathname + (u.toString() ? '?' + u : ''));
   }
   function render(){
@@ -96,18 +98,19 @@
       return `<button class="chip${g === genre ? ' on' : ''}" data-g="${esc(g)}">${g === 'All' ? '✨' : genreIcon(g)} ${esc(g)} <small>${n}</small></button>`;
     }).join('');
     $('#favOnly').setAttribute('aria-pressed', String(favOnly));
+    $('#onOnly').setAttribute('aria-pressed', String(onOnly));
     const q = query.trim().toLowerCase(), f = favs(), p = plays();
     let list = GAMES.map((g, i) => ({ g, i })).filter(({ g }) =>
-      (genre === 'All' || g.genre === genre) && (!favOnly || f.includes(g.slug)) &&
+      (genre === 'All' || g.genre === genre) && (!favOnly || f.includes(g.slug)) && (!onOnly || g.online) &&
       (!q || (g.title + ' ' + g.desc + ' ' + g.genre).toLowerCase().includes(q)));
     if (sort === 'az') list.sort((a, b) => a.g.title.localeCompare(b.g.title));
     else if (sort === 'new') list.sort((a, b) => (!!b.g.isNew - !!a.g.isNew) || a.i - b.i);
     else if (sort === 'rated') list.sort((a, b) => (rating(b.g.slug).avg - rating(a.g.slug).avg) || (rating(b.g.slug).count - rating(a.g.slug).count) || a.i - b.i);
     else if (sort === 'played') list.sort((a, b) => ((p[b.g.slug] || 0) - (p[a.g.slug] || 0)) || a.i - b.i);
     else list.sort((a, b) => (!!b.g.featured - !!a.g.featured) || a.i - b.i);
-    const filtered = genre !== 'All' || q || favOnly;
+    const filtered = genre !== 'All' || q || favOnly || onOnly;
     $('#resTitle').innerHTML = filtered ? `<span>${list.length}</span> result${list.length === 1 ? '' : 's'}` : `All <span>${GAMES.length}</span> games`;
-    $('#resNote').textContent = [q && `matching "${query.trim()}"`, genre !== 'All' && `in ${genre}`, favOnly && 'in your favorites'].filter(Boolean).join(' · ');
+    $('#resNote').textContent = [q && `matching "${query.trim()}"`, genre !== 'All' && `in ${genre}`, favOnly && 'in your favorites', onOnly && 'with online play'].filter(Boolean).join(' · ');
     $('#grid').innerHTML = list.length ? list.map(({ g }, i) => card(g, i)).join('') :
       `<div class="panel empty" style="grid-column:1/-1"><div class="big">${favOnly && !f.length ? '♡' : '🔍'}</div><h3>${favOnly && !f.length ? 'No favorites yet' : 'No games found'}</h3>
        <p>${favOnly && !f.length ? 'Tap the ♡ on any game card to save it here.' : 'Nothing matches that search. Try another word, or ask 2trapz to make it.'}</p>
@@ -118,8 +121,9 @@
   $('#q').addEventListener('input', e => { query = e.target.value; render(); });
   $('#sort').addEventListener('change', e => { sort = e.target.value; render(); });
   $('#favOnly').addEventListener('click', () => { favOnly = !favOnly; render(); });
+  $('#onOnly').addEventListener('click', () => { onOnly = !onOnly; render(); });
   document.addEventListener('click', e => {
-    if (e.target.closest('#clear')){ genre = 'All'; query = ''; favOnly = false; $('#q').value = ''; render(); }
+    if (e.target.closest('#clear')){ genre = 'All'; query = ''; favOnly = false; onOnly = false; $('#q').value = ''; render(); }
     if (favOnly && e.target.closest('[data-fav]')) setTimeout(render, 250);
   });
   render();
