@@ -70,6 +70,8 @@ You only do this once.
    - `isNew:true` shows a red NEW badge and puts it in **New arrivals**. Delete it when the game isn't new any more.
    - `featured:true` puts it in the big spotlight at the top of the homepage. Keep about 5 featured games.
    - A new `genre` gets its own filter and genre tile automatically.
+   - `online:true` puts it on the **Play with friends** shelf with an Online badge. Use it for games that have Play Together or online rooms.
+   - **Cover art:** save a 16:9 screenshot of the game as `assets/covers/my-new-game.webp` (800 wide) and `assets/covers/hd/my-new-game.webp` (1280 wide). Without one, the card shows the emoji on the gradient.
 4. Upload the new game folder and the changed `assets/data.js` to GitHub (**Add file → Upload files**, then **Commit changes**).
 
 ## Remove a game
@@ -165,7 +167,9 @@ Your AdSense code (`ca-pub-4591809197740975`) is in the `<head>` of every page e
 - **Launch screen, startup intro and sounds.** Sounds can be turned off in the Guide's settings.
 - **Accounts** (once turned on): username + password sign-up, Player ID card, cloud saves, the Ranks leaderboard and an admin console.
 - **Memory Card** (account page): save progress to a file or code and load it on another device. Works without accounts.
-- **Friends + Orb Four** (once accounts are on): add friends, see who's online, send game invites, and play live Orb Four matches. Orb Four also has vs-CPU (4 difficulties) and 2-players-on-one-screen modes that work for everyone.
+- **Friends + Orb Four** (once accounts are on): add friends, see who's online, send game invites, and play live Orb Four matches. Orb Four also has vs-CPU (4 difficulties), 2-players-on-one-screen and online rooms with a four-letter code, which work for everyone without accounts.
+- **Play Together:** several games (the ones with an Online badge) let a friend join from their own device with a room code, over the internet or the same Wi-Fi. No account needed.
+- **Controllers:** many games work with a gamepad. A game can add support by loading `assets/padmap.js`, which handles the controller and lets the d-pad and A button drive any menu.
 - **Shortcuts:** **/** search, **R** random game, **S** switch style, **G** Guide, **Esc** close.
 - **Secret:** there is a classic cheat code. On a phone, tap the orange 2t logo 7 times on the homepage.
 
