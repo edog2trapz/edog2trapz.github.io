@@ -190,3 +190,4 @@ That's it: every change you make goes live with two clicks.
 - Breachline plays against bots right on the site. Its online and LAN mode needs the separate Breachline server (`node server.js`), which GitHub Pages can't run.
 - Besieged plays against bots anywhere, but its online matches only work inside Claude. It loads its 3D engine from the internet when it starts, so it needs a connection.
 - Dead Rude and Dachy also load their 3D engine from the internet when they start, so they need a connection.
+- Dead Rude is built from source parts in `games/dead-rude/dev/` (edit those, then run `bash games/dead-rude/dev/build.sh`). Its design notes are an Obsidian vault in `games/dead-rude/notes/`: open that folder in Obsidian with "Open folder as vault".
