@@ -12,7 +12,8 @@
 *{box-sizing:border-box}[hidden]{display:none!important}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--sans);user-select:none;-webkit-user-select:none;touch-action:none}
 #game{position:fixed;inset:0}#game canvas{display:block;width:100%;height:100%}
-#game.nv canvas{filter:sepia(1) hue-rotate(62deg) saturate(3.4) contrast(1.15)}
+#game.nv canvas{filter:grayscale(1) sepia(1) hue-rotate(62deg) saturate(2.6) brightness(1.15) contrast(1.25)}
+#game.nv::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px),radial-gradient(circle,transparent 55%,rgba(0,0,0,.55))}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 kbd{font:600 11px var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;padding:0 5px;background:rgba(255,255,255,.05)}
 #hud{position:fixed;inset:0;pointer-events:none}

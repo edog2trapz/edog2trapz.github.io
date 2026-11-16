@@ -316,7 +316,6 @@
       const a = Math.atan2(-(P.pos.x - g.pos.x), -(P.pos.z - g.pos.z)), behind = Math.abs(angDiff(g.yaw, a)) > 1.7;
       if (g.state !== 'combat' && (behind || g.aware < 0.5)) return { label: 'Knock out', go: () => { knockout(g); } };
     }
-    for (const h of L.hatches) if (!NW.indoor(h.cx, h.cy) || near(h.x, h.z, 1.1)) { if (near(h.x, h.z, 1.1)) return { label: P.crouch ? 'Climb into the vent' : 'Climb into the vent', go: () => { P.inDuct = true; P.pos.set(h.x, NW.DUCT_Y, h.z); P.crouch = true; NW.audio.play('vent'); } }; }
     for (const it of L.items) {
       if (it.done || it.t === 'slat' || !near(it.x, it.z, it.t === 'terminal' || it.t === 'safe' ? 1.9 : it.t === 'panel' || it.t === 'alarm' ? 1.8 : 1.2)) continue;
       if (it.t === 'doc') return { label: 'Take the document', go: () => NW.take(it) };
@@ -332,6 +331,7 @@
       if (d.locked && !P.hasKey) return { label: 'Locked: needs a keycard', go: () => NW.audio.play('dry') };
       return { label: d.want ? 'Close the door' : 'Open the door', go: () => { d.want = d.want ? 0 : 1; d.player = d.want; d.hold = 0; if (d.locked) { d.strip.material.color.set('#3ddc84'); } NW.audio.play('door'); NW.noise(d, 2.5); } };
     }
+    for (const h of L.hatches) if (near(h.x, h.z, 1.1)) return { label: 'Climb into the vent', go: () => { P.inDuct = true; P.pos.set(h.x, NW.DUCT_Y, h.z); P.crouch = true; NW.audio.play('vent'); } };
     return null;
   }
 

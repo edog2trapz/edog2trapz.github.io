@@ -222,7 +222,7 @@
       updateFx(dt);
     }
     const nv = P.nv && NW.mode === 'play';
-    NW.renderer.toneMappingExposure = nv ? 5 : 1; $('game').className = nv ? 'nv' : '';
+    NW.renderer.toneMappingExposure = nv ? 2.3 : 1; $('game').className = nv ? 'nv' : '';
     NW.renderer.render(scene, NW.camera);
   }
   NW.build(NW.LEVELS[0]); NW.spawnGuards(NW.LEVELS[0]);

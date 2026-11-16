@@ -133,12 +133,18 @@
     for (let y = 0; y < H; y++) { let x = 0; while (x < W) { if (L.map[y][x] === 'R') { let e = x; while (e < W && L.map[y][e] === 'R') e++; const len = (e - x) * CS; const m = prop('#5a2620', len - 0.3, 2.8, CS * 0.9, (x * CS + len / 2), 1.5, (y + 0.5) * CS, x, y); L.cars.push(m); for (let k = x; k < e; k += 2) prop('#1d1f22', 0.9, 0.5, CS * 0.95, (k + 0.6) * CS, 0.25, (y + 0.5) * CS, k, y); x = e; } else x++; } }
     /* vents above the ceiling */
     for (const pl of lv.vents) for (let i = 0; i < pl.length - 1; i++) { let [x, y] = pl[i]; const [x2, y2] = pl[i + 1]; for (;;) { L.ducts.add(x + ',' + y); if (x === x2 && y === y2) break; x += Math.sign(x2 - x); y += Math.sign(y2 - y); } }
-    const ductMat = new THREE.MeshLambertMaterial({ color: '#4c535b' });
+    const ductMat = new THREE.MeshLambertMaterial({ color: '#2f343a' }), ribMat = new THREE.MeshLambertMaterial({ color: '#5a626b' });
     for (const k of L.ducts) {
       const [x, y] = k.split(',').map(Number), X = (x + 0.5) * CS, Z = (y + 0.5) * CS, isH = L.map[y][x] === 'H';
       const fl = new THREE.Mesh(box, isH ? new THREE.MeshBasicMaterial({ color: '#141a20' }) : ductMat); fl.scale.set(CS, 0.04, CS); fl.position.set(X, DUCT_Y - 0.02, Z); L.group.add(fl);
       const rf = new THREE.Mesh(box, ductMat); rf.scale.set(CS, 0.04, CS); rf.position.set(X, DUCT_Y + 1, Z); L.group.add(rf);
       for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { if (L.ducts.has((x + dx) + ',' + (y + dy))) continue; const s = new THREE.Mesh(box, ductMat); s.scale.set(dx ? 0.04 : CS, 1, dy ? 0.04 : CS); s.position.set(X + dx * CS / 2, DUCT_Y + 0.5, Z + dy * CS / 2); L.group.add(s); }
+      /* ribs every half cell give the duct some depth */
+      for (const o of [-CS / 4, CS / 4]) {
+        const along = L.ducts.has((x + 1) + ',' + y) || L.ducts.has((x - 1) + ',' + y);
+        const rib = new THREE.Mesh(box, ribMat); rib.scale.set(along ? 0.08 : CS, 0.06, along ? CS : 0.08); rib.position.set(X + (along ? o : 0), DUCT_Y + 0.97, Z + (along ? 0 : o)); L.group.add(rib);
+        for (const sd of [-1, 1]) { const r2 = new THREE.Mesh(box, ribMat); r2.scale.set(along ? 0.08 : 0.06, 1, along ? 0.06 : 0.08); r2.position.set(X + (along ? o : sd * (CS / 2 - 0.05)), DUCT_Y + 0.5, Z + (along ? sd * (CS / 2 - 0.05) : o)); L.group.add(r2); }
+      }
       /* a little light leaks up through slats */
       if (!isH && (x + y) % 3 === 0) { const sl = new THREE.Mesh(box, MAT.glow('#3a3020')); sl.scale.set(0.8, 0.01, 0.3); sl.position.set(X, DUCT_Y + 0.01, Z); L.group.add(sl); L.items.push({ t: 'slat', cx: x, cy: y, mesh: sl }); }
     }
