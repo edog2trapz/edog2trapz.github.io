@@ -104,6 +104,18 @@ kbd {
 .byline { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
 .byline b { color: var(--foam); }
 .lock { font-size: 13px; color: var(--sun); }
+.lvls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.lv { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,0.06); color: var(--foam); font: 700 14px var(--body); cursor: pointer; text-align: left; }
+.lv:hover:not(:disabled) { background: rgba(255,255,255,0.14); }
+.lv:disabled { opacity: 0.4; cursor: not-allowed; }
+.lv b { font: 400 15px var(--display); letter-spacing: .01em; }
+.lv .st { color: var(--sun); letter-spacing: 1px; white-space: nowrap; }
+.lv .st i { font-style: normal; color: rgba(255,255,255,0.25); }
+.lv:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.kicker { font: 800 11px var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 4px 0 -2px; }
+#dashBtn { position: fixed; right: 18px; bottom: 22px; width: 86px; height: 86px; border-radius: 50%; border: 0; border-bottom: 5px solid #b04a00; background: var(--clown); color: #fff; font: 22px var(--display); box-shadow: 0 6px 18px rgba(0,0,0,.35); touch-action: manipulation; z-index: 6; }
+#dashBtn.cd { filter: grayscale(.7) brightness(.8); }
+@media (max-width: 520px) { .lvls { grid-template-columns: 1fr; } }
 
 #credits { position: fixed; inset: 0; z-index: 12; overflow: hidden; cursor: pointer; }
 #roll {
@@ -172,10 +184,14 @@ kbd {
     <p>Nemo got scooped up by a diver and carried off to Sydney. You are his dad. Cross the reef, the jellyfish, the abyss and the harbour to bring him home.</p>
     <div class="row">
       <button class="btn" id="btnPlay">Start swimming</button>
-      <button class="btn alt" id="btnJJ">Jumping Jacks Mode</button>
+      <button class="btn alt" id="btnEndless">Open Ocean</button>
+      <button class="btn ghost" id="btnJJ">Jumping Jacks Mode</button>
     </div>
     <div class="lock" id="jjLock">Jumping Jacks Mode unlocks when you beat the game.</div>
-    <div class="keys">Swim with <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>. On a phone, hold and drag. Grab bubbles, dodge everything else. <kbd>P</kbd> pauses.</div>
+    <div class="lock" id="endLock"></div>
+    <div class="kicker">Levels</div>
+    <div class="lvls" id="lvlSel"></div>
+    <div class="keys">Swim with <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, dash with <kbd>Space</kbd> or <kbd>Shift</kbd>. Dash right through a hazard for a Slick bonus. Chain bubbles for a combo, and grab shells for a shield. On a phone, hold and drag and tap DASH. Gamepads work too. <kbd>P</kbd> pauses.</div>
     <div class="byline">Idea by <b>Thomas</b> · Prompted by <b>edog2trapz</b> · Made by <b>Claude</b></div>
   </div>
 </section>
@@ -227,6 +243,8 @@ kbd {
 <section id="credits" hidden><div id="roll"></div></section>
 <div id="creditsHint" hidden>Hold anywhere to fast-forward <button class="chip" id="btnSkip">Skip</button></div>
 
+<button id="dashBtn" hidden aria-label="Dash">DASH</button>
+
 <div id="jjui" hidden>
   <button id="jackBtn">JACK!</button>
   <small>Tap, or press <kbd>Space</kbd>, once for every jumping jack. Honor system.</small>
@@ -250,6 +268,10 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
 };
 let jjUnlocked = store.get("findnemo.jj") === "1";
+let bestEndless = +store.get("findnemo.best") || 0;
+let reached = Math.max(+store.get("findnemo.reached") || 0, jjUnlocked ? 4 : 0);
+let starsSaved = (() => { try { const a = JSON.parse(store.get("findnemo.stars") || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } })();
+const coarse = matchMedia("(pointer: coarse)").matches;
 
 /* ---------- canvas sizing ---------- */
 let W = 900, H = 560, S = 1, DPR = 1;
@@ -283,7 +305,13 @@ function tone(f, d = 0.12, type = "sine", v = 0.12, when = 0, slide = 0) {
   o.start(t); o.stop(t + d + 0.05);
 }
 const sfx = {
-  bubble() { tone(660, 0.09, "sine", 0.1, 0, 1.8); },
+  bubble(n = 0) { tone(660 * Math.pow(1.035, Math.min(n, 24)), 0.09, "sine", 0.1, 0, 1.8); },
+  dash() { tone(260, 0.18, "sine", 0.09, 0, 2.6); tone(1400, 0.08, "triangle", 0.03, 0.02, 0.5); },
+  slick() { tone(1175, 0.1, "triangle", 0.09); tone(1568, 0.14, "triangle", 0.08, 0.07); },
+  close() { tone(988, 0.08, "sine", 0.07, 0, 1.25); },
+  pick() { [523, 784, 1047].forEach((f, i) => tone(f, 0.12, "triangle", 0.1, i * 0.06)); },
+  shield() { tone(330, 0.32, "triangle", 0.12, 0, 0.45); tone(1200, 0.12, "sine", 0.05, 0, 0.5); },
+  zone() { [392, 494, 587, 784].forEach((f, i) => tone(f, 0.16, "sine", 0.08, i * 0.08)); },
   hit() { tone(180, 0.35, "sawtooth", 0.1, 0, 0.4); tone(90, 0.3, "square", 0.05); },
   jack() { tone(523, 0.07, "triangle", 0.12); tone(784, 0.09, "triangle", 0.08, 0.06); },
   gull() { tone(1200, 0.18, "square", 0.04, 0, 0.6); },
@@ -332,6 +360,7 @@ const KEYMAP = { ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "ri
 const ptr = { down: false, x: 0, y: 0, touch: false };
 addEventListener("keydown", (e) => {
   if (G.mode === "jj" && (e.code === "Space" || e.code === "Enter" || e.code === "ArrowUp")) { e.preventDefault(); if (!e.repeat) jack(); return; }
+  if ((e.code === "Space" || e.code === "ShiftLeft" || e.code === "ShiftRight" || e.code === "KeyJ") && G.mode === "play") { e.preventDefault(); if (!e.repeat) dash(); return; }
   if (KEYMAP[e.code]) { keys[KEYMAP[e.code]] = true; if (G.mode === "play") e.preventDefault(); }
   if ((e.code === "KeyP" || e.code === "Escape") && G.mode === "play") togglePause();
   if (e.code === "Escape" && G.mode === "jj") toMenu();
@@ -341,12 +370,14 @@ addEventListener("blur", () => { for (const k in keys) keys[k] = false; ptr.down
 function toWorld(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / S, (e.clientY - r.top) / S]; }
 cv.addEventListener("pointerdown", (e) => {
   if (G.mode === "jj") { jack(); return; }
-  ptr.down = true; ptr.touch = e.pointerType !== "mouse";
+  if (ptr.down && ptr.id !== e.pointerId && G.mode === "play") { dash(); return; } /* second finger dashes */
+  ptr.down = true; ptr.id = e.pointerId; ptr.touch = e.pointerType !== "mouse";
   [ptr.x, ptr.y] = toWorld(e); if (ptr.touch) ptr.y -= 40;
   try { cv.setPointerCapture(e.pointerId); } catch (_) {}
 });
 cv.addEventListener("pointermove", (e) => { if (!ptr.down) return; [ptr.x, ptr.y] = toWorld(e); if (ptr.touch) ptr.y -= 40; });
-const up = () => { ptr.down = false; };
+const up = (e) => { if (e && ptr.id !== undefined && e.pointerId !== ptr.id) return; ptr.down = false; };
+$("dashBtn").addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); dash(); });
 cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
 
 /* ---------- game state ---------- */
@@ -361,15 +392,19 @@ const G = {
   ending: false, nemo: null, winT: 0,
   stats: null,
   jj: null,
+  dashT: 0, dashCd: 0, combo: 0, comboT: 0, shield: 0, pickT: 9, flash: 0,
+  lv: { spawned: 0, got: 0, hits: 0 }, lastStars: 0, endless: null,
 };
+const mult = () => Math.min(5, 1 + Math.floor(G.combo / 6));
+function floatText(x, y, text, color = "#fff", size = 18) { G.parts.push({ x, y, vx: 0, vy: -46, life: 1.1, max: 1.1, kind: "txt", text, color, size }); }
 function newStats(mode) { return { mode, bubbles: 0, hits: 0, time: 0, jacks: 0, sharks: 0 }; }
 
 function show(id, on) { $(id).hidden = !on; }
-function hideAll() { ["menu", "card", "over", "paused", "after", "credits", "creditsHint", "jjui"].forEach((id) => show(id, false)); show("btnPause", false); }
+function hideAll() { ["menu", "card", "over", "paused", "after", "credits", "creditsHint", "jjui", "dashBtn"].forEach((id) => show(id, false)); show("btnPause", false); }
 
 function toMenu() {
   stopTune(); hideAll();
-  G.mode = "menu"; G.paused = false; G.lvl = 0; G.ents = []; G.parts = []; G.ending = false; G.nemo = null;
+  G.mode = "menu"; G.paused = false; G.lvl = 0; G.ents = []; G.parts = []; G.ending = false; G.nemo = null; G.endless = null;
   G.speed = 60; G.say = null;
   G.p.x = W * 0.42; G.p.y = H * 0.55;
   refreshMenu(); show("menu", true);
@@ -377,21 +412,58 @@ function toMenu() {
 function refreshMenu() {
   $("btnJJ").disabled = !jjUnlocked;
   $("jjLock").hidden = jjUnlocked;
+  $("btnEndless").disabled = reached < 1;
+  $("endLock").textContent = reached < 1 ? "Open Ocean unlocks when you finish level 1." : (bestEndless ? `Open Ocean best: ${bestEndless.toLocaleString()} points` : "Open Ocean: endless swim through every zone. How far can you get?");
+  $("lvlSel").innerHTML = LEVELS.map((L, i) => { const st = starsSaved[i] || 0;
+    return `<button class="lv" data-lv="${i}" ${i > reached ? "disabled" : ""}><b>${i + 1}. ${L.name}</b><span class="st">${"★".repeat(st)}<i>${"★".repeat(3 - st)}</i></span></button>`; }).join("");
 }
+$("lvlSel").addEventListener("click", (e) => { const b = e.target.closest("[data-lv]"); if (!b || b.disabled) return; ac(); G.score = 0; G.stats = newStats("story"); G.endless = null; beginLevel(+b.dataset.lv); });
 
 function startStory() {
   ac();
-  G.score = 0; G.stats = newStats("story");
+  G.score = 0; G.stats = newStats("story"); G.endless = null;
   beginLevel(0);
 }
-function beginLevel(i) {
-  hideAll();
+function resetRun(i) {
   G.lvl = i; G.dist = 0; G.speed = LEVELS[i].speed * 0.4; G.hearts = 3; G.inv = 0;
   G.ents = []; G.parts = []; G.timers = {}; G.ending = false; G.nemo = null;
-  G.levelStartScore = G.score;
+  G.dashT = 0; G.dashCd = 0; G.combo = 0; G.comboT = 0; G.shield = 0; G.pickT = rand(7, 11);
+  G.lv = { spawned: 0, got: 0, hits: 0 };
   G.p.x = 200; G.p.y = H * 0.5; G.p.vx = G.p.vy = 0; G.p.face = 1;
   G.d.x = 120; G.d.y = H * 0.4;
   G.say = null; G.sayNext = 3;
+}
+/* ---------- open ocean (endless) ---------- */
+const ZONES = [
+  { lvl: 0, name: "The Drop-Off", spawn: { hook: 2.4, barra: 3.2, bubbles: 2.0 } },
+  { lvl: 1, name: "Jellyfish Forest", spawn: { jelly: 0.62, barra: 5.5, bubbles: 2.2 } },
+  { lvl: 2, name: "The Abyss", spawn: { angler: 2.0, hook: 4.4, bubbles: 2.2 } },
+  { lvl: 3, name: "The Harbour", spawn: { gull: 1.6, hook: 3.4, barra: 5.0, bubbles: 2.3 } },
+];
+const ZONE_LEN = 3200;
+function startEndless() {
+  if (reached < 1) return;
+  ac(); hideAll();
+  G.score = 0; G.stats = newStats("endless");
+  resetRun(0);
+  G.endless = { zone: 0, acc: 0, next: ZONE_LEN, lap: 0 };
+  G.speed = 120;
+  G.mode = "play"; G.paused = false; show("btnPause", true); show("dashBtn", coarse);
+  G.flash = 0.8; sfx.zone();
+  G.say = { text: "Open water! Let's just keep going!", t: 3 }; G.sayNext = 10;
+}
+function nextZone() {
+  const E = G.endless; E.zone = (E.zone + 1) % ZONES.length; if (E.zone === 0) E.lap++;
+  E.next += ZONE_LEN;
+  for (const e of G.ents) if (e.type !== "bubble" && e.type !== "pick") { e.dead = true; burst(e.x, e.y, "#ffffff", 5); }
+  G.lvl = ZONES[E.zone].lvl; G.timers = {}; G.flash = 1; G.inv = Math.max(G.inv, 1.2); sfx.zone();
+  G.p.y = clamp(G.p.y, (LEVELS[G.lvl].surface || 0) + 24, H - 50);
+  floatText(W / 2, H * 0.3, ZONES[E.zone].name + (E.lap ? ` · lap ${E.lap + 1}` : ""), "#ffd23f", 30);
+}
+function beginLevel(i) {
+  hideAll();
+  resetRun(i);
+  G.levelStartScore = G.score;
   const L = LEVELS[i];
   $("cardEyebrow").textContent = `Level ${i + 1} of 4`;
   $("cardTitle").textContent = L.name;
@@ -400,7 +472,7 @@ function beginLevel(i) {
   setTimeout(() => $("btnGo").focus({ preventScroll: true }), 30);
 }
 function go() {
-  ac(); hideAll(); G.mode = "play"; G.paused = false; show("btnPause", true);
+  ac(); hideAll(); G.mode = "play"; G.paused = false; show("btnPause", true); show("dashBtn", coarse);
 }
 function togglePause() {
   if (G.mode !== "play") return;
@@ -412,7 +484,8 @@ $("btnPlay").addEventListener("click", startStory);
 $("btnGo").addEventListener("click", go);
 $("btnPause").addEventListener("click", togglePause);
 $("btnResume").addEventListener("click", togglePause);
-$("btnRetry").addEventListener("click", () => { G.score = G.levelStartScore; beginLevel(G.lvl); });
+$("btnRetry").addEventListener("click", () => { if (G.endless) { startEndless(); return; } G.score = G.levelStartScore; beginLevel(G.lvl); });
+$("btnEndless").addEventListener("click", startEndless);
 ["btnMenu1", "btnMenu2", "btnMenu3"].forEach((id) => $(id).addEventListener("click", toMenu));
 $("btnJJ").addEventListener("click", () => { if (jjUnlocked) startJJ(); });
 $("btnJJ2").addEventListener("click", startJJ);
@@ -426,6 +499,7 @@ function spawn(kind) {
   if (kind === "bubbles") {
     const n = 3 + Math.floor(Math.random() * 4), y0 = rand(top + 20, bot - 20), amp = rand(10, 50);
     for (let i = 0; i < n; i++) G.ents.push({ type: "bubble", x: W + 40 + i * 42, y: y0 + Math.sin(i * 0.9) * amp, r: 11, t: rand(0, 3) });
+    G.lv.spawned += n;
   } else if (kind === "hook") {
     G.ents.push({ type: "hook", x: W + 40, base: rand(top + 60, bot - 40), y: 0, r: 15, t: rand(0, 6) });
   } else if (kind === "barra") {
@@ -434,6 +508,9 @@ function spawn(kind) {
     G.ents.push({ type: "jelly", x: W + 40, y0: rand(top + 30, bot - 10), y: 0, amp: rand(30, 80), ph: rand(0, TAU), r: 24, t: 0, hue: rand(300, 345) });
   } else if (kind === "angler") {
     G.ents.push({ type: "angler", x: W + 70, y: rand(top + 40, bot), r: 27, t: 0 });
+  } else if (kind === "pick") {
+    const k = G.hearts < 3 && Math.random() < 0.55 ? "star" : (!G.shield ? "shell" : "pearl");
+    G.ents.push({ type: "pick", kind: k, x: W + 40, y0: rand(top + 30, bot - 30), y: 0, r: 16, t: 0 });
   } else if (kind === "gull") {
     G.ents.push({ type: "gull", x: rand(W * 0.45, W + 40), y: rand(18, 50), r: 17, t: 0, phase: "fly", tx: 0, ty: 0, vx: -90, vy: 0 });
   }
@@ -455,6 +532,7 @@ function updateEnt(e, dt) {
   const sc = G.speed * dt;
   switch (e.type) {
     case "bubble": e.x -= sc; e.y -= Math.sin(e.t * 2) * 0.3; break;
+    case "pick": e.x -= sc * 0.9; e.y = e.y0 + Math.sin(e.t * 2.2) * 16; break;
     case "hook": e.x -= sc; e.y = e.base + Math.sin(e.t * 1.4) * 45; break;
     case "barra":
       if (e.warn > 0) { e.warn -= dt; e.x = W + 70; }
@@ -503,8 +581,9 @@ function movePlayer(dt) {
     const dx = ptr.x - p.x, dy = ptr.y - p.y, d = Math.hypot(dx, dy);
     if (d > 6) { const sp = Math.min(330, d * 5); tvx = dx / d * sp; tvy = dy / d * sp; }
   }
-  const k = Math.min(1, dt * 9);
+  const k = G.dashT > 0 ? Math.min(1, dt * 1.2) : Math.min(1, dt * 9);
   p.vx += (tvx - p.vx) * k; p.vy += (tvy - p.vy) * k;
+  if (G.dashT > 0 && Math.random() < 0.8) G.parts.push({ x: p.x - p.face * 18, y: p.y + rand(-6, 6), vx: -p.vx * 0.15, vy: rand(-20, 20), life: 0.35, max: 0.35, kind: "spark", color: "rgba(223,246,255,0.9)" });
   p.x += p.vx * dt; p.y += p.vy * dt;
   p.x = clamp(p.x, 40, W - 40); p.y = clamp(p.y, (L.surface || 0) + 24, H - 50);
   if (p.vx < -40) p.face = -1; else if (p.vx > 40) p.face = 1;
@@ -517,22 +596,47 @@ function moveDory(dt, tx, ty) {
   if (G.sayNext <= 0) { G.say = { text: DORY[Math.floor(Math.random() * DORY.length)], t: 3.2 }; G.sayNext = rand(8, 13); }
 }
 
+function dash() {
+  if (G.mode !== "play" || G.paused || G.dashCd > 0) return;
+  const p = G.p;
+  let dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), dy = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
+  if (!dx && !dy && ptr.down) { dx = ptr.x - p.x; dy = ptr.y - p.y; if (Math.hypot(dx, dy) < 12) { dx = p.face; dy = 0; } }
+  if (!dx && !dy) dx = p.face;
+  const d = Math.hypot(dx, dy) || 1;
+  p.vx = dx / d * 760; p.vy = dy / d * 760; if (dx) p.face = dx > 0 ? 1 : -1;
+  G.dashT = 0.24; G.dashCd = 1.25; sfx.dash();
+  for (let i = 0; i < 12; i++) G.parts.push({ x: p.x, y: p.y, vx: -dx / d * rand(80, 240) + rand(-50, 50), vy: -dy / d * rand(80, 240) + rand(-50, 50), life: 0.45, max: 0.45, kind: "spark", color: "#dff6ff" });
+}
 function updatePlay(dt) {
-  const L = LEVELS[G.lvl];
-  const target = G.ending ? 0 : L.speed;
+  const L = LEVELS[G.lvl], E = G.endless;
+  const target = G.ending ? 0 : E ? Math.min(330, 165 + G.dist / 95) : L.speed;
   G.speed += (target - G.speed) * Math.min(1, dt * 1.6);
   G.dist += G.speed * dt;
   G.stats.time += dt;
   if (G.inv > 0) G.inv -= dt;
+  if (G.dashT > 0) G.dashT -= dt;
+  if (G.dashCd > 0) { G.dashCd -= dt; if (G.dashCd <= 0) $("dashBtn").classList.remove("cd"); else $("dashBtn").classList.add("cd"); }
+  if (G.comboT > 0) { G.comboT -= dt; if (G.comboT <= 0) { if (G.combo >= 6) floatText(G.p.x, G.p.y - 40, `Combo ${G.combo} ended`, "#a9d6ea", 15); G.combo = 0; } }
+  if (G.flash > 0) G.flash -= dt;
+  if (E) {
+    E.acc += G.speed * dt * 0.05; while (E.acc >= 1) { G.score++; E.acc--; }
+    if (G.dist >= E.next) nextZone();
+  }
   movePlayer(dt);
   moveDory(dt, Math.max(40, G.p.x - 78), Math.max(waterTop() + 30, G.p.y - 44));
 
-  if (!G.ending && G.dist < L.len - 500) {
-    for (const k in L.spawn) {
-      if (G.timers[k] === undefined) G.timers[k] = rand(0.6, L.spawn[k]);
-      G.timers[k] -= dt;
-      if (G.timers[k] <= 0) { spawn(k); G.timers[k] = L.spawn[k] * rand(0.65, 1.35); }
+  if (!G.ending && (E || G.dist < L.len - 500)) {
+    const table = E ? ZONES[E.zone].spawn : L.spawn;
+    const heat = E ? 1 + Math.min(1.1, G.dist / 14000) : 1; /* open ocean gets busier the further you go */
+    const near = E && G.dist > E.next - 350; /* a breather before each zone change */
+    for (const k in table) {
+      if (near && k !== "bubbles") continue;
+      if (G.timers[k] === undefined) G.timers[k] = rand(0.6, table[k]);
+      G.timers[k] -= dt * (k === "bubbles" ? 1 : heat);
+      if (G.timers[k] <= 0) { spawn(k); G.timers[k] = table[k] * rand(0.65, 1.35); }
     }
+    G.pickT -= dt;
+    if (G.pickT <= 0) { spawn("pick"); G.pickT = rand(10, 15); }
   }
   for (const e of G.ents) updateEnt(e, dt);
   G.ents = G.ents.filter((e) => !e.dead && e.x > -220 && e.x < W + 420);
@@ -541,16 +645,43 @@ function updatePlay(dt) {
   const p = G.p;
   for (const e of G.ents) {
     if (e.type === "bubble") {
-      if (Math.hypot(e.x - p.x, e.y - p.y) < e.r + 20) { e.dead = true; G.score += 10; G.stats.bubbles++; sfx.bubble(); burst(e.x, e.y, "#dff6ff", 6); }
+      if (Math.hypot(e.x - p.x, e.y - p.y) < e.r + 20) {
+        e.dead = true; G.combo++; G.comboT = 2.4; G.lv.got++;
+        const m = mult(); G.score += 10 * m; G.stats.bubbles++; sfx.bubble(G.combo); burst(e.x, e.y, "#dff6ff", 6);
+        if (G.combo % 6 === 0) floatText(e.x, e.y - 18, `x${m}`, "#ffd23f", 20 + m * 2);
+      }
       continue;
     }
-    if (G.inv > 0 || G.ending) continue;
-    for (const [hx, hy, hr] of hitboxes(e)) {
-      if (Math.hypot(hx - p.x, hy - p.y) < hr + 15) { hurt(hx, hy); break; }
+    if (e.type === "pick") {
+      if (Math.hypot(e.x - p.x, e.y - p.y) < e.r + 22) {
+        e.dead = true; sfx.pick(); burst(e.x, e.y, e.kind === "star" ? "#ffb347" : e.kind === "shell" ? "#ffd6e6" : "#ffffff", 14);
+        if (e.kind === "shell") { G.shield = 1; floatText(e.x, e.y - 20, "Shell shield!", "#ffd6e6"); }
+        else if (e.kind === "star") { if (G.hearts < 3) { G.hearts++; floatText(e.x, e.y - 20, "+1 heart", "#ff8fa6"); } else { G.score += 100; floatText(e.x, e.y - 20, "+100", "#ffd23f"); } }
+        else { const v = 150 * mult(); G.score += v; floatText(e.x, e.y - 20, `Pearl +${v}`, "#ffffff"); }
+      }
+      continue;
     }
+    if (G.ending) continue;
+    let hit = false, close = false;
+    for (const [hx, hy, hr] of hitboxes(e)) {
+      const d = Math.hypot(hx - p.x, hy - p.y);
+      if (d < hr + 15) {
+        if (G.dashT > 0) { /* dashing through a hazard is the skill move */
+          if (!e.slick) { e.slick = true; const v = 50 * mult(); G.score += v; G.dashCd = Math.min(G.dashCd, 0.35); sfx.slick(); floatText(p.x, p.y - 30, `Slick! +${v}`, "#7dffcf", 20); burst(p.x, p.y, "#7dffcf", 8); }
+        } else if (G.inv <= 0) { hurt(hx, hy); hit = true; }
+        break;
+      }
+      if (d < hr + 15 + 26) close = true;
+    }
+    if (close && !hit && !e.slick && G.inv <= 0 && e.closeAt === undefined) e.closeAt = G.stats.hits;
+  }
+  /* near misses pay out once the hazard is behind you and you were not hit in between */
+  for (const e of G.ents) {
+    if (e.closeAt === undefined || e.closeDone || e.slick) continue;
+    if (e.x < p.x - 36 || e.dead) { e.closeDone = true; if (G.stats.hits === e.closeAt && !e.dead) { const v = 25 * mult(); G.score += v; sfx.close(); floatText(p.x + 10, p.y - 26, `Close! +${v}`, "#bff4ff", 15); } }
   }
 
-  if (!G.ending && G.dist >= L.len) {
+  if (!E && !G.ending && G.dist >= L.len) {
     if (G.lvl < LEVELS.length - 1) levelDone(); else startEnding();
   }
   if (G.ending && G.nemo) {
@@ -561,22 +692,37 @@ function updatePlay(dt) {
   }
 }
 function hurt(hx, hy) {
-  G.hearts--; G.inv = 1.6; G.shake = 0.35; G.stats.hits++;
-  sfx.hit(); burst(G.p.x, G.p.y, "#ff7a1a", 12);
   const dx = G.p.x - hx, dy = G.p.y - hy, d = Math.hypot(dx, dy) || 1;
   G.p.vx = dx / d * 380; G.p.vy = dy / d * 380;
+  if (G.shield) { G.shield = 0; G.inv = 1.0; G.shake = 0.2; sfx.shield(); burst(G.p.x, G.p.y, "#ffd6e6", 16); floatText(G.p.x, G.p.y - 34, "Shield broke", "#ffd6e6", 16); return; }
+  G.hearts--; G.inv = 1.6; G.shake = 0.35; G.stats.hits++; G.lv.hits++;
+  if (G.combo >= 6) floatText(G.p.x, G.p.y - 40, "Combo lost", "#ff9a8a", 15);
+  G.combo = 0; G.comboT = 0;
+  sfx.hit(); burst(G.p.x, G.p.y, "#ff7a1a", 12);
   if (G.hearts <= 0) {
-    G.mode = "dead"; show("btnPause", false);
+    G.mode = "dead"; show("btnPause", false); show("dashBtn", false);
     const lines = ["That stung.", "Ouch. Fish are fragile.", "Well, that happened."];
     $("overTitle").textContent = lines[G.lvl % lines.length];
     $("overText").textContent = "Dory says you should just keep swimming. You restart this level with full hearts.";
+    if (G.endless) {
+      const isBest = G.score > bestEndless;
+      if (isBest) { bestEndless = G.score; store.set("findnemo.best", String(bestEndless)); }
+      $("overTitle").textContent = isBest ? "New best!" : "Swept away.";
+      $("overText").textContent = `${G.score.toLocaleString()} points, ${Math.floor(G.dist / 10).toLocaleString()} m through the open ocean. Best: ${bestEndless.toLocaleString()}.`;
+    }
     show("over", true);
     setTimeout(() => $("btnRetry").focus({ preventScroll: true }), 30);
   }
 }
+function rateLevel() {
+  const st = 1 + (G.lv.hits <= 1 ? 1 : 0) + (G.lv.spawned && G.lv.got >= G.lv.spawned * 0.6 ? 1 : 0);
+  G.lastStars = st; G.score += 250 * st;
+  if ((starsSaved[G.lvl] || 0) < st) { starsSaved[G.lvl] = st; store.set("findnemo.stars", JSON.stringify(starsSaved)); }
+  reached = Math.max(reached, G.lvl + 1); store.set("findnemo.reached", String(reached));
+}
 function levelDone() {
-  G.score += 500; sfx.level();
-  G.mode = "levelDone"; G.winT = 1.6;
+  G.score += 500; sfx.level(); rateLevel(); show("dashBtn", false);
+  G.mode = "levelDone"; G.winT = 2.4;
 }
 function startEnding() {
   G.ending = true;
@@ -585,6 +731,7 @@ function startEnding() {
   G.say = { text: "Look! Over by the anemone!", t: 4 }; G.sayNext = 99;
 }
 function win() {
+  rateLevel(); show("dashBtn", false);
   G.mode = "win"; G.winT = 4.5; G.score += 1000;
   sfx.win(); hearts((G.p.x + G.nemo.x) / 2, G.p.y - 20, 10);
   show("btnPause", false);
@@ -975,6 +1122,44 @@ function drawGull(e) {
     ctx.strokeText("MINE!", e.x, e.y - 18); ctx.fillText("MINE!", e.x, e.y - 18);
   }
 }
+function drawPick(e) {
+  const x = e.x, y = e.y, t = e.t;
+  ctx.save(); ctx.translate(x, y);
+  const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, 34);
+  glow.addColorStop(0, e.kind === "star" ? "rgba(255,190,90,0.55)" : e.kind === "shell" ? "rgba(255,200,225,0.5)" : "rgba(255,255,255,0.5)"); glow.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, 34, 0, TAU); ctx.fill();
+  if (e.kind === "star") {
+    ctx.rotate(Math.sin(t * 2) * 0.25); ctx.beginPath();
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? 7 : 17; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    ctx.closePath(); ctx.fillStyle = "#ff9a3c"; ctx.fill(); outline(2.5);
+    ctx.fillStyle = "#ffd6a0"; for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * TAU / 5; ctx.beginPath(); ctx.arc(Math.cos(a) * 9, Math.sin(a) * 9, 1.6, 0, TAU); ctx.fill(); }
+  } else if (e.kind === "shell") {
+    ctx.rotate(Math.sin(t * 1.6) * 0.15); ctx.beginPath(); ctx.moveTo(0, 12);
+    for (let i = 0; i <= 8; i++) { const a = Math.PI + i * Math.PI / 8; ctx.quadraticCurveTo(Math.cos(a - 0.2) * 22, -4 + Math.sin(a - 0.2) * 20, Math.cos(a) * 18, -4 + Math.sin(a) * 17); }
+    ctx.closePath(); ctx.fillStyle = "#ffc2d6"; ctx.fill(); outline(2.5);
+    ctx.strokeStyle = "rgba(160,60,100,0.55)"; ctx.lineWidth = 1.6;
+    for (let i = 1; i < 8; i++) { const a = Math.PI + i * Math.PI / 8; ctx.beginPath(); ctx.moveTo(0, 10); ctx.lineTo(Math.cos(a) * 16, -4 + Math.sin(a) * 15); ctx.stroke(); }
+    ctx.fillStyle = "#ffc2d6"; ctx.fillRect(-6, 9, 12, 5); ctx.strokeStyle = "#0b0b10"; ctx.lineWidth = 2; ctx.strokeRect(-6, 9, 12, 5);
+  } else {
+    const g = ctx.createRadialGradient(-4, -5, 2, 0, 0, 12); g.addColorStop(0, "#ffffff"); g.addColorStop(0.6, "#e8e6f5"); g.addColorStop(1, "#b9b3d6");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 11, 0, TAU); ctx.fill(); outline(2);
+    ctx.fillStyle = "rgba(255,255,255,0.95)"; ctx.beginPath(); ctx.arc(-4, -4, 3, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+}
+function drawShield(x, y, t) {
+  ctx.save(); ctx.globalAlpha = 0.85;
+  const r = 40 + Math.sin(t * 5) * 2;
+  const g = ctx.createRadialGradient(x - 10, y - 12, 4, x, y, r); g.addColorStop(0, "rgba(255,255,255,0.05)"); g.addColorStop(0.8, "rgba(255,194,214,0.18)"); g.addColorStop(1, "rgba(255,194,214,0.55)");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = "rgba(255,220,235,0.85)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = "rgba(255,255,255,0.9)"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r - 6, -2.4, -1.7); ctx.stroke();
+  ctx.restore();
+}
+function drawStar5(x, y, r, fill) {
+  ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+  ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = "#062033"; ctx.stroke();
+}
 function drawBubble(x, y, r, t) {
   ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
   ctx.fillStyle = "rgba(220,245,255,0.18)"; ctx.fill();
@@ -1133,7 +1318,10 @@ function drawParts(dt) {
     p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt;
     if (p.kind === "drop") p.vy += 500 * dt; else { p.vx *= 0.96; p.vy *= 0.96; }
     const a = Math.max(0, p.life / p.max);
-    if (p.kind === "heart") drawHeartShape(p.x, p.y, 1.2, `rgba(255,90,120,${a})`);
+    if (p.kind === "txt") {
+      ctx.globalAlpha = Math.min(1, a * 1.6); ctx.textAlign = "center"; ctx.font = `${p.size}px 'Lilita One', sans-serif`;
+      ctx.lineWidth = 5; ctx.strokeStyle = "rgba(3,19,32,0.85)"; ctx.strokeText(p.text, p.x, p.y); ctx.fillStyle = p.color; ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1;
+    } else if (p.kind === "heart") drawHeartShape(p.x, p.y, 1.2, `rgba(255,90,120,${a})`);
     else { ctx.globalAlpha = a; ctx.fillStyle = p.kind === "drop" ? "#e9fbff" : p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.kind === "drop" ? 2.5 : 3, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
   }
   G.parts = G.parts.filter((p) => p.life > 0);
@@ -1142,10 +1330,28 @@ function drawParts(dt) {
 function hudStory() {
   const L = LEVELS[G.lvl];
   for (let i = 0; i < 3; i++) drawHeartShape(26 + i * 30, 26, 1.5, i < G.hearts ? "#ff4d6d" : "rgba(255,255,255,0.25)");
+  if (G.shield) { ctx.save(); ctx.strokeStyle = "rgba(255,200,225,0.95)"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(26 + 3 * 30 + 4, 26, 11, 0, TAU); ctx.stroke(); ctx.restore(); }
   ctx.textAlign = "left"; ctx.font = "18px 'Lilita One', sans-serif"; ctx.fillStyle = "#fff";
-  ctx.fillText(`${G.lvl + 1}. ${L.name}`, 14, 62);
+  ctx.fillText(G.endless ? `Open Ocean · ${ZONES[G.endless.zone].name}` : `${G.lvl + 1}. ${L.name}`, 14, 62);
   ctx.font = "700 14px Nunito, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.85)";
-  ctx.fillText(`Score ${G.score}`, 14, 82);
+  ctx.fillText(G.endless ? `Score ${G.score.toLocaleString()} · ${Math.floor(G.dist / 10).toLocaleString()} m · Best ${Math.max(bestEndless, G.score).toLocaleString()}` : `Score ${G.score.toLocaleString()}`, 14, 82);
+  /* combo */
+  if (G.combo >= 2) {
+    const m = mult(), x = 14, y = 104;
+    ctx.font = "20px 'Lilita One', sans-serif"; ctx.fillStyle = m >= 5 ? "#ff7a1a" : "#ffd23f";
+    ctx.fillText(`${G.combo} combo  x${m}`, x, y);
+    ctx.fillStyle = "rgba(0,20,40,0.5)"; ctx.fillRect(x, y + 6, 120, 5);
+    ctx.fillStyle = "#ffd23f"; ctx.fillRect(x, y + 6, 120 * clamp(G.comboT / 2.4, 0, 1), 5);
+  }
+  /* dash meter */
+  if (!coarse) {
+    const cx = 34, cy = H - 34, k = G.dashCd > 0 ? 1 - G.dashCd / 1.25 : 1;
+    ctx.fillStyle = "rgba(0,20,40,0.55)"; ctx.beginPath(); ctx.arc(cx, cy, 22, 0, TAU); ctx.fill();
+    ctx.strokeStyle = k >= 1 ? "#ff7a1a" : "rgba(255,255,255,0.5)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(cx, cy, 19, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke();
+    ctx.textAlign = "center"; ctx.font = "12px 'Lilita One', sans-serif"; ctx.fillStyle = k >= 1 ? "#fff" : "rgba(255,255,255,0.6)"; ctx.fillText("DASH", cx, cy + 4);
+    ctx.textAlign = "left";
+  }
+  if (G.endless) return;
   // progress: total journey across all four levels
   const bw = Math.min(320, W * 0.34), bx = W / 2 - bw / 2, by = 22;
   const prog = clamp((G.lvl + Math.min(1, G.dist / L.len)) / LEVELS.length, 0, 1);
@@ -1227,8 +1433,24 @@ function frame(now) {
   render(G.paused ? 0 : dt);
   requestAnimationFrame(frame);
 }
+let padPrev = { a: false, st: false }, padHeld = false;
+function pollPad() {
+  const gp = navigator.getGamepads ? [...navigator.getGamepads()].find((g) => g && g.connected) : null;
+  if (!gp) return;
+  const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0, b = (i) => !!(gp.buttons[i] && gp.buttons[i].pressed);
+  const Lf = ax < -0.35 || b(14), Rt = ax > 0.35 || b(15), Up = ay < -0.35 || b(12), Dn = ay > 0.35 || b(13);
+  if (Lf || Rt || Up || Dn || padHeld) { keys.left = Lf; keys.right = Rt; keys.up = Up; keys.down = Dn; padHeld = Lf || Rt || Up || Dn; }
+  const a = b(0) || b(1) || b(5) || b(7), st = b(9);
+  if (a && !padPrev.a) {
+    if (G.mode === "play" && !G.paused) dash(); else if (G.mode === "jj") jack();
+    else { const btn = document.querySelector(".overlay:not([hidden]) .btn:not(:disabled)"); if (btn) btn.click(); }
+  }
+  if (st && !padPrev.st) { if (G.mode === "play") togglePause(); else if (G.mode === "jj") toMenu(); }
+  padPrev = { a, st };
+}
 function update(dt) {
   G.t += dt;
+  pollPad();
   if (G.shake > 0) G.shake -= dt;
   switch (G.mode) {
     case "menu": case "after": case "card": case "dead": case "jjdead":
@@ -1281,6 +1503,7 @@ function render(dt) {
     else if (e.type === "jelly") drawJelly(e);
     else if (e.type === "angler") drawAngler(e);
     else if (e.type === "gull") drawGull(e);
+    else if (e.type === "pick") drawPick(e);
   }
   if (G.nemo && G.mode === "play") drawAnemone(G.nemo.tx, G.nemo.ty + 70 - 4, G.t);
   {
@@ -1288,6 +1511,7 @@ function render(dt) {
     const blink = G.inv > 0 && Math.floor(G.inv * 12) % 2 === 0;
     const wagRate = G.mode === "jj" ? 6 + G.jj.power / 25 : 12;
     if (!blink) drawClown(G.p.x, G.p.y, 1, G.p.face, G.t, false, wagRate);
+    if (G.shield && (G.mode === "play" || G.mode === "levelDone")) drawShield(G.p.x, G.p.y, G.t);
     if (G.nemo && (G.mode === "play" || G.mode === "win" || G.mode === "jj" || G.mode === "credits")) {
       const nd = G.mode === "credits" ? 1 : (G.nemo.x > G.p.x ? -1 : 1);
       drawClown(G.nemo.x, G.nemo.y, 0.62, nd, G.t, true);
@@ -1304,8 +1528,15 @@ function render(dt) {
   if (G.say && G.mode !== "menu" && G.mode !== "card") drawSpeech(G.d.x, G.d.y - 6, G.say.text);
   ctx.restore();
 
-  if (G.mode === "play" || G.mode === "levelDone") hudStory();
+  if (G.flash > 0 && !reduceMotion) { ctx.fillStyle = `rgba(230,250,255,${Math.min(0.6, G.flash * 0.6)})`; ctx.fillRect(0, 0, W, H); }
+  if (G.mode === "play" || G.mode === "levelDone" || (G.mode === "dead" && G.endless)) hudStory();
   if (G.mode === "jj") hudJJ();
+  if (G.mode === "levelDone" || G.mode === "win") {
+    const y0 = G.mode === "win" ? H * 0.38 + 58 : H * 0.45 + 50, k = G.mode === "win" ? 1 : clamp((2.4 - G.winT) / 0.9, 0, 1);
+    for (let i = 0; i < 3; i++) { const on = i < G.lastStars && k > i / 3; drawStar5(W / 2 + (i - 1) * 54, y0 + (i === 1 ? -8 : 0), on ? 22 + (1 - Math.min(1, (k - i / 3) * 4)) * 10 : 20, on ? "#ffd23f" : "rgba(255,255,255,0.25)"); }
+    if (G.mode === "levelDone") { ctx.textAlign = "center"; ctx.font = "800 15px Nunito, sans-serif"; ctx.fillStyle = "#fff";
+      ctx.fillText(`Hits ${G.lv.hits} · Bubbles ${G.lv.got}/${G.lv.spawned}`, W / 2, y0 + 44); ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "700 13px Nunito, sans-serif"; ctx.fillText("★ finish  ★ one hit or fewer  ★ 60% of the bubbles", W / 2, y0 + 66); }
+  }
   if (G.mode === "levelDone") bigText("Level complete!", H * 0.45, 56);
   if (G.mode === "win") { bigText("You found Nemo!", H * 0.38, 64); }
 }
