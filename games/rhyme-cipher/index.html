@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#120d1d">
 <title>Rhyme Cipher</title>
-<meta name="description" content="A freestyle rhythm and rhyme game: words drop on the beat and you spit rhymes in time. 12 original beats, your own songs with BPM and key detection, and a 75,000-word rhyme book.">
+<meta name="description" content="A freestyle rap game like the rhyme game: every bar ends on a word on screen, in rhyming pairs, and you land each one on the beat. 12 original beats, your own songs with BPM and key detection, and a 75,000-word rhyme book.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
 <style>
@@ -108,7 +108,6 @@ h3 { font-size: 1.05rem; font-weight: 800; }
 .trk-main { min-width: 0; display: flex; flex-direction: column; }
 .trk-title { font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .trk-meta { color: var(--dim); font-size: 0.78rem; font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.trk-grade { font-family: var(--tag); font-size: 1.3rem; color: var(--spot); min-width: 1.4em; text-align: center; }
 .trk-busy { width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--spot); border-radius: 50%; animation: spin 0.8s linear infinite; }
 
 .deck { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
@@ -142,6 +141,10 @@ h3 { font-size: 1.05rem; font-weight: 800; }
 .mode[aria-checked="true"] { border-color: var(--spot); background: color-mix(in srgb, var(--spot) 10%, var(--night)); box-shadow: inset 0 0 0 1px var(--spot); }
 .mode-name { font-weight: 900; font-stretch: 115%; font-size: 1.02rem; }
 .mode-desc { color: var(--dim); font-size: 0.8rem; }
+.viz { display: flex; gap: 4px; margin: 2px 0 4px; }
+.viz i { font-style: normal; font-family: var(--mono); font-weight: 600; font-size: 0.78rem; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px; }
+.viz .a { background: color-mix(in srgb, var(--spot) 22%, transparent); color: var(--spot); }
+.viz .b { background: color-mix(in srgb, var(--hot) 22%, transparent); color: var(--hot); }
 .setup-row.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .seg { display: inline-flex; flex-wrap: wrap; background: var(--night); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
 .seg button { border: 0; background: none; padding: 7px 12px; border-radius: 7px; color: var(--dim); font-weight: 700; }
@@ -181,13 +184,9 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
 .how { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; align-items: start; }
 .steps { margin: 12px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; color: var(--dim); }
 .steps b { color: var(--chalk); }
-.score-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-.score-table th { text-align: left; color: var(--dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; padding: 6px 0; border-bottom: 1px solid var(--line); }
-.score-table td { padding: 7px 0; border-bottom: 1px solid var(--line); }
-.score-table td:last-child { text-align: right; font-family: var(--mono); font-weight: 600; }
-.pill { font-weight: 800; }
 .keys { margin: 12px 0 0; display: flex; flex-direction: column; gap: 10px; }
-.keys div { display: grid; grid-template-columns: 80px 1fr; gap: 10px; align-items: baseline; }
+.keys div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: baseline; }
+.keys dt { font-weight: 800; }
 .keys dd { margin: 0; color: var(--dim); font-size: 0.9rem; }
 .settings { max-width: 640px; display: flex; flex-direction: column; gap: 12px; }
 .set-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) 70px; gap: 12px; align-items: center; }
@@ -200,92 +199,73 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
 .career span { color: var(--dim); font-size: 0.78rem; }
 .foot { margin-top: 18px; color: var(--dim); font-size: 0.78rem; font-family: var(--mono); display: flex; flex-wrap: wrap; gap: 4px 16px; }
 
-/* ---------- game */
-#game { position: fixed; inset: 0; overflow: hidden; background: var(--night); display: flex; flex-direction: column; touch-action: manipulation; }
+/* ---------- game (freestyle cipher) */
+#game { position: fixed; inset: 0; overflow: hidden; background: var(--night); display: flex; flex-direction: column; touch-action: manipulation; --g: var(--spot); --gn: var(--spot); }
 #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .hud { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr minmax(0, 1.4fr) 1fr; gap: 12px; align-items: start;
   padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
 .hud-score { display: flex; flex-direction: column; }
-.hud-num { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; font-stretch: 125%; font-variant-numeric: tabular-nums; line-height: 1; }
+.hud-num { font-size: clamp(1.5rem, 3.6vw, 2.2rem); font-weight: 900; font-stretch: 125%; font-variant-numeric: tabular-nums; line-height: 1; }
 .hud-combo { color: var(--dim); font-family: var(--mono); font-size: 0.8rem; }
-.hud-combo b { color: var(--spot); font-family: var(--display); font-size: 1rem; }
-.hud-combo.hot b { color: var(--hot); }
 .hud-track { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; text-align: center; }
 .hud-title { font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .hud-sec { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; }
 .hud-prog { display: block; width: min(260px, 100%); height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
 .hud-prog span { display: block; height: 100%; width: 0; background: var(--track); }
 .hud-right { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
-.lives { display: flex; gap: 4px; }
-.lives svg { width: 18px; height: 26px; }
-.lives .gone { opacity: 0.18; }
-.lives .inf { font-family: var(--mono); color: var(--dim); font-size: 0.8rem; }
 .icon-btn { border: 1px solid var(--line); background: rgba(18,13,29,0.6); border-radius: 10px; width: 40px; height: 40px; font-size: 0.8rem; letter-spacing: -2px; }
 
 .stagebox { position: relative; z-index: 1; flex: 1; display: grid; place-items: center; min-height: 0; padding: 0 16px; }
-.target { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; max-width: 100%; }
-.tword { font-weight: 900; font-stretch: 125%; font-size: clamp(2.6rem, 11vw, 7.5rem); line-height: 0.95; letter-spacing: -0.02em; text-transform: uppercase; overflow-wrap: anywhere; max-width: 100%; }
-.tword.drop { animation: drop .32s cubic-bezier(.2,1.6,.4,1); }
-@keyframes drop { from { transform: translateY(-30px) scale(1.15); opacity: 0; } to { transform: none; opacity: 1; } }
-.tword.flash { color: var(--spot); }
-.tsound { font-family: var(--mono); color: var(--dim); font-size: 0.9rem; letter-spacing: 0.06em; background: rgba(18,13,29,0.7); padding: 2px 10px; border-radius: 6px; }
-.tsound:empty { display: none; }
-.beats { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 92vw; }
-.beats i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ice); }
-.beats i.on { background: var(--ice); }
-.beats i.late { border-color: var(--bad); }
-.beats i.late.on { background: var(--bad); }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: min(720px, 92vw); min-height: 30px; }
-.chip { font-weight: 800; padding: 4px 12px; border-radius: 999px; background: rgba(18,13,29,0.75); border: 1px solid currentColor; animation: pop .25s ease-out; }
-@keyframes pop { from { transform: scale(0.6); opacity: 0; } }
-.cloud { display: flex; flex-wrap: wrap; gap: 8px 10px; justify-content: center; max-width: min(760px, 92vw); }
-.cloud span { font-weight: 800; font-size: clamp(0.95rem, 2.4vw, 1.25rem); color: var(--chalk); background: rgba(18,13,29,0.82); border: 1px solid var(--line); padding: 3px 12px; border-radius: 999px; animation: pop .3s ease-out backwards; }
-.cloud span.m { color: var(--hot); border-color: color-mix(in srgb, var(--hot) 45%, var(--line)); }
-.cloud span.s { color: var(--ice); border-color: color-mix(in srgb, var(--ice) 35%, var(--line)); }
-.tnext { font-family: var(--mono); color: var(--dim); font-size: 0.85rem; min-height: 1.2em; }
-.judge { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); pointer-events: none; text-align: center; width: max-content; max-width: 92vw; }
-.judge .j { display: block; font-family: var(--tag); font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1; animation: judge 1s ease-out forwards; }
-.judge .jsub { display: block; font-weight: 800; font-size: 0.95rem; animation: judge 1s ease-out forwards; }
-@keyframes judge { 0% { transform: translateY(10px) scale(0.85); opacity: 0; } 15% { transform: none; opacity: 1; } 75% { opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
-
-.spit { position: relative; z-index: 2; display: flex; gap: 8px; margin: 0 auto; width: min(680px, calc(100% - 32px)); }
-.spit input { flex: 1; min-width: 0; background: rgba(18,13,29,0.85); border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.02em; }
-.spit input:focus { border-color: var(--track); outline: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--track) 25%, transparent); }
-.spit input.shake { animation: shake .3s; border-color: var(--bad); }
-@keyframes shake { 25% { transform: translateX(-8px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-4px); } }
-.spit-btn, .hint-btn { border: 0; border-radius: 14px; padding: 0 18px; font-weight: 900; text-transform: uppercase; }
-.spit-btn { background: var(--track); color: #120d1d; }
-.hint-btn { background: var(--night-3); border: 1px solid var(--line); color: var(--dim); font-size: 0.8rem; }
-.free-ctl { position: relative; z-index: 2; display: flex; justify-content: center; }
-.free-ctl[hidden] { display: none; }
+.fs { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; max-width: 100%; }
+.fs-eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--dim); font-weight: 800; background: rgba(18,13,29,0.7); padding: 3px 10px; border-radius: 6px; }
+.fs-word { display: block; font-weight: 900; font-stretch: 125%; font-size: clamp(2.6rem, 12vw, 8rem); line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; color: var(--chalk); }
+.fs-word.anim-drop { animation: drop .3s cubic-bezier(.2,1.6,.4,1); }
+.fs-word.anim-land { animation: land .45s ease-out; }
+@keyframes drop { from { transform: translateY(-26px) scale(1.12); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes land { 0% { color: var(--g); transform: scale(1.08); } 100% { color: var(--chalk); transform: none; } }
+.fs-mark { display: block; width: min(220px, 40vw); height: 6px; border-radius: 3px; background: var(--g); margin-top: -4px; }
+.fs-mark.off { visibility: hidden; }
+.fs-sound { font-family: var(--mono); color: var(--dim); font-size: 0.85rem; letter-spacing: 0.06em; background: rgba(18,13,29,0.7); padding: 2px 10px; border-radius: 6px; }
+.fs-sound:empty { display: none; }
+.fs-beats { display: flex; gap: 8px; align-items: center; justify-content: center; }
+.fs-beats i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(247,239,227,0.35); font-style: normal; display: grid; place-items: center; transition: background .08s, border-color .08s; }
+.fs-beats i.on { background: rgba(247,239,227,0.85); border-color: rgba(247,239,227,0.85); }
+.fs-beats i.land { width: 30px; height: 30px; border: 3px solid var(--g); color: var(--g); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.02em; }
+.fs-beats i.land.on { background: var(--g); color: #120d1d; }
+.fs-beats i.gap { width: 10px; border: 0; }
+.fs-next { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 4px; }
+.fs-link { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 800; color: var(--gn); }
+.fs-nword { font-weight: 900; font-stretch: 118%; font-size: clamp(1.5rem, 5vw, 2.8rem); line-height: 1; color: var(--gn); text-transform: uppercase; overflow-wrap: anywhere; }
+.fs-queue { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; font-family: var(--mono); font-size: 0.9rem; color: var(--dim); min-height: 1.4em; max-width: 92vw; }
+.fs-queue span { display: inline-flex; align-items: center; gap: 6px; }
+.fs-queue span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.fs-ideas { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: min(720px, 92vw); }
+.fs-ideas span { font-weight: 700; font-size: 0.95rem; padding: 3px 11px; border-radius: 999px; background: rgba(18,13,29,0.82); border: 1px solid color-mix(in srgb, var(--g) 45%, var(--line)); color: var(--chalk); }
+.fs-ctl { position: relative; z-index: 2; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 16px; }
+.fs-ctl .btn { background: rgba(36,27,58,0.9); }
 #game .lane-space { height: 96px; flex: none; }
 
 .overlay { position: fixed; inset: 0; z-index: 20; background: rgba(10, 7, 18, 0.78); display: grid; place-items: center; padding: 16px; backdrop-filter: blur(6px); }
 .ov-card { background: var(--night-2); border: 1px solid var(--line); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 10px; min-width: min(320px, 100%); text-align: center; }
 .ov-card h2 { font-family: var(--tag); font-weight: 400; font-size: 2.4rem; color: var(--spot); margin-bottom: 6px; font-stretch: normal; }
 .ov-card .btn { justify-content: center; }
-.cal-pad { height: 140px; border-radius: 16px; border: 2px solid var(--line); background: var(--night-3); font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
-.cal-pad.hit { background: var(--spot); color: #1b1004; }
 
 /* ---------- results */
 #results { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px; }
 .res-wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
 .res-head { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
-.grade { font-family: var(--tag); font-size: clamp(6rem, 18vw, 9.5rem); line-height: 0.8; color: var(--spot); transform: rotate(-6deg); text-shadow: 0 0 50px color-mix(in srgb, var(--spot) 45%, transparent); }
-.grade.g-S { color: var(--hot); } .grade.g-F { color: var(--bad); }
+.grade { font-family: var(--tag); font-size: clamp(4.5rem, 14vw, 7.5rem); line-height: 0.85; color: var(--spot); transform: rotate(-6deg); }
 .res-head h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; font-stretch: 120%; }
-.res-score { margin: 6px 0 0; font-size: 1.6rem; font-weight: 900; font-variant-numeric: tabular-nums; }
-.res-score .newbest { font-size: 0.8rem; background: var(--hot); color: #fff; padding: 3px 8px; border-radius: 6px; vertical-align: middle; margin-left: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+.res-score { margin: 6px 0 0; font-size: 1.05rem; color: var(--dim); }
 .res-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); background: var(--night-2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 0; }
 .res-stats div { padding: 12px 14px; min-width: 0; box-shadow: inset -1px -1px 0 var(--line); }
 .res-stats dt { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--dim); font-weight: 700; }
 .res-stats dd { margin: 2px 0 0; font-weight: 900; font-size: 1.35rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .res-log ol { list-style: none; margin: 10px 0 0; padding: 0; max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; }
-.res-log li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; align-items: baseline; }
-.res-log li .tw { color: var(--dim); overflow-wrap: anywhere; }
-.res-log li .yw { font-weight: 800; overflow-wrap: anywhere; }
-.res-log li .pts { font-family: var(--mono); color: var(--dim); }
-.res-log li.miss .yw { color: var(--bad); font-weight: 600; }
+.pairs li { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.pairs li b { font-weight: 800; font-size: 1.02rem; color: var(--c); overflow-wrap: anywhere; }
+.pairs li .amp { color: var(--dim); }
+.pairs li .snd { margin-left: auto; font-family: var(--mono); font-size: 0.78rem; color: var(--dim); }
 .res-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .res-actions .btn { padding: 12px 18px; font-size: 1rem; }
 
@@ -305,9 +285,7 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
   .hud-track { grid-column: 1 / -1; grid-row: 2; }
   .set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 54px; }
   .tc-head .disc { width: 56px; height: 56px; }
-  .spit input { font-size: 1.05rem; padding: 12px; }
-  .hint-btn { padding: 0 10px; }
-  .spit-btn { padding: 0 12px; }
+  .fs-ctl .btn kbd { display: none; }
   .brand-rhyme { font-size: 1.25rem; } .brand-cipher { font-size: 1.7rem; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -360,50 +338,52 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
 
           <div class="card setup">
             <div class="setup-row">
-              <span class="label" id="modeLbl">Mode</span>
-              <div class="modes" role="radiogroup" aria-labelledby="modeLbl">
-                <button class="mode" role="radio" data-mode="rush" id="mode-rush">
-                  <span class="mode-name">Rhyme Rush</span>
-                  <span class="mode-desc">A new word drops on the beat. Type one rhyme before the gate closes, and hit Enter on a beat for bonus points.</span>
+              <span class="label" id="schemeLbl">Rhyme scheme</span>
+              <div class="modes" role="radiogroup" aria-labelledby="schemeLbl">
+                <button class="mode" role="radio" data-scheme="aabb" id="scheme-aabb">
+                  <span class="mode-name">Couplets</span>
+                  <span class="viz" aria-hidden="true"><i class="a">A</i><i class="a">A</i><i class="b">B</i><i class="b">B</i></span>
+                  <span class="mode-desc">Bars 1 and 2 end on words that rhyme, then bars 3 and 4. The classic rhyme game.</span>
                 </button>
-                <button class="mode" role="radio" data-mode="storm" id="mode-storm">
-                  <span class="mode-name">Rhyme Storm</span>
-                  <span class="mode-desc">One word holds for a few bars. Stack as many different rhymes as you can before it changes.</span>
+                <button class="mode" role="radio" data-scheme="abab" id="scheme-abab">
+                  <span class="mode-name">Alternating</span>
+                  <span class="viz" aria-hidden="true"><i class="a">A</i><i class="b">B</i><i class="a">A</i><i class="b">B</i></span>
+                  <span class="mode-desc">Bars 1 and 3 rhyme, bars 2 and 4 rhyme. You carry two sounds at once.</span>
                 </button>
-                <button class="mode" role="radio" data-mode="freestyle" id="mode-freestyle">
-                  <span class="mode-name">Freestyle</span>
-                  <span class="mode-desc">Words land on the downbeat with rhyme ideas around them. Rap out loud. No typing, no score.</span>
+                <button class="mode" role="radio" data-scheme="aaaa" id="scheme-aaaa">
+                  <span class="mode-name">Four in a row</span>
+                  <span class="viz" aria-hidden="true"><i class="a">A</i><i class="a">A</i><i class="a">A</i><i class="a">A</i></span>
+                  <span class="mode-desc">All four bars rhyme. Ride one sound for the whole verse.</span>
                 </button>
               </div>
             </div>
             <div class="setup-row split">
-              <div class="opt" id="diffOpt">
-                <span class="label" id="diffLbl">Difficulty</span>
-                <div class="seg" role="radiogroup" aria-labelledby="diffLbl" id="diffSeg">
-                  <button role="radio" data-diff="chill">Chill</button>
-                  <button role="radio" data-diff="normal">Normal</button>
-                  <button role="radio" data-diff="hard">Hard</button>
-                  <button role="radio" data-diff="insane">Insane</button>
+              <div class="opt">
+                <span class="label" id="levelLbl">Words</span>
+                <div class="seg" role="radiogroup" aria-labelledby="levelLbl" id="levelSeg">
+                  <button role="radio" data-level="easy">Easy</button>
+                  <button role="radio" data-level="medium">Medium</button>
+                  <button role="radio" data-level="hard">Hard</button>
                 </div>
-                <p class="hint" id="diffHint"></p>
+                <p class="hint" id="levelHint"></p>
               </div>
-              <div class="opt" id="barsOpt" hidden>
-                <span class="label" id="barsLbl">New word every</span>
-                <div class="seg" role="radiogroup" aria-labelledby="barsLbl" id="barsSeg">
-                  <button role="radio" data-bars="1">1 bar</button>
-                  <button role="radio" data-bars="2">2 bars</button>
-                  <button role="radio" data-bars="4">4 bars</button>
+              <div class="opt">
+                <span class="label" id="everyLbl">New word every</span>
+                <div class="seg" role="radiogroup" aria-labelledby="everyLbl" id="everySeg">
+                  <button role="radio" data-every="auto">Auto</button>
+                  <button role="radio" data-every="1">1 bar</button>
+                  <button role="radio" data-every="2">2 bars</button>
                 </div>
-                <p class="hint">Words change on the downbeat, so you always get a full phrase to land the rhyme.</p>
+                <p class="hint" id="everyHint"></p>
               </div>
               <div class="opt">
                 <label class="label" for="packSel">Word pack</label>
                 <select id="packSel"></select>
-                <label class="check"><input type="checkbox" id="practiceChk"><span>Practice: no lives, play the whole song</span></label>
+                <label class="check"><input type="checkbox" id="ideasChk"><span>Show more rhymes under each word</span></label>
               </div>
             </div>
             <div class="go-row">
-              <button class="go" id="startBtn"><span>Step up to the mic</span><kbd>Enter</kbd></button>
+              <button class="go" id="startBtn"><span>Start the cipher</span><kbd>Enter</kbd></button>
               <p class="best" id="bestLine"></p>
             </div>
           </div>
@@ -451,43 +431,35 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
     <div class="tabpanel" id="tab-how" role="tabpanel" aria-labelledby="tabbtn-how" hidden>
       <div class="how">
         <div class="card">
-          <h2>How a round works</h2>
+          <h2>How it works</h2>
           <ol class="steps">
-            <li><b>Pick a beat.</b> Twelve built-in tracks, from 78 to 142 BPM, or add your own songs. The BPM, key and beat grid are read from the audio.</li>
-            <li><b>Wait for the drop.</b> The intro plays first. Four counts before the first verse, the words start landing on the beat.</li>
-            <li><b>Spit a rhyme.</b> Type a word that rhymes and press Enter. Press it right on a beat (watch the lane at the bottom) for an on-beat bonus.</li>
-            <li><b>Beat the gate.</b> In Rhyme Rush every word has a red gate a few beats away. Miss it and you lose a mic. Lose all three and the mic drops.</li>
+            <li><b>Pick a beat.</b> Twelve built-in beats from 78 to 142 BPM, or add your own songs. The BPM, key and beat grid are read from the audio.</li>
+            <li><b>Ride the intro.</b> The count-in shows the first words so you can get your first line ready.</li>
+            <li><b>End every bar on the word.</b> Rap whatever you want, but finish the bar on the word on screen. Land it on beat 4, the snare, where the ring sits.</li>
+            <li><b>Pairs rhyme.</b> Words with the same color rhyme. In couplets, bar 1 sets up the rhyme and bar 2 pays it off.</li>
+            <li><b>Look ahead.</b> The next words always show under the current one, and they slide along the lane at the bottom toward the moment you say them.</li>
           </ol>
         </div>
         <div class="card">
-          <h2>Scoring</h2>
-          <table class="score-table">
-            <thead><tr><th scope="col">What you did</th><th scope="col">Points</th></tr></thead>
-            <tbody>
-              <tr><td><span class="pill t-perfect">Perfect</span> rhyme</td><td>100</td></tr>
-              <tr><td><span class="pill t-slant">Slant</span> rhyme</td><td>60</td></tr>
-              <tr><td><span class="pill t-echo">Echo</span> or <span class="pill t-loose">Loose</span></td><td>40 / 30</td></tr>
-              <tr><td>Each extra matching syllable</td><td>+60</td></tr>
-              <tr><td>Rare word (outside the top 8,000)</td><td>+20 to +60</td></tr>
-              <tr><td>Enter within 70 ms of a beat</td><td>×1.5</td></tr>
-              <tr><td>Enter within 140 ms of a beat</td><td>×1.25</td></tr>
-              <tr><td>Combo of 5 / 10 / 20</td><td>×2 / ×3 / ×4</td></tr>
-              <tr><td>Used a hint (Tab)</td><td>half points</td></tr>
-            </tbody>
-          </table>
-          <p class="sub">No repeats: every word you type can only score once per run. Words the rhyme book doesn't know don't cost you anything.</p>
+          <h2>Settings that change the game</h2>
+          <dl class="keys">
+            <div><dt>Scheme</dt><dd>Couplets (AABB), Alternating (ABAB) or Four in a row (AAAA).</dd></div>
+            <div><dt>Words</dt><dd>Easy: short everyday words. Medium: more variety. Hard: longer words and multi-syllable pairs like <i>terrific / horrific</i>.</dd></div>
+            <div><dt>New word</dt><dd>Every bar, or every 2 bars for more room on fast beats. Auto picks 2 bars above 115 BPM.</dd></div>
+            <div><dt>Word pack</dt><dd>Mixed words, or a topic like Money, Food, Space or Sports for the first word of each rhyme.</dd></div>
+            <div><dt>More rhymes</dt><dd>Shows extra words with the same sound, for rhymes in the middle of your bars.</dd></div>
+          </dl>
         </div>
         <div class="card">
           <h2>Keys</h2>
           <dl class="keys">
-            <div><dt><kbd>Enter</kbd></dt><dd>Spit the rhyme you typed. On the menu, start the run.</dd></div>
-            <div><dt><kbd>Tab</kbd></dt><dd>Hint: shows the start of a rhyme for half points.</dd></div>
-            <div><dt><kbd>Esc</kbd></dt><dd>Pause.</dd></div>
-            <div><dt><kbd>Space</kbd></dt><dd>Freestyle: skip to the next word. Menu: preview the beat.</dd></div>
+            <div><dt><kbd>Enter</kbd></dt><dd>Start the cipher.</dd></div>
+            <div><dt><kbd>Space</kbd></dt><dd>In the cipher: swap the upcoming words for a new rhyme. On the menu: preview the beat.</dd></div>
+            <div><dt><kbd>I</kbd></dt><dd>Show or hide more rhymes.</dd></div>
+            <div><dt><kbd>Esc</kbd></dt><dd>Pause, restart or end the session.</dd></div>
             <div><dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Pick a song in the crate.</dd></div>
             <div><dt><kbd>T</kbd></dt><dd>Tap tempo on your own songs.</dd></div>
           </dl>
-          <p class="sub">Rap spellings work: <i>runnin'</i> counts as <i>running</i>. Plurals of known words work too.</p>
         </div>
       </div>
     </div>
@@ -498,13 +470,12 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
         <h2>Settings</h2>
         <div class="set-row"><label for="setMusic">Music volume</label><input type="range" id="setMusic" min="0" max="100"><output id="outMusic"></output></div>
         <div class="set-row"><label for="setSfx">Sound effects volume</label><input type="range" id="setSfx" min="0" max="100"><output id="outSfx"></output></div>
-        <div class="set-row"><label for="setOffset">Timing offset</label><input type="range" id="setOffset" min="-150" max="150" step="1"><output id="outOffset"></output></div>
-        <p class="hint">If on-beat hits feel late, raise the offset. Calibrate to measure it: tap Space or the pad along with 8 clicks.</p>
-        <div class="set-row"><span></span><button class="btn" id="calBtn">Calibrate timing</button><span></span></div>
-        <div class="set-row"><label for="setKeys">Typing sounds</label><input type="checkbox" id="setKeys"><span></span></div>
+        <div class="set-row"><label for="setOffset">Word timing</label><input type="range" id="setOffset" min="-150" max="150" step="1"><output id="outOffset"></output></div>
+        <p class="hint">If new words appear before you hear the downbeat (common on Bluetooth speakers), move this to the right.</p>
+        <div class="set-row"><label for="setCue">Click when a word changes</label><input type="checkbox" id="setCue"><span></span></div>
         <div class="set-row"><label for="setMotion">Motion</label>
           <select id="setMotion"><option value="auto">Follow my device</option><option value="full">Full effects</option><option value="reduce">Reduced</option></select><span></span></div>
-        <div class="set-row danger"><span>Saved data</span><button class="btn" id="resetBtn">Reset scores</button><span id="resetMsg"></span></div>
+        <div class="set-row danger"><span>Saved data</span><button class="btn" id="resetBtn">Reset stats</button><span id="resetMsg"></span></div>
         <div class="career" id="career"></div>
       </div>
     </div>
@@ -513,12 +484,12 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
   </section>
 
   <!-- ======================= GAME ======================= -->
-  <section id="game" class="screen" hidden aria-label="Game">
+  <section id="game" class="screen" hidden aria-label="Freestyle cipher">
     <canvas id="stage" aria-hidden="true"></canvas>
     <div class="hud">
       <div class="hud-score">
-        <span class="hud-num" id="hudScore">0</span>
-        <span class="hud-combo" id="hudCombo"><b id="hudMult">×1</b> <span id="hudComboN">0 combo</span></span>
+        <span class="hud-num" id="hudBar">Bar 0</span>
+        <span class="hud-combo" id="hudSub"></span>
       </div>
       <div class="hud-track">
         <span class="hud-title" id="hudTitle"></span>
@@ -526,57 +497,54 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
         <span class="hud-prog"><span id="hudProg"></span></span>
       </div>
       <div class="hud-right">
-        <span class="lives" id="hudLives" aria-label="Lives"></span>
         <button class="icon-btn" id="pauseBtn" aria-label="Pause">❚❚</button>
       </div>
     </div>
 
     <div class="stagebox">
-      <div class="target" id="targetBox">
-        <span class="eyebrow" id="tEyebrow">Get ready</span>
-        <span class="tword" id="tWord"></span>
-        <span class="tsound" id="tSound"></span>
-        <div class="beats" id="tBeats" aria-hidden="true"></div>
-        <div class="chips" id="tChips"></div>
-        <div class="cloud" id="tCloud" hidden></div>
-        <span class="tnext" id="tNext"></span>
+      <div class="fs" id="fsBox">
+        <span class="fs-eyebrow" id="fsEyebrow">Get ready</span>
+        <span class="fs-word" id="fsWord"></span>
+        <span class="fs-mark" id="fsMark" aria-hidden="true"></span>
+        <span class="fs-sound" id="fsSound"></span>
+        <div class="fs-beats" id="fsBeats" aria-hidden="true"></div>
+        <div class="fs-next" id="fsNext" hidden><span class="fs-link" id="fsLink"></span><span class="fs-nword" id="fsNword"></span></div>
+        <div class="fs-queue" id="fsQueue"></div>
+        <div class="fs-ideas" id="fsIdeas" hidden></div>
       </div>
-      <div class="judge" id="judge" aria-live="polite"></div>
     </div>
 
-    <form class="spit" id="spitForm" autocomplete="off">
-      <label class="sr" for="spitIn">Your rhyme</label>
-      <input id="spitIn" type="text" placeholder="type a rhyme, hit Enter on the beat" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="send">
-      <button type="button" class="hint-btn" id="hintBtn" title="Hint (Tab)">Hint</button>
-      <button type="submit" class="spit-btn">Spit</button>
-    </form>
-    <div class="free-ctl" id="freeCtl" hidden><button class="btn" id="skipBtn">Next word <kbd>Space</kbd></button></div>
+    <div class="fs-ctl">
+      <button class="btn" id="skipBtn">New rhyme <kbd>Space</kbd></button>
+      <button class="btn" id="ideasBtn" aria-pressed="false">More rhymes <kbd>I</kbd></button>
+    </div>
 
     <div class="overlay" id="pauseOv" hidden>
       <div class="ov-card">
         <h2>Paused</h2>
         <button class="btn primary" id="resumeBtn">Resume</button>
         <button class="btn" id="restartBtn">Restart</button>
+        <button class="btn" id="endBtn">End session</button>
         <button class="btn" id="quitBtn">Back to the crate</button>
       </div>
     </div>
   </section>
 
   <!-- ======================= RESULTS ======================= -->
-  <section id="results" class="screen" hidden aria-label="Results">
+  <section id="results" class="screen" hidden aria-label="Session summary">
     <div class="res-wrap">
       <div class="res-head">
-        <span class="grade" id="resGrade">A</span>
+        <span class="grade" id="resBig"></span>
         <div>
           <span class="eyebrow" id="resEyebrow"></span>
           <h2 id="resTitle"></h2>
-          <p class="res-score"><span id="resScore">0</span> <span id="resBest"></span></p>
+          <p class="res-score" id="resSub"></p>
         </div>
       </div>
       <dl class="res-stats" id="resStats"></dl>
       <div class="card res-log">
-        <h3>Your bars</h3>
-        <ol id="resLog"></ol>
+        <h3>The rhymes you rode</h3>
+        <ol id="resLog" class="pairs"></ol>
       </div>
       <div class="res-actions">
         <button class="btn primary" id="againBtn">Run it back</button>
@@ -585,14 +553,6 @@ select { background: var(--night); border: 1px solid var(--line); border-radius:
     </div>
   </section>
 
-  <div class="overlay" id="calOv" hidden>
-    <div class="ov-card cal">
-      <h2>Timing calibration</h2>
-      <p id="calText">Tap Space, or the pad, on every click. 8 clicks.</p>
-      <button class="cal-pad" id="calPad">Tap</button>
-      <button class="btn" id="calCancel">Cancel</button>
-    </div>
-  </div>
   <div id="toast" class="toast" role="status" hidden></div>
 </div>
 
@@ -76480,9 +76440,11 @@ var Store = (function () {
   var KEY = "rhyme-cipher.v1", data = null;
   function load() {
     if (data) return data;
-    data = { settings: {}, scores: {}, career: { runs: 0, rhymes: 0, perfectBeats: 0, bestCombo: 0, words: {} }, prefs: {} };
+    data = { settings: {}, career: { sessions: 0, bars: 0, words: 0, seconds: 0 }, trackBars: {} };
     try { var raw = localStorage.getItem(KEY); if (raw) { var d = JSON.parse(raw); if (d && typeof d === "object") Object.assign(data, d); } } catch (e) {}
-    data.career = Object.assign({ runs: 0, rhymes: 0, perfectBeats: 0, bestCombo: 0, words: {} }, data.career || {});
+    if (!data.career || data.career.sessions == null) data.career = { sessions: 0, bars: 0, words: 0, seconds: 0 };
+    data.trackBars = data.trackBars || {};
+    if (data.scores) data.scores = undefined;
     return data;
   }
   var t = null;
@@ -76492,7 +76454,7 @@ var Store = (function () {
 })();
 
 var Settings = (function () {
-  var DEF = { music: 80, sfx: 70, offset: 0, keysnd: true, sound: true, motion: "auto", mode: "rush", diff: "normal", pack: "bank", practice: false, fbars: 2, track: "builtin:concrete-psalms" };
+  var DEF = { music: 80, sfx: 70, offset: 0, cue: false, motion: "auto", scheme: "aabb", level: "easy", every: "auto", pack: "bank", ideas: false, track: "builtin:concrete-psalms" };
   return {
     get: function (k) { var s = Store.data.settings; return k in s ? s[k] : DEF[k]; },
     set: function (k, v) { Store.data.settings[k] = v; Store.save(); }
@@ -76528,6 +76490,10 @@ var Dict = (function () {
   function strip(p) { var c = p.charCodeAt(p.length - 1); return c >= 48 && c <= 57 ? p.slice(0, -1) : p; }
   function isV(p) { return !!VOWELS[strip(p)]; }
   function decode(enc) { var out = new Array(enc.length); for (var i = 0; i < enc.length; i++) out[i] = SYM[enc[i]]; return out; }
+  /** Keep the main pronunciation, plus alternates that carry a stressed vowel (drops weak forms like "kuhn" for can). */
+  function usable(list) {
+    return list.filter(function (p, i) { return i === 0 || p.some(function (ph) { return ph.charCodeAt(ph.length - 1) === 49; }); });
+  }
 
   function tailInfo(ph) {
     var idx = -1, i;
@@ -76558,9 +76524,9 @@ var Dict = (function () {
       words.push(w); prons.push(line.slice(col + 1)); flags[r] = f;
       if (!index.has(w)) index.set(w, r);
       if (f === 0 && w.indexOf("'") < 0) {
-        var ps = prons[r].split(";");
+        var ps = usable(prons[r].split(";").map(decode));
         for (var k = 0; k < ps.length; k++) {
-          var ti = tailInfo(decode(ps[k]));
+          var ti = tailInfo(ps[k]);
           if (!ti) continue;
           var arr = tailMap.get(ti.key); if (!arr) tailMap.set(ti.key, arr = []);
           if (arr[arr.length - 1] !== r) arr.push(r);
@@ -76576,7 +76542,7 @@ var Dict = (function () {
     return String(raw || "").toLowerCase().replace(/[‘’ʼ`]/g, "'").replace(/[^a-z']/g, "").replace(/^'+/, "");
   }
   function entryAt(r, asWord) {
-    return { word: asWord || words[r], dictWord: words[r], rank: r, flag: flags[r], prons: prons[r].split(";").map(decode) };
+    return { word: asWord || words[r], dictWord: words[r], rank: r, flag: flags[r], prons: usable(prons[r].split(";").map(decode)) };
   }
   /** Look up a typed word, trying rap spellings (runnin' -> running) and simple plurals. */
   function lookup(raw) {
@@ -76713,6 +76679,53 @@ var Dict = (function () {
   }
   function countRhymes(raw) { return rhymesFor(raw, { maxRank: 30000, limit: 400, slant: false }).total; }
 
+  var qualitySet = null;
+  function quality() {
+    if (qualitySet) return qualitySet;
+    qualitySet = new Set();
+    var P = meta.pools;
+    [P.easy, P.medium, P.hard].forEach(function (l) { l.forEach(function (w) { qualitySet.add(w); }); });
+    Object.keys(meta.topics).forEach(function (k) { meta.topics[k].forEach(function (w) { qualitySet.add(w); }); });
+    return qualitySet;
+  }
+  /**
+   * Rhyming partners for a freestyle word: common, perfect rhymes, never the same root.
+   * opts: { maxRank, count, used:Set, rng, multi:boolean, pick:number }
+   */
+  /** True when two words end in the same real word ("herself" / "itself"), which makes a lazy rhyme. */
+  function sameRoot(a, b) {
+    for (var n = Math.min(a.length, b.length); n >= 3; n--) {
+      var tail = a.slice(-n);
+      if (tail !== b.slice(-n) || !index.has(tail)) continue;
+      if (n >= 4) return true;
+      var pa = a.slice(0, -n), pb = b.slice(0, -n);
+      if (pa.length >= 2 && pb.length >= 2 && index.has(pa) && index.has(pb)) return true; // every+one / some+one
+    }
+    return false;
+  }
+  function mainKey(w) { var e = lookup(w); var t = e && tailInfo(e.prons[0]); return t ? t.key : null; }
+  function partners(word, opts) {
+    var e = lookup(word);
+    if (!e) return [];
+    var key = mainKey(word);
+    var r = rhymesFor(e, { maxRank: opts.maxRank || 15000, limit: 120, slant: false });
+    var list = (opts.multi ? r.multi.concat(r.perfect) : r.perfect.concat(r.multi)).filter(function (w) {
+      return w.length >= 3 && !(opts.used && opts.used.has(w)) && w.indexOf(word) < 0 && word.indexOf(w) < 0 && !sameRoot(w, word) && mainKey(w) === key;
+    });
+    var q = quality();
+    var good = list.filter(function (w) { return q.has(w); }), rest = list.filter(function (w) { return !q.has(w); });
+    var ordered = good.concat(rest).slice(0, Math.max(opts.pick || 12, opts.count));
+    var out = [];
+    while (out.length < opts.count && ordered.length) {
+      var i = Math.floor((opts.rng || Math.random)() * ordered.length);
+      var w = ordered.splice(i, 1)[0];
+      if (out.some(function (o) { return sameRoot(o, w); })) continue;
+      out.push(w);
+    }
+    return out;
+  }
+  function tailSyl(word) { var e = lookup(word); if (!e) return 0; var t = tailInfo(e.prons[0]); return t ? t.vowels.length : 0; }
+
   function pickTarget(pool, used, rng) {
     for (var tries = 0; tries < 40; tries++) {
       var w = pool[Math.floor(rng() * pool.length)];
@@ -76723,7 +76736,7 @@ var Dict = (function () {
 
   return {
     load: load, lookup: lookup, has: has, compare: compare, rhymesFor: rhymesFor, countRhymes: countRhymes,
-    sayTail: sayTail, normalize: normalize, pickTarget: pickTarget, tailInfo: tailInfo,
+    sayTail: sayTail, normalize: normalize, pickTarget: pickTarget, tailInfo: tailInfo, partners: partners, tailSyl: tailSyl,
     get size() { return words.length; }, get ready() { return ready; }, get meta() { return meta; },
     rankOf: function (w) { return index.has(w) ? index.get(w) : -1; },
     syllables: function (e) { return e ? countSyl(e.prons[0]) : 0; }
@@ -76863,35 +76876,9 @@ var AudioEngine = (function () {
     o.connect(g); g.connect(dest || sfxGain);
     o.start(t); o.stop(t + dur + 0.02);
   }
-  var noiseBuf = null;
-  function noise(dur, vol, fType, fFreq, when) {
-    var t = when || ctx.currentTime;
-    if (!noiseBuf) {
-      noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
-      var d = noiseBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    }
-    var s = ctx.createBufferSource(); s.buffer = noiseBuf;
-    var f = ctx.createBiquadFilter(); f.type = fType; f.frequency.value = fFreq;
-    var g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    s.connect(f); f.connect(g); g.connect(sfxGain); s.start(t); s.stop(t + dur + 0.02);
-  }
   var SFX = {
-    hit: function (kind) {
-      if (!ctx) return;
-      var t = ctx.currentTime;
-      if (kind === "perfect") { tone("triangle", 880, 880, 0.12, 0.22, t); tone("triangle", 1318.5, 1318.5, 0.16, 0.18, t + 0.05); tone("sine", 1760, 1760, 0.22, 0.12, t + 0.1); }
-      else if (kind === "multi") { [659.3, 880, 1108.7, 1318.5].forEach(function (f, i) { tone("triangle", f, f, 0.14, 0.18, t + i * 0.04); }); }
-      else if (kind === "slant") { tone("triangle", 660, 660, 0.1, 0.2, t); tone("triangle", 990, 990, 0.14, 0.14, t + 0.05); }
-      else { tone("triangle", 520, 520, 0.12, 0.16, t); }
-    },
-    wrong: function () { if (!ctx) return; tone("square", 196, 150, 0.14, 0.07); noise(0.06, 0.08, "bandpass", 900); },
-    miss: function () { if (!ctx) return; tone("sawtooth", 220, 70, 0.4, 0.12); noise(0.25, 0.12, "lowpass", 600); },
-    key: function () { if (!ctx || !Settings.get("keysnd")) return; noise(0.018, 0.05, "highpass", 4000); },
-    spawn: function () { if (!ctx) return; tone("sine", 1200, 1500, 0.06, 0.06); },
-    hint: function () { if (!ctx) return; tone("sine", 700, 500, 0.15, 0.1); },
     ui: function () { if (!ctx) return; tone("triangle", 1046.5, 1046.5, 0.05, 0.08); },
     count: function (hi, when) { if (!ctx) return; tone("square", hi ? 1320 : 880, hi ? 1320 : 880, 0.08, 0.07, when); },
-    drop: function () { if (!ctx) return; tone("sawtooth", 300, 40, 1.0, 0.18); noise(0.8, 0.2, "lowpass", 900); },
     click: function (accent, when) { if (!ctx) return; tone("square", accent ? 1760 : 1175, accent ? 1760 : 1175, 0.035, accent ? 0.16 : 0.1, when); }
   };
 
@@ -78124,12 +78111,12 @@ var Menu = (function () {
     ["dragleave", "drop"].forEach(function (ev) { document.addEventListener(ev, function (e) { if (ev === "dragleave" && e.relatedTarget) return; drop.classList.remove("over"); }); });
     document.addEventListener("drop", function (e) { if (App.current !== "menu") return; e.preventDefault(); if (e.dataTransfer && e.dataTransfer.files.length) { tab("play"); addFiles(e.dataTransfer.files); } });
     // setup controls
-    $$(".mode").forEach(function (b) { b.addEventListener("click", function () { Settings.set("mode", b.dataset.mode); AudioEngine.sfx.ui(); syncSetup(); }); });
-    $$("#diffSeg button").forEach(function (b) { b.addEventListener("click", function () { Settings.set("diff", b.dataset.diff); syncSetup(); }); });
-    $$("#barsSeg button").forEach(function (b) { b.addEventListener("click", function () { Settings.set("fbars", +b.dataset.bars); syncSetup(); }); });
+    $$(".mode").forEach(function (b) { b.addEventListener("click", function () { Settings.set("scheme", b.dataset.scheme); AudioEngine.sfx.ui(); syncSetup(); }); });
+    $$("#levelSeg button").forEach(function (b) { b.addEventListener("click", function () { Settings.set("level", b.dataset.level); syncSetup(); }); });
+    $$("#everySeg button").forEach(function (b) { b.addEventListener("click", function () { Settings.set("every", b.dataset.every); syncSetup(); }); });
     var packSel = $("#packSel");
     packSel.addEventListener("change", function () { Settings.set("pack", packSel.value); });
-    $("#practiceChk").addEventListener("change", function (e) { Settings.set("practice", e.target.checked); syncSetup(); });
+    $("#ideasChk").addEventListener("change", function (e) { Settings.set("ideas", e.target.checked); });
     $("#startBtn").addEventListener("click", startRun);
     Library.onChange(function () { renderList(); if (sel && !Library.byId(sel.id)) select(Library.tracks[0]); else renderCard(); });
     // keys
@@ -78137,7 +78124,6 @@ var Menu = (function () {
       if (App.current !== "menu" || e.ctrlKey || e.metaKey || e.altKey) return;
       var tag = (document.activeElement && document.activeElement.tagName) || "";
       var typing = tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA";
-      if (!$("#calOv").hidden) return;
       if (typing) return;
       var onPlay = !$("#tab-play").hidden;
       if (e.key === "Enter" && onPlay && tag !== "BUTTON") { e.preventDefault(); startRun(); }
@@ -78149,7 +78135,7 @@ var Menu = (function () {
         if (n && n !== sel) { select(n); var li = document.querySelector('[data-id="' + cssEsc(n.id) + '"]'); if (li) li.scrollIntoView({ block: "nearest" }); }
       } else if ((e.key === "t" || e.key === "T") && onPlay && sel && !sel.builtin) tap();
     });
-    initLab(); initSettings(); initCal();
+    initLab(); initSettings();
     var first = Library.byId(Settings.get("track")) || Library.tracks[0];
     renderList(); select(first, true); syncSetup();
   }
@@ -78181,11 +78167,10 @@ var Menu = (function () {
     ul.innerHTML = list.map(function (t) {
       var meta = t.status === "analyzing" ? "reading BPM and key…" : t.status === "error" ? "could not read this file" :
         esc(t.genre) + " · " + (t.bpm ? (Math.round(t.bpm * 10) / 10) + " BPM" : "") + (t.keyTonic != null ? " · " + keyLabel(t) : "");
-      var g = Results.bestGrade(t.id);
       return '<li class="trk" role="option" tabindex="-1" data-id="' + esc(t.id) + '" aria-selected="' + (sel && sel.id === t.id) + '" style="--c:' + esc(t.color) + '">' +
         '<span class="disc' + (sel && sel.id === t.id && previewing ? " spinning" : "") + '"></span>' +
         '<span class="trk-main"><span class="trk-title">' + esc(t.title) + '</span><span class="trk-meta">' + meta + "</span></span>" +
-        (t.status === "analyzing" ? '<span class="trk-busy" aria-hidden="true"></span>' : '<span class="trk-grade" title="Best grade">' + (g || "") + "</span>") + "</li>";
+        (t.status === "analyzing" ? '<span class="trk-busy" aria-hidden="true"></span>' : "<span></span>") + "</li>";
     }).join("");
     $$(".trk", ul).forEach(function (li) { li.addEventListener("click", function () { var t = Library.byId(li.dataset.id); if (t) select(t); }); });
   }
@@ -78389,31 +78374,32 @@ var Menu = (function () {
   }
 
   // ------------------------------------------------------------ setup
+  var LEVEL_HINT = {
+    easy: "Short everyday words with lots of rhymes, like claim / blame.",
+    medium: "More variety and some longer words, like oppression / possession.",
+    hard: "Longer words and multi-syllable pairs, like terrific / horrific."
+  };
   function syncSetup() {
-    var mode = Settings.get("mode"), diff = Settings.get("diff"), fb = Settings.get("fbars");
-    $$(".mode").forEach(function (b) { b.setAttribute("aria-checked", b.dataset.mode === mode ? "true" : "false"); });
-    $$("#diffSeg button").forEach(function (b) { b.setAttribute("aria-checked", b.dataset.diff === diff ? "true" : "false"); });
-    $$("#barsSeg button").forEach(function (b) { b.setAttribute("aria-checked", +b.dataset.bars === fb ? "true" : "false"); });
-    $("#diffOpt").hidden = mode === "freestyle";
-    $("#barsOpt").hidden = mode !== "freestyle";
-    $("#practiceChk").checked = !!Settings.get("practice");
-    $("#practiceChk").parentNode.hidden = mode === "freestyle";
+    var scheme = Settings.get("scheme"), level = Settings.get("level"), every = String(Settings.get("every"));
+    $$(".mode").forEach(function (b) { b.setAttribute("aria-checked", b.dataset.scheme === scheme ? "true" : "false"); });
+    $$("#levelSeg button").forEach(function (b) { b.setAttribute("aria-checked", b.dataset.level === level ? "true" : "false"); });
+    $$("#everySeg button").forEach(function (b) { b.setAttribute("aria-checked", b.dataset.every === every ? "true" : "false"); });
+    $("#levelHint").textContent = LEVEL_HINT[level] || "";
+    $("#ideasChk").checked = !!Settings.get("ideas");
     var packSel = $("#packSel");
     if (!packSel.options.length && Dict.meta) {
-      var o = '<option value="bank">Rhyme bank (fits the difficulty)</option><option value="all">Everything (' + fmtNum(Dict.meta.pools.easy.length + Dict.meta.pools.medium.length + Dict.meta.pools.hard.length) + " words)</option>";
+      var o = '<option value="bank">Mixed words (fits the level)</option><option value="all">Everything (' + fmtNum(Dict.meta.pools.easy.length + Dict.meta.pools.medium.length + Dict.meta.pools.hard.length) + " words)</option>";
       Object.keys(Dict.meta.topics).forEach(function (k) { o += '<option value="' + esc(k) + '">' + esc(k) + " (" + Dict.meta.topics[k].length + " words)</option>"; });
       packSel.innerHTML = o;
     }
     if (packSel.options.length) packSel.value = Settings.get("pack");
     var t = sel;
     if (t && t.grid) {
-      var spb = 60 / t.grid.bpm, D = Game.DIFF[diff];
-      if (mode === "rush") { var w = Math.max(2, Math.round(D.sec / spb / 2) * 2); $("#diffHint").textContent = w + " beats (" + (w * spb).toFixed(1) + " s) per word at " + Math.round(t.grid.bpm) + " BPM. " + (D.allow.loose ? "Loose rhymes count." : D.allow.echo ? "Perfect, slant and echo rhymes only." : "Perfect and slant rhymes only."); }
-      else if (mode === "storm") { var r = Math.max(8, Math.round(D.storm / spb / 4) * 4); $("#diffHint").textContent = (r / 4) + " bars (" + (r * spb).toFixed(1) + " s) per word. A round with no rhymes costs a mic."; }
+      var spb = 60 / t.grid.bpm, n = Game.barsPer({ every: every }, t.grid.bpm);
+      $("#everyHint").textContent = "At " + Math.round(t.grid.bpm) + " BPM: a new word every " + (n === 1 ? "bar" : "2 bars") + ", " + (n * 4 * spb).toFixed(1) + " s to land each one." + (every === "auto" ? " Auto uses 2 bars above 115 BPM." : "");
+      var bars = Results.barsOn(t.id);
+      $("#bestLine").innerHTML = bars ? "You've ridden <b>" + fmtNum(bars) + "</b> bars on this beat." : "Words start after the " + (t.builtin ? t.playStartBar + "-bar " : "") + "intro, with a 4-count.";
     }
-    var best = t ? Results.best(t.id, mode, diff) : null;
-    $("#bestLine").innerHTML = mode === "freestyle" ? "Freestyle has no score. Just flow." : best ? "Your best here: <b>" + fmtNum(best.score) + "</b> (" + esc(best.grade) + ")" : "No score on this track and difficulty yet.";
-    var sb = $("#startBtn span"); if (sb) sb.textContent = mode === "freestyle" ? "Start the cipher" : "Step up to the mic";
   }
 
   function startRun() {
@@ -78422,7 +78408,7 @@ var Menu = (function () {
     if (!t || (t.status !== "ready" && t.status !== "stale")) { Toast(t && t.status === "analyzing" ? "Still reading that song. One moment." : "Pick a song first."); return; }
     stopPreview();
     AudioEngine.ensure(); AudioEngine.resume();
-    Game.start({ track: t, mode: Settings.get("mode"), diff: Settings.get("diff"), pack: Settings.get("pack"), practice: Settings.get("practice"), fbars: Settings.get("fbars") });
+    Game.start({ track: t, scheme: Settings.get("scheme"), level: Settings.get("level"), every: Settings.get("every"), pack: Settings.get("pack"), ideas: Settings.get("ideas") });
   }
 
   // ------------------------------------------------------------ Rhyme Lab
@@ -78472,102 +78458,62 @@ var Menu = (function () {
     bind("setMusic", "music", "outMusic", function (v) { return v + "%"; });
     bind("setSfx", "sfx", "outSfx", function (v) { return v + "%"; });
     bind("setOffset", "offset", "outOffset", function (v) { return (v > 0 ? "+" : "") + v + " ms"; });
-    var k = $("#setKeys"); k.checked = !!Settings.get("keysnd"); k.addEventListener("change", function () { Settings.set("keysnd", k.checked); });
+    var k = $("#setCue"); k.checked = !!Settings.get("cue"); k.addEventListener("change", function () { Settings.set("cue", k.checked); });
     var m = $("#setMotion"); m.value = Settings.get("motion"); m.addEventListener("change", function () { Settings.set("motion", m.value); });
     $("#resetBtn").addEventListener("click", function () {
       var msg = $("#resetMsg");
       if (Date.now() - resetArm < 4000) {
-        Store.data.scores = {}; Store.data.career = { runs: 0, rhymes: 0, perfectBeats: 0, bestCombo: 0, words: {} }; Store.saveNow();
-        msg.textContent = "Reset."; resetArm = 0; this.textContent = "Reset scores"; renderCareer(); renderList(); syncSetup();
-      } else { resetArm = Date.now(); this.textContent = "Click again to confirm"; msg.textContent = ""; var self = this; setTimeout(function () { self.textContent = "Reset scores"; }, 4000); }
+        Store.data.career = { sessions: 0, bars: 0, words: 0, seconds: 0 }; Store.data.trackBars = {}; Store.saveNow();
+        msg.textContent = "Reset."; resetArm = 0; this.textContent = "Reset stats"; renderCareer(); syncSetup();
+      } else { resetArm = Date.now(); this.textContent = "Click again to confirm"; msg.textContent = ""; var self = this; setTimeout(function () { self.textContent = "Reset stats"; }, 4000); }
     });
   }
   function renderCareer() {
-    var c = Store.data.career, fav = Object.keys(c.words).sort(function (a, b) { return c.words[b] - c.words[a]; })[0];
-    $("#career").innerHTML = [["Runs", c.runs], ["Rhymes spit", fmtNum(c.rhymes)], ["On-beat hits", fmtNum(c.perfectBeats)], ["Best combo", c.bestCombo], ["Go-to word", fav || "–"]]
+    var c = Store.data.career;
+    $("#career").innerHTML = [["Sessions", c.sessions || 0], ["Bars ridden", fmtNum(c.bars || 0)], ["End words landed", fmtNum(c.words || 0)], ["Time in the cipher", fmtTime(c.seconds || 0)]]
       .map(function (p) { return "<div><b>" + esc(String(p[1])) + "</b><span>" + p[0] + "</span></div>"; }).join("");
-  }
-
-  // ------------------------------------------------------------ calibration
-  function initCal() {
-    var ov = $("#calOv"), pad = $("#calPad"), txt = $("#calText"), clicks = [], tapsC = [], running = false;
-    function tapNow() {
-      if (!running) return;
-      var ctx = AudioEngine.ctx;
-      tapsC.push(ctx.currentTime - (ctx.outputLatency || ctx.baseLatency || 0));
-      pad.classList.add("hit"); setTimeout(function () { pad.classList.remove("hit"); }, 90);
-      if (tapsC.length >= 8) done();
-    }
-    function done() {
-      running = false;
-      var diffs = tapsC.map(function (t) { var best = 9; clicks.forEach(function (c) { if (Math.abs(t - c) < Math.abs(best)) best = t - c; }); return best; }).filter(function (d) { return Math.abs(d) < 0.3; });
-      if (diffs.length < 5) { txt.textContent = "Those taps were too far from the clicks. Try again."; return; }
-      var off = Math.round(median(diffs) * 1000);
-      Settings.set("offset", clamp(off, -150, 150));
-      $("#setOffset").value = Settings.get("offset"); $("#outOffset").textContent = (off > 0 ? "+" : "") + off + " ms";
-      txt.textContent = "Your timing offset is " + (off > 0 ? "+" : "") + off + " ms. Saved.";
-      setTimeout(function () { ov.hidden = true; }, 1600);
-    }
-    $("#calBtn").addEventListener("click", function () {
-      AudioEngine.ensure(); AudioEngine.resume().then(function () {
-        var ctx = AudioEngine.ctx, spb = 0.6, t0 = ctx.currentTime + 1.2;
-        clicks = []; tapsC = []; running = true;
-        for (var i = 0; i < 12; i++) { clicks.push(t0 + i * spb); AudioEngine.sfx.click(i % 4 === 0, t0 + i * spb); }
-        txt.textContent = "Tap Space, or the pad, on every click. 8 taps.";
-        ov.hidden = false; pad.focus();
-      });
-    });
-    pad.addEventListener("pointerdown", function (e) { e.preventDefault(); tapNow(); });
-    document.addEventListener("keydown", function (e) { if (!ov.hidden && (e.key === " " || e.code === "Space")) { e.preventDefault(); tapNow(); } if (!ov.hidden && e.key === "Escape") { running = false; ov.hidden = true; } });
-    $("#calCancel").addEventListener("click", function () { running = false; ov.hidden = true; });
   }
 
   return { init: init, renderList: renderList, syncSetup: syncSetup, drawWave: drawWave, get selected() { return sel; } };
 })();
 
 /* ============================================================
-   Game: beat clock, modes (Rush / Storm / Freestyle), scoring,
-   stage canvas (spectrum, beat rings, particles, beat lane).
+   Game: the freestyle rhyme game. Every bar ends on a word;
+   words come in rhyming groups (AABB / ABAB / AAAA).
+   Beat clock, word queue, stage canvas and word lane.
    ============================================================ */
 var Game = (function () {
-  var DIFF = {
-    chill: { name: "Chill", sec: 7.5, storm: 14, allow: { perfect: 1, slant: 1, echo: 1, loose: 1 }, pools: [["easy", 1]] },
-    normal: { name: "Normal", sec: 5.5, storm: 11, allow: { perfect: 1, slant: 1, echo: 1, loose: 1 }, pools: [["easy", 0.7], ["medium", 0.3]] },
-    hard: { name: "Hard", sec: 4, storm: 8, allow: { perfect: 1, slant: 1, echo: 1 }, pools: [["easy", 0.15], ["medium", 0.6], ["hard", 0.25]] },
-    insane: { name: "Insane", sec: 2.8, storm: 6, allow: { perfect: 1, slant: 1 }, pools: [["medium", 0.5], ["hard", 0.5]] }
+  var LEVELS = {
+    easy: { name: "Easy", pools: [["easy", 1]], maxRank: 6000, pick: 12, multi: false, multiPref: 0 },
+    medium: { name: "Medium", pools: [["easy", 0.55], ["medium", 0.45]], maxRank: 15000, pick: 18, multi: false, multiPref: 0.25 },
+    hard: { name: "Hard", pools: [["medium", 0.5], ["hard", 0.5]], maxRank: 30000, pick: 24, multi: true, multiPref: 0.8 }
   };
-  var BASE = { perfect: 100, slant: 60, echo: 40, loose: 30 };
-  var TYPE_NAME = { perfect: "Perfect", slant: "Slant", echo: "Echo", loose: "Loose", multi: "Multi" };
-  var TYPE_COLOR = { perfect: "#ffb547", multi: "#ff4f9a", slant: "#4fe3ff", loose: "#c3b4e6", echo: "#c3b4e6", miss: "#ff5d5d", wrong: "#ff5d5d" };
+  var SCHEMES = { aabb: { name: "Couplets", pat: "AABB" }, abab: { name: "Alternating", pat: "ABAB" }, aaaa: { name: "Four in a row", pat: "AAAA" } };
+  var COLORS = ["#ffb547", "#ff4f9a", "#4fe3ff", "#7cf29a", "#c9a7ff", "#ff9a5c"];
 
-  var S = null, el = {}, cv, cx, W = 0, H = 0, DPR = 1, raf = 0, lastBeatInt = -999;
-  var particles = [], rings = [], marks = [], shakeT = 0, scoreShown = 0;
+  var S = null, el = {}, cv, cx, W = 0, H = 0, DPR = 1, raf = 0;
+  var rings = [], landFx = [];
 
   function initDom() {
-    ["hudScore", "hudMult", "hudComboN", "hudCombo", "hudTitle", "hudSec", "hudProg", "hudLives", "tEyebrow", "tWord", "tSound", "tBeats", "tChips", "tCloud", "tNext",
-      "judge", "spitForm", "spitIn", "hintBtn", "freeCtl", "skipBtn", "pauseOv", "pauseBtn", "resumeBtn", "restartBtn", "quitBtn", "targetBox"].forEach(function (id) { el[id] = document.getElementById(id); });
+    ["hudBar", "hudSub", "hudTitle", "hudSec", "hudProg", "fsBox", "fsEyebrow", "fsWord", "fsSound", "fsBeats", "fsNext", "fsLink", "fsNword", "fsQueue", "fsIdeas",
+      "skipBtn", "ideasBtn", "pauseOv", "pauseBtn", "resumeBtn", "restartBtn", "endBtn", "quitBtn"].forEach(function (id) { el[id] = document.getElementById(id); });
     cv = document.getElementById("stage"); cx = cv.getContext("2d");
     var sp = document.createElement("div"); sp.className = "lane-space"; document.getElementById("game").appendChild(sp);
     window.addEventListener("resize", resize);
-    el.spitForm.addEventListener("submit", function (e) { e.preventDefault(); submit(); });
-    el.spitIn.addEventListener("input", function () { AudioEngine.sfx.key(); });
-    el.spitIn.addEventListener("keydown", function (e) {
-      if (e.key === "Tab") { e.preventDefault(); hint(); }
-    });
-    el.hintBtn.addEventListener("click", function () { hint(); el.spitIn.focus(); });
     el.skipBtn.addEventListener("click", skip);
+    el.ideasBtn.addEventListener("click", toggleIdeas);
     el.pauseBtn.addEventListener("click", pause);
     el.resumeBtn.addEventListener("click", resume);
     el.restartBtn.addEventListener("click", function () { var o = S.opts; stopAll(); start(o); });
+    el.endBtn.addEventListener("click", function () { el.pauseOv.hidden = true; finish("ended"); });
     el.quitBtn.addEventListener("click", function () { stopAll(); App.show("menu"); });
-    document.getElementById("game").addEventListener("pointerdown", function (e) {
-      if (S && S.phase !== "done" && S.mode !== "freestyle" && !S.paused && e.target.tagName !== "BUTTON" && e.target.tagName !== "INPUT") setTimeout(function () { el.spitIn.focus(); }, 0);
-    });
     document.addEventListener("keydown", function (e) {
-      if (!S || App.current !== "game") return;
+      if (!S || App.current !== "game" || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === "Escape") { e.preventDefault(); if (S.paused) resume(); else pause(); }
-      else if (S.mode === "freestyle" && (e.key === " " || e.code === "Space") && !S.paused) { e.preventDefault(); skip(); }
-      else if (S.phase === "outro" && e.key === "Enter" && document.activeElement !== el.spitIn) finish("complete");
+      else if (S.paused) return;
+      else if (e.key === " " || e.code === "Space") { e.preventDefault(); skip(); }
+      else if (e.key === "i" || e.key === "I") { e.preventDefault(); toggleIdeas(); }
+      else if (e.key === "Enter" && S.phase === "outro") finish("complete");
     });
     document.addEventListener("visibilitychange", function () { if (document.hidden && S && !S.paused && S.phase !== "done") pause(); });
   }
@@ -78578,24 +78524,17 @@ var Game = (function () {
   }
 
   // ------------------------------------------------------------ start
+  function barsPer(opts, bpm) { var e = opts.every; if (!e || e === "auto") return bpm > 115 ? 2 : 1; return +e; }
   function start(opts) {
-    var t = opts.track;
-    var grid = Object.assign({}, t.grid);
-    var spb = 60 / grid.bpm;
+    var t = opts.track, grid = Object.assign({}, t.grid), spb = 60 / grid.bpm;
+    var bp = barsPer(opts, grid.bpm);
     S = {
-      opts: opts, track: t, mode: opts.mode, diffKey: opts.diff, D: DIFF[opts.diff] || DIFF.normal,
-      practice: !!opts.practice || opts.mode === "freestyle", grid: grid, spb: spb,
+      opts: opts, track: t, grid: grid, spb: spb,
       dbBeat: ((Math.round((grid.downbeat - grid.offset) / spb) % 4) + 4) % 4,
-      duration: t.duration, lives: 3, score: 0, combo: 0, maxCombo: 0, mult: 1,
-      target: null, nextWord: null, pendingSpawn: null, usedTargets: new Set(), usedWords: new Set(),
-      log: [], phase: "intro", paused: false, rng: mulberry(Date.now() & 0xffffffff),
-      stats: { targets: 0, hitTargets: 0, misses: 0, rhymes: 0, onBeat: 0, close: 0, wrong: 0, multis: 0, slants: 0, perfects: 0, loose: 0, rarest: null, longest: null, reactions: [], rounds: 0, roundHits: 0 },
-      countScheduled: {}
+      duration: t.duration, scheme: SCHEMES[opts.scheme] ? opts.scheme : "aabb", L: LEVELS[opts.level] || LEVELS.easy,
+      barsPer: bp, slotBeats: bp * 4, queue: [], groupN: 0, used: new Set(), rng: mulberry(Date.now() & 0xffffffff),
+      phase: "intro", paused: false, slot: -1, landed: -1, landedCount: 0, ideas: !!opts.ideas, countScheduled: {}, startedAt: Date.now(), lastBeatInt: -999
     };
-    if (S.mode === "rush") S.window = Math.max(2, Math.round(S.D.sec / spb / 2) * 2);
-    else if (S.mode === "storm") S.round = Math.max(8, Math.round(S.D.storm / spb / 4) * 4);
-    else S.round = (opts.fbars || 2) * 4;
-    // first word lands on a downbeat after the intro
     if (t.builtin) S.startBeat = t.playStartBar * 4;
     else {
       var startSec = (t.stats && t.stats.startSec) || 0;
@@ -78604,213 +78543,153 @@ var Game = (function () {
       while (((b0 - S.dbBeat) % 4 + 4) % 4 !== 0) b0++;
       S.startBeat = b0;
     }
-    S.nextWord = pickWord();
-    particles = []; rings = []; marks = []; scoreShown = 0; lastBeatInt = -999;
+    ensureQueue(8);
+    rings = []; landFx = [];
     document.documentElement.style.setProperty("--track", t.color || "#ffb547");
     el.hudTitle.textContent = t.title + " · " + (Math.round(grid.bpm * 10) / 10) + " BPM";
-    el.tWord.textContent = ""; el.tSound.textContent = ""; el.tChips.innerHTML = ""; el.tBeats.innerHTML = ""; el.tCloud.hidden = true; el.tCloud.innerHTML = ""; el.judge.innerHTML = "";
-    el.tEyebrow.textContent = "Get ready";
-    el.tNext.textContent = "";
-    el.spitIn.value = "";
-    var free = S.mode === "freestyle";
-    el.spitForm.hidden = free; el.freeCtl.hidden = !free;
+    el.hudSub.textContent = SCHEMES[S.scheme].name + " · " + S.L.name + " · " + (bp === 1 ? "word every bar" : "word every 2 bars");
+    el.hudBar.textContent = "Intro";
+    setWord("", false); el.fsSound.textContent = ""; el.fsBeats.innerHTML = ""; el.fsQueue.innerHTML = ""; el.fsIdeas.innerHTML = "";
+    el.fsNext.hidden = true; el.fsIdeas.hidden = !S.ideas;
+    el.ideasBtn.setAttribute("aria-pressed", S.ideas ? "true" : "false");
+    el.fsEyebrow.textContent = "Get ready";
     el.pauseOv.hidden = true;
-    renderLives(); renderHud(true);
     App.show("game");
     resize();
     var go = function (buffer) {
       if (!S || S.opts !== opts) return;
       if (t.builtin) AudioEngine.playLive(t.spec, 0, onSongEnd);
       else AudioEngine.play(buffer, 0, onSongEnd);
-      if (!free) setTimeout(function () { el.spitIn.focus(); }, 50);
       cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
     };
     if (t.builtin) AudioEngine.resume().then(function () { go(null); });
     else Library.getBuffer(t).then(go, function () { Toast("That song could not be loaded. Try adding the file again."); App.show("menu"); });
   }
-  function onSongEnd() { if (S && S.phase !== "done") finish(S.lives <= 0 ? "dropped" : "complete"); }
+  function onSongEnd() { if (S && S.phase !== "done") finish("complete"); }
 
-  function pickWord() {
+  // ------------------------------------------------------------ word queue
+  function pickFirst() {
     var meta = Dict.meta, pack = S.opts.pack || "bank", pool;
     if (pack === "bank") {
-      var pools = (S.mode === "freestyle" ? DIFF.normal : S.D).pools, r = S.rng(), acc = 0;
+      var pools = S.L.pools, r = S.rng(), acc = 0;
       pool = meta.pools[pools[pools.length - 1][0]];
       for (var i = 0; i < pools.length; i++) { acc += pools[i][1]; if (r < acc) { pool = meta.pools[pools[i][0]]; break; } }
     } else if (pack === "all") {
       var keys = ["easy", "medium", "hard"]; pool = meta.pools[keys[Math.floor(S.rng() * 3)]];
     } else pool = meta.topics[pack] || meta.pools.easy;
-    if (S.usedTargets.size >= pool.length) S.usedTargets.clear();
-    return Dict.pickTarget(pool, S.usedTargets, S.rng);
+    return pool[Math.floor(S.rng() * pool.length)];
   }
-
-  // ------------------------------------------------------------ word lifecycle
-  function spawn(beat) {
-    var word = S.nextWord || pickWord();
-    S.usedTargets.add(word);
-    S.nextWord = pickWord();
-    var entry = Dict.lookup(word);
-    var len = S.mode === "rush" ? S.window : S.round;
-    if (beatTime(beat + Math.min(len, 4)) > S.duration - 0.6) { S.phase = "outro"; showOutro(); return; }
-    S.target = { word: word, entry: entry, spawn: beat, gate: beat + len, hits: [], hinted: false, hintWord: null };
-    S.pendingSpawn = null;
-    S.stats.targets++;
-    el.tWord.textContent = word;
-    el.tWord.classList.remove("drop", "flash"); void el.tWord.offsetWidth; el.tWord.classList.add("drop");
-    el.tSound.textContent = "rhymes on " + Dict.sayTail(entry);
-    el.tChips.innerHTML = "";
-    el.tEyebrow.textContent = S.mode === "storm" ? "Stack rhymes for" : S.mode === "freestyle" ? "Rhyme with" : "Rhyme with";
-    el.tNext.textContent = S.mode === "rush" ? "" : "next: " + S.nextWord;
-    var dots = "";
-    for (var i = 0; i < len; i++) dots += "<i" + (i >= len - 2 ? ' class="late"' : "") + "></i>";
-    el.tBeats.innerHTML = len <= 32 ? dots : "";
-    if (S.mode === "freestyle") {
-      var r = Dict.rhymesFor(entry, { maxRank: 15000, limit: 12, slantLimit: 4 });
-      var words = r.perfect.slice(0, 7).map(function (w) { return [w, ""]; }).concat(r.multi.slice(0, 3).map(function (w) { return [w, "m"]; })).concat(r.slant.slice(0, 3).map(function (w) { return [w, "s"]; }));
-      el.tCloud.innerHTML = words.map(function (p, i) { return '<span class="' + p[1] + '" style="animation-delay:' + (i * 40) + 'ms">' + esc(p[0]) + "</span>"; }).join("");
-      el.tCloud.hidden = false;
+  function makeGroup(n) {
+    if (S.used.size > 1500) S.used.clear();
+    var L = S.L;
+    for (var t = 0; t < 60; t++) {
+      var w = t < 45 ? pickFirst() : Dict.meta.pools.easy[Math.floor(S.rng() * Dict.meta.pools.easy.length)];
+      if (S.used.has(w) || !Dict.has(w)) continue;
+      if (t < 30 && L.multiPref && Dict.tailSyl(w) < 2 && S.rng() < L.multiPref) continue;
+      var ps = Dict.partners(w, { maxRank: t < 45 ? L.maxRank : 20000, count: n - 1, used: S.used, rng: S.rng, multi: L.multi, pick: L.pick });
+      if (ps.length < n - 1) continue;
+      var words = [w].concat(ps);
+      words.forEach(function (x) { S.used.add(x); });
+      S.groupN++;
+      return { id: S.groupN, color: COLORS[(S.groupN - 1) % COLORS.length], words: words };
     }
-    AudioEngine.sfx.spawn();
+    S.groupN++;
+    return { id: S.groupN, color: COLORS[(S.groupN - 1) % COLORS.length], words: ["day", "way", "play", "stay"].slice(0, n) };
+  }
+  function genBlock() {
+    var pat = SCHEMES[S.scheme].pat, need = {}, groups = {}, idx = {}, i;
+    for (i = 0; i < pat.length; i++) need[pat[i]] = (need[pat[i]] || 0) + 1;
+    Object.keys(need).forEach(function (L) { groups[L] = makeGroup(need[L]); });
+    for (i = 0; i < pat.length; i++) {
+      var L = pat[i], g = groups[L], j = idx[L] || 0;
+      S.queue.push({ word: g.words[j], gid: g.id, color: g.color, first: j === 0, letter: L });
+      idx[L] = j + 1;
+    }
+  }
+  function ensureQueue(n) { while (S.queue.length < n) genBlock(); }
+  function prevInGroup(k) { for (var i = k - 1; i >= 0; i--) if (S.queue[i].gid === S.queue[k].gid) return S.queue[i].word; return null; }
+
+  // ------------------------------------------------------------ the word on stage
+  function beatTime(b) { return S.grid.offset + b * S.spb; }
+  function slotEndsAfterSong(k) { return beatTime(S.startBeat + (k + 1) * S.slotBeats - 1) > S.duration - 0.25; }
+
+  function beatDots() {
+    var h = "";
+    for (var i = 0; i < S.slotBeats; i++) {
+      if (i === 4) h += '<i class="gap"></i>';
+      h += i === S.slotBeats - 1 ? '<i class="land">4</i>' : "<i></i>";
+    }
+    el.fsBeats.innerHTML = h;
+  }
+  function enterSlot(k) {
+    if (slotEndsAfterSong(k)) { showOutro(); return; }
+    ensureQueue(k + 10);
+    var cur = S.queue[k];
+    document.getElementById("game").style.setProperty("--g", cur.color);
+    var b1 = k * S.barsPer + 1;
+    el.fsEyebrow.textContent = S.barsPer === 1 ? "End bar " + b1 + " on" : "End bars " + b1 + "–" + (b1 + 1) + " on";
+    setWord(cur.word, true);
+    el.fsWord.classList.remove("anim-drop", "anim-land"); void el.fsWord.offsetWidth; el.fsWord.classList.add("anim-drop");
+    var prev = prevInGroup(k);
+    el.fsSound.textContent = (prev ? "rhymes with " + prev + " · " : "new sound · ") + Dict.sayTail(Dict.lookup(cur.word));
+    beatDots();
+    renderNext(k);
+    renderIdeas();
+    el.hudBar.textContent = "Bar " + b1;
+    if (Settings.get("cue")) AudioEngine.sfx.click(true);
+  }
+  /** Show a word on one line, scaled down so long words still fit the screen. */
+  function setWord(text, mark) {
+    el.fsWord.textContent = text;
+    var maxPx = Math.min(W * 0.12, 128), fit = (W * 0.9) / (Math.max(3, text.length) * 0.84);
+    el.fsWord.style.fontSize = Math.max(26, Math.min(maxPx, fit)) + "px";
+    document.getElementById("fsMark").classList.toggle("off", !mark);
+  }
+  function renderNext(k) {
+    var nxt = S.queue[k + 1];
+    if (!nxt || slotEndsAfterSong(k + 1)) { el.fsNext.hidden = true; el.fsQueue.innerHTML = ""; return; }
+    document.getElementById("game").style.setProperty("--gn", nxt.color);
+    var prev = prevInGroup(k + 1);
+    el.fsLink.textContent = prev ? (prev === S.queue[k].word ? "next · rhymes with this" : "next · rhymes with " + prev) : "next · new sound";
+    el.fsNword.textContent = nxt.word;
+    el.fsNext.hidden = false;
+    var q = "";
+    for (var i = k + 2; i < k + 5; i++) if (S.queue[i] && !slotEndsAfterSong(i)) q += '<span style="--c:' + S.queue[i].color + '">' + esc(S.queue[i].word) + "</span>";
+    el.fsQueue.innerHTML = q ? '<span style="--c:transparent">then</span>' + q : "";
+  }
+  function renderIdeas() {
+    el.fsIdeas.hidden = !S.ideas;
+    if (!S.ideas || S.slot < 0 || !S.queue[S.slot]) { el.fsIdeas.innerHTML = ""; return; }
+    var cur = S.queue[S.slot], inQueue = new Set(S.queue.map(function (q) { return q.word; }));
+    var r = Dict.rhymesFor(cur.word, { maxRank: 20000, limit: 16, slant: false });
+    var words = r.perfect.concat(r.multi).filter(function (w) { return !inQueue.has(w); }).slice(0, 7);
+    el.fsIdeas.innerHTML = words.map(function (w) { return "<span>" + esc(w) + "</span>"; }).join("");
   }
   function showOutro() {
-    S.target = null;
-    el.tEyebrow.textContent = "Outro";
-    el.tWord.textContent = "Ride it out";
-    el.tWord.classList.remove("drop"); void el.tWord.offsetWidth; el.tWord.classList.add("drop");
-    el.tSound.textContent = "Press Enter to see your results";
-    el.tBeats.innerHTML = ""; el.tChips.innerHTML = ""; el.tNext.textContent = ""; el.tCloud.hidden = true;
-  }
-  function beatTime(b) { return S.grid.offset + b * S.spb; }
-
-  function judgeText(main, sub, color) {
-    el.judge.innerHTML = '<span class="j" style="color:' + color + '">' + esc(main) + "</span>" + (sub ? '<span class="jsub">' + esc(sub) + "</span>" : "");
-  }
-  function reject(msg, penal) {
-    el.spitIn.classList.remove("shake"); void el.spitIn.offsetWidth; el.spitIn.classList.add("shake");
-    judgeText(penal ? "Nah" : "Hold up", msg, penal ? TYPE_COLOR.wrong : "#c3b4e6");
-    AudioEngine.sfx.wrong();
+    S.phase = "outro";
+    document.getElementById("game").style.setProperty("--g", "#c3b4e6");
+    el.fsEyebrow.textContent = "Outro";
+    setWord("Ride it out", false);
+    el.fsWord.classList.remove("anim-drop", "anim-land"); void el.fsWord.offsetWidth; el.fsWord.classList.add("anim-drop");
+    el.fsSound.textContent = "Press Enter to end the session";
+    el.fsBeats.innerHTML = ""; el.fsNext.hidden = true; el.fsQueue.innerHTML = ""; el.fsIdeas.hidden = true;
   }
 
-  function submit() {
-    if (!S || S.paused) return;
-    var text = el.spitIn.value.trim();
-    if (S.phase === "outro") { if (!text) finish("complete"); el.spitIn.value = ""; return; }
-    if (!text) return;
-    var bp = beatPos();
-    if (!S.target || S.phase !== "play") { reject("Wait for the word to drop."); return; }
-    el.spitIn.value = "";
-    var e = Dict.lookup(text);
-    if (!e) { reject("“" + text + "” isn't in the rhyme book."); return; }
-    var tgt = S.target;
-    if (e.dictWord === tgt.entry.dictWord || Dict.normalize(text) === tgt.word) { reject("That's the same word."); return; }
-    if (S.usedWords.has(e.dictWord)) { reject("You already used “" + e.word + "” this run."); return; }
-    var c = Dict.compare(tgt.entry, e);
-    if (c.type === "homophone") { reject("Same sound, different spelling. Doesn't count."); return; }
-    if (c.type === "none" || !S.D.allow[c.type]) {
-      S.combo = 0; S.mult = 1; S.stats.wrong++;
-      reject(c.type === "none" ? "“" + e.word + "” doesn't rhyme with “" + tgt.word + "”." : TYPE_NAME[c.type] + " rhymes don't count on " + S.D.name + ".", true);
-      renderHud();
-      return;
-    }
-    accept(e, c, bp);
-  }
-
-  function accept(e, c, bp) {
-    var tgt = S.target, spb = S.spb;
-    var off = (bp - Math.round(bp)) * spb * 1000;
-    var timing = Math.abs(off) <= 70 ? "beat" : Math.abs(off) <= 140 ? "close" : "off";
-    var tMult = timing === "beat" ? 1.5 : timing === "close" ? 1.25 : 1;
-    var isMulti = (c.type === "perfect" || c.type === "slant") && c.syl >= 2;
-    var base = BASE[c.type] + (isMulti ? (c.syl - 1) * 60 : 0);
-    var r = e.rank, rare = r > 45000 ? 60 : r > 20000 ? 40 : r > 8000 ? 20 : 0;
-    var syl = Dict.syllables(e), sylB = syl >= 3 ? 20 : 0;
-    var speed = S.mode === "rush" ? Math.max(0, Math.floor(tgt.gate - bp)) * 5 : 0;
-    var pts = (base + rare + sylB + speed) * tMult;
-    if (tgt.hinted) pts *= 0.5;
-    S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo);
-    S.mult = S.combo >= 20 ? 4 : S.combo >= 10 ? 3 : S.combo >= 5 ? 2 : 1;
-    var gained = Math.round(pts * S.mult);
-    S.score += gained;
-    S.usedWords.add(e.dictWord);
-    var st = S.stats;
-    st.rhymes++;
-    if (timing === "beat") st.onBeat++; else if (timing === "close") st.close++;
-    if (isMulti) st.multis++;
-    if (c.type === "perfect") st.perfects++; else if (c.type === "slant") st.slants++; else st.loose++;
-    if (!st.rarest || r > st.rarest.rank) st.rarest = { word: e.word, rank: r };
-    if (!st.longest || syl > st.longest.syl || (syl === st.longest.syl && e.word.length > st.longest.word.length)) st.longest = { word: e.word, syl: syl };
-    st.reactions.push((bp - tgt.spawn) * spb);
-    var kind = isMulti ? "multi" : c.type;
-    tgt.hits.push({ word: e.word, type: kind, pts: gained, timing: timing });
-    // feedback
-    var title = timing === "beat" ? "On beat!" : isMulti ? "Multi ×" + c.syl : c.type === "perfect" ? (S.combo >= 10 ? "Fire" : "Clean") : TYPE_NAME[c.type];
-    var sub = TYPE_NAME[kind] + (isMulti && timing === "beat" ? " ×" + c.syl : "") + " · +" + fmtNum(gained) + (S.mult > 1 ? "  (×" + S.mult + ")" : "") + (timing === "close" ? " · close to the beat" : "");
-    judgeText(title, sub, TYPE_COLOR[kind]);
-    var chip = document.createElement("span"); chip.className = "chip"; chip.style.color = TYPE_COLOR[kind]; chip.textContent = e.word;
-    el.tChips.appendChild(chip);
-    el.tWord.classList.add("flash"); setTimeout(function () { el.tWord.classList.remove("flash"); }, 160);
-    AudioEngine.sfx.hit(timing === "beat" ? "perfect" : kind === "multi" ? "multi" : c.type === "perfect" ? "hit" : "slant");
-    burst(TYPE_COLOR[kind], timing === "beat" ? 46 : 24);
-    marks.push({ beat: bp, color: TYPE_COLOR[kind] });
-    if (marks.length > 10) marks.shift();
-    if (S.mode === "rush") {
-      st.hitTargets++;
-      S.log.push({ target: tgt.word, hits: tgt.hits, miss: false });
-      S.target = null;
-      S.pendingSpawn = Math.ceil(bp + 0.75);
-      el.tEyebrow.textContent = "Next word on the beat";
-    }
-    renderHud();
-  }
-
-  function miss(tgt) {
-    S.combo = 0; S.mult = 1; S.stats.misses++;
-    var r = Dict.rhymesFor(tgt.entry, { maxRank: 12000, limit: 6, slant: false });
-    var could = r.perfect.concat(r.multi).slice(0, 4);
-    S.log.push({ target: tgt.word, hits: [], miss: true, could: could });
-    if (!S.practice) S.lives--;
-    renderLives();
-    judgeText(S.practice ? "Missed" : "Mic down", could.length ? "Could've said: " + could.join(", ") : "Gate closed.", TYPE_COLOR.miss);
-    AudioEngine.sfx.miss();
-    if (!reducedMotion()) shakeT = performance.now();
-    renderHud();
-    if (S.lives <= 0) { finish("dropped"); return true; }
-    return false;
-  }
-
-  function endRound() {
-    var tgt = S.target;
-    S.stats.rounds++;
-    if (S.mode === "freestyle") { S.log.push({ target: tgt.word, hits: [], miss: false, free: true }); return false; }
-    if (!tgt.hits.length) return miss(tgt);
-    S.stats.roundHits++; S.stats.hitTargets++;
-    if (tgt.hits.length >= 3) {
-      var bonus = 50 * tgt.hits.length * S.mult;
-      S.score += bonus;
-      judgeText(tgt.hits.length + " deep", "Round bonus +" + fmtNum(bonus), TYPE_COLOR.perfect);
-    }
-    S.log.push({ target: tgt.word, hits: tgt.hits, miss: false });
-    renderHud();
-    return false;
-  }
-
-  function hint() {
-    if (!S || !S.target || S.mode === "freestyle" || S.phase !== "play") return;
-    var tgt = S.target;
-    if (!tgt.hintWord) {
-      var r = Dict.rhymesFor(tgt.entry, { maxRank: 12000, limit: 30, slant: false });
-      var opts = r.perfect.concat(r.multi).filter(function (w) { return !S.usedWords.has(w); });
-      if (!opts.length) { Toast("No easy rhymes left for this one. Try a slant rhyme."); return; }
-      tgt.hintWord = opts[Math.floor(S.rng() * Math.min(12, opts.length))];
-    }
-    tgt.hinted = true;
-    var w = tgt.hintWord;
-    el.tNext.textContent = "hint: " + w.slice(0, Math.min(2, w.length - 1)) + w.slice(Math.min(2, w.length - 1)).replace(/./g, " _");
-    AudioEngine.sfx.hint();
-  }
   function skip() {
-    if (!S || S.mode !== "freestyle" || !S.target || S.phase !== "play") return;
-    var bp = beatPos();
-    S.target.gate = Math.max(S.target.spawn + 1, Math.ceil(bp + 0.4));
+    if (!S || S.paused || S.phase === "done" || S.phase === "outro") return;
+    var keep = S.phase === "play" ? S.slot + 1 : 0;
+    S.queue.length = Math.max(keep, 0);
+    ensureQueue(keep + 10);
+    if (S.phase === "play") { renderNext(S.slot); Toast("New rhyme lined up for the next bar.", 1400); }
+    else { el.fsNext.hidden = true; Toast("New first words.", 1200); }
+    AudioEngine.sfx.ui();
+  }
+  function toggleIdeas() {
+    if (!S) return;
+    S.ideas = !S.ideas;
+    Settings.set("ideas", S.ideas);
+    el.ideasBtn.setAttribute("aria-pressed", S.ideas ? "true" : "false");
+    renderIdeas();
   }
 
   // ------------------------------------------------------------ pause / finish
@@ -78826,7 +78705,6 @@ var Game = (function () {
     S.paused = false;
     el.pauseOv.hidden = true;
     AudioEngine.unpause();
-    if (S.mode !== "freestyle") el.spitIn.focus();
   }
   function stopAll() {
     cancelAnimationFrame(raf);
@@ -78837,350 +78715,226 @@ var Game = (function () {
   }
   function finish(why) {
     if (!S || S.phase === "done") return;
-    if (S.target && S.mode !== "rush" && why === "complete" && S.target.hits.length) { S.log.push({ target: S.target.word, hits: S.target.hits, miss: false }); S.stats.roundHits++; S.stats.hitTargets++; S.stats.rounds++; }
-    else if (S.target && S.mode === "rush" && S.target.hits.length === 0) { /* unfinished word is not a miss */ }
     S.phase = "done";
+    S.paused = false;
     cancelAnimationFrame(raf);
     if (AudioEngine.ctx && AudioEngine.ctx.state === "suspended") AudioEngine.unpause();
-    if (why === "dropped") { AudioEngine.sfx.drop(); AudioEngine.fadeOut(1.6); }
-    else AudioEngine.fadeOut(0.8);
+    AudioEngine.fadeOut(why === "complete" ? 0.6 : 1.2);
     var run = S;
-    setTimeout(function () { Results.show(run, why); }, why === "dropped" ? 900 : 300);
+    setTimeout(function () { Results.show(run, why); }, 350);
   }
 
   // ------------------------------------------------------------ frame
-  function beatPos() { return (AudioEngine.songTime() - S.grid.offset) / S.spb; }
-
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    if (!S) return;
+    if (!S || S.phase === "done") return;
     var t = AudioEngine.songTime();
     var bp = (t - S.grid.offset) / S.spb;
-    if (!S.paused && S.phase !== "done") update(bp, t);
+    if (!S.paused) update(bp, t);
     if (S.phase === "done") return;
-    draw(bp, now);
-    renderHud();
+    draw(bp);
+    var bar = Math.floor((t - S.grid.downbeat) / (S.spb * 4));
+    el.hudProg.style.width = clamp(t / S.duration * 100, 0, 100).toFixed(2) + "%";
+    var sec = "Bar " + Math.max(1, bar + 1);
+    if (S.track.sections) for (var i = 0; i < S.track.sections.length; i++) { var s = S.track.sections[i]; if (bar >= s.startBar && bar < s.startBar + s.bars) { sec = s.name; break; } }
+    if (el.hudSec.textContent !== sec) el.hudSec.textContent = sec;
   }
 
   function update(bp, t) {
     var bInt = Math.floor(bp);
-    if (bInt !== lastBeatInt) {
-      lastBeatInt = bInt;
+    if (bInt !== S.lastBeatInt) {
+      S.lastBeatInt = bInt;
       var isDown = ((bInt - S.dbBeat) % 4 + 4) % 4 === 0;
       rings.push({ t0: performance.now(), s: isDown ? 1 : 0.55 });
       if (rings.length > 8) rings.shift();
     }
     if (S.phase === "intro") {
       var left = S.startBeat - bp;
-      // schedule the count-in clicks precisely on the audio clock
       for (var k = 4; k >= 1; k--) {
         var cb = S.startBeat - k;
-        if (!S.countScheduled[cb] && cb - bp < 0.25 && cb - bp > -0.05) {
-          S.countScheduled[cb] = true;
-          AudioEngine.sfx.count(k === 1, AudioEngine.ctxTimeFor(beatTime(cb)));
-        }
+        if (!S.countScheduled[cb] && cb - bp < 0.25 && cb - bp > -0.05) { S.countScheduled[cb] = true; AudioEngine.sfx.count(k === 1, AudioEngine.ctxTimeFor(beatTime(cb))); }
       }
+      var first = S.queue[0];
+      document.getElementById("game").style.setProperty("--gn", first.color);
       if (left <= 4 && left > 0) {
-        el.tEyebrow.textContent = S.mode === "freestyle" ? "First word in" : "Words drop in";
-        var n = Math.ceil(left);
-        if (el.tWord.textContent !== String(n)) { el.tWord.textContent = String(n); el.tWord.classList.remove("drop"); void el.tWord.offsetWidth; el.tWord.classList.add("drop"); }
-        el.tSound.textContent = S.mode === "rush" ? "One rhyme per word. Beat the red gate." : S.mode === "storm" ? "As many rhymes as you can per word." : "Rap along. Space skips a word.";
+        var n = String(Math.ceil(left));
+        el.fsEyebrow.textContent = "First word in";
+        if (el.fsWord.textContent !== n) { setWord(n, false); el.fsWord.classList.remove("anim-drop"); void el.fsWord.offsetWidth; el.fsWord.classList.add("anim-drop"); }
+        el.fsSound.textContent = "";
       } else if (left > 4) {
-        el.tEyebrow.textContent = "Intro";
-        var secs = Math.max(0, Math.ceil(beatTime(S.startBeat - 4) - t));
-        el.tWord.textContent = S.track.title;
-        el.tSound.textContent = "Count-in starts in " + secs + "s";
+        el.fsEyebrow.textContent = "Intro";
+        if (el.fsWord.textContent !== S.track.title) setWord(S.track.title, false);
+        el.fsSound.textContent = "Words start in " + Math.max(0, Math.ceil(beatTime(S.startBeat) - t)) + "s";
       }
-      if (bp >= S.startBeat) { S.phase = "play"; spawn(S.startBeat); }
-      return;
+      if (el.fsNext.hidden || el.fsNword.textContent !== first.word) {
+        el.fsLink.textContent = "first word"; el.fsNword.textContent = first.word; el.fsNext.hidden = false;
+        var q = ""; for (var i = 1; i < 4; i++) q += '<span style="--c:' + S.queue[i].color + '">' + esc(S.queue[i].word) + "</span>";
+        el.fsQueue.innerHTML = '<span style="--c:transparent">then</span>' + q;
+      }
+      if (bp >= S.startBeat) S.phase = "play";
+      else return;
     }
     if (S.phase === "play") {
-      if (S.target && bp >= S.target.gate) {
-        var gate = S.target.gate, tg = S.target;
-        S.target = null;
-        var dead = false;
-        if (S.mode === "rush") { dead = miss(tg); if (!dead) S.pendingSpawn = gate + 2; }
-        else { dead = endRound(); if (!dead) spawn(gate); }
-        if (dead) return;
-      }
-      if (!S.target && S.pendingSpawn != null && bp >= S.pendingSpawn) spawn(S.pendingSpawn);
-      if (S.target) {
-        var dots = el.tBeats.children;
-        for (var i = 0; i < dots.length; i++) dots[i].classList.toggle("on", bp >= S.target.spawn + i + 1);
+      var slot = Math.floor((bp - S.startBeat) / S.slotBeats);
+      if (slot !== S.slot) { S.slot = slot; enterSlot(slot); if (S.phase !== "play") return; }
+      var bi = Math.floor(bp - (S.startBeat + slot * S.slotBeats));
+      var dots = el.fsBeats.querySelectorAll("i:not(.gap)");
+      for (var d = 0; d < dots.length; d++) dots[d].classList.toggle("on", d <= bi);
+      if (bi === S.slotBeats - 1 && S.landed !== slot) {
+        S.landed = slot; S.landedCount++;
+        el.fsWord.classList.remove("anim-drop", "anim-land"); void el.fsWord.offsetWidth; el.fsWord.classList.add("anim-land");
+        landFx.push({ t0: performance.now(), color: S.queue[slot].color });
       }
     }
-    if (t >= S.duration - 0.05 && S.phase !== "done") finish(S.lives <= 0 ? "dropped" : "complete");
-  }
-
-  // ------------------------------------------------------------ HUD
-  var micSvg = '<svg viewBox="0 0 18 26"><rect x="4" y="1" width="10" height="15" rx="5" fill="currentColor"/><path d="M1.5 12a7.5 7.5 0 0 0 15 0M9 19.5V25" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
-  function renderLives() {
-    if (!S) return;
-    if (S.practice) { el.hudLives.innerHTML = '<span class="inf">' + (S.mode === "freestyle" ? "freestyle" : "practice") + "</span>"; return; }
-    var h = "";
-    for (var i = 0; i < 3; i++) h += '<span class="' + (i < S.lives ? "" : "gone") + '" style="color:var(--track)">' + micSvg + "</span>";
-    el.hudLives.innerHTML = h;
-  }
-  function renderHud(force) {
-    if (!S) return;
-    scoreShown = force ? S.score : scoreShown + (S.score - scoreShown) * 0.2;
-    if (Math.abs(S.score - scoreShown) < 1) scoreShown = S.score;
-    var txt = fmtNum(scoreShown);
-    if (S.mode === "freestyle") txt = S.stats.targets + (S.stats.targets === 1 ? " word" : " words");
-    if (el.hudScore.textContent !== txt) el.hudScore.textContent = txt;
-    el.hudCombo.hidden = S.mode === "freestyle";
-    el.hudMult.textContent = "×" + S.mult;
-    el.hudComboN.textContent = S.combo + " combo";
-    el.hudCombo.classList.toggle("hot", S.mult >= 3);
-    var t = AudioEngine.songTime();
-    el.hudProg.style.width = clamp(t / S.duration * 100, 0, 100).toFixed(2) + "%";
-    var bar = Math.floor((t - S.grid.downbeat) / (S.spb * 4));
-    var sec = "Bar " + Math.max(1, bar + 1);
-    if (S.track.sections) {
-      for (var i = 0; i < S.track.sections.length; i++) { var s = S.track.sections[i]; if (bar >= s.startBar && bar < s.startBar + s.bars) { sec = s.name + " · bar " + (bar - s.startBar + 1); break; } }
-    }
-    if (el.hudSec.textContent !== sec) el.hudSec.textContent = sec;
+    if (t >= S.duration - 0.05) finish("complete");
   }
 
   // ------------------------------------------------------------ stage drawing
-  function burst(color, n) {
-    if (reducedMotion()) n = Math.min(n, 8);
-    var r = el.targetBox.getBoundingClientRect();
-    var x = r.left + r.width / 2, y = r.top + r.height * 0.35;
-    for (var i = 0; i < n; i++) {
-      var a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 7;
-      particles.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, color: color, size: 2 + Math.random() * 4 });
-    }
-    if (particles.length > 400) particles.splice(0, particles.length - 400);
-  }
-
-  function draw(bp, now) {
+  function draw(bp) {
     var c = cx, reduce = reducedMotion();
     c.setTransform(DPR, 0, 0, DPR, 0, 0);
-    var sx = 0, sy = 0;
-    if (shakeT && now - shakeT < 350) { var k = 1 - (now - shakeT) / 350; sx = (Math.random() - 0.5) * 16 * k; sy = (Math.random() - 0.5) * 12 * k; }
-    c.translate(sx, sy);
-    var col = S.track.color || "#ffb547";
-    c.fillStyle = "#120d1d"; c.fillRect(-20, -20, W + 40, H + 40);
+    var cur = S.phase === "play" && S.queue[S.slot] ? S.queue[S.slot] : S.queue[0];
+    var col = cur ? cur.color : (S.track.color || "#ffb547");
+    c.fillStyle = "#120d1d"; c.fillRect(0, 0, W, H);
     var lv = AudioEngine.levels(), bass = AudioEngine.bass();
-    var cxp = W / 2, cyp = H * 0.44, R = Math.min(W, H) * 0.27;
-    // glow
+    var cxp = W / 2, cyp = H * 0.43, R = Math.min(W, H) * 0.27;
     var g = c.createRadialGradient(cxp, cyp, 0, cxp, cyp, Math.max(W, H) * 0.7);
-    g.addColorStop(0, hexA(col, 0.10 + bass * 0.22));
+    g.addColorStop(0, hexA(col, 0.09 + bass * 0.2));
     g.addColorStop(0.5, hexA(col, 0.03 + bass * 0.05));
     g.addColorStop(1, "rgba(18,13,29,0)");
     c.fillStyle = g; c.fillRect(0, 0, W, H);
-    // cipher circle: dotted ring of "heads" around the center
     c.save();
     c.translate(cxp, cyp);
-    var spin = reduce ? 0 : (bp * 0.02);
+    var spin = reduce ? 0 : bp * 0.02;
     for (var d = 0; d < 28; d++) {
       var ang = spin + d / 28 * Math.PI * 2;
       c.fillStyle = "rgba(247,239,227,0.08)";
       c.beginPath(); c.arc(Math.cos(ang) * R * 1.55, Math.sin(ang) * R * 1.55, 3, 0, Math.PI * 2); c.fill();
     }
-    // spectrum ring
     if (lv) {
       var N = 40;
-      c.lineWidth = Math.max(2, R * 0.025);
-      c.lineCap = "round";
+      c.lineWidth = Math.max(2, R * 0.025); c.lineCap = "round";
       for (var i = 0; i < N; i++) {
         var fi = Math.floor(Math.pow(i / N, 1.6) * 300) + 2;
         var v = Math.min(1, (lv[fi] / 255) * (1 + i / N * 0.9));
         var r0 = R * 1.02, r1 = r0 + v * R * 0.42;
-        c.strokeStyle = hexA(col, 0.16 + v * 0.55);
+        c.strokeStyle = hexA(col, 0.14 + v * 0.5);
         for (var side = -1; side <= 1; side += 2) {
           var a2 = -Math.PI / 2 + side * (i + 0.5) / N * Math.PI;
           c.beginPath(); c.moveTo(Math.cos(a2) * r0, Math.sin(a2) * r0); c.lineTo(Math.cos(a2) * r1, Math.sin(a2) * r1); c.stroke();
         }
       }
     }
-    // beat rings
     var tn = performance.now();
     for (var j = 0; j < rings.length; j++) {
       var rg = rings[j], age = (tn - rg.t0) / 700;
       if (age > 1) continue;
-      c.strokeStyle = hexA(col, (1 - age) * 0.35 * rg.s);
+      c.strokeStyle = hexA(col, (1 - age) * 0.3 * rg.s);
       c.lineWidth = 2 + 4 * rg.s * (1 - age);
-      c.beginPath(); c.arc(0, 0, R * (0.95 + age * (reduce ? 0.1 : 0.55)), 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.arc(0, 0, R * (0.95 + age * (reduce ? 0.1 : 0.5)), 0, Math.PI * 2); c.stroke();
     }
-    // gate progress arc
-    if (S.target && S.phase === "play") {
-      var p = clamp((bp - S.target.spawn) / (S.target.gate - S.target.spawn), 0, 1);
-      c.strokeStyle = p > 0.8 ? "rgba(255,93,93,0.9)" : "rgba(79,227,255,0.8)";
-      c.lineWidth = 4;
-      c.beginPath(); c.arc(0, 0, R * 0.96, -Math.PI / 2, -Math.PI / 2 + (1 - p) * Math.PI * 2); c.stroke();
+    for (var f = landFx.length - 1; f >= 0; f--) {
+      var lf = landFx[f], la = (tn - lf.t0) / 600;
+      if (la > 1) { landFx.splice(f, 1); continue; }
+      c.strokeStyle = hexA(lf.color, (1 - la) * 0.8);
+      c.lineWidth = 6 * (1 - la) + 1;
+      c.beginPath(); c.arc(0, 0, R * (1 + la * (reduce ? 0.05 : 0.35)), 0, Math.PI * 2); c.stroke();
+    }
+    if (S.phase === "play") {
+      var p = clamp((bp - (S.startBeat + S.slot * S.slotBeats)) / S.slotBeats, 0, 1);
+      c.strokeStyle = hexA(col, 0.9); c.lineWidth = 4;
+      c.beginPath(); c.arc(0, 0, R * 0.96, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2); c.stroke();
     }
     c.restore();
-    // particles
-    for (var q = particles.length - 1; q >= 0; q--) {
-      var pt = particles[q];
-      pt.x += pt.vx; pt.y += pt.vy; pt.vy += 0.18; pt.vx *= 0.985; pt.life -= 0.018;
-      if (pt.life <= 0) { particles.splice(q, 1); continue; }
-      c.globalAlpha = pt.life; c.fillStyle = pt.color;
-      c.fillRect(pt.x - pt.size / 2, pt.y - pt.size / 2, pt.size, pt.size);
-    }
-    c.globalAlpha = 1;
     drawLane(bp, col);
     c.setTransform(1, 0, 0, 1, 0, 0);
   }
 
+  /** The lane: beats scroll into the hit line; each end word sits on its landing beat (beat 4). */
   function drawLane(bp, col) {
-    var c = cx;
-    var safeB = 0;
-    var laneH = 74, y0 = H - laneH - 10 - safeB, yMid = y0 + laneH / 2;
+    var c = cx, laneH = 78, y0 = H - laneH - 10, tickY = y0 + 54;
     var hitX = Math.max(60, W * 0.16), ppb = clamp(W / 8.5, 56, 150);
-    c.fillStyle = "rgba(26,19,41,0.82)"; c.fillRect(0, y0, W, laneH);
-    c.fillStyle = "rgba(58,45,88,1)"; c.fillRect(0, y0, W, 1); c.fillRect(0, y0 + laneH - 1, W, 1);
-    var tg = S.target;
+    c.fillStyle = "rgba(26,19,41,0.85)"; c.fillRect(0, y0, W, laneH);
+    c.fillStyle = "#3a2d58"; c.fillRect(0, y0, W, 1); c.fillRect(0, y0 + laneH - 1, W, 1);
     var first = Math.floor(bp - hitX / ppb) - 1, last = Math.ceil(bp + (W - hitX) / ppb) + 1;
-    c.font = "600 10px 'IBM Plex Mono', monospace"; c.textAlign = "center";
+    c.textAlign = "center";
     for (var b = first; b <= last; b++) {
-      var x = hitX + (b - bp) * ppb;
-      var isDown = ((b - S.dbBeat) % 4 + 4) % 4 === 0;
-      var past = b < bp;
-      var inWin = tg && b > tg.spawn && b <= tg.gate;
-      var alpha = past ? clamp(1 - (bp - b) * 0.35, 0.08, 1) : 1;
-      c.globalAlpha = alpha;
+      var x = hitX + (b - bp) * ppb, isDown = ((b - S.dbBeat) % 4 + 4) % 4 === 0;
+      c.globalAlpha = b < bp ? clamp(1 - (bp - b) * 0.35, 0.08, 1) : 1;
       if (S.phase === "intro" && b >= S.startBeat - 4 && b < S.startBeat) {
-        c.fillStyle = "#ffb547"; c.beginPath(); c.arc(x, yMid, 7, 0, Math.PI * 2); c.fill();
-        c.fillStyle = "#120d1d"; c.font = "800 10px 'Archivo', sans-serif"; c.fillText(String(S.startBeat - b), x, yMid + 3.5); c.font = "600 10px 'IBM Plex Mono', monospace";
+        c.fillStyle = "#f7efe3"; c.beginPath(); c.arc(x, tickY, 8, 0, Math.PI * 2); c.fill();
+        c.fillStyle = "#120d1d"; c.font = "800 10px 'Archivo', sans-serif"; c.fillText(String(S.startBeat - b), x, tickY + 3.5);
         continue;
       }
-      if (isDown) {
-        c.fillStyle = inWin ? "#4fe3ff" : "rgba(247,239,227,0.85)";
-        c.fillRect(x - 2, y0 + 12, 4, laneH - 24);
-        var barN = Math.floor((b - S.dbBeat) / 4) + 1;
-        c.fillStyle = "rgba(169,155,196,0.8)"; c.fillText(String(barN), x, y0 + 10);
-      } else {
-        c.fillStyle = inWin ? "#4fe3ff" : "rgba(247,239,227,0.5)";
-        c.beginPath(); c.arc(x, yMid, 4.5, 0, Math.PI * 2); c.fill();
-      }
+      if (isDown) { c.fillStyle = "rgba(247,239,227,0.8)"; c.fillRect(x - 1.5, tickY - 13, 3, 26); }
+      else { c.fillStyle = "rgba(247,239,227,0.45)"; c.beginPath(); c.arc(x, tickY, 4, 0, Math.PI * 2); c.fill(); }
     }
     c.globalAlpha = 1;
-    // gate
-    var gateBeat = tg ? tg.gate : null;
-    if (gateBeat != null) {
-      var gx = hitX + (gateBeat - bp) * ppb;
-      c.fillStyle = S.mode === "rush" ? "#ff5d5d" : "#ffb547";
-      c.fillRect(gx - 3, y0 + 4, 6, laneH - 8);
-      c.font = "800 10px 'Archivo', sans-serif"; c.textAlign = "left";
-      c.fillText(S.mode === "rush" ? "GATE" : "NEXT", gx + 7, yMid + 4); c.textAlign = "center";
+    c.font = "800 13px 'Archivo', sans-serif";
+    var k0 = Math.max(0, Math.floor((first - S.startBeat) / S.slotBeats) - 1), k1 = Math.ceil((last - S.startBeat) / S.slotBeats) + 1;
+    for (var k = k0; k <= k1; k++) {
+      var q = S.queue[k]; if (!q || slotEndsAfterSong(k)) continue;
+      var lb = S.startBeat + (k + 1) * S.slotBeats - 1, lx = hitX + (lb - bp) * ppb;
+      var label = q.word.toUpperCase(), tw = c.measureText(label).width + 16;
+      if (lx + tw / 2 < -10 || lx - tw / 2 > W + 10) continue;
+      c.globalAlpha = lb < bp - 0.5 ? clamp(1 - (bp - lb) * 0.5, 0.1, 1) : 1;
+      c.fillStyle = q.color; roundRect(c, lx - tw / 2, y0 + 8, tw, 22, 11); c.fill();
+      c.fillStyle = "#120d1d"; c.fillText(label, lx, y0 + 24);
+      c.strokeStyle = q.color; c.lineWidth = 3; c.beginPath(); c.arc(lx, tickY, 9, 0, Math.PI * 2); c.stroke();
     }
-    var spawnBeat = S.pendingSpawn;
-    if (spawnBeat != null) {
-      var sx2 = hitX + (spawnBeat - bp) * ppb;
-      c.fillStyle = "#ffb547";
-      c.beginPath(); c.moveTo(sx2, yMid - 9); c.lineTo(sx2 + 9, yMid); c.lineTo(sx2, yMid + 9); c.lineTo(sx2 - 9, yMid); c.closePath(); c.fill();
-    }
-    // submission marks ride the lane at the beat position they landed
-    for (var m = 0; m < marks.length; m++) {
-      var mk = marks[m], mx = hitX + (mk.beat - bp) * ppb;
-      if (mx < -10) continue;
-      c.strokeStyle = mk.color; c.lineWidth = 3;
-      c.beginPath(); c.arc(mx, yMid, 10, 0, Math.PI * 2); c.stroke();
-    }
-    // hit line
+    c.globalAlpha = 1;
     var pulse = 1 - (bp - Math.floor(bp));
-    c.fillStyle = hexA(col, 0.25 + 0.5 * pulse * pulse);
-    c.fillRect(hitX - 6, y0, 12, laneH);
+    c.fillStyle = hexA(col, 0.2 + 0.5 * pulse * pulse); c.fillRect(hitX - 6, y0, 12, laneH);
     c.fillStyle = "#f7efe3"; c.fillRect(hitX - 1.5, y0 - 4, 3, laneH + 8);
   }
-
+  function roundRect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
   function hexA(hex, a) {
     var h = hex.replace("#", "");
-    var r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16);
-    return "rgba(" + r + "," + g + "," + b + "," + clamp(a, 0, 1).toFixed(3) + ")";
+    return "rgba(" + parseInt(h.substr(0, 2), 16) + "," + parseInt(h.substr(2, 2), 16) + "," + parseInt(h.substr(4, 2), 16) + "," + clamp(a, 0, 1).toFixed(3) + ")";
   }
 
   return {
-    init: initDom, start: start, pause: pause, resume: resume, stop: stopAll, debugFinish: function () { finish("complete"); },
-    get state() { return S; }, DIFF: DIFF, TYPE_COLOR: TYPE_COLOR, TYPE_NAME: TYPE_NAME
+    init: initDom, start: start, pause: pause, resume: resume, stop: stopAll, debugFinish: function () { finish("ended"); },
+    get state() { return S; }, LEVELS: LEVELS, SCHEMES: SCHEMES, barsPer: barsPer
   };
 })();
 
 /* ============================================================
-   Results: grade, stats, the bars you spit, saved bests.
+   Session summary: bars ridden, the rhyme groups you used,
+   career totals.
    ============================================================ */
 var Results = (function () {
   var last = null;
-  function grade(run, why) {
-    var st = run.stats;
-    if (run.mode === "freestyle") return "✓";
-    if (run.mode === "storm") {
-      var rate = st.rounds ? st.roundHits / st.rounds : 0, avg = st.rounds ? st.rhymes / st.rounds : 0;
-      var g = rate >= 0.95 && avg >= 4 ? "S" : rate >= 0.9 && avg >= 2.5 ? "A" : rate >= 0.75 ? "B" : rate >= 0.5 ? "C" : "D";
-      if (why === "dropped") g = g === "S" || g === "A" || g === "B" ? "C" : (rate < 0.3 ? "F" : g);
-      return g;
-    }
-    var done = st.hitTargets + st.misses, rate2 = done ? st.hitTargets / done : 0, beat = st.rhymes ? st.onBeat / st.rhymes : 0;
-    var g2 = rate2 >= 0.95 && beat >= 0.4 ? "S" : rate2 >= 0.85 ? "A" : rate2 >= 0.7 ? "B" : rate2 >= 0.5 ? "C" : "D";
-    if (why === "dropped") g2 = rate2 < 0.4 ? "F" : (g2 === "S" || g2 === "A" || g2 === "B" ? "C" : g2);
-    return g2;
-  }
-  function scoreKey(run) { return run.track.id + "|" + run.mode + "|" + run.diffKey; }
-
   function show(run, why) {
     last = run;
-    var st = run.stats, g = grade(run, why);
-    var gEl = $("#resGrade");
-    gEl.textContent = g; gEl.className = "grade g-" + g;
-    $("#resEyebrow").textContent = run.track.title + " · " + ({ rush: "Rhyme Rush", storm: "Rhyme Storm", freestyle: "Freestyle" })[run.mode] + (run.mode === "freestyle" ? "" : " · " + run.D.name) + (run.practice && run.mode !== "freestyle" ? " · practice" : "");
-    $("#resTitle").textContent = why === "dropped" ? "Mic dropped." : run.mode === "freestyle" ? "Session done." : g === "S" ? "Flawless bars." : g === "A" ? "That cipher's yours." : g === "B" ? "Solid set." : g === "C" ? "You held your own." : "Back to the notebook.";
-    var newBest = false;
-    if (run.mode !== "freestyle" && !run.practice) {
-      var k = scoreKey(run), prev = Store.data.scores[k];
-      if (!prev || run.score > prev.score) { Store.data.scores[k] = { score: run.score, grade: g, date: new Date().toISOString().slice(0, 10) }; newBest = run.score > 0; }
-    }
-    $("#resScore").textContent = run.mode === "freestyle" ? st.targets + " words flowed" : fmtNum(run.score) + " pts";
-    $("#resBest").innerHTML = newBest ? '<span class="newbest">New best</span>' : "";
-    // career
-    var car = Store.data.career;
-    car.runs++; car.rhymes += st.rhymes; car.perfectBeats += st.onBeat; car.bestCombo = Math.max(car.bestCombo, run.maxCombo);
-    run.log.forEach(function (l) { l.hits.forEach(function (h) { car.words[h.word] = (car.words[h.word] || 0) + 1; }); });
-    var wk = Object.keys(car.words);
-    if (wk.length > 300) { wk.sort(function (a, b) { return car.words[b] - car.words[a]; }); var keep = {}; wk.slice(0, 200).forEach(function (w) { keep[w] = car.words[w]; }); car.words = keep; }
-    Store.save();
-
-    var items = [];
-    if (run.mode === "freestyle") {
-      var bars = st.targets * (run.opts.fbars || 2);
-      items = [["Words", st.targets], ["Bars", bars], ["Tempo", Math.round(run.grid.bpm) + " BPM"], ["Track", run.track.title]];
-    } else {
-      var accepted = st.rhymes;
-      var react = st.reactions.length ? (st.reactions.reduce(function (a, b) { return a + b; }, 0) / st.reactions.length).toFixed(1) + "s" : "–";
-      items = [
-        ["Rhymes", accepted],
-        [run.mode === "rush" ? "Words hit" : "Rounds rhymed", run.mode === "rush" ? st.hitTargets + " / " + (st.hitTargets + st.misses) : st.roundHits + " / " + st.rounds],
-        ["On the beat", accepted ? Math.round(st.onBeat / accepted * 100) + "%" : "–"],
-        ["Best combo", run.maxCombo],
-        ["Multis", st.multis],
-        ["Perfect / slant", st.perfects + " / " + st.slants],
-        ["Avg response", react],
-        ["Rarest word", st.rarest ? st.rarest.word : "–"],
-        ["Longest word", st.longest ? st.longest.word + " (" + st.longest.syl + ")" : "–"]
-      ];
-    }
+    var shownSlots = Math.max(0, run.phase === "outro" || why === "complete" ? run.landedCount : run.slot + 1);
+    var bars = run.landedCount * run.barsPer;
+    var words = run.queue.slice(0, Math.max(shownSlots, run.landedCount));
+    var groups = [], byId = {};
+    words.forEach(function (q) { if (!byId[q.gid]) { byId[q.gid] = { color: q.color, words: [] }; groups.push(byId[q.gid]); } byId[q.gid].words.push(q.word); });
+    var secs = Math.round((Date.now() - run.startedAt) / 1000);
+    $("#resBig").textContent = String(bars);
+    $("#resEyebrow").textContent = run.track.title + " · " + Game.SCHEMES[run.scheme].name + " · " + run.L.name + " words";
+    $("#resTitle").textContent = bars >= 48 ? "That's a whole song." : bars >= 24 ? "Solid session." : bars >= 8 ? "Good warm-up." : bars > 0 ? "Short and sharp." : "No bars this time.";
+    $("#resSub").textContent = bars === 1 ? "bar ridden" : "bars ridden";
+    var items = [["End words", run.landedCount], ["Rhyme sounds", groups.length], ["Time", fmtTime(secs)], ["Tempo", Math.round(run.grid.bpm) + " BPM"], ["Word every", run.barsPer === 1 ? "bar" : "2 bars"]];
     $("#resStats").innerHTML = items.map(function (it) { return "<div><dt>" + esc(it[0]) + "</dt><dd>" + esc(String(it[1])) + "</dd></div>"; }).join("");
-    var log = run.log.slice(-80);
-    $("#resLog").innerHTML = log.length ? log.map(function (l) {
-      if (l.free) return '<li><span class="tw">' + esc(l.target) + '</span><span class="yw">freestyled</span><span class="pts"></span></li>';
-      if (l.miss) return '<li class="miss"><span class="tw">' + esc(l.target) + '</span><span class="yw">missed' + (l.could && l.could.length ? " · could've said " + esc(l.could.slice(0, 3).join(", ")) : "") + '</span><span class="pts">0</span></li>';
-      var pts = l.hits.reduce(function (a, h) { return a + h.pts; }, 0);
-      return '<li><span class="tw">' + esc(l.target) + '</span><span class="yw">' + l.hits.map(function (h) { return '<span style="color:' + Game.TYPE_COLOR[h.type] + '">' + esc(h.word) + "</span>"; }).join(", ") + '</span><span class="pts">+' + fmtNum(pts) + "</span></li>";
-    }).join("") : '<li><span class="tw">No words dropped this time.</span><span></span><span></span></li>';
+    $("#resLog").innerHTML = groups.length ? groups.slice(-60).map(function (g) {
+      var e = Dict.lookup(g.words[0]);
+      return '<li style="--c:' + g.color + '">' + g.words.map(function (w) { return "<b>" + esc(w) + "</b>"; }).join('<span class="amp">/</span>') + '<span class="snd">' + esc(Dict.sayTail(e)) + "</span></li>";
+    }).join("") : '<li><span class="amp">The words start after the intro. Give it another go.</span></li>';
+    var car = Store.data.career;
+    car.sessions = (car.sessions || 0) + 1; car.bars = (car.bars || 0) + bars; car.words = (car.words || 0) + run.landedCount; car.seconds = (car.seconds || 0) + secs;
+    var tb = Store.data.trackBars || (Store.data.trackBars = {});
+    tb[run.track.id] = (tb[run.track.id] || 0) + bars;
+    Store.save();
     App.show("results");
     $("#againBtn").focus();
   }
   return {
     show: show,
     again: function () { if (last) Game.start(last.opts); },
-    best: function (trackId, mode, diff) { return Store.data.scores[trackId + "|" + mode + "|" + diff] || null; },
-    bestGrade: function (trackId) {
-      var order = "SABCDF", bestG = null;
-      Object.keys(Store.data.scores).forEach(function (k) { if (k.indexOf(trackId + "|") === 0) { var g = Store.data.scores[k].grade; if (!bestG || order.indexOf(g) < order.indexOf(bestG)) bestG = g; } });
-      return bestG;
-    }
+    barsOn: function (trackId) { var tb = Store.data.trackBars || {}; return tb[trackId] || 0; }
   };
 })();
 

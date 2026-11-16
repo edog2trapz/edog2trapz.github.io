@@ -15,9 +15,9 @@ Back to [[Rhyme Cipher]].
 | `Songs` | the 12 song specs and the synth rack |
 | `Analyzer` | BPM, key and grid detection (worker) |
 | `Library` | crate, uploads in IndexedDB |
-| `Menu` | crate, track card, Rhyme Lab, settings, calibration |
-| `Game` | beat clock, modes, scoring, stage and beat lane |
-| `Results` | grades, stats, best scores |
+| `Menu` | crate, track card, setup, Rhyme Lab, settings |
+| `Game` | beat clock, word queue and rhyme schemes, stage and word lane |
+| `Results` | session summary and career totals |
 
 ## Added to the site
 - `games/rhyme-cipher/index.html`
