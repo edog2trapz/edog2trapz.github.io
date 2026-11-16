@@ -121,6 +121,7 @@
   let diff = TZ.get('tz.orb.diff', 2);
   let board = '.'.repeat(W * H), turn = 'a', over = false, winCells = [], lastIdx = -1, hoverCol = 3, busy = false;
   let wins = { a:0, b:0 }, match = null, meIdx = -1, stopWatch = null, lastEmote = 0, versusGiven = false;
+  let room = null; /* peer-to-peer room: { role, me:'a'|'b', peer, conn, code, ready, them:{tag,ava}, games } */
 
   /* ---------- rules ---------- */
   const at = (b, r, c) => b[r * W + c];
@@ -203,6 +204,7 @@
   }
   const prof = () => TZ.profile();
   function names(){
+    if (mode === 'room' && room){ const me = { tag: prof().tag, ava: prof().avatar }, them = room.them || { tag: 'Friend', ava: '🎮' }; return room.me === 'a' ? [me, them] : [them, me]; }
     if (mode === 'online' && match){ const [x, y] = match.players; return [{ tag: match.tags[x], ava: match.avatars[x] }, { tag: match.tags[y], ava: match.avatars[y] }]; }
     if (mode === 'cpu') return [{ tag: prof().tag, ava: prof().avatar }, { tag: 'CPU · ' + ['Easy', 'Normal', 'Hard', 'Insane'][diff], ava: '🤖' }];
     return [{ tag: 'Player 1', ava: '🟠' }, { tag: 'Player 2', ava: '⚪' }];
@@ -211,13 +213,14 @@
     const n = names();
     ['a', 'b'].forEach((k, j) => {
       const el = $('#p' + j);
-      const you = (mode === 'online' && meIdx === j) || (mode === 'cpu' && j === 0);
+      const you = (mode === 'online' && meIdx === j) || (mode === 'cpu' && j === 0) || (mode === 'room' && room && (room.me === 'a' ? 0 : 1) === j);
       el.querySelector('.pin').innerHTML = `<span class="pc ${k}"></span><span class="ava">${esc(n[j].ava || '🎮')}</span><span><b>${esc(n[j].tag || 'Player')}</b><small>${you ? 'You · ' : ''}${k === 'a' ? 'Orange' : 'Silver'}${k === 'a' ? ' · goes first' : ''}</small></span><span class="wins">${mode === 'online' ? '' : wins[k]}</span>`;
-      el.classList.toggle('turn', !over && turn === k && (mode !== 'online' || (match && match.status === 'playing')));
+      el.classList.toggle('turn', !over && turn === k && (mode !== 'online' || (match && match.status === 'playing')) && (mode !== 'room' || (room && room.ready)));
     });
     let t = '', s = '';
     if (over){ const w = winner(board); t = w && w.who !== 'draw' ? n[w.who === 'a' ? 0 : 1].tag + ' wins!' : 'Draw!'; s = 'Game over'; }
     else if (mode === 'online' && match && match.status !== 'playing'){ t = 'Waiting'; s = 'for your friend to join'; }
+    else if (mode === 'room'){ t = !room || !room.ready ? 'Waiting' : turn === room.me ? 'Your turn' : 'Their turn'; s = !room || !room.ready ? 'for your friend to join' : turn === room.me ? 'Drop an orb!' : n[turn === 'a' ? 0 : 1].tag + ' is thinking…'; }
     else if (mode === 'online'){ t = myTurn() ? 'Your turn' : 'Their turn'; s = myTurn() ? 'Drop an orb!' : n[turn === 'a' ? 0 : 1].tag + ' is thinking…'; }
     else if (mode === 'cpu'){ t = turn === 'a' ? 'Your turn' : 'CPU thinking…'; s = 'Line up four to win'; }
     else { t = n[turn === 'a' ? 0 : 1].tag + "'s turn"; s = 'Pass the device!'; }
@@ -227,16 +230,18 @@
     const e = $('#extra');
     if (mode === 'cpu') e.innerHTML = `<div class="kicker" style="margin-bottom:8px">Difficulty</div><div class="diff">${['Easy','Normal','Hard','Insane'].map((d, i) => `<button class="chip${i === diff ? ' on' : ''}" data-diff="${i}">${d}</button>`).join('')}</div><div class="row" style="margin-top:12px"><button class="btn sm ghost" data-new>↻ New game</button></div>`;
     else if (mode === 'local') e.innerHTML = `<div class="row"><button class="btn sm ghost" data-new>↻ New game</button><button class="btn sm ghost" data-reset>Reset score</button></div>`;
+    else if (mode === 'room' && room) e.innerHTML = `<div class="kicker" style="margin-bottom:8px">Room ${esc(room.code)} · ${wins.a}–${wins.b}</div><div class="emotes">${['👋','GG','🔥','😮','😂','🤝'].map(x => `<button data-emote="${esc(x)}">${esc(x)}</button>`).join('')}</div><div class="row" style="margin-top:10px"><button class="btn sm ghost" data-room-leave>Leave room</button></div>`;
     else if (match) e.innerHTML = `<div class="kicker" style="margin-bottom:8px">Reactions</div><div class="emotes">${['👋','GG','🔥','😮','😂','🤝'].map(x => `<button data-emote="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
     else e.innerHTML = '';
   }
-  function setModeChips(){ $$('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); }
+  function setModeChips(){ $$('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === (mode === 'room' ? 'online' : mode))); }
 
   /* ---------- turns ---------- */
   const myTurn = () => {
     if (over || busy) return false;
     if (mode === 'local') return true;
     if (mode === 'cpu') return turn === 'a';
+    if (mode === 'room') return !!(room && room.ready && turn === room.me);
     return !!(match && match.status === 'playing' && meIdx >= 0 && match.turn === match.players[meIdx]);
   };
   function play(c){
@@ -244,6 +249,7 @@
     const m = place(board, c, turn); if (!m){ TZ.sfx('err'); return; }
     board = m.b; lastIdx = m.i;
     const w = winner(board);
+    if (mode === 'room'){ roomSend({ t: 'move', c }); TZ.sfx('click'); if (w) finish(w); else { turn = turn === 'a' ? 'b' : 'a'; draw(); } return; }
     if (mode === 'online'){
       const other = match.players[1 - meIdx];
       const data = { board, turn: other, moves: (match.moves || 0) + 1, last: m.i };
@@ -274,17 +280,18 @@
     let title = 'Draw!', text = 'Nobody got four. Again?';
     if (w.who !== 'draw'){
       const idx = w.who === 'a' ? 0 : 1;
-      const youWon = (mode === 'cpu' && idx === 0) || (mode === 'online' && idx === meIdx);
+      const youWon = (mode === 'cpu' && idx === 0) || (mode === 'online' && idx === meIdx) || (mode === 'room' && room && idx === (room.me === 'a' ? 0 : 1));
       if (mode !== 'online') wins[w.who]++;
       title = mode === 'local' ? n[idx].tag + ' wins!' : youWon ? 'You win!' : 'You lose';
-      text = mode === 'cpu' ? (youWon ? 'You beat the CPU on ' + ['Easy','Normal','Hard','Insane'][diff] + '!' : 'The CPU got four in a row.') : mode === 'online' ? (youWon ? 'GG! Want a rematch?' : n[idx].tag + ' got four in a row.') : 'Four in a row!';
+      if (mode === 'room') extras();
+      text = mode === 'room' ? (youWon ? 'GG! Rematch?' : n[idx].tag + ' got four in a row. Rematch?') : mode === 'cpu' ? (youWon ? 'You beat the CPU on ' + ['Easy','Normal','Hard','Insane'][diff] + '!' : 'The CPU got four in a row.') : mode === 'online' ? (youWon ? 'GG! Want a rematch?' : n[idx].tag + ' got four in a row.') : 'Four in a row!';
       if (youWon || mode === 'local'){ const r = $('#bw').getBoundingClientRect(); TZ.confetti(r.left + r.width / 2, r.top + r.height / 3, 40); TZ.sfx('ach'); } else TZ.sfx('err');
       if (mode === 'cpu' && youWon) TZ.unlock('orbwin');
     }
-    if (mode === 'online' && !versusGiven){ versusGiven = true; TZ.unlock('versus'); }
+    if ((mode === 'online' || mode === 'room') && !versusGiven){ versusGiven = true; TZ.unlock('versus'); }
     setTimeout(() => {
       $('#rTitle').textContent = title; $('#rText').textContent = text;
-      $('#rBtns').innerHTML = mode === 'online' ? rematchBtns() : '<button class="btn" data-new>↻ Play again</button>';
+      $('#rBtns').innerHTML = mode === 'online' ? rematchBtns() : mode === 'room' ? '<button class="btn" data-room-again>⚔️ Rematch</button><button class="btn ghost" data-room-leave>Leave room</button>' : '<button class="btn" data-new>↻ Play again</button>';
       $('#result').classList.add('on');
     }, 1500);
     side();
@@ -296,13 +303,10 @@
     if (match && match.rematch) return `<a class="btn" href="index.html?m=${encodeURIComponent(match.rematch)}">⚔️ Join rematch</a><a class="btn ghost" href="../../friends.html">Friends</a>`;
     return `<button class="btn" data-rematch>⚔️ Rematch</button><a class="btn ghost" href="../../friends.html">Friends</a>`;
   }
-  function waitMsg(title, text){ $('#wTitle').textContent = title; $('#wText').innerHTML = text || ''; $('#wait').classList.add('on'); }
+  function waitMsg(title, text, idle){ $('#wTitle').textContent = title; $('#wText').innerHTML = text || ''; const sp = $('#wait .spin'); if (sp) sp.style.display = idle ? 'none' : ''; $('#wait').classList.add('on'); }
   function online(){
     reset(); extras();
-    if (!matchId){
-      waitMsg('Challenge a friend', `Open your <a href="../../friends.html" style="color:var(--o-text);font-weight:800">Friends</a> list and press ⚔️ Orb Four next to a friend. They get an invite and you play live.`);
-      return;
-    }
+    if (!matchId){ roomPanel(); return; }
     if (!accountsOn || account.failed) return waitMsg('Online play is coming soon', 'Online matches switch on with accounts. Try the CPU meanwhile!');
     if (account.loading) return waitMsg('Connecting…', 'Linking up to the 2trapz Network.');
     const u = account.user();
@@ -332,10 +336,94 @@
     card.appendChild(b); setTimeout(() => b.remove(), 2700); TZ.sfx('click');
   }
 
+  /* ---------- rooms: peer-to-peer, no account needed ---------- */
+  const ROOMLIB = '../../assets/vendor/peerjs.min.js';
+  const roomId = c => 'tz2trapz-orb-four-' + c.toUpperCase();
+  function peerOpts(){
+    let h = P.get('pthost'); try { h = h || localStorage.getItem('tz.pthost'); } catch (e) {}
+    if (h){ const [host, port] = h.split(':'); return { host, port: +port || 9000, path: '/', secure: false, debug: 0 }; }
+    return { debug: 0 };
+  }
+  const loadPeer = () => new Promise((res, rej) => { if (window.Peer) return res(); const sc = document.createElement('script'); sc.src = ROOMLIB; sc.onload = res; sc.onerror = () => rej(new Error('lib')); document.head.appendChild(sc); });
+  const WHY = { 'peer-unavailable': 'No room with that code. Check it with your friend.', network: 'Could not reach the matchmaking service. Check your connection.', 'server-error': 'The matchmaking service is having trouble. Try again in a minute.', 'browser-incompatible': 'This browser cannot do peer-to-peer play.' };
+  function roomPanel(err){
+    waitMsg('Play online', `Create a room and send your friend the code, or type theirs. Works over the internet or on the same Wi-Fi, no account needed.
+      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn sm" data-room-host>Create room</button></div>
+      <div class="row" style="justify-content:center;margin-top:10px;gap:8px"><input class="input" id="roomCode" maxlength="4" placeholder="CODE" autocomplete="off" style="width:110px;text-align:center;text-transform:uppercase;letter-spacing:.2em;font-weight:800"><button class="btn sm ghost" data-room-join>Join</button></div>
+      ${accountsOn ? '<div style="margin-top:10px;font-size:13px">Signed in? You can also challenge friends from your <a href="../../friends.html" style="color:var(--o-text);font-weight:800">Friends</a> list.</div>' : ''}
+      <div id="roomErr" style="margin-top:8px;color:#ff6b5a;font-weight:800;font-size:13px">${err ? esc(err) : ''}</div>`, true);
+  }
+  function roomErr(m){ const e = $('#roomErr'); if (e) e.textContent = m; else roomPanel(m); }
+  function roomSend(d){ try { if (room && room.conn && room.conn.open) room.conn.send(d); } catch (e) {} }
+  function roomWire(conn){
+    room.conn = conn;
+    conn.on('data', d => {
+      if (!d || typeof d !== 'object') return;
+      if (d.t === 'hello' || d.t === 'hi'){
+        room.them = { tag: String(d.tag || 'Friend').slice(0, 24), ava: String(d.ava || '🎮').slice(0, 4) };
+        if (d.t === 'hello') roomSend({ t: 'hi', tag: prof().tag, ava: prof().avatar });
+        room.ready = true; mode = 'room'; setModeChips(); $('#wait').classList.remove('on'); wins = { a:0, b:0 }; reset(); extras(); TZ.sfx('ok');
+        TZ.toast({ icon:'🟠', small:'Room ' + room.code, big: esc(room.them.tag) + ' joined. ' + (room.me === 'a' ? 'You go first.' : 'They go first.') });
+      } else if (d.t === 'move'){
+        if (over || turn === room.me) return;
+        const c = +d.c; if (!(c >= 0 && c < W)) return;
+        const m = place(board, c, turn); if (!m) return;
+        board = m.b; lastIdx = m.i; TZ.sfx('click');
+        const w = winner(board); if (w) finish(w); else { turn = turn === 'a' ? 'b' : 'a'; draw(); }
+      } else if (d.t === 'again'){ roomRematch(false); }
+      else if (d.t === 'emote'){ roomEmote(room.me === 'a' ? 1 : 0, String(d.e || '').slice(0, 4)); }
+    });
+    const gone = () => { if (!room) return; const was = room.ready; roomClose(); if (was){ mode = 'online'; setModeChips(); roomPanel('Your friend left the room.'); } };
+    conn.on('close', gone); conn.on('error', gone);
+  }
+  async function roomHost(){
+    roomClose(); roomErr('');
+    try { await loadPeer(); } catch (e){ return roomErr('Could not load the online library.'); }
+    let tries = 0;
+    const open = () => {
+      const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; let code = ''; for (let i = 0; i < 4; i++) code += A[Math.floor(Math.random() * A.length)];
+      const peer = new window.Peer(roomId(code), peerOpts());
+      room = { role: 'host', me: 'a', peer, conn: null, code, ready: false, them: null, games: 0 };
+      peer.on('open', () => {
+        const link = location.origin + location.pathname + '?room=' + code;
+        waitMsg('Room ' + code, `Send your friend this code, or the link. They open Orb Four, press Online and type it.<div style="font:900 44px var(--display);letter-spacing:.18em;margin:10px 0;color:var(--o-text)">${code}</div><div class="row" style="justify-content:center;gap:8px"><button class="btn sm" data-room-copy="${esc(link)}">Copy invite link</button><button class="btn sm ghost" data-room-leave>Cancel</button></div>`);
+      });
+      peer.on('connection', c => { if (room && room.conn){ c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 300); }); return; } c.on('open', () => { roomWire(c); roomSend({ t: 'hello', tag: prof().tag, ava: prof().avatar }); }); });
+      peer.on('error', e => { if (e.type === 'unavailable-id' && tries++ < 5){ try { peer.destroy(); } catch (x) {} open(); } else if (!room || !room.ready){ roomClose(); roomPanel(WHY[e.type] || 'Could not open a room.'); } });
+      peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) {} });
+    };
+    open();
+  }
+  async function roomJoin(code){
+    code = String(code || '').trim().toUpperCase();
+    if (!/^[A-Z]{4}$/.test(code)) return roomErr('Room codes are four letters.');
+    roomClose(); waitMsg('Joining ' + code + '…', '');
+    try { await loadPeer(); } catch (e){ return roomPanel('Could not load the online library.'); }
+    const peer = new window.Peer(undefined, peerOpts());
+    room = { role: 'guest', me: 'b', peer, conn: null, code, ready: false, them: null, games: 0 };
+    const timer = setTimeout(() => { if (room && !room.ready){ roomClose(); roomPanel('That room did not answer. Is the code right?'); } }, 15000);
+    peer.on('error', e => { clearTimeout(timer); if (!room || !room.ready){ roomClose(); roomPanel(WHY[e.type] || 'Could not join.'); } });
+    peer.on('open', () => {
+      const c = peer.connect(roomId(code), { reliable: true });
+      c.on('data', d => { if (d && d.t === 'full'){ clearTimeout(timer); roomClose(); roomPanel('That room is full.'); } else if (d && d.t === 'hello') clearTimeout(timer); });
+      roomWire(c);
+    });
+  }
+  function roomClose(){ if (!room) return; const r = room; room = null; try { if (r.conn) r.conn.close(); } catch (e) {} try { r.peer.destroy(); } catch (e) {} }
+  function roomRematch(mine){
+    if (!room) return;
+    if (mine) roomSend({ t: 'again' });
+    room.games++; reset(); turn = room.games % 2 ? 'b' : 'a'; draw(); extras();
+    TZ.toast({ icon:'⚔️', small:'Rematch', big: turn === room.me ? 'You go first.' : 'They go first.' });
+  }
+  function roomEmote(j, e){ const card = $('#p' + j); if (!card) return; const b = document.createElement('span'); b.className = 'bubble2'; b.textContent = e; card.appendChild(b); setTimeout(() => b.remove(), 2700); TZ.sfx('click'); }
+  window.addEventListener('beforeunload', roomClose);
+
   /* ---------- input ---------- */
   $('#board').addEventListener('click', e => { const c = e.target.closest('[data-c]'); if (c) play(+c.dataset.c); });
   $('#board').addEventListener('mousemove', e => { const c = e.target.closest('[data-c]'); if (c && +c.dataset.c !== hoverCol){ hoverCol = +c.dataset.c; ghost(); } });
   document.addEventListener('keydown', e => {
+    if (e.target.id === 'roomCode' && e.key === 'Enter'){ roomJoin(e.target.value); return; }
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     if (e.key === 'ArrowLeft'){ hoverCol = Math.max(0, hoverCol - 1); ghost(); e.preventDefault(); }
     else if (e.key === 'ArrowRight'){ hoverCol = Math.min(W - 1, hoverCol + 1); ghost(); e.preventDefault(); }
@@ -347,14 +435,22 @@
     const md = t.closest('[data-mode]');
     if (md){
       const m = md.dataset.mode;
-      if (m === 'online'){ mode = 'online'; setModeChips(); online(); return; }
+      if (m === 'online'){ if (mode === 'room' && room) return; mode = 'online'; setModeChips(); online(); return; }
       if (matchId){ location.href = 'index.html'; TZ.set('tz.orb.mode', m); return; }
+      if (room) roomClose();
       mode = m; TZ.set('tz.orb.mode', m); setModeChips(); $('#wait').classList.remove('on'); extras(); reset(); return;
     }
+    if (t.closest('[data-room-host]')){ roomHost(); return; }
+    if (t.closest('[data-room-join]')){ roomJoin(($('#roomCode') || {}).value); return; }
+    if (t.closest('[data-room-again]')){ roomRematch(true); return; }
+    if (t.closest('[data-room-leave]')){ roomClose(); mode = 'online'; setModeChips(); reset(); extras(); roomPanel(); return; }
+    const cp = t.closest('[data-room-copy]');
+    if (cp){ try { await navigator.clipboard.writeText(cp.dataset.roomCopy); cp.textContent = 'Copied!'; } catch (err){ cp.textContent = cp.dataset.roomCopy; } return; }
     const d = t.closest('[data-diff]'); if (d){ diff = +d.dataset.diff; TZ.set('tz.orb.diff', diff); extras(); reset(); return; }
     if (t.closest('[data-new]')){ reset(); return; }
     if (t.closest('[data-reset]')){ wins = { a:0, b:0 }; reset(); return; }
     const em = t.closest('[data-emote]');
+    if (em && mode === 'room' && room){ roomSend({ t: 'emote', e: em.dataset.emote }); roomEmote(room.me === 'a' ? 0 : 1, em.dataset.emote); return; }
     if (em && match){ const data = { emote: { u: account.user().uid, e: em.dataset.emote, t: Date.now() } }; lastEmote = data.emote.t; showEmote(data.emote); account.updateMatch(match.id, data).catch(() => {}); return; }
     const rm = t.closest('[data-rematch]');
     if (rm && match){
@@ -370,7 +466,8 @@
   document.addEventListener('tz:auth', () => { if (mode === 'online') online(); });
 
   build(); setModeChips(); extras(); draw();
-  if (mode === 'online') online();
+  if (P.get('room')){ mode = 'online'; setModeChips(); roomJoin(P.get('room')); }
+  else if (mode === 'online') online();
 })();
 </script>
 </body>
