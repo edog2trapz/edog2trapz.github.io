@@ -108,6 +108,7 @@ kbd{font-family:var(--ui);font-weight:700;font-size:.85em;padding:1px 6px;border
 #tDrag{grid-column:1/span 2;display:flex;gap:8px;justify-content:flex-end}
 @media (prefers-reduced-motion:reduce){#card{animation:none}}
 </style>
+<script src="../../assets/padmap.js"></script>
 </head>
 <body>
 
@@ -141,6 +142,7 @@ kbd{font-family:var(--ui);font-weight:700;font-size:.85em;padding:1px 6px;border
         </ul>
       </div>
     </div>
+    <p class="fine">🎮 Gamepad: left stick move · right stick aim · A cast, reel, shoot · B twitch or swap gun · X dive, land, dock · Y cast net · LB next lure · RB chum · LT trawl · RT throttle · d-pad up/down drag · Back codex.</p>
     <p class="fine">On touch: drag across the water to aim, hold to reel, stick to move. <kbd>C</kbd> codex · <kbd>M</kbd> mute · type <kbd>enoch</kbd> for the admin panel. Progress saves in this browser.</p>
   </div>
 </div>
@@ -1415,6 +1417,37 @@ function start(data){const snap=data&&data.S?data.S:loadSave();S=adopt(snap);bui
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{for(const k in thumbCache)delete thumbCache[k];});
   requestAnimationFrame(frame);}
 if(location.hash==='#debug')window.__hh={admDo,unlockEnoch,newBait,trawlToggle,doChum,netClose,G,get S(){return S;},SPECIES,MAPS,startDive,hookSet,startBite,spawnSpecies,travelTo,setWeather,get MAP(){return MAP;}};
+/* gamepad: feeds the same input state the touch controls use */
+(() => {
+  if (!window.PadMap) return;
+  let aimed = false, stick = false;
+  PadMap.start(p => {
+    const sheet = ['shop', 'codex', 'adm'].map(id => document.getElementById(id)).find(e => e && !e.hidden);
+    const title = document.getElementById('title');
+    if (sheet || (title && !title.hidden)) {
+      PadMap.menu(p, sheet || title);
+      if (sheet && (p.pr(1) || p.pr(8))) closeSheets();
+      I.btnPrimary = false; I.netBtn = false; I.sprintBtn = false;
+      return;
+    }
+    if (Math.hypot(p.ax, p.ay) > 0.05) { I.stick.x = p.ax; I.stick.y = p.ay; stick = true; } else if (stick) { I.stick.x = I.stick.y = 0; stick = false; }
+    if (Math.hypot(p.rx, p.ry) > 0.2) { const d = Math.hypot(p.rx, p.ry); I.aimMouse = true; aimed = true; I.px = W / 2 + p.rx / d * 260; I.py = H / 2 + p.ry / d * 260; }
+    else if (aimed) { I.aimMouse = false; aimed = false; }
+    if (p.pr(0)) { au(); I.p.primary = true; }
+    I.btnPrimary = p.B(0);
+    if (p.pr(1)) { if (G.mode === 'dive') I.p.swap = true; else I.p.secondary = true; }
+    if (p.pr(2)) I.p.action = true;
+    if (p.pr(3)) I.p.net = true;
+    I.netBtn = p.B(3);
+    I.sprintBtn = p.B(7);
+    if (p.pr(4)) { const o = LURE_KEYS.filter(k => S.owned.lure[k] && (!LURES[k].bait || S.bait > 0)); if (o.length) selectLure(o[(o.indexOf(S.eq.lure) + 1) % o.length]); }
+    if (p.pr(5)) I.p.chum = true;
+    if (p.pr(6)) I.p.trawl = true;
+    if (p.pr(12)) I.dragDelta += 0.5;
+    if (p.pr(13)) I.dragDelta -= 0.5;
+    if (p.pr(8)) toggleCodex();
+  }, () => { I.stick.x = I.stick.y = 0; I.btnPrimary = false; I.netBtn = false; I.sprintBtn = false; if (aimed) I.aimMouse = false; });
+})();
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
 </script>
