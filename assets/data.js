@@ -50,6 +50,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'tap-the-yart', title:'Tap the Yart', icon:'💨', genre:'Stealth', colors:['#14161d', '#c9b8ff'], players:'1 player', isNew:true, featured:true,
+    desc:'First-person stealth in the school bathroom. Hit your yart, a Gleek Bar, green, tabs or salvia, then blow the cloud into a vent or flush it before a teacher sees or smells it. The more you take, the more fried you get, until you green out on the floor. Four periods, four teachers, one hall pass.' },
   { slug:'rhyme-cipher', title:'Rhyme Cipher', icon:'🎤', genre:'Rhythm', colors:['#120d1d', '#ffb547'], players:'1 player', isNew:true, featured:true,
     desc:'A freestyle rap game like the rhyme game. Every bar ends on a word on screen and the words come in rhyming pairs, so you rap your line and land the word on beat 4. Couplets, alternating or four-in-a-row, easy to hard words, 12 original beats, or your own songs with BPM and key detection.' },
   { slug:'vermilion-thread', title:'Vermilion Thread', icon:'🗡️', genre:'Roguelike', colors:['#16110f', '#e2372b'], players:'1 player', isNew:true, featured:true,
@@ -140,6 +142,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-16', tag:'New game', title:'Tap the Yart: don\'t get caught in the bathroom', game:'tap-the-yart',
+    text:'A first-person stealth game set in the school bathroom. You have one hall pass and a stash: a yart, a Gleek Bar, green, two tabs and some salvia. Every hit makes a cloud, so blow it into the vent, or lock a stall and flush it before Ms. Vance, Mr. Grummond, Coach Briggs or Principal Okafor sees it or smells it down the hall. The more you take, the more fried you get: green blurs everything and slows you down, tabs melt the walls, salvia flips your controls, and overdoing it puts you on the floor. Get your buzz to 100% and make it back to class before the bell.' },
   { date:'2026-11-16', tag:'Update', title:'Old favourites, upgraded',
     text:'Find Nemo has a dash with Slick dodges, bubble combos, shell shields, three stars per level and an endless Open Ocean. Eelectric throws a surge at the arena every minute. Orb Four has online rooms with a four-letter code, no account needed. Vector Terminal adds earnings days, stop and target orders and a new market condition each season. Bucket Splash gets bot difficulty. And you can now grab a controller in Bucket Splash, Shrimp Quest, Sack Lewis II, Kickstorm, Hook & Harpoon, Primordial, Besieged, Breachline and Dachy.' },
   { date:'2026-11-16', tag:'Update', title:'Dead Rude 2: start alive, end up dead', game:'dead-rude',
