@@ -23,5 +23,11 @@ The **rhyme tail** runs from the last stressed vowel to the end (*nation* → `A
 
 Typed input understands rap spellings (*runnin'* → *running*, *killa* → *killer*) and plurals of known words.
 
-## Target words
+## Rhyme pairs for the freestyle
+`Dict.partners(word)` picks the words that pair with a starting word:
+- perfect rhymes only, matched on the **main** pronunciation of both words (weak forms like "kuhn" for *can* are dropped),
+- common enough for the level (top 6k / 15k / 30k words), preferring words from the curated pools,
+- never the same word, never one inside the other, never the same root (*herself / itself*, *everyone / someone*).
+
+## Starting words
 Built by `build_dict.py`: common words (SCOWL ≤ 35, Zipf ≥ 3) with at least 3 perfect rhymes among common words, without plain plurals, *-ing* and *-ly* forms or function words. Easy = 14+ rhymes, medium = 6+, hard = 3–5 or a two-syllable tail. Plus 16 hand-picked topic packs (Money, Food, City, Love, Space, Sports, Nature, Tech, Animals, Fantasy, Weather, Feelings, Music, Cars, Ocean, School).

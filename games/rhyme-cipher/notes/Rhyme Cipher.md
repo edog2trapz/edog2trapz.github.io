@@ -6,13 +6,13 @@ play: https://edog2trapz.github.io/games/rhyme-cipher/
 ---
 # Rhyme Cipher
 
-A freestyle rhythm and rhyme game. Words drop on the beat, you type a rhyme and hit Enter on a beat. It has 12 original synthesized beats, and you can load your own songs: the game reads their BPM, key and beat grid.
+A freestyle rap game in the style of the rhyme game. Every bar ends on a word on screen, the words come in rhyming pairs, and you rap your line to land each word on beat 4. It has 12 original synthesized beats, and you can load your own songs: the game reads their BPM, key and beat grid.
 
 > [!tip] Play it
 > Live on the site: `games/rhyme-cipher/index.html`. The whole game is that one file: code, rhyme dictionary and beats.
 
 ## Map of this vault
-- [[Game Design]]: modes, difficulty, scoring, grades
+- [[Game Design]]: the loop, rhyme schemes, word levels, options
 - [[Songs and Beats]]: the 12 built-in tracks and how they are synthesized
 - [[Rhyme Engine]]: the 75,855-word rhyme book and how rhymes are judged
 - [[BPM and Key Detection]]: how uploaded songs are analyzed
@@ -22,7 +22,7 @@ A freestyle rhythm and rhyme game. Words drop on the beat, you type a rhyme and 
 | | |
 |---|---|
 | Words in the rhyme book | 75,855 |
-| Target words | 7,579 (2,485 easy, 4,106 medium, 988 hard) |
+| Starting words | 7,579 (2,485 easy, 4,106 medium, 988 hard) |
 | Topic packs | 16 (521 words) |
 | Built-in beats | 12, from 78 to 142 BPM |
 | File size | about 1.6 MB |

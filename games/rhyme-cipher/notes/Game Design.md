@@ -4,33 +4,35 @@ tags: [rhyme-cipher, design]
 # Game Design
 Back to [[Rhyme Cipher]].
 
-## Modes
-- **Rhyme Rush**: one word at a time. Type one rhyme before the red *gate* on the beat lane. Missing a gate costs a mic (3 mics per run). After a hit, the next word lands on the next beat.
-- **Rhyme Storm**: one word holds for a few bars. Stack as many different rhymes as you can. A round with zero rhymes costs a mic; 3+ rhymes give a round bonus (50 × rhymes × multiplier).
-- **Freestyle**: words land on the downbeat every 1, 2 or 4 bars with a cloud of rhyme ideas (perfect, multi-syllable in pink, slant in blue). Rap out loud. Space skips a word. No score.
+A freestyle trainer in the style of the rhyme game. No typing: you rap out loud.
 
-## Difficulty
-| | Seconds per word (Rush) | Seconds per word (Storm) | Rhymes that count | Word pools |
-|---|---|---|---|---|
-| Chill | 7.5 | 14 | perfect, slant, echo, loose | easy |
-| Normal | 5.5 | 11 | perfect, slant, echo, loose | 70% easy, 30% medium |
-| Hard | 4 | 8 | perfect, slant, echo | mostly medium |
-| Insane | 2.8 | 6 | perfect, slant | medium + hard |
+## The loop
+1. Pick a beat (built-in or your own song).
+2. The intro plays and the count-in shows the first words.
+3. Every bar has an **end word**. Rap the bar however you want, but finish on that word, landing it on **beat 4** (the snare). The ring marked 4 shows where.
+4. Words come in **rhyming groups**, shown by color: same color = they rhyme.
+5. The next word and the ones after it are always on screen, and each word rides the lane at the bottom toward the moment you say it.
 
-Windows are converted to beats at the track tempo (Rush rounds to 2 beats, Storm to whole bars).
+## Rhyme schemes
+| Scheme | Pattern | How it plays |
+|---|---|---|
+| Couplets (default) | AABB | Bar 1 sets up the rhyme, bar 2 pays it off |
+| Alternating | ABAB | Bars 1 and 3 rhyme, 2 and 4 rhyme |
+| Four in a row | AAAA | One sound for the whole verse |
 
-## Scoring
-- Base: perfect 100, slant 60, echo 40, loose 30
-- Multi-syllable: +60 per extra matching syllable
-- Rare word: +20 (outside top 8k), +40 (20k), +60 (45k)
-- 3+ syllable word: +20. Rush speed bonus: 5 per beat left before the gate
-- Timing: Enter within 70 ms of a beat ×1.5, within 140 ms ×1.25
-- Combo multiplier: ×2 at 5, ×3 at 10, ×4 at 20. A wrong rhyme or a miss resets it
-- Hint (Tab): half points for that word
-- No repeats: each typed word scores once per run. Unknown words cost nothing.
+## Options
+- **Words**: Easy (everyday words with lots of rhymes, partners from the top 6,000 words), Medium (top 15,000, more variety), Hard (top 30,000, prefers multi-syllable pairs like *terrific / horrific*).
+- **New word every**: Auto (1 bar up to 115 BPM, 2 bars above), 1 bar, or 2 bars.
+- **Word pack**: mixed words, everything, or one of 16 topics for the first word of each group.
+- **More rhymes** (`I`): extra words with the same sound for mid-bar rhymes.
+- **New rhyme** (`Space`): swaps the upcoming words for a fresh group.
+- **Click when a word changes** (settings): a soft click on each new word.
 
-## Grades
-Rush: share of words hit, with S needing 95% hit rate and 40% on the beat. Storm: share of rounds rhymed plus average rhymes per round. A dropped mic caps the grade at C (F under 40%).
+## Session summary
+Bars ridden, end words landed, rhyme sounds, time, tempo, and the list of every rhyme group you went through.
 
 ## Saves
-One `localStorage` key, `rhyme-cipher.v1`: settings, best score per track + mode + difficulty, career totals. The 2trapz site syncs it to accounts automatically. Uploaded songs live in IndexedDB (`rhyme-cipher` database) on the player's device only.
+One `localStorage` key, `rhyme-cipher.v1`: settings, career totals (sessions, bars, words, time) and bars ridden per beat. The 2trapz site syncs it to accounts automatically. Uploaded songs live in IndexedDB (`rhyme-cipher`) on the player's device only.
+
+## History
+- 2026-11-16: first version was a typing game (Rhyme Rush / Rhyme Storm). Rebuilt the same day into the freestyle rhyme game after feedback: "at the end of every bar there's a new word and they have pairs that rhyme with each other, something to freestyle with, not typing words."
