@@ -431,6 +431,7 @@ kbd { font-family: var(--f-mono); font-size: 12px; font-weight: 700; border: 2px
   </div>
 </div>
 
+<script src="../../assets/padmap.js"></script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -5063,6 +5064,36 @@ const _buildKeys = buildKeys;
 buildKeys = function () { _buildKeys(); if (!IS_TOUCH) $('keysList').insertAdjacentHTML('beforeend', `<kbd>F</kbd><span>${T('k_inspect')}</span><kbd>Mouse 1 / 2</kbd><span>${T('k_attack')}</span>`); };
 
 startGame();
+
+/* ---------------------------------------------------------------- gamepad
+   Left stick run · right stick look · A jump (hold for bhop) · B or LT slide/crouch
+   RT knife · RB heavy knife · X restart · Y checkpoint · R3 inspect · Start pause. Menus: d-pad and A. */
+if (window.PadMap) {
+  const SCREENS = ['menu', 'controls', 'caseOv', 'results', 'pause', 'settings'];
+  PadMap.start((p) => {
+    if (G.state !== 'playing') {
+      G.touch.fx = G.touch.fz = 0; K.Space = false; K.ShiftLeft = false;
+      const open = SCREENS.map((id) => $(id)).filter((el) => el && !el.hidden);
+      if (open.length) PadMap.menu(p, open[open.length - 1]);
+      if (G.state === 'paused' && (p.pr(1) || p.pr(9))) { if (!$('settings').hidden) closeSettings(); else resumeGame(); }
+      return;
+    }
+    if (!$('clickgate').hidden) $('clickgate').hidden = true;
+    G.touch.fx = p.ax; G.touch.fz = -p.ay;
+    const s = 950 * p.dt;
+    G.mdx += p.rx * Math.abs(p.rx) * s; G.mdy += p.ry * Math.abs(p.ry) * s * 0.75;
+    if (p.pr(0)) G.jumpQ = true;
+    K.Space = p.B(0);
+    if (p.pr(1) || p.pr(6)) G.crouchQ = true;
+    K.ShiftLeft = p.B(1) || p.B(6);
+    if (p.pr(7)) knifeAttack('slash');
+    if (p.pr(5)) knifeAttack('stab');
+    if (p.pr(2)) restartRun();
+    if (p.pr(3) && (G.mode === 'level' || G.mode === 'surf')) toCheckpoint();
+    if (p.pr(11)) knifeInspect();
+    if (p.pr(9)) pauseGame();
+  }, () => { G.touch.fx = G.touch.fz = 0; K.Space = false; K.ShiftLeft = false; });
+}
 
 </script>
 </html>
