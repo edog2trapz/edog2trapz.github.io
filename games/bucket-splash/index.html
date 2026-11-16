@@ -166,7 +166,9 @@ const K={}; KIDS.forEach(k=>K[k.name]=k);
 function activeBubbles(){let n=0;for(const k of KIDS)if(k.bubble)n++;return n;}
 
 /* ---------- save ---------- */
-const SAVE={best:{war:0,free:0},wins:0,chal:0,megas:0,sel:'Edison',snd:true,mus:true,chars:{}};
+const SAVE={best:{war:0,free:0},wins:0,chal:0,megas:0,sel:'Edison',snd:true,mus:true,chars:{},diff:1};
+const DIFFS=[{n:'😇 Chill',think:1.7,throwP:0.55,lead:[0.1,0.6],cd:1.5},{n:'😈 Normal',think:1,throwP:1,lead:[0.4,0.9],cd:1},{n:'💀 Savage',think:0.62,throwP:1.6,lead:[0.85,1.05],cd:0.7}];
+const DF=()=>DIFFS[SAVE.diff==null?1:SAVE.diff]||DIFFS[1];
 CREW.forEach(d=>SAVE.chars[d.name]={splashes:0,soaked:0,slips:0,wins:0});
 try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(s){ Object.assign(SAVE.best,s.best||{}); SAVE.wins=s.wins|0; SAVE.chal=s.chal|0; SAVE.megas=s.megas|0; if(s.sel&&K[s.sel]) SAVE.sel=s.sel; if(s.snd===false) SAVE.snd=false; if(s.mus===false) SAVE.mus=false; for(const n in SAVE.chars) if(s.chars&&s.chars[n]) Object.assign(SAVE.chars[n],s.chars[n]); } }catch(e){}
 function writeSave(){ try{ localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE)); }catch(e){} }
@@ -833,10 +835,10 @@ function aiThink(c){
   if(!t||t===c||t.fly||t.forcePose||(G.ambushT>0&&t!==K.Matthew&&c!==K.Matthew)) { a.target=pickTarget(c); return; }
   const d=dist(c,t);
   if(d<60&&c.actCD<=0){ startDump(c,t); return; }
-  if(d>150&&d<400&&c.throwCD<=0&&Math.random()<c.aggro*0.3){
-    const lead=0.28+d/1150;
-    startThrow(c,t.x+t.vx*lead*rand(0.4,0.9),t.y+t.vy*lead*rand(0.4,0.9),{target:t});
-    c.throwCD=rand(2,4.5); return;
+  if(d>150&&d<400&&c.throwCD<=0&&Math.random()<c.aggro*0.3*DF().throwP){
+    const lead=0.28+d/1150, df=DF();
+    startThrow(c,t.x+t.vx*lead*rand(df.lead[0],df.lead[1]),t.y+t.vy*lead*rand(df.lead[0],df.lead[1]),{target:t});
+    c.throwCD=rand(2,4.5)*df.cd; return;
   }
   const side=c.x<t.x?-1:1;
   a.wx=clamp(t.x+side*40,FLOOR.x0,FLOOR.x1); a.wy=clamp(t.y-4,FLOOR.y0,FLOOR.y1);
@@ -1065,7 +1067,7 @@ function update(dt){
   }
   for(const s of SINKS){ s.flow=false; }
   // AI thinking
-  for(const k of KIDS){ if(k.isP) continue; k.ai.think-=dt; if(k.ai.think<=0){ k.ai.think=rand(0.15,0.32); aiThink(k); } }
+  for(const k of KIDS){ if(k.isP) continue; k.ai.think-=dt; if(k.ai.think<=0){ k.ai.think=rand(0.15,0.32)*DF().think; aiThink(k); } }
   for(const k of KIDS) updKid(k,dt);
   separate();
   updProjectiles(dt);
@@ -1718,6 +1720,8 @@ function drawTitle(){
   txt(`Best Water War: 💦 ${fmt(SAVE.best.war||0)}   ·   Wins: ${SAVE.wins}   ·   Free Play best: ${fmt(SAVE.best.free||0)}`,640,574,15,'#fff','center',800,OUT,4);
   button('snd',1090,16,84,36,SAVE.snd?'🔊 SFX':'🔇 SFX',{c1:'#64748b',c2:'#334155',size:14});
   button('mus',1182,16,84,36,SAVE.mus?'🎵 ON':'🎵 OFF',{c1:'#64748b',c2:'#334155',size:14});
+  button('diff',946,16,136,36,'Bots: '+DF().n,{c1:SAVE.diff===2?'#f87171':SAVE.diff===0?'#86efac':'#fbbf24',c2:SAVE.diff===2?'#b91c1c':SAVE.diff===0?'#15803d':'#b45309',size:14});
+  if(PAD.on) txt('🎮 Controller ready: press A to start',640,640,15,'#7ee3ff','center',800,OUT,4);
   if(TOUCH) txt('💻 Made for PC — use a keyboard + mouse',640,612,16,'#ffd23f','center',800,OUT,4);
   else txt('Press ENTER to start a Water War',640,612,14,'#dfe7ee','center',800,OUT,3);
 }
@@ -1750,7 +1754,7 @@ function drawHow(){
   const L1=[['WASD / Arrows','move (Shift = sprint)'],['Hold Q / E at a sink','🔥 hot / ❄️ cold water (both = warm)'],['Left click','splash! close = DUMP over their head, far = THROW'],['Space','dump on whoever is next to you'],['F','shove (push people into puddles!)'],['R','your character\'s ability'],['X','MEGA SPLASH when the meter is full'],['1 / 2 / 3','add 🧊 ice / 🫧 soap / 🎨 dye to your bucket'],['E','grab a bucket from Matthew · flush · hand dryer'],['Tab · Esc','scores · pause']];
   panel(60,90,560,560,0.6); txt('CONTROLS',340,118,22,'#7ee3ff');
   L1.forEach(([k,v],i)=>{ const y=158+i*48; rr(80,y-16,190,32,10); ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.fill(); txt(k,175,y,fitSize(k,15,180),'#1d3557'); txt(v,284,y,fitSize(v,15,320),'#fff','left'); });
-  const tips=['🪣 Matthew is always on bucket duty — grab ready buckets from his rack.','🥶🌋 Freezing and boiling water score the most. Warm water is weak.','🔥 Hit people quickly in a row for COMBOS.','🍌 Puddles are slippery — slipping spills your bucket on yourself!','🚽 Flushing a toilet swaps the hot and cold taps.','🧢 Grab pickups: ⚡ speed, ☂️ umbrella blocks splashes, 🌊 mega bucket.','🚨 Random events: Matthew ambushes, George on the tap, heatwaves, cold snaps.','❗ A red ❗ means someone is about to dump on you — MOVE!','💧 Getting drenched slows you down — use the hand dryer.'];
+  const tips=['🎮 Gamepad: stick move · A splash (auto-aims, or aim with the right stick) · X/Y hot/cold taps · B shove · LB ability · LT mega · RB sprint · Back uses an add-in.','🪣 Matthew is always on bucket duty — grab ready buckets from his rack.','🥶🌋 Freezing and boiling water score the most. Warm water is weak.','🔥 Hit people quickly in a row for COMBOS.','🍌 Puddles are slippery — slipping spills your bucket on yourself!','🚽 Flushing a toilet swaps the hot and cold taps.','🧢 Grab pickups: ⚡ speed, ☂️ umbrella blocks splashes, 🌊 mega bucket.','🚨 Random events: Matthew ambushes, George on the tap, heatwaves, cold snaps.','❗ A red ❗ means someone is about to dump on you — MOVE!','💧 Getting drenched slows you down — use the hand dryer.'];
   panel(660,90,560,560,0.6); txt('TIPS',940,118,22,'#7ee3ff');
   tips.forEach((t,i)=>{ const y=160+i*54; ctx.font=`700 15px ${FONT}`; const words=t.split(' '); let line='',yy=y; for(const wd of words){ const s=line?line+' '+wd:wd; if(ctx.measureText(s).width>510){ txt(line,682,yy,15,'#fff','left',700); line=wd; yy+=19; } else line=s; } txt(line,682,yy,15,'#fff','left',700); });
   button('back',540,662,200,46,'⬅ Back',{c1:'#64748b',c2:'#334155',size:20});
@@ -1864,6 +1868,7 @@ function handleBtn(id){
   else if(id==='stats') G.screen='stats';
   else if(id==='back') G.screen=G.mode==='attract'?'title':'pause';
   else if(id.startsWith('sel:')){ SAVE.sel=id.slice(4); writeSave(); sfx('pop'); }
+  else if(id==='diff'){ SAVE.diff=((SAVE.diff==null?1:SAVE.diff)+1)%DIFFS.length; writeSave(); sfx('pop'); }
   else if(id==='snd'){ SAVE.snd=!SAVE.snd; if(SND.sfxG) SND.sfxG.gain.value=SAVE.snd?0.85:0; writeSave(); }
   else if(id==='mus'){ SAVE.mus=!SAVE.mus; if(SND.musG) SND.musG.gain.value=SAVE.mus?0.32:0; writeSave(); }
   else if(id==='resume'){ G.screen='game'; }
@@ -1900,7 +1905,7 @@ window.addEventListener('keydown',e=>{
   else if(e.code==='KeyE') playerInteract();
   else if(e.code==='KeyF') shove(G.P);
   else if(e.code==='KeyR') useAbility();
-  else if(e.code==='KeyX'){ if(G.meter>=1&&!G.mega&&G.P.stunT<=0&&!G.P.act&&!G.P.fly){ G.meter=0; megaSplash(G.P); } else if(G.meter<1){ toast(`Mega meter ${Math.floor(G.meter*100)}% — splash people to charge it`,'#5ed0ff',1.4); } }
+  else if(e.code==='KeyX') tryMega();
   else if(e.code==='Digit1') useItem('ice');
   else if(e.code==='Digit2') useItem('soap');
   else if(e.code==='Digit3') useItem('dye');
@@ -1912,10 +1917,49 @@ window.addEventListener('blur',()=>{ for(const k in keys) keys[k]=false; G.showB
 /* =====================================================================
    LOOP
    ===================================================================== */
+function tryMega(){ if(G.meter>=1&&!G.mega&&G.P.stunT<=0&&!G.P.act&&!G.P.fly){ G.meter=0; megaSplash(G.P); } else if(G.meter<1){ toast(`Mega meter ${Math.floor(G.meter*100)}% — splash people to charge it`,'#5ed0ff',1.4); } }
+/* ---------- gamepad ---------- */
+const PAD={on:false,prev:[],aimT:0};
+function pollPad(real){
+  const gp=navigator.getGamepads?[...navigator.getGamepads()].find(g=>g&&g.connected):null;
+  if(!gp) return;
+  const B=i=>{ const b=gp.buttons[i]; return !!(b&&(b.pressed||b.value>0.5)); }, press=i=>B(i)&&!PAD.prev[i];
+  const ax=gp.axes[0]||0, ay=gp.axes[1]||0, rx=gp.axes[2]||0, ry=gp.axes[3]||0, dz=0.3;
+  if(!PAD.on&&(Math.abs(ax)>dz||Math.abs(ay)>dz||gp.buttons.some(b=>b&&b.pressed))){ PAD.on=true; audioInit(); }
+  if(!PAD.on) return;
+  keys.KeyA=ax<-dz||B(14); keys.KeyD=ax>dz||B(15); keys.KeyW=ay<-dz||B(12); keys.KeyS=ay>dz||B(13);
+  keys.KeyQ=B(2); keys.KeyE=B(3); keys.ShiftLeft=B(5);
+  if(G.screen==='game'){
+    const P=G.P;
+    if(P){
+      if(Math.hypot(rx,ry)>0.35){ const d=Math.hypot(rx,ry); G.mouse={x:P.x+rx/d*300,y:P.y+ry/d*200}; PAD.aimT=1.2; }
+      else if(PAD.aimT>0) PAD.aimT-=real;
+      else { let best=null,bd=480; for(const k of KIDS){ if(k===P||k.fly) continue; const d=dist(k,P); if(d<bd){bd=d;best=k;} } if(best) G.mouse={x:best.x,y:best.y-30}; }
+    }
+    if(press(0)||press(7)) playerSpace();
+    if(press(3)) playerInteract();
+    if(press(1)) shove(G.P);
+    if(press(4)) useAbility();
+    if(press(6)) tryMega();
+    if(press(8)){ const t=['ice','soap','dye'].find(t=>G.inv[t]>0); if(t) useItem(t); else toast('No add-ins yet. Grab the pickups!','#fff',1.2); }
+    if(press(9)) G.screen='pause';
+    G.showBoard=B(11);
+  } else {
+    if(press(0)||press(9)){
+      if(G.screen==='title'||G.screen==='results') startMatch('war');
+      else if(G.screen==='pause') G.screen='game';
+      else if(['select','how','stats'].includes(G.screen)) G.screen=G.mode==='attract'?'title':'pause';
+    }
+    if(press(1)){ if(G.screen==='pause') quitToMenu(); else if(['select','how','stats'].includes(G.screen)) G.screen=G.mode==='attract'?'title':'pause'; }
+    if(press(3)&&G.screen==='title') G.screen='how';
+  }
+  PAD.prev=gp.buttons.map(b=>!!(b&&(b.pressed||b.value>0.5)));
+}
 let last=performance.now();
 function frame(ts){
   let real=(ts-last)/1000; last=ts;
   if(!(real>0)) real=0; real=Math.min(real,0.05);
+  try{ pollPad(real); }catch(e){}
   const paused=G.screen==='pause'||G.screen==='results'||G.screen==='select'&&G.mode!=='attract'||G.screen==='how'&&G.mode!=='attract';
   if(G.slowT>0){ G.slowT-=real; G.timeScale=0.3; } else G.timeScale=Math.min(1,G.timeScale+real*3);
   const dt=paused?0:real*G.timeScale;
