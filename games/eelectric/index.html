@@ -409,13 +409,71 @@ function kill(B,src){
     for(let i=0;i<4;i++){const a=B.segs[Math.random()*B.segs.length|0],b=B.segs[Math.random()*B.segs.length|0];bolt(a.x,a.y,b.x,b.y,B.T.glow,.3,3);}
     sfxAt(sfx.bigzap,B.x,B.y,.8);shakeAt(B.x,B.y,8);
   }
+  if(surge&&surge.id==='bounty'&&surge.target===B){
+    if(killer&&killer.alive){const bonus=Math.round(150+B.xp*.25);killer.addXp(bonus);
+      if(killer.isPlayer){setTimeout(()=>showBanner('BOUNTY CLAIMED!',`+${bonus} XP for frying ${B.name}`,'#ffd36a',2.6),900);}
+      pushFeed(`${killer.name} claimed the bounty on ${B.name}`,'#ffd36a',killer.isPlayer);}
+    else pushFeed(`Nobody claimed the bounty on ${B.name}`,'#ffd36a',false);
+  }
+  const storm=!killer&&B.stormAt&&time-B.stormAt<1.5;B.stormKill=storm;
   if(killer&&killer.alive){killer.addXp(15+B.xp*.12);killer.kills++;killer.charge=Math.min(100,killer.charge+35);killer.hp=Math.min(killer.maxHp,killer.hp+killer.maxHp*.1);}
   const mine=(killer&&killer.isPlayer)||B.isPlayer;
   if(killer)pushFeed(`${killer.name}  ⚡  ${B.name}`,killer.T.glow,mine);
-  else pushFeed(`${B.name} got fried by the fence`,'#8fd8ff',mine);
+  else pushFeed(storm?`${B.name} was struck by lightning`:`${B.name} got fried by the fence`,storm?'#dbe9ff':'#8fd8ff',mine);
   if(killer&&killer.isPlayer)onPlayerKill(B);
   if(B.isPlayer)onPlayerDeath(killer);
 }
+
+// ---------------------------------------------------------------- surge events
+/* Every minute or so the arena throws something at everyone: a feeding frenzy, a thunderstorm,
+   a bounty on the top bot, or a whirlpool with a food-packed eye. */
+const SURGES=[
+  {id:'frenzy',name:'FEEDING FRENZY',sub:'Double XP from everything you eat',c:'#7dffb2',dur:22},
+  {id:'storm',name:'THUNDERSTORM',sub:'Lightning hits the water. Get out of the rings',c:'#dbe9ff',dur:24},
+  {id:'bounty',name:'BOUNTY',sub:'',c:'#ffd36a',dur:45},
+  {id:'whirl',name:'WHIRLPOOL',sub:'It drags everything in. The eye is full of food',c:'#6ad8ff',dur:26},
+];
+const STORM={alive:false,name:'the storm'};
+let surge=null,surgeT=40,lastSurge='';
+function startSurge(){
+  const pool=SURGES.filter(S=>S.id!==lastSurge);const S=pool[Math.random()*pool.length|0];
+  const sg={id:S.id,name:S.name,sub:S.sub,c:S.c,dur:S.dur,t:0,k:0};
+  if(S.id==='bounty'){
+    const top=board.filter(e=>e.alive&&!e.isPlayer&&e.level>=3);
+    if(!top.length){surgeT=8;return;}
+    sg.target=top[0];sg.sub=`${top[0].name} has a price on their head. Fry them first`;
+  }
+  if(S.id==='whirl'){
+    let x=0,y=0;for(let i=0;i<10;i++){const a=rand(0,TAU),d=rand(450,900);x=player.x+Math.cos(a)*d;y=player.y+Math.sin(a)*d;if(Math.hypot(x,y)<R*.62)break;const q=randPoint(R*.5);x=q.x;y=q.y;}
+    sg.x=x;sg.y=y;sg.r=760;sg.feed=0;
+  }
+  surge=sg;lastSurge=S.id;
+  showBanner(S.name,sg.sub,S.c,2.8);sfx.level();pushFeed(`⚡ ${S.name}`,S.c,true);
+}
+function endSurge(timeUp){
+  if(!surge)return;
+  if(timeUp&&surge.id==='bounty'&&surge.target&&surge.target.alive)pushFeed(`${surge.target.name} kept the bounty`,'#ffd36a',false);
+  surge=null;surgeT=rand(38,60);
+}
+function updateSurge(dt){
+  if(state!=='play'||!player||!player.alive)return;
+  if(!surge){surgeT-=dt;if(surgeT<=0)startSurge();return;}
+  surge.t+=dt;
+  if(surge.id==='storm'){surge.k-=dt;if(surge.k<=0){surge.k=rand(.22,.45);
+    for(let n=0;n<2;n++){let x,y;if(n===0){const a=rand(0,TAU),d=rand(60,620);x=player.x+Math.cos(a)*d;y=player.y+Math.sin(a)*d;}else{const q=randPoint(R*.95);x=q.x;y=q.y;}
+      if(Math.hypot(x,y)<R-60)strikes.push({x,y,t:1.15,max:1.15,owner:STORM,r:rand(70,115),dmg:26+player.level*2.2,c:'#dbe9ff'});}}}
+  if(surge.id==='whirl'){surge.feed-=dt;if(surge.feed<=0&&foods.length<PLANKTON+1400){surge.feed=.12;const a=rand(0,TAU),d=rand(0,140);
+    foods.push({x:surge.x+Math.cos(a)*d,y:surge.y+Math.sin(a)*d,r:rand(4,6.5),v:rand(2.5,4.5),c:PCOL[Math.random()*PCOL.length|0],kind:1,life:rand(14,20),vx:0,vy:0,ph:rand(0,TAU),dead:false});}}
+  if(surge.id==='bounty'&&(!surge.target||!surge.target.alive)){endSurge(false);return;}
+  if(surge.t>=surge.dur)endSurge(true);
+}
+function whirlPull(o,dt,str){
+  if(!surge||surge.id!=='whirl')return;
+  const dx=surge.x-o.x,dy=surge.y-o.y,d=Math.hypot(dx,dy);if(d>surge.r||d<1)return;
+  const ramp=Math.min(1,surge.t/2,(surge.dur-surge.t)/2),k=(1-d/surge.r)*ramp*str;
+  o.x+=(dx/d*150-dy/d*240)*k*dt;o.y+=(dy/d*150+dx/d*240)*k*dt;
+}
+const xpMul=()=>surge&&surge.id==='frenzy'?2:1;
 
 // ---------------------------------------------------------------- abilities
 const ABIL={
@@ -615,6 +673,7 @@ function updateEel(e,dt){
   e.wob+=dt*(6+sp/45);
   const ma=e.ang+Math.sin(e.wob)*(st?.05:.2);
   const h=e.segs[0];h.x+=Math.cos(ma)*sp*dt;h.y+=Math.sin(ma)*sp*dt;
+  whirlPull(h,dt,1);
   // electric fence
   const dc=Math.hypot(h.x,h.y),lim=R-e.rad;
   if(dc>lim){h.x*=lim/dc;h.y*=lim/dc;e.fenceAcc+=dt;
@@ -677,7 +736,7 @@ function collide(){
 }
 
 function consume(e,f){
-  e.addXp(f.v);e.charge=Math.min(100,e.charge+f.v*1.3);
+  e.addXp(f.v*xpMul());e.charge=Math.min(100,e.charge+f.v*1.3);
   if(e.isPlayer){if(time>eatSndT){eatSndT=time+.07;sfx.eat();}if(f.kind===1)puff(f.x,f.y,f.c,2,60,.3,4);}
   if(f.kind===0)newPlankton(f);else f.dead=true;
 }
@@ -692,10 +751,10 @@ function eatAll(dt){
         if(d2<er*er)consume(e,f);
         else if(d2<magR*magR){const d=Math.sqrt(d2),pull=Math.min(d,((1-d/magR)*420+40)*dt);f.x+=dx/d*pull;f.y+=dy/d*pull;}}}
     for(const fi of fishes){const dx=fi.x-h.x,dy=fi.y-h.y;if(dx>60||dx<-60||dy>60||dy<-60)continue;
-      if(dx*dx+dy*dy<(eatR+fi.r+4)**2){e.addXp(7);e.charge=Math.min(100,e.charge+8);
-        if(e.isPlayer){addText(fi.x,fi.y,'+7','#9affd8',14,.7);sfx.eat();puff(fi.x,fi.y,fi.c,6,90,.4,4);}newFish(fi);}}
+      if(dx*dx+dy*dy<(eatR+fi.r+4)**2){e.addXp(7*xpMul());e.charge=Math.min(100,e.charge+8);
+        if(e.isPlayer){addText(fi.x,fi.y,'+'+7*xpMul(),'#9affd8',14,.7);sfx.eat();puff(fi.x,fi.y,fi.c,6,90,.4,4);}newFish(fi);}}
     for(const j of jellies){if(!j.alive)continue;const dx=j.x-h.x,dy=j.y-h.y;if(dx>70||dx<-70||dy>70||dy<-70)continue;
-      if(dx*dx+dy*dy<(eatR+j.r)**2){j.alive=false;j.t=10;e.addXp(22);e.charge=100;e.hp=Math.min(e.maxHp,e.hp+e.maxHp*.15);
+      if(dx*dx+dy*dy<(eatR+j.r)**2){j.alive=false;j.t=10;e.addXp(22*xpMul());e.charge=100;e.hp=Math.min(e.maxHp,e.hp+e.maxHp*.15);
         if(Math.hypot(j.x-cam.x,j.y-cam.y)<1000){puff(j.x,j.y,'#7ff6ff',18,200,.6,7);ring(j.x,j.y,90,'#7ff6ff',.4);}
         if(e.isPlayer){addText(j.x,j.y-20,'FULL CHARGE ⚡','#7ff6ff',17,1.1);sfx.jelly();}}}
   }
@@ -715,7 +774,7 @@ function updateStrikes(dt){
       ring(s.x,s.y,s.r*1.3,s.c,.35);effects.push({k:'flash',x:s.x,y:s.y,r:s.r*1.6,c:s.c,t:0,life:.3});puff(s.x,s.y,s.c,14,260,.5,7);
       sfxAt(sfx.bigzap,s.x,s.y,.8);shakeAt(s.x,s.y,9);}
     for(const B of eels){if(B===s.owner||!B.alive)continue;if(Math.abs(B.x-s.x)>s.r+700||Math.abs(B.y-s.y)>s.r+700)continue;
-      const c=closestSeg(B,s.x,s.y,2);if(c.d<s.r+B.rad){damage(B,s.dmg,s.owner.alive?s.owner:null);B.stun=Math.max(B.stun,.3);}}
+      const c=closestSeg(B,s.x,s.y,2);if(c.d<s.r+B.rad){if(s.owner===STORM){B.stormAt=time;if(B.isPlayer)addText(B.x,B.y-B.rad*3,'STRUCK!','#dbe9ff',16,.7);}damage(B,s.dmg,s.owner.alive?s.owner:null);B.stun=Math.max(B.stun,.3);}}
   }
   compact(strikes,s=>s.t>0);
 }
@@ -726,7 +785,7 @@ function updateFish(dt){
     if(near){const away=Math.atan2(f.y-near.y,f.x-near.x);f.ang+=angDiff(f.ang,away)*Math.min(1,dt*6);f.sp+=(178-f.sp)*Math.min(1,dt*4);}
     else{f.turnT-=dt;if(f.turnT<=0){f.turnT=rand(.6,2);f.ta=f.ang+rand(-1.2,1.2);}f.ang+=angDiff(f.ang,f.ta)*Math.min(1,dt*2);f.sp+=(55-f.sp)*Math.min(1,dt*2);}
     if(Math.hypot(f.x,f.y)>R-130){const inA=Math.atan2(-f.y,-f.x);f.ang+=angDiff(f.ang,inA)*Math.min(1,dt*5);f.ta=f.ang;}
-    f.x+=Math.cos(f.ang)*f.sp*dt;f.y+=Math.sin(f.ang)*f.sp*dt;f.ph+=dt*(6+f.sp/18);
+    f.x+=Math.cos(f.ang)*f.sp*dt;f.y+=Math.sin(f.ang)*f.sp*dt;f.ph+=dt*(6+f.sp/18);whirlPull(f,dt,.8);
   }
 }
 function updateJellies(dt){
@@ -738,7 +797,7 @@ function updateJellies(dt){
 }
 function updateFood(dt){
   const damp=Math.pow(.15,dt);
-  for(const f of foods){if(f.kind!==1)continue;f.x+=f.vx*dt;f.y+=f.vy*dt;f.vx*=damp;f.vy*=damp;f.life-=dt;if(f.life<=0)f.dead=true;}
+  for(const f of foods){if(surge&&surge.id==='whirl')whirlPull(f,dt,.55);if(f.kind!==1)continue;f.x+=f.vx*dt;f.y+=f.vy*dt;f.vx*=damp;f.vy*=damp;f.life-=dt;if(f.life<=0)f.dead=true;}
   compact(foods,f=>!f.dead);
   buildFoodGrid();
 }
@@ -757,7 +816,7 @@ function update(dt){
   if(!(player&&player.alive))input.abQ=false;
   for(const e of eels)if(e.alive)updateEel(e,dt);
   buildSegGrid();collide();eatAll(dt);
-  updateMines(dt);updateStrikes(dt);updateFish(dt);updateJellies(dt);
+  updateSurge(dt);updateMines(dt);updateStrikes(dt);updateFish(dt);updateJellies(dt);
   updateFood(dt);updateFx(dt);
   compact(eels,e=>e.alive);
   const bots=eels.length-(player&&player.alive?1:0);
@@ -804,14 +863,15 @@ function onPlayerDeath(killer){
   if(nb){save.best=sc;store.set('best',sc);}
   save.kills+=p.kills;store.set('kills',save.kills);
   const unlocks=save.unlockAll?[]:TYPES.filter(T=>T.unlock>prev&&T.unlock<=save.best);
-  deathInfo={killer:killer?killer.name:null,killerType:killer?killer.T:null,fence:!killer,score:sc,best:save.best,nb,level:p.level,tier:tierName(p.level),kills:p.kills,alive:time-p.born,rank:p.peakRank,unlocks};
+  deathInfo={killer:killer?killer.name:null,killerType:killer?killer.T:null,fence:!killer,storm:!!p.stormKill,score:sc,best:save.best,nb,level:p.level,tier:tierName(p.level),kills:p.kills,alive:time-p.born,rank:p.peakRank,unlocks};
   sfx.death();cam.shake=26;hurtFlash=.6;releaseAll();
   puff(p.x,p.y,'#ff5a6a',20,300,.8,8);
 }
 function showDeath(){
   deathShown=true;const d=deathInfo;
   const kEl=$('#dKiller');kEl.textContent='';
-  if(d.fence){kEl.append('You swam into the electric fence');}
+  if(d.storm){kEl.append('Struck by lightning in the thunderstorm');}
+  else if(d.fence){kEl.append('You swam into the electric fence');}
   else{kEl.append('Fried by ');const b=document.createElement('b');b.textContent=d.killer;kEl.append(b);kEl.append(` (${d.killerType.name})`);}
   const mm=Math.floor(d.alive/60),ss=Math.floor(d.alive%60);
   const st=$('#dStats');st.innerHTML='';
@@ -919,6 +979,12 @@ function render(){
   for(let y=Math.floor(vy0/gs)*gs;y<vy1;y+=gs){const off=((y/gs)&1)?gs/2:0;for(let x=Math.floor(vx0/gs)*gs+off;x<vx1;x+=gs){if(x*x+y*y<R*R)g.rect(x-1.6,y-1.6,3.2,3.2);}}
   g.fill();
   drawDecor(g,vx0,vy0,vx1,vy1);
+  if(surge&&surge.id==='whirl'&&inV(surge.x,surge.y,surge.r)){
+    const k=clamp(Math.min(surge.t/1.5,(surge.dur-surge.t)/1.5),0,1);g.save();g.translate(surge.x,surge.y);
+    g.globalAlpha=.5*k;g.strokeStyle='rgba(106,216,255,.55)';g.lineCap='round';
+    for(let a=0;a<7;a++){g.lineWidth=5+(a%2)*4;g.beginPath();for(let i=0;i<=44;i++){const t=i/44,r=surge.r*(1-t),an=a*TAU/7+time*1.4+t*6.2;g.lineTo(Math.cos(an)*r,Math.sin(an)*r);}g.stroke();}
+    const gr=g.createRadialGradient(0,0,0,0,0,surge.r*.3);gr.addColorStop(0,'rgba(190,245,255,.55)');gr.addColorStop(1,'rgba(190,245,255,0)');
+    g.globalAlpha=.6*k;g.fillStyle=gr;g.beginPath();g.arc(0,0,surge.r*.3,0,TAU);g.fill();g.restore();g.globalAlpha=1;}
   // food
   g.globalCompositeOperation='lighter';
   for(const f of foods){if(!inV(f.x,f.y,20))continue;const p=1+.18*Math.sin(time*4+f.ph),r=f.r*p*(f.kind?1.25:1);g.globalAlpha=f.kind?Math.min(1,f.life/3):.85;g.drawImage(glowSprite(f.c),f.x-r*2.6,f.y-r*2.6,r*5.2,r*5.2);}
@@ -953,6 +1019,12 @@ function render(){
   for(const e of eels){if(!e.alive)continue;const m=e.segs.length*e.spacing+60;if(inV(e.x,e.y,m))vis.push(e);}
   vis.sort((a,b)=>a.level-b.level||(a.isPlayer?1:0)-(b.isPlayer?1:0));
   for(const e of vis)drawEel(g,e);
+  if(surge&&surge.id==='bounty'&&surge.target&&surge.target.alive&&vis.includes(surge.target)){
+    const B=surge.target,y=B.y-B.rad*3.4-8+Math.sin(time*4)*3;g.save();
+    g.globalAlpha=.35+.2*Math.sin(time*6);g.strokeStyle='#ffd36a';g.lineWidth=4;g.beginPath();g.arc(B.x,B.y,B.rad*2.6,0,TAU);g.stroke();g.globalAlpha=1;
+    g.translate(B.x,y);g.fillStyle='#ffd36a';g.strokeStyle='#3a2600';g.lineWidth=3;g.beginPath();
+    g.moveTo(-18,8);g.lineTo(-20,-8);g.lineTo(-9,0);g.lineTo(0,-14);g.lineTo(9,0);g.lineTo(20,-8);g.lineTo(18,8);g.closePath();g.stroke();g.fill();
+    g.font='900 15px Rubik,sans-serif';g.textAlign='center';g.textBaseline='middle';g.lineWidth=4;g.strokeText('BOUNTY',0,-26);g.fillText('BOUNTY',0,-26);g.restore();}
   // effects & particles
   g.globalCompositeOperation='lighter';
   for(const f of effects){const k=f.t/f.life;
@@ -999,10 +1071,27 @@ function render(){
 // =====================================================================
 //  HUD
 // =====================================================================
+function drawSurge(g){
+  if(!surge||state!=='play')return;
+  const left=Math.max(0,surge.dur-surge.t),w=mobileUI?170:230,x=W/2-w/2,y=mobileUI?10:14;
+  g.save();g.globalAlpha=.92;g.fillStyle='rgba(5,14,26,.78)';rrect(g,x,y,w,34,17);g.fill();
+  g.strokeStyle=hexA(surge.c,.6);g.lineWidth=1.5;rrect(g,x,y,w,34,17);g.stroke();
+  g.fillStyle=surge.c;g.font=`900 ${mobileUI?12:14}px Rubik,sans-serif`;g.textAlign='left';g.textBaseline='middle';g.fillText('⚡ '+surge.name,x+14,y+14);
+  g.textAlign='right';g.fillStyle='#fff';g.fillText(Math.ceil(left)+'s',x+w-14,y+14);
+  g.fillStyle='rgba(255,255,255,.14)';g.fillRect(x+14,y+25,w-28,3);g.fillStyle=surge.c;g.fillRect(x+14,y+25,(w-28)*(left/surge.dur),3);g.restore();
+  if(surge.id==='bounty'&&surge.target&&surge.target.alive&&player&&player.alive){
+    const B=surge.target,z=cam.zoom,sx=W/2+(B.x-cam.x)*z,sy=H/2+(B.y-cam.y)*z,m=40;
+    if(sx<m||sx>W-m||sy<m||sy>H-m){const a=Math.atan2(sy-H/2,sx-W/2),ex=clamp(sx,m,W-m),ey=clamp(sy,m+40,H-m);
+      g.save();g.translate(ex,ey);g.rotate(a);g.fillStyle='#ffd36a';g.beginPath();g.moveTo(16,0);g.lineTo(-8,-10);g.lineTo(-3,0);g.lineTo(-8,10);g.closePath();g.fill();g.restore();
+      g.font='800 12px Rubik,sans-serif';g.fillStyle='#ffd36a';g.textAlign='center';g.fillText(Math.round(Math.hypot(B.x-player.x,B.y-player.y)/10)+'m',ex-Math.cos(a)*24,ey-Math.sin(a)*24);}
+  }
+}
 function drawHUD(g){
   g.textBaseline='middle';
+  if(surge&&surge.id==='storm'&&state==='play'){g.fillStyle=`rgba(4,8,22,${.22+.06*Math.sin(time*9)})`;g.fillRect(0,0,W,H);}
   if(state==='play'&&player&&player.alive){drawStats(g);if(touchMode)drawTouch(g);else drawAbilityBar(g);}
   if(state==='play'||(state==='dead'&&!deathShown)){const lbB=drawBoard(g);drawMinimap(g,lbB);drawFeed(g);}
+  drawSurge(g);g.textBaseline='middle';
   if(banner){const k=banner.t/banner.life,pop=k<.12?easeOutBack(k/.12):1,a=k>.75?(1-k)/.25:1;
     g.save();g.translate(W/2,H*(mobileUI?.24:.27));g.scale(Math.max(.01,pop),Math.max(.01,pop));g.globalAlpha=clamp(a,0,1);g.textAlign='center';
     const fs=mobileUI?30:46;g.font=`900 ${fs}px Rubik,sans-serif`;g.lineWidth=7;g.strokeStyle='rgba(0,0,0,.55)';g.strokeText(banner.txt,0,0);
@@ -1057,7 +1146,7 @@ function drawMinimap(g,lbBottom){
   g.restore();
 }
 function drawFeed(g){
-  const x=mobileUI?12:W/2,y0=mobileUI?(state==='play'?112:14):16,fs=mobileUI?11:13;
+  const x=mobileUI?12:W/2,y0=(mobileUI?(state==='play'?112:14):16)+(surge&&state==='play'&&!mobileUI?46:0),fs=mobileUI?11:13;
   g.textAlign=mobileUI?'left':'center';g.font=`700 ${fs}px Rubik,sans-serif`;
   feed.forEach((f,i)=>{const age=time-f.t;if(age>6)return;g.globalAlpha=clamp(1.2-age/5,0,1);const y=y0+i*(fs+6);
     const tw=g.measureText(f.txt).width,bx=mobileUI?x-4:x-tw/2-8;rrect(g,bx,y-fs/2-3,tw+16-(mobileUI?4:0),fs+6,6);g.fillStyle=f.mine?'rgba(80,60,0,.6)':'rgba(3,14,26,.55)';g.fill();
@@ -1152,8 +1241,8 @@ function setUI(){
 }
 function setHelp(){
   $('#help').innerHTML=touchMode
-    ?'<b>Drag anywhere</b> to steer · hold <b>BOOST</b> to sprint · tap <b>⚡</b> for your ability<br>Eat plankton, fish and jellyfish to grow. Bite eels with your head. Kills drop big energy orbs.'
-    :'<span class="kbd">Mouse</span> steer · hold <span class="kbd">Left-click</span>/<span class="kbd">Space</span> boost · <span class="kbd">E</span>/<span class="kbd">Right-click</span> ability · <span class="kbd">M</span> mute<br>Eat plankton, fish and jellyfish to grow. Bite eels with your head. Kills drop big energy orbs.';
+    ?'<b>Drag anywhere</b> to steer · hold <b>BOOST</b> to sprint · tap <b>⚡</b> for your ability<br>Eat plankton, fish and jellyfish to grow. Bite eels with your head. Kills drop big energy orbs.<br>Every minute a <b>surge</b> hits the arena: feeding frenzy, thunderstorm, bounty or whirlpool.'
+    :'<span class="kbd">Mouse</span> steer · hold <span class="kbd">Left-click</span>/<span class="kbd">Space</span> boost · <span class="kbd">E</span>/<span class="kbd">Right-click</span> ability · <span class="kbd">M</span> mute<br>Eat plankton, fish and jellyfish to grow. Bite eels with your head. Kills drop big energy orbs.<br>Every minute a <b>surge</b> hits the arena: feeding frenzy, thunderstorm, bounty or whirlpool.';
 }
 function spawnPlayer(){
   const T=typeById(save.type);let best=null,bestD=-1;
@@ -1161,7 +1250,7 @@ function spawnPlayer(){
   player=new Eel(T,save.name||'Eel',true,best.x,best.y,0);player.invuln=3;player.ang=Math.atan2(-best.y,-best.x);player.tAng=player.ang;
   eels.push(player);cam.x=best.x;cam.y=best.y;
   save.games++;store.set('games',save.games);
-  state='play';deathShown=false;banner=null;feed.length=0;releaseAll();
+  state='play';deathShown=false;banner=null;feed.length=0;releaseAll();surge=null;surgeT=rand(28,40);lastSurge='';
   setUI();showBanner('GO!',`${T.name} · ${T.ab} ready at ⚡${T.cost}`,T.glow,1.6);
 }
 function startGame(){
@@ -1231,7 +1320,7 @@ cam.zoom=Math.sqrt(W*H)/880/1.2;
 buildCards();setHelp();setUI();
 requestAnimationFrame(loop);
 // debug hook for testing
-window.__eel={get state(){return state;},get player(){return player;},get eels(){return eels;},startGame,useAb:()=>player&&useAbility(player),admin,dbgKill:()=>player&&player.alive&&kill(player,eels.find(e=>!e.isPlayer)),setXp:v=>player&&player.addXp(v)};
+window.__eel={get state(){return state;},get player(){return player;},get eels(){return eels;},startGame,useAb:()=>player&&useAbility(player),admin,dbgKill:()=>player&&player.alive&&kill(player,eels.find(e=>!e.isPlayer)),setXp:v=>player&&player.addXp(v),get surge(){return surge;},forceSurge:id=>{const keep=SURGES.slice();SURGES.splice(0,SURGES.length,...keep.filter(x=>x.id===id));lastSurge="";startSurge();SURGES.splice(0,SURGES.length,...keep);}};
 })();
 </script>
 </body>
