@@ -54,6 +54,10 @@ h3::before{content:"// ";color:var(--dim)}
 .tk .ch{text-align:right;font-size:12px}
 .tk canvas{grid-column:1/-1;width:100%;height:28px;display:block}
 .tk .own{grid-column:1/-1;font-size:11px;color:var(--c)}
+.tk .earn{grid-column:1/-1;font-size:10px;color:#ffcc4d;letter-spacing:.06em}
+.tk .earn.soon{color:#001a0a;background:#ffcc4d;padding:1px 5px;justify-self:start}
+.cond{margin:10px 0;padding:10px 12px;border:1px dashed var(--line2);color:var(--c)}
+.cond b{color:#ffcc4d}
 
 #center{display:grid;grid-template-rows:auto 1fr auto;min-width:0;min-height:0}
 .chead{display:flex;align-items:baseline;gap:12px;padding:8px 14px;border-bottom:1px solid var(--line)}
@@ -149,6 +153,8 @@ h3::before{content:"// ";color:var(--dim)}
           <button class="b sell" data-sell=".25">25%</button><button class="b sell" data-sell=".5">50%</button><button class="b sell" data-sell="1">ALL</button></div></div>
         <div class="grp"><small>SHORT · bet it falls</small><div class="row">
           <button class="b sell" data-short=".25">SHORT 25%</button><button class="b" id="bCover">COVER</button></div></div>
+        <div class="grp"><small>ORDERS · auto-close this position</small><div class="row">
+          <button class="b sell" data-stop=".05">STOP 5%</button><button class="b sell" data-stop=".1">STOP 10%</button><button class="b buy" data-tgt=".1">TARGET +10%</button><button class="b buy" data-tgt=".25">TARGET +25%</button><button class="b" id="bClr">CLEAR</button></div></div>
         <div class="pos" id="pos" style="grid-column:1/-1"></div>
       </div>
     </section>
@@ -211,6 +217,14 @@ const BOTS = [
   { k:'whale', name:'LEVIATHAN', desc:'Huge trades that move markets', col:'#ff2bd6' },
 ];
 const DAYS = 40, TPD = 8, FEE = .001;
+/* every season after the first rolls a market condition */
+const CONDS = [
+  { k:'steady', name:'Steady market', d:'No special conditions. Read the news, ride the trends.' },
+  { k:'bubble', name:'Bubble season', d:'Everything drifts up fast. Somewhere after day 24 the bubble pops. Be out before it does, or short the top.' },
+  { k:'meme', name:'Meme mania', d:'Headlines hit 60% harder and $SHRMP and $ZRBX swing twice as wild.' },
+  { k:'bear', name:'Bear market', d:'Stocks slide all season. Shorts pay and gold shines.' },
+  { k:'calm', name:'Low volatility', d:'Quiet markets. Earnings days matter more and hacks cost half.' },
+];
 
 /* ---------------- state ---------------- */
 const SAVE = 'vterm.progress';
@@ -228,11 +242,23 @@ function newSeason(){
     T[t.k] = { ...t, vol:t.vol * hard, p, hist, cur:{ o:p, h:p, l:p, c:p, v:0 }, regime:0, regT:rnd(6, 14), shock:0, shockT:0, pressure:0 };
   }
   const mk = b => ({ ...b, cash:10000, pos:{}, frozen:0, mem:{}, hold:{}, trades:0 });
-  G = { day:1, tick:0, T, cash:10000, pos:{}, cost:{}, heat:0, raidLock:0, bots:BOTS.map(mk), marks:[], feed:[], next:null, intel:false, start:10000, over:false, hacksUsed:0 };
+  const cond = s === 1 ? CONDS[0] : (prog.nextCond && CONDS.find(c => c.k === prog.nextCond)) || pick(CONDS);
+  for (const k in T){ const t = T[k];
+    if (cond.k === 'bubble') t.drift = Math.abs(t.drift) * 3 + .002;
+    if (cond.k === 'meme' && (k === 'SHRMP' || k === 'ZRBX')) t.vol *= 2;
+    if (cond.k === 'bear') t.drift = k === 'GLDX' ? .0018 : -Math.abs(t.drift) * 2 - .0012;
+    if (cond.k === 'calm') t.vol *= .55;
+  }
+  /* earnings: every stock but gold reports once or twice, on dates everyone can see */
+  const earn = [];
+  for (const t of TICKERS){ if (t.k === 'GLDX') continue; const n = Math.random() < .5 ? 2 : 1; for (let i = 0; i < n; i++) earn.push({ k:t.k, day:Math.round(rnd(4 + i * 18, 18 + i * 20)) }); }
+  G = { day:1, tick:0, T, cash:10000, pos:{}, cost:{}, heat:0, raidLock:0, bots:BOTS.map(mk), marks:[], feed:[], next:null, intel:false, start:10000, over:false, hacksUsed:0,
+    cond, earn, orders:{}, popDay:cond.k === 'bubble' ? Math.round(rnd(25, 36)) : 0 };
   for (const t of TICKERS) G.pos[t.k] = 0;
   for (const b of G.bots) for (const t of TICKERS) b.pos[t.k] = 0;
   queueNews();
   news(`Season ${s} opens. Six AI traders are online. Beat them all.`, 'big');
+  if (cond.k !== 'steady') news(`Market condition: ${cond.name.toUpperCase()}. ${cond.d}`, 'big');
 }
 const price = k => G.T[k].p;
 function worth(cash, pos){ let v = cash; for (const k in pos) v += pos[k] * price(k); return v; }
@@ -248,6 +274,7 @@ function fireNews(){
   const x = G.next, nm = x.k === 'all' ? 'The market' : G.T[x.k].name;
   const txt = x.n.t.replace('{N}', nm);
   const tag = x.k === 'all' ? 'ALL' : '$' + x.k;
+  if (G.cond.k === 'meme') x.e *= 1.6;
   if (x.k === 'all'){ for (const k in G.T) shock(k, x.e); }
   else { shock(x.k, x.e); if (x.n.also) for (const k in G.T) if (k !== x.k) shock(k, x.n.also); }
   news(`[${tag}] ${txt} (${pct(x.e)})`, Math.abs(x.e) > .1 ? 'big' : '');
@@ -264,6 +291,27 @@ function tickMarket(){
     t.p = Math.max(.05, t.p * Math.exp(r));
     const c = t.cur; c.h = Math.max(c.h, t.p); c.l = Math.min(c.l, t.p); c.c = t.p; c.v += Math.abs(r) * 40 + rnd(.05, .2);
   }
+  checkOrders();
+}
+function checkOrders(){
+  for (const k in G.orders){
+    const o = G.orders[k], p = G.pos[k], px = price(k);
+    if (!p){ delete G.orders[k]; continue; }
+    const long = p > 0;
+    const hitStop = o.stop && (long ? px <= o.stop : px >= o.stop), hitTgt = o.tgt && (long ? px >= o.tgt : px <= o.tgt);
+    if (!hitStop && !hitTgt) continue;
+    trade('me', k, -p, true); delete G.orders[k];
+    news(`${hitTgt ? '🎯 TARGET' : '🛑 STOP'} hit on $${k} at ${pxf(px)}. Position closed.`, hitTgt ? 'hack' : 'bad');
+    toast(`${hitTgt ? '🎯 Target' : '🛑 Stop'} filled: $${k} closed at ${pxf(px)}`, hitTgt ? '' : 'bad'); beep(hitTgt ? 990 : 260, .12);
+  }
+}
+function setOrder(kind, f){
+  const k = sel, p = G.pos[k], px = price(k);
+  if (!p){ toast('Open a position first, then set orders on it.', 'bad'); return; }
+  const o = G.orders[k] || (G.orders[k] = {}), long = p > 0;
+  if (kind === 'stop') o.stop = long ? px * (1 - f) : px * (1 + f);
+  else o.tgt = long ? px * (1 + f) : px * (1 - f);
+  toast(`${kind === 'stop' ? 'Stop' : 'Target'} set on $${k} at ${pxf(kind === 'stop' ? o.stop : o.tgt)}`); beep(760, .05); ui();
 }
 function closeDay(){
   for (const k in G.T){
@@ -272,6 +320,15 @@ function closeDay(){
     t.cur = { o:t.p, h:t.p, l:t.p, c:t.p, v:0 };
     if (--t.regT <= 0){ t.regime = pick([-1, -1, 0, 1, 1, 1]); t.regT = rnd(6, 16); }
   }
+  for (const e of G.earn){
+    if (e.day !== G.day || e.done) continue; e.done = true;
+    const t = G.T[e.k], beatP = .5 + t.regime * .15 + (G.cond.k === 'bear' ? -.12 : 0);
+    const beat = Math.random() < beatP, mag = rnd(.06, .2) * (G.cond.k === 'calm' ? 1.5 : 1) * (G.cond.k === 'meme' ? 1.3 : 1);
+    shock(e.k, beat ? mag : -mag);
+    news(`[$${e.k}] EARNINGS: ${t.name} ${beat ? 'beats' : 'misses'} expectations (${pct(beat ? mag : -mag)})`, 'big'); beep(beat ? 880 : 220, .15);
+  }
+  if (G.popDay && G.day === G.popDay){ G.popDay = 0; for (const k in G.T){ if (k !== 'GLDX'){ shock(k, -rnd(.25, .4)); G.T[k].drift = -Math.abs(G.T[k].drift) * .5; G.T[k].regime = -1; G.T[k].regT = 12; } else shock(k, .08); }
+    news('💥 THE BUBBLE POPS. Panic selling everywhere. Gold is the only thing going up.', 'bad'); toast('💥 The bubble popped', 'bad'); beep(140, .5); }
   for (const b of G.bots) botDay(b);
   if (G.heat > 0) G.heat = Math.max(0, G.heat - 1.5);
   if (G.raidLock > 0) G.raidLock--;
@@ -362,7 +419,7 @@ function botDay(b){
 }
 
 /* ---------------- hacks ---------------- */
-const hackCost = m => Math.round(Math.max(250, myWorth() * .035) * m);
+const hackCost = m => Math.round(Math.max(250, myWorth() * .035) * m * (G && G.cond && G.cond.k === 'calm' ? .5 : 1));
 const HACKS = [
   { k:'intel', icon:'🛰', name:'Intercept news', m:1, heat:14, d:'See the next headline before it hits.' },
   { k:'pump', icon:'📈', name:'Pump $', m:1.6, heat:28, d:'Bots flood the selected stock with buys.' },
@@ -453,6 +510,8 @@ function draw(){
     else { g.fillStyle = m.col; g.globalAlpha = .7; g.beginPath(); g.arc(x + (Math.random() - .5) * 0, yy, 2.5, 0, 7); g.fill(); g.globalAlpha = 1; } }
   // average cost line
   if (G.pos[sel] > 0 && G.cost[sel]){ const yy = y(G.cost[sel]); if (yy > T0 && yy < B){ g.setLineDash([4, 4]); g.strokeStyle = '#ffcc4d99'; g.beginPath(); g.moveTo(L, yy); g.lineTo(R, yy); g.stroke(); g.setLineDash([]); g.fillStyle = '#ffcc4d'; g.fillText('avg cost', L + 4, yy - 4); } }
+  // stop / target lines
+  { const o = G.orders[sel]; if (o && G.pos[sel]) for (const [v, col, lb] of [[o.stop, '#ff4d6a', 'stop'], [o.tgt, '#39ff8a', 'target']]){ if (!v) continue; const yy = clamp(y(v), T0, B); g.setLineDash([8, 4]); g.strokeStyle = col; g.beginPath(); g.moveTo(L, yy); g.lineTo(R, yy); g.stroke(); g.setLineDash([]); g.fillStyle = col; g.fillText(lb + ' ' + pxf(v), L + 4, yy - 4); } }
   // last price tag
   const ly = y(t.p); g.strokeStyle = '#39ff8a66'; g.setLineDash([2, 3]); g.beginPath(); g.moveTo(L, ly); g.lineTo(R, ly); g.stroke(); g.setLineDash([]);
   g.fillStyle = '#39ff8a'; g.fillRect(R + 2, ly - 9, 60, 18); g.fillStyle = '#001a0a'; g.fillText(pxf(t.p), R + 6, ly + 4);
@@ -480,7 +539,7 @@ function drawSpark(k){
 
 /* ---------------- UI ---------------- */
 function buildStatic(){
-  $('#tickers').innerHTML = TICKERS.map((t, i) => `<button class="tk" data-k="${t.k}"><b>$${t.k} <small style="color:var(--dim);font-size:10px">${i + 1}</small></b><span class="pr num" data-pr></span><span class="nm">${esc(t.name)}</span><span class="ch num" data-ch></span><canvas></canvas><span class="own" data-own></span></button>`).join('');
+  $('#tickers').innerHTML = TICKERS.map((t, i) => `<button class="tk" data-k="${t.k}"><b>$${t.k} <small style="color:var(--dim);font-size:10px">${i + 1}</small></b><span class="pr num" data-pr></span><span class="nm">${esc(t.name)}</span><span class="ch num" data-ch></span><canvas></canvas><span class="own" data-own></span><span class="earn" data-earn></span></button>`).join('');
   for (const el of document.querySelectorAll('.tk')) sparks[el.dataset.k] = el.querySelector('canvas');
   $('#hacks').innerHTML = HACKS.map(h => `<button class="b hack" data-hack="${h.k}" title="${esc(h.d)}">${h.icon} ${h.name}${h.k === 'pump' ? '<span data-pumpk></span>' : ''}<small data-hc="${h.k}"></small></button>`).join('');
 }
@@ -499,17 +558,20 @@ function ui(){
     el.classList.toggle('on', k === sel);
     el.querySelector('[data-pr]').textContent = pxf(t.p);
     const c = el.querySelector('[data-ch]'); c.textContent = pct(ch); c.className = 'ch num ' + (ch >= 0 ? 'up' : 'dn');
+    const ne = G.earn.filter(e => e.k === k && !e.done && e.day >= G.day).sort((a, b) => a.day - b.day)[0], eb = el.querySelector('[data-earn]');
+    if (eb){ eb.textContent = ne ? (ne.day === G.day ? 'EARNINGS TONIGHT' : `EARNINGS DAY ${ne.day} · in ${ne.day - G.day}d`) : ''; eb.classList.toggle('soon', !!ne && ne.day - G.day <= 1); }
     const p = G.pos[k]; el.querySelector('[data-own]').textContent = p > 0 ? `holding ${p.toFixed(2)} · ${money(p * t.p)}` : p < 0 ? `SHORT ${(-p).toFixed(2)} · ${money(p * t.p)}` : '';
   }
   if (G.tick === 0 || !ui.sparkDay || ui.sparkDay !== G.day){ ui.sparkDay = G.day; for (const k in G.T) drawSpark(k); }
   const t = G.T[sel], prev = t.hist[t.hist.length - 1].c, ch = t.p / prev - 1;
   $('#cSym').textContent = '$' + sel; $('#cPx').textContent = pxf(t.p); $('#cPx').className = 'px num ' + (ch >= 0 ? 'up' : 'dn');
   $('#cCh').textContent = pct(ch); $('#cCh').className = 'num ' + (ch >= 0 ? 'up' : 'dn');
-  $('#cReg').textContent = `${t.name} · trend: ${t.regime > 0 ? 'BULL ▲' : t.regime < 0 ? 'BEAR ▼' : 'SIDEWAYS'} · volatility ${(t.vol * 100).toFixed(1)}%`;
+  $('#cReg').textContent = `${t.name} · trend: ${t.regime > 0 ? 'BULL ▲' : t.regime < 0 ? 'BEAR ▼' : 'SIDEWAYS'} · volatility ${(t.vol * 100).toFixed(1)}% · ${G.cond.name}`;
   const p = G.pos[sel], val = p * t.p, pl = p > 0 && G.cost[sel] ? (t.p / G.cost[sel] - 1) : null;
   $('#pos').innerHTML = p > 0 ? `Position: <b>${p.toFixed(3)} $${sel}</b> worth <b>${money(val)}</b>${pl !== null ? ` · avg cost ${pxf(G.cost[sel])} · <span class="${pl >= 0 ? 'up' : 'dn'}">${pct(pl)}</span>` : ''}`
     : p < 0 ? `Short position: <b>${(-p).toFixed(3)} $${sel}</b> (owe ${money(-val)}). You profit if the price falls. Margin call below 30% cover.`
     : `No position in $${sel}. Cash ${money(G.cash)}. Fee 0.1% per trade. Keys: <b>B</b> buy 25% · <b>S</b> sell all · <b>1–5</b> switch stock · <b>Space</b> pause.`;
+  { const o = G.orders[sel]; if (o && G.pos[sel]) $('#pos').innerHTML += ` · Orders: ${o.stop ? `<span class="dn">stop ${pxf(o.stop)}</span>` : ''}${o.stop && o.tgt ? ' / ' : ''}${o.tgt ? `<span class="up">target ${pxf(o.tgt)}</span>` : ''}`; }
   $('#lb').innerHTML = board.map((x, i) => `<div class="lbr${x.me ? ' me' : ''}"><span class="rk">${i + 1}</span><span><span style="color:${x.col}">${esc(x.name)}</span><small>${esc(x.desc)}</small>${x.frozen > 0 ? `<span class="fz">OFFLINE ${x.frozen}d</span>` : ''}</span><span class="num ${x.ret >= 0 ? 'up' : 'dn'}">${pct(x.ret)}</span></div>`).join('');
   for (const h of HACKS){ const b = document.querySelector(`[data-hack="${h.k}"]`), c = hackCost(h.m); b.disabled = G.cash < c || G.raidLock > 0; b.querySelector(`[data-hc]`).textContent = `${money(c)} · ${h.heat > 0 ? '+' : ''}${h.heat} heat`; }
   const pk = document.querySelector('[data-pumpk]'); if (pk) pk.textContent = sel;
@@ -539,8 +601,10 @@ function overlayStart(){
     <ul><li>Pick a stock on the left. <b>Buy</b> when you think it will rise, <b>sell</b> to lock in profit, <b>short</b> if you think it will crash.</li>
     <li>Watch the <b>newsfeed</b>: earnings, scandals, viral shrimp. Headlines move prices hard.</li>
     <li>Your rivals include the three original bots (Random, Buy & Hold, Moving Average) plus a momentum chaser, a dip buyer and a whale that moves whole markets.</li>
-    <li>Fight dirty with <b>hacks</b>: steal headlines early, pump a stock, knock a rival offline. Every hack raises <b>SEC heat</b>. At 100% you get raided.</li></ul>
+    <li>Fight dirty with <b>hacks</b>: steal headlines early, pump a stock, knock a rival offline. Every hack raises <b>SEC heat</b>. At 100% you get raided.</li>
+    <li>Stocks report <b>earnings</b> on days you can see coming. Set <b>stop</b> and <b>target</b> orders so a position closes itself.</li></ul>
     ${s > 1 ? `<p>Each season the markets get wilder and the bots get sharper.</p>` : ''}
+    ${s > 1 ? (() => { const c = CONDS.find(x => x.k === prog.nextCond) || null; return c ? `<div class="cond">This season: <b>${c.name}</b>. ${c.d}</div>` : ''; })() : ''}
     ${prog.best !== null ? `<p>Best return: <b class="${prog.best >= 0 ? 'up' : 'dn'}">${pct(prog.best)}</b> · seasons won: <b>${prog.wins}</b></p>` : ''}
     <div class="row"><button class="b buy" id="go">&gt; START SEASON ${s}</button>${s > 1 ? '<button class="b" id="reset">Reset to season 1</button>' : ''}</div></div>`;
   $('#go').onclick = () => { audio(); newSeason(); $('#ov').hidden = true; paused = false; sizeChart(); buildStatic(); ui(); };
@@ -558,6 +622,7 @@ function endSeason(){
   const grade = won && ret > .5 ? 'S' : won ? 'A' : me <= 1 ? 'B' : me <= 3 ? 'C' : 'D';
   if (prog.best === null || ret > prog.best) prog.best = ret;
   if (won){ prog.wins++; prog.season++; }
+  prog.nextCond = pick(CONDS.slice(1)).k;
   saveProg();
   beep(won ? 880 : 220, .3); if (won) setTimeout(() => beep(1320, .3), 200);
   $('#ov').hidden = false;
@@ -582,6 +647,9 @@ document.addEventListener('click', e => {
   else if (b.dataset.sell) sell(+b.dataset.sell);
   else if (b.dataset.short) short(+b.dataset.short);
   else if (b.id === 'bCover') cover();
+  else if (b.dataset.stop) setOrder('stop', +b.dataset.stop);
+  else if (b.dataset.tgt) setOrder('tgt', +b.dataset.tgt);
+  else if (b.id === 'bClr'){ delete G.orders[sel]; toast(`Orders on $${sel} cleared.`); ui(); }
   else if (b.dataset.hack) hack(b.dataset.hack);
   else if (b.dataset.sp){ speed = +b.dataset.sp; for (const x of document.querySelectorAll('[data-sp]')) x.classList.toggle('on', x === b); }
   else if (b.id === 'bPause'){ if (!G.over && $('#ov').hidden) paused = !paused; ui(); }
