@@ -60,7 +60,7 @@ const SCREENS = {
         <div><dt>Fasces</dt><dd>${s.xp}</dd></div><div><dt>Sacked</dt><dd>${s.totalSacked || 0}</dd></div>
       </dl>
       ${settingsRow()}
-      <p class="fine">Best on a desktop with keyboard and mouse.</p>
+      <p class="fine">Best on a desktop with keyboard and mouse. Gamepads work too.</p>
     </div>`;
   },
   chars(){
