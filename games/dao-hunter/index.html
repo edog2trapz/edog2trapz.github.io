@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Dao Hunter: Recon</title>
+<meta name="description" content="Dao Hunter: Recon. A tactical third-person shooter in an occupied mountain valley: scout with a drone, tag targets, stay hidden, build your guns in the gunsmith and take the valley back.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Zen+Dots&display=swap">
+<style>
+/* Layout: full-bleed WebGL valley; HUD pinned to edges; menus are dark field-terminal panels over a slowly orbiting camera */
+:root{--ink:#0b0f0d;--panel:rgba(12,17,15,.86);--line:rgba(220,232,224,.16);--paper:#e9ece4;--dim:#9aa79f;--jade:#3fd8a0;--amber:#f2b134;--red:#e8452c;--blue:#6db8ff;
+  --ui:"Chakra Petch","Segoe UI",system-ui,sans-serif;--disp:"Zen Dots","Trebuchet MS",system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden;background:#0b0f0d;color:var(--paper);font-family:var(--ui);user-select:none;-webkit-user-select:none;touch-action:none}
+#game{position:fixed;inset:0}#game canvas{display:block;width:100%;height:100%}
+#game.nvg canvas{filter:brightness(2.6) contrast(1.35) sepia(1) hue-rotate(58deg) saturate(3.2)}
+#game.therm canvas{filter:grayscale(1) contrast(2.2) brightness(1.4) invert(.08)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+kbd{font:600 11px var(--ui);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 6px;background:rgba(255,255,255,.06);color:var(--paper)}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;inset:0;pointer-events:none}
+#hud .shadow{text-shadow:0 1px 3px rgba(0,0,0,.9)}
+#xh{position:absolute;left:50%;top:50%;width:0;height:0}
+#xh i{position:absolute;background:var(--paper);box-shadow:0 0 2px #000}
+#xh .t,#xh .b{width:2px;height:8px;left:-1px}#xh .l,#xh .r{height:2px;width:8px;top:-1px}#xh .c{width:2px;height:2px;left:-1px;top:-1px}
+#hm{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;opacity:0;transform:rotate(45deg)}
+#hm::before,#hm::after{content:"";position:absolute;background:var(--paper)}#hm::before{left:12px;top:0;width:2px;height:26px;clip-path:polygon(0 0,100% 0,100% 32%,0 32%,0 68%,100% 68%,100% 100%,0 100%)}#hm::after{top:12px;left:0;height:2px;width:26px;clip-path:polygon(0 0,32% 0,32% 100%,0 100%,0 0,68% 0,100% 0,100% 100%,68% 100%)}
+#hm.kill::before,#hm.kill::after{background:var(--red)}#hm.head::before,#hm.head::after{background:var(--amber)}
+#over{position:absolute;inset:0;width:100%;height:100%}
+#compass{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(560px,70vw);height:40px}
+#objs{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(16px + env(safe-area-inset-top,0px));width:min(320px,40vw);background:linear-gradient(90deg,rgba(8,12,10,.7),rgba(8,12,10,0));padding:10px 14px;border-left:3px solid var(--jade)}
+#objs h4{margin:0 0 4px;font:600 11px var(--ui);letter-spacing:.2em;color:var(--jade)}
+#objs .m{font:700 15px var(--ui)}#objs ul{list-style:none;margin:6px 0 0;padding:0;font-size:13px}#objs li{padding:2px 0;color:var(--paper)}#objs li.done{color:var(--dim);text-decoration:line-through}#objs li::before{content:"▸ ";color:var(--amber)}#objs li.done::before{content:"✓ ";color:var(--jade)}
+#status{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:min(300px,44vw)}
+.hpbar{height:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25)}.hpbar i{display:block;height:100%;background:var(--paper);transition:width .15s}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;letter-spacing:.06em;margin-top:6px}
+.chip{border:1px solid var(--line);padding:2px 7px;background:rgba(8,12,10,.6);white-space:nowrap}.chip.on{border-color:var(--jade);color:var(--jade)}.chip.warn{border-color:var(--red);color:var(--red)}
+#stance{width:30px;height:38px}
+#ammo{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));text-align:right}
+#ammo .n{font:700 40px/1 var(--ui);font-variant-numeric:tabular-nums}#ammo .n small{font-size:17px;color:var(--dim)}#ammo .g{font-size:13px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+#prompt{position:absolute;left:50%;top:62%;transform:translateX(-50%);font:600 15px var(--ui);background:rgba(8,12,10,.75);border:1px solid var(--line);padding:7px 14px;display:flex;align-items:center;gap:10px}
+#prompt .ring{width:22px;height:22px;border-radius:50%;background:conic-gradient(var(--jade) var(--p,0%),rgba(255,255,255,.15) 0)}
+#say{position:absolute;left:50%;top:22%;transform:translateX(-50%);font:600 17px var(--ui);text-align:center;background:rgba(8,12,10,.7);padding:8px 16px;border-left:3px solid var(--amber);max-width:80vw;transition:opacity .3s}
+#banner{position:absolute;left:0;right:0;top:34%;text-align:center;font:400 clamp(24px,4.5vw,46px) var(--disp);letter-spacing:.06em;opacity:0;transition:opacity .4s}#banner small{display:block;font:600 14px var(--ui);letter-spacing:.3em;color:var(--jade);margin-top:8px}
+#scope{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,transparent 0,transparent 36vmin,rgba(0,0,0,.96) 36.5vmin);display:none}
+#scope::before,#scope::after{content:"";position:absolute;background:rgba(0,0,0,.85)}#scope::before{left:50%;top:14vh;bottom:14vh;width:1.5px}#scope::after{top:50%;left:20vw;right:20vw;height:1.5px}
+#scope.on{display:block}#scope.binos{background:radial-gradient(ellipse 34vmin 30vmin at 38% 50%,transparent 98%,rgba(0,0,0,.95) 100%),radial-gradient(ellipse 34vmin 30vmin at 62% 50%,transparent 98%,rgba(0,0,0,.95) 100%);background-blend-mode:darken}
+#scope.binos::before,#scope.binos::after{display:none}
+#dronehud{position:absolute;inset:0;display:none;border:2px solid rgba(63,216,160,.5);box-shadow:inset 0 0 120px rgba(0,0,0,.6)}#dronehud.on{display:block}
+#dronehud .tl{position:absolute;left:18px;top:60px;font:600 13px var(--ui);color:var(--jade);letter-spacing:.14em}
+#vig{position:absolute;inset:0;box-shadow:inset 0 0 180px 60px rgba(200,30,20,.9);opacity:0;transition:opacity .2s}
+#alert{position:absolute;top:56px;left:50%;transform:translateX(-50%);font:700 12px var(--ui);letter-spacing:.3em;padding:3px 12px;background:var(--red);color:#fff;display:none}#alert.on{display:block;animation:blink .7s steps(2) infinite}
+@keyframes blink{50%{opacity:.4}}
+
+/* ---------- menus ---------- */
+.ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px;background:linear-gradient(90deg,rgba(6,9,8,.92) 0,rgba(6,9,8,.7) 55%,rgba(6,9,8,.3));overflow:auto;touch-action:pan-y;z-index:5}
+.ov.center{background:rgba(6,9,8,.82)}
+.pane{width:min(1100px,100%);max-height:100%;overflow:auto;touch-action:pan-y}
+.back{position:fixed;left:14px;top:12px;font:600 13px var(--ui);color:var(--dim);text-decoration:none;z-index:9}.back:hover{color:var(--paper)}
+h1{font:400 clamp(40px,7vw,86px)/1 var(--disp);margin:0;letter-spacing:.02em}h1 span{color:var(--jade)}
+h2{font:400 26px var(--disp);margin:0 0 4px}h3{font:700 16px var(--ui);margin:0;letter-spacing:.04em}
+.kick{font:600 12px var(--ui);letter-spacing:.34em;color:var(--jade);margin-bottom:10px}
+.lede{color:#c9d2cc;max-width:52ch;font-size:16px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:700 15px var(--ui);letter-spacing:.12em;text-transform:uppercase;padding:12px 22px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--paper);min-height:46px;transition:background .12s,border-color .12s}
+.btn:hover:not(:disabled){border-color:var(--jade);background:rgba(63,216,160,.1)}.btn.pri{background:var(--jade);color:#06130d;border-color:var(--jade)}.btn.pri:hover{background:#5ef0b8}.btn:disabled{opacity:.4;cursor:default}
+.btn small{font:500 11px var(--ui);letter-spacing:.06em;text-transform:none;opacity:.75}
+.menu{display:flex;flex-direction:column;gap:8px;max-width:340px;margin-top:22px}.menu .btn{justify-content:space-between}
+.pill{font:600 11px var(--ui);letter-spacing:.12em;padding:3px 9px;border:1px solid var(--line);text-transform:uppercase}
+.grid{display:grid;gap:10px}.g3{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.card{border:1px solid var(--line);background:rgba(255,255,255,.03);padding:14px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.card:hover:not(:disabled){border-color:var(--jade)}.card.sel{border-color:var(--jade);box-shadow:inset 0 0 0 1px var(--jade)}.card:disabled{opacity:.4}
+.card p{margin:0;color:var(--dim);font-size:13px;line-height:1.45}.card .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.card .done{color:var(--jade)}.card .ghost{color:var(--amber)}
+.bar{display:flex;align-items:center;gap:8px;font-size:12px;margin:3px 0}.bar span{width:84px;color:var(--dim);letter-spacing:.06em}.bar b{flex:1;height:6px;background:rgba(255,255,255,.1);position:relative}.bar b i{position:absolute;inset:0 auto 0 0;background:var(--paper)}.bar b em{position:absolute;inset:0 auto 0 0;background:var(--jade);opacity:.55}.bar b em.worse{background:var(--red)}
+#arm{display:grid;grid-template-columns:220px 1fr 300px;gap:14px;align-items:start}
+#arm .guns .card{padding:10px}#arm .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+#arm .parts{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+#arm .part{display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:13px}
+#arm .part.on{border-color:var(--jade)}#arm .part:hover:not(:disabled){border-color:var(--paper)}#arm .part:disabled{opacity:.35}
+#arm .part small{display:block;color:var(--dim);font-size:12px}
+#preview{width:100%;height:180px;background:radial-gradient(circle at 50% 40%,#1c2621,#0b0f0d);border:1px solid var(--line)}
+.credits{font:700 16px var(--ui);color:var(--amber)}
+#mapc{width:min(86vh,94vw);height:min(86vh,94vw);border:1px solid var(--line);cursor:crosshair;touch-action:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:14px 0}.stats div{border:1px solid var(--line);padding:10px}.stats small{display:block;color:var(--dim);font-size:11px;letter-spacing:.14em;text-transform:uppercase}.stats b{font:700 22px var(--ui)}
+.rank{font:400 64px var(--disp);color:var(--amber);line-height:1}
+.opt{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:12px}.opt input[type=range]{width:180px;accent-color:var(--jade)}
+#touch{position:fixed;inset:0;pointer-events:none;z-index:3}#touch button{position:absolute;pointer-events:auto;width:60px;height:60px;border-radius:50%;border:1px solid rgba(233,236,228,.5);background:rgba(8,12,10,.45);font:700 11px var(--ui);color:var(--paper)}
+#touch button:active{background:rgba(63,216,160,.45)}
+@media (max-width:900px){#arm{grid-template-columns:1fr}#arm .guns{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}}
+@media (max-height:520px){h1{font-size:40px}.lede{font-size:14px}.menu{margin-top:10px}.btn{min-height:36px;padding:7px 14px}#objs{display:none}}
+</style></head>
+<body>
+<div id="game"></div>
+<div id="hud" hidden>
+  <canvas id="over"></canvas>
+  <canvas id="compass" width="1120" height="80"></canvas>
+  <div id="alert">ALERT</div>
+  <div id="scope"></div>
+  <div id="dronehud"><div class="tl" id="dronetxt">RECON DRONE</div></div>
+  <div id="vig"></div>
+  <div id="xh"><i class="t"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="c"></i></div>
+  <div id="hm"></div>
+  <div id="objs" class="shadow"><h4>OBJECTIVES</h4><div class="m" id="mname"></div><ul id="olist"></ul></div>
+  <div id="status" class="shadow">
+    <div class="row" style="margin:0 0 6px"><canvas id="stance" width="60" height="76"></canvas><div style="flex:1"><div class="hpbar"><i id="hp"></i></div><div class="row" id="chips"></div></div></div>
+  </div>
+  <div id="ammo" class="shadow"><div class="n" id="amn">30<small> / 120</small></div><div class="g" id="gname">K-17 Carbine</div><div class="row" style="justify-content:flex-end" id="achips"></div></div>
+  <div id="prompt" hidden><span class="ring"></span><span id="ptxt"></span></div>
+  <div id="say" hidden></div>
+  <div id="banner"></div>
+</div>
+<div id="touch" hidden></div>
+<a class="back" id="backlink" href="../../index.html">&lt; 2trapz games</a>
+<div id="ui"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/world.js"></script>
+<script src="js/actors.js"></script>
+<script src="js/player.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+</body></html>
