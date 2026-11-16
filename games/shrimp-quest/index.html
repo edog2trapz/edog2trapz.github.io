@@ -2569,6 +2569,7 @@ function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(.05, (now - last) / 1000); last = now; const t = now / 1000;
   if (bumpCool > 0) bumpCool -= dt;
+  pollPad(dt);
   if (G && view === "world") { G.time += dt; updateWorld(dt); updateChaos(dt, now); }
   g.imageSmoothingEnabled = false;
   if (view === "world" && G) drawWorld(t, now);
@@ -2599,6 +2600,36 @@ function act(a) {
     else if (a === "sic") sicEm();
     else if (a === "honk" && driving) honk();
   }
+}
+/* gamepad: d-pad or stick moves, A confirms, B backs out (hold to run), Start opens the menu,
+   Y steals a car, X sends your lead shrimp, RB runs. Menus auto-repeat when you hold a direction. */
+const pad = { prev: {}, rep: {}, used: false };
+function pollPad(dt) {
+  const gp = navigator.getGamepads ? [...navigator.getGamepads()].find(q => q && q.connected) : null;
+  if (!gp) { if (pad.used) { for (const d of ["up", "down", "left", "right"]) if (pad.prev[d]) held[d] = false; pad.prev = {}; pad.used = false; } return; }
+  const B = i => !!(gp.buttons[i] && (gp.buttons[i].pressed || gp.buttons[i].value > .5));
+  const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
+  const dirs = { up: B(12) || ay < -.5, down: B(13) || ay > .5, left: B(14) || ax < -.5, right: B(15) || ax > .5 };
+  const any = Object.values(dirs).some(Boolean) || gp.buttons.some(b => b && b.pressed);
+  if (any) pad.used = true;
+  if (!pad.used) return;
+  for (const d in dirs) {
+    if (dirs[d] && !pad.prev[d]) { held[d] = true; pad.rep[d] = .34; if (menuStack.length || dlgState) act(d); }
+    else if (dirs[d]) { pad.rep[d] -= dt; if (pad.rep[d] <= 0 && menuStack.length) { act(d); pad.rep[d] = .1; } }
+    else if (pad.prev[d]) held[d] = false;
+    pad.prev[d] = dirs[d];
+  }
+  const nb = !$("nameBox").hidden;
+  const btn = { a: B(0), b: B(1), start: B(9) || B(8), car: B(3), sic: B(2) };
+  for (const k in btn) {
+    if (btn[k] && !pad.prev["b_" + k]) {
+      audio();
+      if (nb) { if (k === "a" || k === "start") { const f = $("nameBox"); if (f.requestSubmit) f.requestSubmit(); else f.onsubmit(new Event("submit")); } }
+      else act(k);
+    }
+    pad.prev["b_" + k] = btn[k];
+  }
+  held.run = B(1) || B(5) || B(7);
 }
 let typed = "";
 addEventListener("keydown", e => {
@@ -2655,6 +2686,8 @@ function controlsHTML() {
   return `<h3>Controls</h3><div class="keys">
   <h4>Keyboard</h4>
   ${K("Arrows / WASD", "Move")}${K("Shift (hold)", "Run on foot")}${K("Z / Space / J", "Talk, confirm, advance text")}${K("X / Backspace / K", "Back, cancel")}${K("Enter / Esc / M", "Open the menu")}
+  <h4>Gamepad</h4>
+  ${K("D-pad / stick", "Move, pick menu items")}${K("A", "Talk, confirm")}${K("B", "Back (hold to run)")}${K("Start", "Open the menu")}${K("Y / X", "Steal a car / send your lead shrimp")}
   <h4>Street chaos</h4>
   ${K("F", "Steal a car you're facing, or get out")}${K("Z or H (in a car)", "Honk")}${K("Drive into people", "Bonk them (they get back up in 20 seconds)")}${K("G", "Send your lead shrimp to attack the nearest person")}
   <h4>Phone</h4>
