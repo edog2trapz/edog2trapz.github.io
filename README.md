@@ -108,7 +108,8 @@ If you like it, paste that line into the `REVIEWS = [` list at the bottom of `as
 
 **This is the one step only you can do.** Until it's done, everyone plays as a guest, progress stays on their own device (they can still back it up with the Memory Card), and the Account, Friends and Ranks pages say "coming soon". The site needs somewhere online to keep everyone's accounts, and that's **Firebase**, Google's free app backend. It takes about 10 minutes, once. After that, everything below just works:
 
-- **Accounts** with just a username and password (no email needed).
+- **Sign in with Google**: one tap, nothing to remember, and the same account on every phone, tablet and computer.
+- **Accounts** with just a username and password (no email needed), for players who would rather not use Google.
 - **Cloud saves**: every game's save data syncs to the player's account, so they can continue on any device. Saves sync whenever a 2trapz page opens and right before a game starts.
 - **The Ranks leaderboard**: global and friends-only.
 - **Friends**: friend codes, requests, online status ("Playing Breachline"), game invites.
@@ -126,7 +127,7 @@ Firebase's free plan is plenty for a small site. (If the site gets really big, F
    firebase: { apiKey: "AIza...", authDomain: "2trapz-games.firebaseapp.com", projectId: "2trapz-games", storageBucket: "...", messagingSenderId: "...", appId: "..." },
    ```
    (These keys are meant to be public. The security comes from the rules in step 8.)
-6. In Firebase, open **Build → Authentication → Get started → Sign-in method** and turn on **Email/Password**. (Username accounts use this behind the scenes.)
+6. In Firebase, open **Build → Authentication → Get started → Sign-in method**. Turn on **Google** (pick your email as the support email and save: that is the whole setup) and turn on **Email/Password** (username accounts use this behind the scenes).
 7. Still in Authentication, open **Settings → Authorized domains → Add domain** and add `edog2trapz.github.io`.
 8. Open **Build → Firestore Database → Create database**. Pick a location near you, choose **production mode**, and create it. Then open the **Rules** tab, delete everything there, paste in everything from this repo's `firestore.rules` file, and click **Publish**. (Whenever `firestore.rules` changes in this repo, paste it in and publish again.)
 9. Upload the changed `assets/data.js` to GitHub and wait a minute. Accounts are live.
@@ -135,7 +136,7 @@ Firebase's free plan is plenty for a small site. (If the site gets really big, F
 
 **Forgotten username passwords:** username accounts have no email, so they can't reset their own password. If a player asks, open Firebase → Authentication → Users, find `theirusername@player.edog2trapz.github.io`, and delete it so they can sign up again (they can restore progress from a Memory Card save).
 
-**Optional, sign in with Google or GitHub:** turn on **Google** (and/or **GitHub**, which needs an OAuth app made on GitHub under Settings → Developer settings → OAuth Apps, using the callback URL Firebase shows) in Authentication → Sign-in method, then add `'google'` (and/or `'github'`) to `providers` in `assets/data.js`.
+**Optional, sign in with GitHub:** turn on **GitHub** in Authentication → Sign-in method (it needs an OAuth app made on GitHub under Settings → Developer settings → OAuth Apps, using the callback URL Firebase shows), then add `'github'` to `providers` in `assets/data.js`. Google is already in that list.
 
 **Adding another admin:** add their email to `admins` in `assets/data.js` **and** to the list in `isAdmin()` in `firestore.rules`, then publish the rules again.
 

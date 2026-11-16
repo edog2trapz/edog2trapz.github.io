@@ -32,11 +32,11 @@ const ACCOUNTS = {
      firebase: { apiKey:'AIza...', authDomain:'your-project.firebaseapp.com', projectId:'your-project', appId:'1:123:web:abc' }, */
   firebase: null,
   /* How players can sign in:
-     'username' = username + password, no email needed (the main one)
+     'google'   = Sign in with Google: one tap, and saves follow them to every device
+     'username' = username + password, no email needed
      'email'    = email + password (you need this one to use admin.html)
-     'google'   = Sign in with Google (turn it on in Firebase first)
      'github'   = Sign in with GitHub (set it up in Firebase first) */
-  providers: ['username', 'email'],
+  providers: ['google', 'username', 'email'],
   /* Accounts that can open admin.html to approve or delete reviews. */
   admins: ['realbug1243@gmail.com'],
 };
