@@ -70,7 +70,7 @@ const GAMES = [
   { slug:'gilded-comet', title:'Gilded Comet Casino', icon:'🎰', genre:'Casino', colors:['#1a0910', '#ecc66e'], players:'1 player', isNew:true, featured:true,
     desc:'A whole art-deco casino on one play-money bankroll: a 20-line slot with free spins and a progressive jackpot, blackjack, Texas Hold\'em against AI regulars, video poker, baccarat, roulette, craps, horse racing, crash, plinko, mines, keno, scratch tickets and more.' },
   { slug:'nightwire', title:'Nightwire', icon:'🌑', genre:'Stealth', colors:['#05080d', '#ffb45a'], players:'1 player', isNew:true, featured:true,
-    desc:'Top-down stealth across four night operations. Stay in the shadows, shoot out the lights, grab and interrogate guards, hide the bodies and crack the case on Ansel Varga.' },
+    desc:'Third-person 3D stealth across four night operations. Shoot out the lamps, crawl the ceiling vents, knock guards out and hide the bodies, dodge cameras and laser grids, and steal the case out from under Ansel Varga. The original 2D version is still inside.' },
   { slug:'burner-line', title:'Burner Line', icon:'☎️', genre:'Simulation', colors:['#170f05', '#ffb341'], players:'1 player', isNew:true, featured:true,
     desc:'Run a basement scam call center to pay off Uncle Vic. Dig through marks\' profiles, keep your cover story straight on live calls, wash the money, run a crew and rug-pull memecoins before the feds close the case.' },
   { slug:'dachy', title:'Dachy', icon:'🏃', genre:'Parkour', colors:['#17140f', '#dc2f2a'], players:'1 player', isNew:true, featured:true,
@@ -137,6 +137,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-16', tag:'Update', title:'Nightwire goes 3D', game:'nightwire',
+    text:'Nightwire is now a third-person 3D stealth game. Every lamp really lights the room, so shoot them out or EMP them and the shadows are yours. Guards carry flashlights and their awareness rings fill as they notice you. Climb into the ceiling vents through the hatches to crawl over their heads, knock them out from behind and carry the bodies into the dark, and get past security cameras, laser grids and keycard doors. Three alarms and the operation is blown. Go for a Ghost rating on all four operations. The original 2D Nightwire is still on the title screen.' },
   { date:'2026-11-16', tag:'Update', title:'Dao Hunter is now a tactical recon shooter', game:'dao-hunter',
     text:'Dao Hunter has been rebuilt from the ground up. The Dao Order has occupied the valley: five camps, a relay mast and the man they call the Abbot. Watch from the ridges with binoculars or fly the recon drone to tag soldiers through walls. Crouch and go prone in the long grass, watch the detection arcs fill, and cut the alarms before anyone calls for help. Build your guns in the gunsmith with optics, suppressors, barrels, grips, magazines and stocks, then run six operations by day, dusk and night, or liberate the whole valley in free roam. Rank up to unlock the Ghost team and their sync shots. The original wave mode is still on the title screen.' },
   { date:'2026-11-16', tag:'Feature', title:'Play together online or on the same Wi-Fi',
