@@ -31,7 +31,15 @@ const CREATOR_EMAIL = 'realbug1243@gmail.com';
 const ACCOUNTS = {
   /* Paste the firebaseConfig object from the Firebase console here, like:
      firebase: { apiKey:'AIza...', authDomain:'your-project.firebaseapp.com', projectId:'your-project', appId:'1:123:web:abc' }, */
-  firebase: null,
+  firebase: {
+    apiKey: 'AIzaSyDBq10bbPYXZ-OtvPub98bAC9YBmx0tLeo',
+    authDomain: 'trapzgames-171ff.firebaseapp.com',
+    projectId: 'trapzgames-171ff',
+    storageBucket: 'trapzgames-171ff.firebasestorage.app',
+    messagingSenderId: '847953793615',
+    appId: '1:847953793615:web:cfc0e652479fcf6d0ed03a',
+    measurementId: 'G-ME3CWNSMZ0',
+  },
   /* How players can sign in:
      'google'   = Sign in with Google: one tap, and saves follow them to every device
      'username' = username + password, no email needed
