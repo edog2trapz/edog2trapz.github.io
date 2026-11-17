@@ -58,8 +58,8 @@ const ABOUT = {
 };
 
 const GAMES = [
-  { slug:'tap-the-yart', title:'Tap the Yart', icon:'💨', genre:'Stealth', colors:['#14161d', '#c9b8ff'], players:'1 player', isNew:true, featured:true,
-    desc:'First-person stealth in the school bathroom. Hit your yart, a Gleek Bar, green, tabs or salvia, then blow the cloud into a vent or flush it before a teacher sees or smells it. The more you take, the more fried you get, until you green out on the floor. Four periods, four teachers, one hall pass.' },
+  { slug:'tap-the-yart', title:'Tap the Yart: Hazeport High', icon:'💨', genre:'Stealth', colors:['#14161d', '#c9b8ff'], players:'1 player', isNew:true, featured:true,
+    desc:'A first-person school day at Hazeport High. Skip class, cheat on the exam with AI, text the plug on Telegrom, blow O\'s and ghosts, wheelie e-scooters through the halls, steal a car, tag gang turf and rob the canteen, all without getting detention. Start with a Gleek Bar and $20 and unlock the rest. The four original story periods are still there.' },
   { slug:'rhyme-cipher', title:'Rhyme Cipher', icon:'🎤', genre:'Rhythm', colors:['#120d1d', '#ffb547'], players:'1 player', isNew:true, featured:true,
     desc:'A freestyle rap game like the rhyme game. Every bar ends on a word on screen and the words come in rhyming pairs, so you rap your line and land the word on beat 4. Couplets, alternating or four-in-a-row, easy to hard words, 12 original beats, or your own songs with BPM and key detection.' },
   { slug:'vermilion-thread', title:'Vermilion Thread', icon:'🗡️', genre:'Roguelike', colors:['#16110f', '#e2372b'], players:'1 player', isNew:true, featured:true,
@@ -150,6 +150,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-17', tag:'Update', title:'Tap the Yart: a whole day at Hazeport High', game:'tap-the-yart',
+    text:'Tap the Yart now has Freeplay: a full school day at the new, much bigger Hazeport High. Go to class or skip it, cheat on the maths exam (copy a nerd, ask AI on your phone, or crack the principal\'s safe for the answers), and get your essays done by AI if you think Mrs. Kowalski won\'t notice. Your phone has Telegrom: text Dazza the plug for drops around campus, or get Kai and Mia to keep watch and distract teachers. Blow O\'s, snatch back ghosts and pull jellyfish. Ride e-scooters and e-bikes through the halls (hold Shift for a wheelie), hotwire a car and do donuts on the oval, tag the walls, smash lockers and flood the toilets, rob the canteen, fight the Hazers and the Oval Boys, make stink bombs and elephant toothpaste in the lab, kick goals at lunch, and skip school to hit the servo or drop out to TAFE. You start with a Gleek Bar and $20; everything else unlocks as you go.' },
   { date:'2026-11-16', tag:'New game', title:'Tap the Yart: don\'t get caught in the bathroom', game:'tap-the-yart',
     text:'A first-person stealth game set in the school bathroom. You have one hall pass and a stash: a yart, a Gleek Bar, green, two tabs and some salvia. Every hit makes a cloud, so blow it into the vent, or lock a stall and flush it before Ms. Vance, Mr. Grummond, Coach Briggs or Principal Okafor sees it or smells it down the hall. The more you take, the more fried you get: green blurs everything and slows you down, tabs melt the walls, salvia flips your controls, and overdoing it puts you on the floor. Get your buzz to 100% and make it back to class before the bell.' },
   { date:'2026-11-16', tag:'Update', title:'Old favourites, upgraded',

@@ -15,6 +15,9 @@ tags: [game, tech]
 - **Colours** go through `convertSRGBToLinear()` because the renderer outputs sRGB; without it everything looks washed out.
 - **Overlay.** A transparent 2D canvas on top draws icons, speech bubbles, meters, off-screen arrows and the minimap by projecting world positions.
 - **Audio** is synthesized with Web Audio: a lo-fi loop that adds a tension layer as HEAT rises, plus every sound effect.
-- **Saves.** Stars and mute are stored in `localStorage` and the game works without it.
+- **Freeplay map** is built from rectangles on a tile grid with a separate floor layer, so props (desks, benches, shelves, counters, tables, fences) keep the floor under them. Props are drawn with `InstancedMesh` batches; the ceiling is only over indoor tiles; outdoor walls get a brick texture.
+- **Performance.** Students and props don't cast shadows, the shadow map only re-renders every 6 frames in freeplay, and distant characters are hidden. Character spheres are capped at 11 segments.
+- **Testing.** `window.__tty.logic(dt)` steps the game without rendering, so automated tests can't drop key presses on slow machines.
+- **Saves.** Stars, cash, unlocks, days and mute are stored in `localStorage` (`tty_prog`); the game works without it.
 
 Related: [Levels](levels.md), [Stealth Rules](stealth-rules.md), [The Stash](stash.md)
