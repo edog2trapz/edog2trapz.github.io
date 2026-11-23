@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#14161d">
 <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
-<meta name="description" content="Tap the Yart: a first-person day at Hazeport High. Skip class, cheat on the exam, text the plug, pull vape tricks, wheelie through the halls and dodge the teachers.">
+<meta name="description" content="Tap the Yart: a first-person day at Hazeport High. Missions over Telegrom, fire drills, bag checks, skipping class, exam cheating, vape tricks, wheelies and teachers to dodge.">
 <title>Tap the Yart</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -199,8 +199,17 @@ canvas#c{pointer-events:auto;}
 #trickBar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 136px);display:flex;gap:6px;pointer-events:auto;}
 #trickBar button{border:2px solid rgba(201,184,255,.6);background:rgba(20,22,29,.85);color:#fff;border-radius:10px;padding:6px 12px;font:800 12px var(--f-ui);display:flex;gap:6px;align-items:center;cursor:pointer;touch-action:none;}
 #trickBar b{background:#c9b8ff;color:#14161d;border-radius:4px;padding:0 5px;font-size:10px;}
+.clock-card .obj{display:block;max-width:230px;margin-top:4px;font-size:12px;font-weight:800;line-height:1.3;color:var(--pass);}
+.clock-card .obj::before{content:"▶ ";}
+.free-row #hRep{color:#c9b8ff;font-size:11px;letter-spacing:.06em;}
+#paBar{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 150px);max-width:min(380px,calc(100% - 24px));background:rgba(20,22,29,.92);border-left:4px solid #ffd166;border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.35;animation:phup .2s ease-out;}
+#paBar b{display:block;font-size:10px;letter-spacing:.16em;color:#ffd166;margin-bottom:2px;}
+.slip .btn.ghost{color:var(--ink);box-shadow:inset 0 0 0 2px rgba(20,22,29,.45);}
+.slip .btn.ghost:hover,.slip .btn.ghost:focus-visible{box-shadow:inset 0 0 0 2px var(--ink);}
+.mini-btn{border:0;border-radius:6px;background:#7b5cd6;color:#fff;font:800 10px var(--f-ui);padding:3px 8px;margin-left:6px;cursor:pointer;}
+.blend{position:absolute;}
 .tbtn.punch{background:rgba(255,77,94,.22);border-color:#ff4d5e;font-size:11px;}
-@media (pointer:coarse){#hotbar{display:none;}#trickBar{bottom:calc(env(safe-area-inset-bottom,0px) + 250px);}#trickBar b{display:none;}#trickBar button{padding:10px 14px;}#phone{right:50%;transform:translateX(50%);bottom:calc(env(safe-area-inset-bottom,0px) + 110px);width:250px;height:440px;}#phNote{top:calc(env(safe-area-inset-top,0px) + 150px);bottom:auto;right:50%;transform:translateX(50%);}#classPanel{bottom:calc(env(safe-area-inset-bottom,0px) + 250px);}#prompt{bottom:calc(env(safe-area-inset-bottom,0px) + 200px);}#toast{top:calc(50% + 70px)!important;}}
+@media (pointer:coarse){#hotbar{display:none;}#paBar{top:calc(env(safe-area-inset-top,0px) + 200px);}#trickBar{bottom:calc(env(safe-area-inset-bottom,0px) + 250px);}#trickBar b{display:none;}#trickBar button{padding:10px 14px;}#phone{right:50%;transform:translateX(50%);bottom:calc(env(safe-area-inset-bottom,0px) + 110px);width:250px;height:440px;}#phNote{top:calc(env(safe-area-inset-top,0px) + 150px);bottom:auto;right:50%;transform:translateX(50%);}#classPanel{bottom:calc(env(safe-area-inset-bottom,0px) + 250px);}#prompt{bottom:calc(env(safe-area-inset-bottom,0px) + 200px);}#toast{top:calc(50% + 70px)!important;}}
 @media (max-width:560px){
   .clock-card .clock{font-size:21px;}
   .mid{order:3;flex-basis:100%;max-width:none;}
@@ -222,12 +231,12 @@ canvas#c{pointer-events:auto;}
 
   <div id="hud" hidden>
     <div class="hud-top">
-      <div class="card clock-card"><span class="lvl" id="hLvl">1st Period</span><span class="clock" id="hClock">2:30</span></div>
+      <div class="card clock-card"><span class="lvl" id="hLvl">1st Period</span><span class="clock" id="hClock">2:30</span><span class="obj" id="hObj" hidden></span></div>
       <div class="card mid">
         <div class="meter"><span class="lbl">BUZZ</span><div class="bar"><i id="buzzFill"></i><span id="buzzTxt">0%</span></div></div>
         <div class="meter"><span class="lbl">HEAT</span><div class="bar"><i id="heatFill"></i><span id="heatTxt"></span></div></div>
         <div class="fried" id="fried"><span class="chip" style="--c:#7bd36a">GREEN<b><i></i></b></span><span class="chip" style="--c:#ffd166">LSD<b><i></i></b></span><span class="chip" style="--c:#c77dff">SALVIA<b><i></i></b></span><span class="chip" style="--c:#ff7ad9">NIC<b><i></i></b></span></div>
-        <div class="free-row" id="freeRow" hidden><span id="hCash">$0</span><span id="hWanted" title="Wanted">☆☆☆☆☆</span><span id="hHp">♥♥♥♥♥</span></div>
+        <div class="free-row" id="freeRow" hidden><span id="hCash">$0</span><span id="hWanted" title="Wanted">☆☆☆☆☆</span><span id="hHp">♥♥♥♥♥</span><span id="hRep">REP 0</span></div>
         <div class="stat-row"><span>GHOSTED <b id="hGhost">0</b></span><span>SPOTTED <b id="hSpot">0</b></span><span>FRIED <b id="hFried">0%</b></span></div>
       </div>
       <div class="hud-btns"><button id="bPhone" aria-label="Phone" title="Phone (Tab)" hidden>📱</button><button id="bMute" aria-label="Toggle sound" title="Sound (M)">♪</button><button id="bPause" aria-label="Pause" title="Pause (P)">II</button></div>
@@ -241,6 +250,7 @@ canvas#c{pointer-events:auto;}
     <div id="classPanel" hidden></div>
     <div id="trickBar" hidden><button data-t="o"><b>R</b>O's</button><button data-t="ghost"><b>G</b>Ghost</button><button data-t="french"><b>T</b>French</button></div>
     <div id="phNote" hidden></div>
+    <div id="paBar" hidden></div>
     <div id="phone" hidden><div class="ph-frame"><div class="ph-status"><span id="phTime">8:40am</span><span class="ph-cam"></span><span>5G ▮▮▮</span></div><div id="phBody"></div><button class="ph-homebar" id="phHomeBtn" aria-label="Home"></button><button class="ph-close" id="phClose" aria-label="Put phone away">✕</button></div></div>
   </div>
 
@@ -353,7 +363,7 @@ const OPAQUE = new Set(['#','L','|','K','U','V','F','c','C','l','m']);
 const TWALK = new Set(['.', ',', 'D','r','w','e','g','a','o']);           // tiles teachers & students can path through
 const OUTDOOR=new Set(['g','a','o','R','Z','G','X','Y','f','t','b']);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t, rand=(a,b)=>a+Math.random()*(b-a), pick=a=>a[(Math.random()*a.length)|0];
-const angDiff=(a,b)=>{let d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return d;};
+const angDiff=(a,b)=>{let d=(b-a)%(Math.PI*2);if(d!==d)return 0;if(d>Math.PI)d-=Math.PI*2;else if(d<-Math.PI)d+=Math.PI*2;return d;};
 const hash=(x,y)=>{let h=(x*374761393+y*668265263)^0x5bf03635;h=(h^(h>>>13))*1274126177;return ((h^(h>>>16))>>>0)/4294967295;};
 const $=id=>document.getElementById(id);
 const store={get(k,d){try{const v=localStorage.getItem('tty_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('tty_'+k,JSON.stringify(v));}catch(e){}}};
@@ -548,6 +558,7 @@ const Sound={ctx:null,master:null,mus:null,fx:null,muted:store.get('muted',false
       case 'heart':{const o=this.osc('sine',62,t,0.12,0.4);const o2=this.osc('sine',58,t+0.16,0.1,0.3);break;}
       case 'click':this.osc('triangle',660,t,0.05,0.08);break;
       case 'tick':this.osc('square',1400,t,0.03,0.04);break;
+      case 'chime':[784,988,1175].forEach((f,i)=>this.osc('sine',f,t+i*0.16,0.5,0.08));break;
       case 'puff':{const f=this.nz(t,0.22,0.22,'lowpass',700,1,null,0.01);f.frequency.exponentialRampToValueAtTime(250,t+0.2);break;}
       case 'snatch':{const f=this.nz(t,0.3,0.2,'bandpass',500,2,null,0.02);f.frequency.exponentialRampToValueAtTime(2600,t+0.28);break;}
       case 'cash':this.osc('square',1320,t,0.06,0.06);this.osc('square',1760,t+0.07,0.1,0.06);break;
@@ -575,6 +586,9 @@ const Sound={ctx:null,master:null,mus:null,fx:null,muted:store.get('muted',false
     }},
   engine(v){const c=this.ctx;if(!c)return;if(!this.eng){if(v<=0)return;const o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();o.type='sawtooth';f.type='lowpass';f.frequency.value=500;g.gain.value=0;o.connect(f);f.connect(g);g.connect(this.fx);o.start();this.eng={o,g};}
     const t=c.currentTime;this.eng.o.frequency.setTargetAtTime(45+v*150,t,0.1);this.eng.g.gain.setTargetAtTime(v>0||this.engOn?(this.muted?0:0.05+v*0.06):0,t,0.15);},
+  crowd(v){const c=this.ctx;if(!c)return;if(!this.cr){if(v<=0)return;const s=c.createBufferSource();s.buffer=this.noise;s.loop=true;const f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=450;f.Q.value=0.8;const g=c.createGain();g.gain.value=0;
+    const l=c.createOscillator(),lg=c.createGain();l.frequency.value=3.3;lg.gain.value=0.25;l.connect(lg);lg.connect(g.gain);s.connect(f);f.connect(g);g.connect(this.fx);s.start();l.start();this.cr={g};}
+    this.cr.g.gain.setTargetAtTime(this.muted?0:v*0.05,c.currentTime,0.5);},
   ride(v){const c=this.ctx;if(!c)return;if(!this.rd){if(v<=0)return;const o=c.createOscillator(),g=c.createGain();o.type='triangle';g.gain.value=0;o.connect(g);g.connect(this.fx);o.start();this.rd={o,g};}
     const t=c.currentTime;this.rd.o.frequency.setTargetAtTime(220+v*700,t,0.1);this.rd.g.gain.setTargetAtTime(v>0.02&&!this.muted?0.025+v*0.03:0,t,0.1);},
   inhaleStart(id){const c=this.ctx;if(!c||this.inh)return;const t=c.currentTime;const V={yart:[900,3000,17,0.45],gleek:[1800,4200,30,0.2],green:[500,1500,9,0.7],salvia:[700,2200,13,0.6]}[id]||[900,3000,17,0.45];
@@ -695,6 +709,7 @@ function updateTeacher(t,dt,demo){
      if(P.down>0){rate*=4;sus=true;}else if(Hh.green>0.75||Hh.salvia>0.5||Hh.lsd>1.1){rate*=1+fried*0.6;sus=true;}}
     rate*=lerp(1.7,0.55,d/t.def.range);
     if(MODE.free){const fr=freeSus(t,rate,sus);rate=fr[0];sus=fr[1];hotX=fr[2];
+      if(FREE.bag&&!t.bagChecked&&Math.hypot(t.x-P.x,t.y-P.y)<2.8&&!P.car&&P.y>9)bagCheck(t);
       if(P.crimeT>0&&t.crimeSeen!==P.crimeId&&P.y>9){t.crimeSeen=P.crimeId;FREE.wanted=Math.min(5,FREE.wanted+P.crimeSev);t.alert=Math.max(t.alert,10);stats.spotted++;Sound.play('alert');
         say(t,pick({tag:['Is that SPRAY PAINT?!','Vandal!'],smash:['That is SCHOOL PROPERTY!','HEY! Stop that!'],fight:['BREAK IT UP!','No fighting!'],rob:['THIEF!','Put that back!'],car:['IS THAT MY CAR?!','Get out of that car!'],ride:['No riding in the halls!','Off the scooter!'],pick:['I saw that!','Empty your pockets!'],chem:['What are you mixing?!'],throw:['Who threw that?!']}[P.crimeKind]||['HEY!']));}}
     const hot=sus||t.alert>0||alarm>0||hotX;
@@ -794,6 +809,7 @@ function freeSus(t,rate,sus){if(P.y<9)return[0,false,false];
   if(P.crimeT>0){rate*=5;sus=true;}
   if(P.crafting&&!(curPer().task==='science'&&P.crafting.what==='foam')){rate*=4;sus=true;}
   if(P.phoneOut&&isClassTime()&&roomAt(P.x,P.y)===curPer().room){rate*=3;sus=true;if(!t.saidPhone){t.saidPhone=1;say(t,'Phone. Away. NOW.');}}
+  if(FREE.crowd>=2)rate*=sus?0.55:0.3;if(repTier()>=3)rate*=0.85;if(FREE.drill&&roomAt(P.x,P.y)!=='oval'&&P.y<44&&t.type==='principal'){rate*=1.5;return[rate,sus,true];}
   if(P.seated){if(P.cheat||P.eat>0){rate*=6;sus=true;}else if(!sus)return[0,false,false];}
   if(P.eat>0&&isClassTime()&&roomAt(P.x,P.y)===curPer().room){rate*=3;sus=true;}
   if(!sus){if(isClassTime()&&!inPlaceForClass()){if(!t.saidSkip){t.saidSkip=1;say(t,pick(["Shouldn't you be in class?",'Where are you meant to be?','Hall pass. Now.']));}return[rate*0.9,false,true];}
@@ -875,6 +891,7 @@ function updatePlayer(dt){
   const inv=Hh.salvia>0.5?-1:1;const sens=0.0024*(1-Math.min(0.45,Hh.green*0.35));
   if(P.car){look.dy*=0.5;}else P.yawT+=look.dx*sens*inv+(P.ride?0:inp.turn*2.4*dt*inv);P.pitchT=clamp(P.pitchT-look.dy*sens,-1.2,1.2);P.swayX=lerp(P.swayX||0,clamp(look.dx*0.02,-1,1),0.3);P.swayY=lerp(P.swayY||0,clamp(look.dy*0.02,-1,1),0.3);look.dx=look.dy=0;
   const sm=1-Math.exp(-dt*(35/(1+Hh.green*4+Hh.salvia*2)));P.yaw+=(P.yawT-P.yaw)*sm;P.pitch+=(P.pitchT-P.pitch)*sm;
+  if(!(P.yaw===P.yaw))P.yaw=P.yawT=0;if(Math.abs(P.yaw)>40){const k=Math.round(P.yaw/(Math.PI*2))*Math.PI*2;P.yaw-=k;P.yawT-=k;}
   // moving (relative to where you look)
   let f=-inp.my,s=inp.mx;if(P.hidden||P.down>0||P.seated||P.crafting||(MODE.free&&FREE.mini)){f=s=0;}
   if(P.car||P.ride){if(P.down<=0){if(P.car)driveCar(dt);else rideUpdate(dt,f,s+(inp.turn||0));}f=s=0;}
@@ -983,6 +1000,7 @@ function winLevel(){state='won';CAM.focus={x:goalTile.x+0.5,y:goalTile.y+0.5};CA
   setTimeout(()=>showScreen('sWin'),600);}
 function startFree(){Sound.unlock();loadLevel('free');state='play';showScreen(null);buildHotbar();requestLook();$('lookHint').hidden=isTouch;$('hud').hidden=false;$('touch').hidden=!isTouch;
   $('freeRow').hidden=false;$('bPhone').hidden=false;Sound.musicOn(true);Sound.play('bell',0.6);
+  setTimeout(()=>{if(state==='play'&&MODE.free)openMenu('day');},250);
   toast(`<b>8:40am at Hazeport High.</b> Period 1 is English in Room 103. Or not. Press <b>${isTouch?'📱':'Tab'}</b> for your phone: jobs, timetable, map.`,6);}
 function startLevel(i){Sound.unlock();loadLevel(i);state='play';showScreen(null);buildHotbar();$('freeRow').hidden=true;$('bPhone').hidden=true;requestLook();$('lookHint').hidden=isTouch;$('hud').hidden=false;$('touch').hidden=!isTouch;$('hLvl').textContent=L.per;
   Sound.musicOn(true);Sound.play('bell',0.6);
@@ -1019,7 +1037,7 @@ $('bRetry').onclick=()=>{if(MODE.free)serveDetention();else startLevel(LI);};$('
 $('bReplay').onclick=()=>startLevel(LI);$('bNext').onclick=()=>openIntro(LI+1);
 $('bPause').onclick=pauseGame;$('bMute').onclick=toggleMute;$('bMute').textContent=Sound.muted?'✕':'♪';
 $('keyHelp2').innerHTML=$('keyHelp').innerHTML;
-function toTitle(){state='title';$('phone').hidden=true;$('phNote').hidden=true;PH.open=false;$('lookHint').hidden=true;buildLevelGrid();loadLevel('free',true);$('freeInfo').textContent=prog.days?`Day ${prog.days+1} · $${prog.cash} · ${Object.keys(prog.unlocked).length} of 5 stash items unlocked`:'Start with a Gleek Bar and $20. Unlock the rest.';showScreen('sTitle');$('hud').hidden=true;Sound.musicOn(false);}
+function toTitle(){state='title';Sound.crowd(0);$('paBar').hidden=true;$('phone').hidden=true;$('phNote').hidden=true;PH.open=false;$('lookHint').hidden=true;buildLevelGrid();loadLevel('free',true);$('freeInfo').textContent=prog.days?`Day ${prog.days+1} · $${prog.cash} · ${Object.keys(prog.unlocked).length} of 5 stash items unlocked`:'Start with a Gleek Bar and $20. Unlock the rest.';showScreen('sTitle');$('hud').hidden=true;Sound.musicOn(false);}
 
 /* =========================================================
    FREEPLAY: HAZEPORT HIGH — a whole school day sandbox
@@ -1127,8 +1145,8 @@ const SHOPS={
   dazza:{title:"Dazza's Stall",sub:'South toilets, last stall. Cash only.',items:[
     {id:'yart',label:'Yart',desc:'Unlock for good. Small cloud, no smell.',price:35,give:{yart:Infinity},unlock:'yart'},
     {id:'green',label:'Green ×4',desc:'Unlocks green. Huge buzz, skunk smell, greens you out.',price:50,give:{green:4},unlock:'green'},
-    {id:'salvia',label:'Salvia ×2',desc:'Unlocks salvia. Flips your world for 20 seconds.',price:70,give:{salvia:2},unlock:'salvia'},
-    {id:'lsd',label:'LSD tabs ×2',desc:'Unlocks tabs. No smoke. Melts the school for the day.',price:90,give:{lsd:2},unlock:'lsd'},
+    {id:'salvia',label:'Salvia ×2',desc:'Unlocks salvia. Flips your world for 20 seconds.',price:70,give:{salvia:2},unlock:'salvia',rep:50},
+    {id:'lsd',label:'LSD tabs ×2',desc:'Unlocks tabs. No smoke. Melts the school for the day.',price:90,give:{lsd:2},unlock:'lsd',rep:50},
     {id:'smoke',label:'Smoke bombs ×2',desc:'Thick cloud teachers can\'t see through.',price:25,give:{smoke:2}},
     {id:'clippers',label:'Clippers',desc:'Fresh cut at any bathroom mirror. Teachers forget your face.',price:30,tool:'clippers'},
     {id:'spray',label:'Spray can',desc:'Six tags. Tag rival turf and they come for you.',price:12,give:{spray:6}}]},
@@ -1136,7 +1154,8 @@ const SHOPS={
     {id:'energy',label:'Rhino Fuel',desc:'Run forever for 25 seconds. Jittery.',price:5,give:{energy:1}},
     {id:'pie',label:'Meat pie',desc:'Heals 2 hearts.',price:5,give:{pie:1}},{id:'roll',label:'Sausage roll',desc:'Heals 1 heart.',price:4,give:{roll:1}},
     {id:'chips',label:'Chips',desc:'Heals 1 heart. Loud bag.',price:3,give:{chips:1}},{id:'spray',label:'Spray can',desc:'Six tags.',price:10,give:{spray:6}},
-    {id:'cracker',label:'Firecrackers ×3',desc:'Throw for a huge bang somewhere else.',price:12,give:{cracker:3}}]},
+    {id:'cracker',label:'Firecrackers ×3',desc:'Throw for a huge bang somewhere else.',price:12,give:{cracker:3}},
+    {id:'milk',label:'Milk (2L)',desc:'For Mum.',price:3,give:{milk:1}}]},
   canteen:{title:'Canteen',sub:'Open recess and lunch.',items:[
     {id:'pie',label:'Meat pie',desc:'Heals 2 hearts.',price:4,give:{pie:1}},{id:'roll',label:'Sausage roll',desc:'Heals 1 heart.',price:3,give:{roll:1}},
     {id:'chips',label:'Chips',desc:'Heals 1 heart.',price:2,give:{chips:1}},{id:'energy',label:'Rhino Fuel',desc:'They\'re not meant to sell this.',price:6,give:{energy:1}}]},
@@ -1159,13 +1178,16 @@ function freeInit(demo){
   FREE.rides=[[25.5,14.5,'scooter'],[26.5,14.5,'scooter'],[27.5,14.5,'ebike'],[58.5,36.5,'scooter'],[66.5,44.5,'ebike'],[68.5,44.5,'scooter']].map(([x,y,type])=>({x,y,type,yaw:-Math.PI/2,v:0,wh:0,whT:0,home:[x,y]}));
   const carCols=['#c0262f','#1e5fa8','#f2f2f2','#2b2b30','#e8b33c','#3d8a5a'];
   FREE.cars=[47,51,55,59,63,67].map((x,i)=>({x:x+0.5,y:13,yaw:Math.PI/2,v:0,col:carCols[i],name:i===5?"Okafor's ute":pick(['Corolla','Commodore','Hilux','Civic','Barina']),owner:i===5?'principal':'staff',drift:0}));
-  FREE.drops=[];phoneReset();$('phone').hidden=true;$('phNote').hidden=true;P.phoneOut=false;
+  FREE.drops=[];phoneReset();Object.assign(FREE,{mission:null,mOffered:{},mDone:{},mDoneAt:{},carry:null,calc:false,coachWheelie:false,lastKick:null,paDone:{},paQ:[],paT:0,crowd:0,drill:null,drillDone:false,bag:null,bagDone:false,foodFight:null,foodDone:false});
+  FREE.events=demo?{}:rollDay();if(!demo&&repTier()>=3)addCash(25);
+  {let best=null;for(let x=20;x<30;x++)if(map[23][x]==='L'&&tile(x,24)==='.'&&(!best||Math.abs(x-26)<Math.abs(best-26)))best=x;FREE.myLocker=best!=null?{x:best,y:23}:null;}
+  if(FREE.events.relief){const t=teachers.find(q=>q.type===FREE.events.relief);if(t)t.def=Object.assign({},t.def,{name:'Mr. Dunn',role:'Relief teacher',range:t.def.range*0.65,fov:t.def.fov*0.85,speed:t.def.speed*0.85,chase:t.def.chase*0.85,shirt:'#8a8a8a',hair:'#a5642f',style:'kid',quote:"I'm... going to have to write you up? Is that how this works here?"});}$('phone').hidden=true;$('phNote').hidden=true;P.phoneOut=false;
   P.hp=5;P.maxHp=5;P.boost=0;P.crimeT=0;P.crimeId=0;P.crimeSev=0;P.seated=null;P.ride=null;P.car=null;P.lookOff=0;P.punchT=0;P.punchCD=0;P.hold=null;P.crafting=null;P.eat=0;P.cheat=false;P.hurtT=0;
   if(!demo)setPeriod(periodAt(FREE.clock),true);
 }
 function periodAt(m){for(let i=0;i<PERIODS.length;i++)if(m<PERIODS[i].t1)return i;return PERIODS.length-1;}
 function curPer(){return PERIODS[FREE.per];}
-function isClassTime(){const p=curPer();return p.kind==='class'||p.kind==='sport';}
+function isClassTime(){if(FREE.drill)return false;const p=curPer();return p.kind==='class'||p.kind==='sport';}
 function inPlaceForClass(){const p=curPer();if(!isClassTime())return true;const r=roomAt(P.x,P.y);return r===p.room;}
 function jobProg(id,n=1){if(!MODE.free)return;const st=FREE.jobs[id],j=JOBS.find(q=>q.id===id);if(!st||st.done)return;st.n+=n;
   if(st.n>=(j.goal||1)){st.done=true;if(j.pay)addCash(j.pay);prog.rep+=10;saveProg();toast(`<b>JOB DONE</b> · ${j.name}${j.pay?` · +$${j.pay}`:''}`,3.5);Sound.play('win');}}
@@ -1208,7 +1230,7 @@ function endPeriod(i){const p=PERIODS[i];if(p.kind!=='class'&&p.kind!=='sport')r
   FREE.grades[p.subj]=g;if(p.task==='exam'&&g==='A')jobProg('exam');}
 
 /* ---------- wanted / detention ---------- */
-function freeBust(t,why){state='busted';CAM.focus=t||null;Sound.inhaleStop();Sound.play('bust');shake=0.6;FREE.detentions++;phoneEvent('detention');if(PH.open)togglePhone(false);
+function freeBust(t,why){state='busted';CAM.focus=t||null;Sound.inhaleStop();Sound.play('bust');shake=0.6;FREE.detentions++;phoneEvent('detention');if(FREE.mission&&FREE.carry)missionEnd(false);if(PH.open)togglePhone(false);
   const def=t?t.def:null;const kinds={tag:'Spray painting school property',smash:'Vandalising school property',fight:'Fighting',rob:'Theft',car:'Stealing a car. On a school day.',ride:'Riding an e-scooter through the halls',
     pick:'Pickpocketing',chem:'Unauthorised chemistry',cheat:'Cheating',skip:'Skipping class',throw:'Throwing explosives in a school',eat:'Eating in class'};
   const offense=P.cheat?kinds.cheat:P.crimeT>0&&kinds[P.crimeKind]?kinds[P.crimeKind]:({'caught tapping':'Vaping in school','cheeks':'Holding a hit in','cloud':'Standing in a cloud','stall':'Smoky stall','greenout':'Greened out on the floor','salvia':'Lying on the floor, talking to a locker','tab':'Dropping a tab','fried':'Visibly fried'})[why]||(isClassTime()&&!inPlaceForClass()?kinds.skip:'General carry-on');
@@ -1219,22 +1241,22 @@ function freeBust(t,why){state='busted';CAM.focus=t||null;Sound.inhaleStop();Sou
   if(t)t.bubble={text:'DETENTION.',t:9,max:9};setTimeout(()=>showScreen('sBust'),900);}
 function serveDetention(){if(FREE.detentions>=3){endDay('suspended');return;}
   const it=ITEMS[P.item];if(it.id!=='gleek'&&P.inv[it.id]){P.inv[it.id]=0;toast(`Confiscated: ${it.name}. $10 fine.`,3);}else toast('$10 fine. Sit there and think about what you did.',3);
-  addCash(-10);exitVehicles();P.holding=false;P.inhaling=false;P.lungs=0;P.hidden=false;P.stall=null;P.down=0;
+  addCash(-10);exitVehicles();P.holding=false;P.inhaling=false;P.lungs=0;P.hidden=false;P.stall=null;P.down=0;P.seated=null;P.crafting=null;P.hold=null;P.eat=0;FREE.mini=null;if(PH.open)togglePhone(false);
   const old=FREE.per;FREE.clock=Math.min(899,FREE.clock+40);const np=periodAt(FREE.clock);for(let i=old;i<np;i++)endPeriod(i);if(np!==old)setPeriod(np,true);
   FREE.wanted=0;for(const t of teachers){t.sus=0;t.alert=0;t.lastSeen=null;backToPatrol(t);}
-  const d=FREEDESKS.find(q=>q.room==='det');P.x=d.sx;P.y=d.sy+0.6;P.yaw=P.yawT=-Math.PI/2;state='play';CAM.focus=null;showScreen(null);requestLook();Sound.musicOn(true);}
+  const d=FREEDESKS.find(q=>q.room==='det');P.x=d.sx;P.y=d.sy;P.yaw=P.yawT=d.face+Math.PI;state='play';CAM.focus=null;showScreen(null);requestLook();Sound.musicOn(true);}
 function exitVehicles(){if(P.ride){P.ride.v=0;P.ride=null;}if(P.car){P.car.v=0;P.car=null;}}
 
 /* ---------- end of day ---------- */
 function endDay(why){if(FREE.ended)return;FREE.ended=true;for(let i=FREE.per;i<PERIODS.length;i++)endPeriod(i);state='won';Sound.inhaleStop();Sound.musicOn(false);Sound.play(why==='suspended'?'bust':'win');
   prog.days++;saveProg();
   const gr=Object.entries(FREE.grades);const gpa=gr.filter(([,g])=>'ABCDF'.includes(g));const avg=gpa.length?gpa.reduce((s,[,g])=>s+'FDCBA'.indexOf(g),0)/gpa.length:0;
-  const jobsDone=Object.values(FREE.jobs).filter(j=>j.done).length;
+  const jobsDone=Object.values(FREE.jobs).filter(j=>j.done).length;const missDone=Object.keys(FREE.mDone||{}).filter(k=>FREE.mDone[k]).length;
   const ending=why==='tafe'?['Enrolled at Hazeport TAFE','Cert III in Hospitality. Starts Monday. You never went back.']:why==='suspended'?['Suspended','Three detentions in one day. Mum is not happy.']:
     FREE.chaos>25?['Hazeport Legend','They\'ll be talking about today for years.']:avg>=3.2?['Model Student','Somehow your report card is great.']:FREE.attended===0?['Ghost','You were technically at school.']:['Just Another Day','Same time tomorrow.'];
   const rows=gr.map(([s,g])=>`<div class="field"><span>${s}</span><span class="hand">${g}</span></div>`).join('')||'<div class="field"><span>Classes</span><span class="hand">None attended</span></div>';
   $('rcBody').innerHTML=`<div class="head"><span>Hazeport High · Report Card</span><span>Day ${prog.days}</span></div><h2>${ending[0]}</h2><p class="mini" style="text-align:left;opacity:.85">${ending[1]}</p>${rows}
-    <div class="field"><span>Cash</span><span class="hand">$${prog.cash}</span></div><div class="field"><span>Jobs done</span><span class="hand">${jobsDone} of ${JOBS.length}</span></div>
+    <div class="field"><span>Cash</span><span class="hand">$${prog.cash}</span></div><div class="field"><span>Jobs done</span><span class="hand">${jobsDone} of ${JOBS.length}</span></div><div class="field"><span>Missions</span><span class="hand">${missDone} of ${Object.keys(MISSIONS).length}</span></div><div class="field"><span>Rep</span><span class="hand">${prog.rep} · ${REP_TIERS[repTier()][1]}</span></div>
     <div class="field"><span>Detentions</span><span class="hand">${FREE.detentions}</span></div><div class="field"><span>Chaos</span><span class="hand">${Math.round(FREE.chaos)}</span></div><div class="field"><span>Peak fried</span><span class="hand">${Math.round(P.peak*100)}%</span></div>`;
   setTimeout(()=>showScreen('sReport'),700);}
 
@@ -1244,8 +1266,10 @@ function openMenu(kind,extra){if(state!=='play')return;if(PH.open)togglePhone(fa
 function closeMenu(){if(state!=='menu')return;state='play';menuCtx=null;showScreen(null);requestLook();}
 function renderMenu(){const k=menuCtx.kind,box=$('mBody');let h='';
   if(SHOPS[k]){const s=SHOPS[k];h=`<div class="head"><span>${s.title}</span><span>$${prog.cash}</span></div><p class="mini" style="text-align:left">${s.sub}</p><div class="shop">`+
-    s.items.map((it,i)=>{const owned=it.tool?prog.tools[it.tool]:it.unlock&&it.give[it.unlock]===Infinity&&prog.unlocked[it.unlock];const can=prog.cash>=it.price&&!owned;
-      return `<button class="shopbtn" data-i="${i}" ${can?'':'disabled'}><b>${it.label}</b><span>${it.desc}</span><em>${owned?'Owned':'$'+it.price}</em></button>`;}).join('')+'</div>';}
+    s.items.map((it,i)=>{const owned=it.tool?prog.tools[it.tool]:it.unlock&&it.give[it.unlock]===Infinity&&prog.unlocked[it.unlock];const lockedRep=it.rep&&prog.rep<it.rep;const can=prog.cash>=it.price&&!owned&&!lockedRep;
+      return `<button class="shopbtn" data-i="${i}" ${can?'':'disabled'}><b>${it.label}</b><span>${it.desc}</span><em>${owned?'Owned':lockedRep?'Needs '+it.rep+' rep':'$'+it.price}</em></button>`;}).join('')+'</div>';}
+  else if(k==='locker'){h=lockerMenu();}
+  else if(k==='day'){h=dayCard();}
   else if(k==='craft'){h=`<div class="head"><span>Science Lab Bench</span><span>Mr. Pham's stuff</span></div><p class="mini" style="text-align:left">Mixing takes a few seconds. Stand still. If a teacher sees you making bombs, it's a crime. Elephant toothpaste in Period 4 is the actual lesson.</p><div class="shop">
     <button class="shopbtn" data-c="stink"><b>Stink bomb</b><span>Throw it. Teachers gag and clear out.</span><em>5s</em></button>
     <button class="shopbtn" data-c="smoke"><b>Smoke bomb</b><span>A cloud nobody can see through.</span><em>6s</em></button>
@@ -1263,7 +1287,8 @@ function renderMenu(){const k=menuCtx.kind,box=$('mBody');let h='';
     if(k==='dazza')say(FREE.dazza,pick(['Pleasure doing business.','Don\'t say where you got it.','Yeah, nah, all good.']));buildHotbar();renderMenu();});
   box.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{closeMenu();P.crafting={what:b.dataset.c,t:0,dur:{stink:5,smoke:6,foam:8}[b.dataset.c],x:P.x,y:P.y};Sound.play('click');});
   box.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{closeMenu();endDay('tafe');});
-  $('mClose').onclick=closeMenu;
+  box.querySelectorAll('[data-put]').forEach(b=>b.onclick=()=>{lockerMove(b.dataset.put,true);renderMenu();});box.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{lockerMove(b.dataset.take,false);renderMenu();});
+  $('mClose').onclick=closeMenu;if(k==='day'){$('mClose').textContent='Walk in';$('mClose').className='btn';}
   const pm=$('phoneMap');if(pm){const g=pm.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(miniCanvas,0,0,pm.width,pm.height);const s=5;
     for(const t of teachers){g.fillStyle='#ff4d5e';g.beginPath();g.arc(t.x*s,t.y*s,4,0,7);g.fill();}
     for(const n of FREE.npcs){g.fillStyle=n.kind==='friend'?'#7dffb0':n.kind==='nerd'?'#8ec5ff':n.kind==='oval'?'#ff9a8a':n.kind==='hazer'?'#bbb':'#ffe68a';g.fillRect(n.x*s-2,n.y*s-2,4,4);}
@@ -1283,8 +1308,11 @@ function freeContext(){
   if(P.car)return Math.abs(P.car.v)<1.5?{k:'exitcar',label:'Get out of the car',run:()=>exitCar()}:null;
   if(P.ride)return{k:'offride',label:'Get off',run:()=>{P.ride.v=0;P.ride=null;}};
   if(P.seated)return{k:'stand',label:'Leave class (skipping)',run:standUp};
-  if(FREE.mini)return null;
+  if(FREE.mini)return FREE.mini.ball?null:{k:'quitmini',label:'Stop playing',run:()=>{FREE.mini=null;toast('Done.',1);}};
+  if(P.crafting)return{k:'stopcraft',label:'Stop mixing',run:()=>{P.crafting=null;}};
   const p=curPer();
+  {const mc=missionContext();if(mc)return mc;}
+  {const tl=tileInFront(1.35);if(tl&&tl.c==='L'&&FREE.myLocker&&tl.tx===FREE.myLocker.x&&tl.ty===FREE.myLocker.y)return{k:'locker',label:'Open your locker (#217)',run:()=>openMenu('locker')};}
   for(const d of FREE.drops)if(Math.hypot(d.x-P.x,d.y-P.y)<1.3)return{k:'drop',label:`Grab the drop (${d.it.label})`,run:()=>grabDrop(d)};
   // people
   const n=npcInFront(1.5);
@@ -1324,7 +1352,7 @@ function freeContext(){
   return null;}
 
 /* ---------- actions ---------- */
-function pickpocket(n){if(behind(n)&&Math.random()>0.18){const amt=Math.round(rand(3,14));addCash(amt,n.x,n.y);toast(`Lifted $${amt} from ${n.name}.`,2);}
+function pickpocket(n){if(n.name==='Brayden'&&FREE.mission&&FREE.mission.id==='calc'&&behind(n)){FREE.calc=true;toast('Got the calculator.',2);return;}if(behind(n)&&Math.random()>0.18){const amt=Math.round(rand(3,14));addCash(amt,n.x,n.y);toast(`Lifted $${amt} from ${n.name}.`,2);}
   else{say(n,pick(['OI! THIEF!','Get your hand out of my bag!']));addNoise(n.x,n.y,7,'yell');crime('pick',1);if(n.kind==='oval'||n.kind==='hazer')startFight(n,false);}}
 function toggleFollow(n){if(FREE.follow===n){n.follow=false;FREE.follow=null;say(n,'Later.');return;}if(FREE.follow){FREE.follow.follow=false;}FREE.follow=n;n.follow=true;n.seat=null;n.state='follow';
   say(n,pick(['Let\'s go.','I\'ll keep watch.','Say less.']));toast(`${n.name} is with you. They'll yell when a teacher's coming and distract one if you're about to get caught.`,4);}
@@ -1333,7 +1361,13 @@ function startFight(n,byPlayer){if(n.kind!=='oval'&&n.kind!=='hazer')return;n.st
 function enterCar(c){P.car=c;c.v=0;P.lookOff=0;P.yaw=P.yawT=c.yaw;jobProg('car');
   if(Math.random()<0.35||c.owner==='principal'){Sound.play('caralarm');addNoise(c.x,c.y,14,'alarm');banner('CAR ALARM');}
   crime('car',2,c.x,c.y);phoneEvent('car');toast('W/S to drive, A/D to steer, mouse to look. E to get out. Donuts on the oval for a job.',4);}
-function exitCar(){const c=P.car;if(!c)return;for(const side of [-1,1]){const x=c.x+Math.cos(c.yaw+Math.PI/2)*side*1.25,y=c.y+Math.sin(c.yaw+Math.PI/2)*side*1.25;if(!solidAt(x,y)){P.x=x;P.y=y;P.car=null;c.v=0;Sound.play('latch');return;}}}
+function exitCar(){const c=P.car;if(!c)return;c.v=0;const tries=[[Math.PI/2,1.25],[-Math.PI/2,1.25],[Math.PI/2,1.7],[-Math.PI/2,1.7],[0,2.2],[Math.PI,2.2]];
+  for(const [a,d] of tries){const x=c.x+Math.cos(c.yaw+a)*d,y=c.y+Math.sin(c.yaw+a)*d;if(!blockedAt(x,y)){P.x=x;P.y=y;P.car=null;Sound.play('latch');return;}}
+  const f=freeSpot(c.x,c.y);P.x=f[0];P.y=f[1];P.car=null;Sound.play('latch');}
+function blockedAt(x,y){const r=0.28;return solidAt(x,y)||solidAt(x+r,y)||solidAt(x-r,y)||solidAt(x,y+r)||solidAt(x,y-r);}
+function freeSpot(x,y){for(let rad=0;rad<10;rad++)for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==rad)continue;const tx=Math.floor(x)+dx,ty=Math.floor(y)+dy;if(!blockedAt(tx+0.5,ty+0.5))return[tx+0.5,ty+0.5];}return[x,y];}
+function unstick(){if(!P||P.car||P.hidden||P.seated)return;if(P.ride){if(blockedAt(P.ride.x,P.ride.y)){const f=freeSpot(P.ride.x,P.ride.y);P.ride.x=f[0];P.ride.y=f[1];}return;}
+  if(solidAt(P.x,P.y)){const f=freeSpot(P.x,P.y);P.x=f[0];P.y=f[1];}}
 function crackSafe(){FREE.safeDone=true;phoneEvent('safe');FREE.answers=true;addCash(150,P.x,P.y);jobProg('safe');crime('rob',2);toast('$150 and… the exam answers. Press 3 in the exam.',4);}
 function robTill(){FREE.tillDone=true;phoneEvent('till');const a=Math.round(rand(40,65));addCash(a,P.x,P.y);jobProg('till');crime('rob',1.5);const L2=FREE.lady;
   if(!L2.away||Math.random()<0.3){say(L2,'HEY! THAT\'S THE TUCKSHOP MONEY!');addNoise(L2.x,L2.y,9,'yell');FREE.wanted=Math.min(5,FREE.wanted+1);}}
@@ -1355,7 +1389,7 @@ function doPunch(){if(P.punchCD>0||P.down>0||P.car||P.ride)return;P.punchCD=0.42
   if(n&&n.ko<=0){if(n.state!=='fight'){if(n.kind==='oval'||n.kind==='hazer'){startFight(n,true);}else{say(n,pick(['OW! What was that for?!','I\'m telling!']));crime('fight',0.8);n.flee=3;return;}}
     n.hp--;n.stagger=0.35;const k=0.5;const a=Math.atan2(n.y-P.y,n.x-P.x);const nx=n.x+Math.cos(a)*k,ny=n.y+Math.sin(a)*k;if(!solidAt(nx,ny)){n.x=nx;n.y=ny;}
     Sound.play('hit');shake=0.2;popup(n.x,n.y,pick(['POW','WHACK','OOF']),'#fff');crime('fight',0.5);
-    if(n.hp<=0){n.ko=4;n.state='ko';const c=Math.round(rand(6,18));addCash(c,n.x,n.y);FREE.fightsWon++;jobProg('fight');phoneEvent('fight');prog.rep+=5;say(n,pick(['Okay okay OKAY.','I slipped.','This isn\'t over.']));}
+    if(n.hp<=0){if(n.name==='Brayden'&&FREE.mission&&FREE.mission.id==='calc'){FREE.calc=true;toast('He dropped the calculator. Grab… got it.',2);}n.ko=4;n.state='ko';const c=Math.round(rand(6,18));addCash(c,n.x,n.y);FREE.fightsWon++;jobProg('fight');phoneEvent('fight');prog.rep+=5;say(n,pick(['Okay okay OKAY.','I slipped.','This isn\'t over.']));}
     return;}
   if(MODE.free){const s=stallHere();if(s&&P.hidden===false&&Math.abs(angDiff(P.yaw,Math.atan2(-s.dy,0)))<0.8){smashObj({c:'S',tx:s.x,ty:s.y,nx:s.dx,ny:s.dy,hx:s.x+0.5,hy:s.y+0.5});return;}
     const tf=tileInFront(1.3);if(tf)smashObj(tf);}}
@@ -1368,7 +1402,8 @@ function sprayTag(){const tf=tileInFront(2.0);if(!tf||!isWallT(tf.tx,tf.ty)){toa
   P.inv.spray--;const tag={x:tf.hx,y:tf.hy,nx:tf.nx,ny:tf.ny,text:pick(TAGS),col:pick(['#ff4d9a','#7dffb0','#ffe14a','#8ec5ff','#ff7a3a','#c77dff'])};FREE.tags.push(tag);FREE.tagsN++;jobProg('tag');makeTagMesh(tag);
   Sound.play('spray');crime('tag',0.5);phoneEvent('tag');popup(tf.hx,tf.hy,'TAGGED','#ff4d9a');
   const turf=tf.tx>=63&&tf.ty>=17?'hazer':(tf.ty>=44&&tf.tx<51)?'oval':null;
-  if(turf){const crew=FREE.npcs.filter(n=>n.kind===turf&&n.ko<=0&&!n.gone).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y)).slice(0,2);
+  if(turf&&(repTier()>=2||turf==='hazer'&&prog.hazer)){toast(turf==='hazer'?'The Hazers let it slide. You\'re one of them.':'They let it slide. You\'ve got rep.',2.5);}
+  else if(turf){const crew=FREE.npcs.filter(n=>n.kind===turf&&n.ko<=0&&!n.gone).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y)).slice(0,2);
     for(const c of crew){startFight(c,false);setPath(c,P.x,P.y);}if(crew.length)toast(`You tagged ${turf==='hazer'?'Hazer':'Oval Boys'} turf. They\'re coming.`,3);}}
 function throwItem(id){P.inv[id]--;const cy=Math.cos(P.yaw),sy=Math.sin(P.yaw),pc=Math.cos(P.pitch),ps=Math.sin(P.pitch);const sp=8;
   FREE.proj.push({x:P.x+cy*0.4,h:1.3,y:P.y+sy*0.4,vx:cy*pc*sp,vh:3+ps*sp,vy:sy*pc*sp,id,t:0,fuse:id==='cracker'?1.6:0,landed:false});Sound.play('whoosh');if(id!=='cracker')crime('throw',0.4);}
@@ -1394,7 +1429,7 @@ function rideUpdate(dt,f,s){const r=P.ride,max=r.type==='ebike'?9:6.5,acc=r.type
   // wheelie: hold run to lift the front, balance it in the band
   const drift=Math.sin(gameT*2.3+r.x*0.7)*0.32+Math.sin(gameT*5.1)*0.12;
   if(inp.run&&r.v>2.2){r.wh+=dt*(1.5*(1.08-r.wh)+drift);}else r.wh-=dt*1.4;r.wh=Math.max(0,r.wh);
-  if(r.wh>0.3&&r.wh<1.15){r.whT+=dt;}
+  if(r.wh>0.3&&r.wh<1.15){r.whT+=dt;if(r.whT>=3&&FREE.mission&&FREE.mission.id==='init'){const co=teachers.find(q=>q.type==='coach');if(co&&Math.hypot(co.x-P.x,co.y-P.y)<8)FREE.coachWheelie=true;}}
   if(r.wh>1.3){crashRide('loop');return;}
   if(r.wh<0.15&&r.whT>0.6){const t=r.whT;r.whT=0;popup(P.x+Math.cos(P.yaw),P.y+Math.sin(P.yaw),`WHEELIE ${t.toFixed(1)}s`,'#7dffb0');prog.rep+=Math.floor(t*2);if(t>=5)jobProg('wheelie');
     if(FREE.follow&&Math.hypot(FREE.follow.x-P.x,FREE.follow.y-P.y)<8)say(FREE.follow,pick(['SEND IT!','Massive!','That was clean.']));}
@@ -1430,7 +1465,7 @@ function miniUpdate(dt){const m=FREE.mini;if(!m)return;
   if(m.ball){const b=m.ball;b.vh-=9.8*dt;const px=b.x;b.x+=b.vx*dt;b.y+=b.vy*dt;b.h+=b.vh*dt;b.t+=dt;
     if(m.kind==='kick'&&px<48.6&&b.x>=48.6&&!b.scored){if(b.y>49.9&&b.y<53.1&&b.h>0.2){b.scored=true;m.made++;popup(48.6,51.5,'GOAL!','#7dffb0');Sound.play('cheer');}}
     if(m.kind==='hoops'&&!b.scored&&b.vh<0&&Math.abs(b.h-2.05)<0.18&&Math.hypot(b.x-52.95,b.y-51.5)<0.26){b.scored=true;m.made++;popup(53,51.5,'SWISH','#7dffb0');Sound.play('cheer');}
-    if(b.h<=0.12||b.t>3.5){m.ball=null;m.shots--;if(m.shots<=0){const job=m.kind==='kick'?'goals':'hoops';if(m.made>=3)jobProg(job);if(m.kind==='kick'&&curPer().task==='sport')FREE.sportGoals=Math.max(FREE.sportGoals||0,m.made);
+    if(b.h<=0.12||b.t>3.5){m.ball=null;m.shots--;if(m.shots<=0){if(m.kind==='kick')FREE.lastKick=m.made;const job=m.kind==='kick'?'goals':'hoops';if(m.made>=3)jobProg(job);if(m.kind==='kick'&&curPer().task==='sport')FREE.sportGoals=Math.max(FREE.sportGoals||0,m.made);
       prog.rep+=m.made*2;addCash(m.made*2);toast(`${m.made} of 5. ${m.made>=4?'Elite.':m.made>=2?'Not bad.':'Shocking.'}`,2.5);FREE.mini=null;}}return;}
   if(inp.tap){m.charging=true;m.charge=(m.charge+dt*1.1)%2;}
   else if(m.charging){m.charging=false;const pw=m.charge>1?2-m.charge:m.charge;const cy=Math.cos(P.yaw),sy=Math.sin(P.yaw);
@@ -1455,7 +1490,7 @@ function npcUpdate(n,dt){if(n.bubble){n.bubble.t-=dt;if(n.bubble.t<=0)n.bubble=n
   if(n.state==='toSeat'){if(moveAlong(n,sp,dt)){n.state='sit';n.angle=n.seat.face;}return;}
   if(n.state==='sit'){n.angle=n.seat?n.seat.face:n.angle;return;}
   // break-time wandering
-  n.timer-=dt;if(n.timer<=0&&!n.path.length){n.timer=rand(4,10);const p=curPer();let pts=HANG[n.kind];if(p.kind==='sport')pts=[[rand(15,45)|0,rand(46,56)|0]];if(p.kind==='home')pts=[[rand(20,40)|0,rand(11,16)|0]];
+  n.timer-=dt;if(n.timer<=0&&!n.path.length){n.timer=rand(4,10);const p=curPer();let pts=HANG[n.kind];if(FREE.drill)pts=[[rand(12,40)|0,rand(47,55)|0]];else if(FREE.foodFight&&n.kind==='norm')pts=[[40,31]];else if(p.kind==='sport')pts=[[rand(15,45)|0,rand(46,56)|0]];if(p.kind==='home')pts=[[rand(20,40)|0,rand(11,16)|0]];
     const h=pick(pts);setPath(n,h[0]+0.5+rand(-1,1),h[1]+0.5+rand(-1,1));}
   if(n.path.length)moveAlong(n,sp,dt);
   if(!n.bubble&&Math.random()<dt*0.02&&Math.hypot(P.x-n.x,P.y-n.y)<8)say(n,pick(n.kind==='nerd'?['The exam is on chapter 7.','I have a spare cheat sheet…','Did you finish the essay?']:n.kind==='oval'?['Footy at lunch?','Oi.','Who flooded the toilets?']:n.kind==='hazer'?['Eshay brah.','Got a dart?','Dazza\'s holding.']:['Lunch is so short.','Is it Friday yet?']),2);}
@@ -1464,7 +1499,7 @@ function friendDuties(n,dt){n.lookCD-=dt;n.distractCD-=dt;
     const toP=Math.atan2(P.y-t.y,P.x-t.x);if(Math.abs(angDiff(t.angle,toP))<1.2){FREE.warned[k]=gameT+15;const rel=angDiff(P.yaw,Math.atan2(t.y-P.y,t.x-P.x));const dir=Math.abs(rel)<0.6?'in front':Math.abs(rel)>2.4?'behind you':rel>0?'on your right':'on your left';
       say(n,'TEACHER!',1.5);toast(`<b>${n.name}:</b> ${t.def.name} ${dir}!`,2.5);Sound.play('psst');}}}}
   if(n.distractCD<=0){const t=teachers.find(q=>q.sus>0.42&&q.state!=='chase'||q.state==='chase'&&Math.hypot(q.x-P.x,q.y-P.y)>2);
-    if(t&&Math.hypot(t.x-n.x,t.y-n.y)<14){n.distractCD=55;t.sus=0;t.alert=0;const spot=pick([[25,50],[66,30],[40,14],[10,44]]);investigate(t,spot[0]+0.5,spot[1]+0.5,'distract',0);
+    if(t&&Math.hypot(t.x-n.x,t.y-n.y)<14){n.distractCD=distractCD();t.sus=0;t.alert=0;const spot=pick([[25,50],[66,30],[40,14],[10,44]]);investigate(t,spot[0]+0.5,spot[1]+0.5,'distract',0);
       say(n,pick(['MISS! Someone\'s fighting at the oval!','SIR! There\'s a kid on the roof!','Miss, someone\'s crying in the car park!']),2.5);toast(`<b>${n.name}</b> sent ${t.def.name} on a wild goose chase.`,3);}}}
 function ladyUpdate(dt){const L2=FREE.lady;L2.t-=dt;if(L2.bubble){L2.bubble.t-=dt;if(L2.bubble.t<=0)L2.bubble=null;}
   if(L2.t<=0){L2.away=!L2.away;L2.t=L2.away?rand(8,12):(isClassTime()?rand(5,8):rand(14,22));}
@@ -1487,7 +1522,7 @@ function freeUpdate(dt){
   if(FREE.wanted>=4){FREE.huntT=(FREE.huntT||0)-dt;if(FREE.huntT<=0){FREE.huntT=12;const t=pick(teachers);if(!off&&t.state!=='chase')investigate(t,P.x,P.y,'hunt',8);}}
   FREE.hairT-=dt;P.crimeT=Math.max(0,P.crimeT-dt);P.punchCD-=dt;P.punchT=Math.max(0,P.punchT-dt);P.hurtT-=dt;P.boost=Math.max(0,P.boost-dt);
   P.regen=(P.regen||0)+dt;if(P.regen>30&&P.hp<P.maxHp){P.regen=0;P.hp++;}
-  for(const n of FREE.npcs)npcUpdate(n,dt);ladyUpdate(dt);
+  for(const n of FREE.npcs)safe(()=>npcUpdate(n,dt),'npc');safe(()=>ladyUpdate(dt),'lady');
   if(FREE.dazza.bubble){FREE.dazza.bubble.t-=dt;if(FREE.dazza.bubble.t<=0)FREE.dazza.bubble=null;}
   // crafting
   if(P.crafting){const c=P.crafting;if(Math.hypot(P.x-c.x,P.y-c.y)>0.3){P.crafting=null;toast('Crafting cancelled.',1.2);}else{c.t+=dt;if(!(p.task==='science'&&c.what==='foam'))if(P.crimeT<0.3)crime('chem',0.4);if(c.t>=c.dur)finishCraft();}}
@@ -1502,16 +1537,28 @@ function freeUpdate(dt){
     if(t.slip<=0&&FREE.puddles.some(pd=>Math.hypot(pd.x-t.x,pd.y-t.y)<pd.r)&&t.amp>0.4&&Math.random()<dt*0.5){t.slip=1.6;say(t,pick(['WHOA—','My HIP!','Who flooded the—']));Sound.play('thud');}}
   miniUpdate(dt);
   if(buzz>=100)jobProg('buzz');
+  safe(missionTick,'missions');safe(eventsTick,'events');paTick();
+  {let c=0,near=0;for(const n of FREE.npcs){if(n.gone||n.ko>0||n.state==='fight')continue;const d=Math.hypot(n.x-P.x,n.y-P.y);if(d<1.7)c++;if(d<7)near++;}FREE.crowd=c;Sound.crowd(P.car||P.y<9?0:Math.min(1,near/7));}
+  if(FREE.clock>=533)pa('Good morning Hazeport. Phones away, vapes are confiscated on sight, and the toilets are not a lounge.','morning');
+  if(curPer().name==='Lunch')pa('Lunch has started. Meat pies are four dollars. Do not throw them.','lunch');
+  if(FREE.wanted>=4)pa('All staff: be on the lookout for a student in a purple hoodie.','wanted4');
+  if(FREE.tagsN>=3)pa('Graffiti is a crime. We WILL find you.','tags');
+  if(P.car&&tile(Math.floor(P.x),Math.floor(P.y))==='o')pa('Whoever is driving on the oval: STOP. Now.','oval');
+  if(FREE.jobs.flood.done)pa('The toilets are closed due to flooding. Again.','flood');
+  if(FREE.foam.length)pa("Mr. Pham's lab is closed for the rest of the day.",'foam');
+  if(FREE.tillDone)pa('The canteen till is missing fifty dollars. Interesting.','till');
+  if(FREE.safeDone)pa('Would whoever has my office keys PLEASE return them.','safe');
+  if(alarm>0)pa('That alarm is real. Probably. Stay where you are.','alarm');
   if(p.kind==='home'&&P.y<9.5)endDay('home');
 }
 
 /* ---------- the phone (GTA style) + Telegrom ---------- */
 const DROP_SPOTS=[[26.5,15.5,'the bike racks'],[69.5,40.5,'behind the back tables'],[2.8,51.5,'the west goalposts'],[73.5,44.5,'round the back of the gym'],[61.5,16.5,'between the cars in the car park'],[1.6,30.5,'the west fence']];
 const CONTACTS={
-  plug:{name:'Dazza',tag:'the plug',col:'#e8962e',ini:'DZ'},kai:{name:'Kai',tag:'',col:'#2f8f83',ini:'K'},mia:{name:'Mia',tag:'',col:'#ff8a3a',ini:'M'},
+  plug:{name:'Dazza',tag:'the plug',col:'#e8962e',ini:'DZ'},shae:{name:'Shae',tag:'hazers',col:'#2b2d36',ini:'SH'},jacko:{name:'Jacko',tag:'oval boys',col:'#c0262f',ini:'J'},priya:{name:'Priya',tag:'nerd',col:'#5b7bd6',ini:'P'},kai:{name:'Kai',tag:'',col:'#2f8f83',ini:'K'},mia:{name:'Mia',tag:'',col:'#ff8a3a',ini:'M'},
   mum:{name:'Mum',tag:'',col:'#c77dff',ini:'♥'},group:{name:'HZP yr10',tag:'group',col:'#1e5fa8',ini:'10'}};
 const PH={open:false,app:'home',chat:null,threads:{},unread:{},noteT:0,typing:{}};
-function phoneReset(){PH.open=false;PH.app='home';PH.chat=null;PH.threads={plug:[],kai:[],mia:[],mum:[],group:[]};PH.unread={};PH.queue=[];
+function phoneReset(){PH.open=false;PH.app='home';PH.chat=null;PH.threads={plug:[],kai:[],mia:[],mum:[],group:[],shae:[],jacko:[],priya:[]};PH.unread={};PH.queue=[];PH.offer={};
   PH.threads.plug.push({in:true,t:'yo. need anything just msg me. drops anywhere on campus 🔌'});PH.threads.group.push({in:true,who:'Ruby',t:'who has the maths notes'});
   PH.threads.kai.push({in:true,t:'u coming to english or nah'});PH.threads.mia.push({in:true,t:'saw dazza at the servo this morning lol'});PH.unread={plug:1,kai:1};}
 function now(){return MODE.free&&FREE.clock?fmtClock(FREE.clock):'';}
@@ -1526,23 +1573,27 @@ function togglePhone(force){if(!MODE.free)return;PH.open=force!=null?force:!PH.o
   else{requestLook();}}
 function openApp(a,chat){PH.app=a;PH.chat=chat||null;if(chat)PH.unread[chat]=0;renderPhone();}
 function sendText(who,t){PH.threads[who].push({in:false,t,time:now()});Sound.play('whoosh');renderPhone();}
-const REPLIES={
+const REPLIES0={
   plug:()=>[['What you got?',()=>{sendText('plug','what you got');textIn('plug','menu ↓ cash upfront. i drop it, you grab it',1.4);setTimeout(()=>{PH.menu='plug';renderPhone();},300);}],
     ['Where you at?',()=>{sendText('plug','where u at');textIn('plug','south toilets, last stall. or i drop. your call',1.5);}]],
   kai:()=>friendReplies('kai'),mia:()=>friendReplies('mia'),
+  shae:()=>[['wassup',()=>{sendText('shae','wassup');textIn('shae',pick(['nm. dazza is holding','u seen coach today','eshay']),1.5);}]],
+  jacko:()=>[['footy at lunch?',()=>{sendText('jacko','footy at lunch?');textIn('jacko','obviously',1.4);}]],
+  priya:()=>[['can i copy ur homework',()=>{sendText('priya','can i copy ur homework');textIn('priya','$10. library. no refunds',1.6);}]],
   mum:()=>[['Yes mum',()=>{sendText('mum','yes mum');textIn('mum','Good. Love you. Don\'t do anything stupid.',2);}],['Can you pick me up?',()=>{sendText('mum','can u pick me up');textIn('mum','You have SCHOOL. No.',2.5);}]],
   group:()=>[['lmao',()=>{sendText('group','lmao');textIn('group','💀',1.5,pick(['Sam','Ruby','Jacko']));}],['who wants to wag',()=>{sendText('group','who wants to wag');textIn('group','servo after lunch?',2,'Shae');}]],
 };
+const REPLIES=new Proxy(REPLIES0,{get(o,k){return ()=>{const id=PH.offer&&PH.offer[k];const base=o[k]?o[k]():[];return id?[["I'm in",()=>missionAccept(id)],['Nah',()=>{PH.offer[k]=null;sendText(k,'nah');textIn(k,'ur loss',1.2);}]].concat(base):base;};}});
 function friendNpc(id){return FREE.npcs.find(n=>n.name.toLowerCase()===id);}
 function friendReplies(id){const n=friendNpc(id);const nm=n.name;return [
   [FREE.follow===n?'You can bounce':'Pull up',()=>{sendText(id,FREE.follow===n?'all good u can bounce':'pull up');if(FREE.follow===n){toggleFollow(n);textIn(id,'aight later',1.2);}else{textIn(id,pick(['omw','coming','2 secs']),1.2);setTimeout(()=>{if(FREE.follow!==n)toggleFollow(n);},1300);}}],
   ['Distract a teacher',()=>{sendText(id,'can u distract a teacher for me');if(n.distractCD>0){textIn(id,`cant rn they're watching me. give it ${Math.ceil(n.distractCD)}s`,1.4);return;}
     let best=null,bd=1e9;for(const t of teachers){const d=Math.hypot(t.x-P.x,t.y-P.y);if(d<bd){bd=d;best=t;}}
-    if(!best){textIn(id,'no teachers around',1.3);return;}n.distractCD=55;textIn(id,`on it. sending ${best.def.name} to the oval 😈`,1.3);
+    if(!best){textIn(id,'no teachers around',1.3);return;}n.distractCD=distractCD();textIn(id,`on it. sending ${best.def.name} to the oval 😈`,1.3);
     setTimeout(()=>{best.sus=0;best.alert=0;investigate(best,25.5,50.5,'distract',0);say(best,'Someone is fighting at the OVAL?!');toast(`${nm} sent ${best.def.name} to the oval.`,3);},1800);}],
   ['Where are the teachers?',()=>{sendText(id,'where r the teachers');const near=teachers.map(t=>[t,Math.hypot(t.x-P.x,t.y-P.y)]).sort((a,b)=>a[1]-b[1]).slice(0,2);
     textIn(id,near.map(([t])=>`${t.def.name.split(' ').pop()}: ${(ROOMS[roomAt(t.x,t.y)]||{name:'halls'}).name.split(' (')[0].split(' ·')[0]}`).join(', '),1.6);}]];}
-function plugOrder(i){const it=SHOPS.dazza.items[i];PH.menu=null;
+function plugOrder(i){const it=SHOPS.dazza.items[i];PH.menu=null;if(it.rep&&prog.rep<it.rep){sendText('plug','can i get '+it.label.toLowerCase());textIn('plug',`nah u gotta be known first. get ${it.rep} rep`,1.4);return;}
   if(prog.cash<it.price){sendText('plug',`can i get ${it.label.toLowerCase()}`);textIn('plug',pick(['u broke lol','cash first legend','come back with money']),1.5);return;}
   const owned=it.tool?prog.tools[it.tool]:it.unlock&&it.give&&it.give[it.unlock]===Infinity&&prog.unlocked[it.unlock];if(owned){sendText('plug','can i get another '+it.label.toLowerCase());textIn('plug','u already got that one',1.3);return;}
   addCash(-it.price);sendText('plug',`can i get ${it.label.toLowerCase()} · sent $${it.price}`);const spot=pick(DROP_SPOTS);
@@ -1615,6 +1666,109 @@ function drawTricks3D(){if(!world)return;
     const sc=1+r.t*1.3;m.scale.set(sc,sc,sc*0.8);m.material.opacity=Math.max(0,(1-r.t/3.4))*0.8;m.material.color.set(r.col);});
   const g=TR.ghost;if(g){const out=Math.min(1,g.t/0.35);const d=0.3+out*0.25;TR.gmesh.position.set(P.x+Math.cos(P.yaw)*d,EYE-0.08+out*0.04+(P.seated?-0.14:0),P.y+Math.sin(P.yaw)*d);
     const sc=0.12+out*0.22+Math.sin(g.t*6)*0.015;TR.gmesh.scale.set(sc,sc,1);TR.gmesh.material.opacity=0.85*Math.min(1,(1.6-g.t)*2);TR.gmesh.material.color.set(g.col);}else TR.gmesh.material.opacity=0;}
+
+/* ---------- missions (offered over Telegrom), PA, daily events, locker, rep ---------- */
+const REP_TIERS=[[0,'Nobody','Just another kid.'],[50,'Known','Dazza will sell you salvia and tabs.'],[150,'Respected','Gangs leave your tags alone. Friends distract twice as often.'],[300,'Legend','Teachers notice you less. +$25 pocket money every morning.']];
+function repTier(){let t=0;REP_TIERS.forEach(([r],i)=>{if(prog.rep>=r)t=i;});return t;}
+function npcByName(n){return FREE.npcs.find(q=>q.name===n);}
+function tagNear(x,y,r){return FREE.tags.some(t=>Math.hypot(t.x-x,t.y-y)<r);}
+function distractCD(){return repTier()>=2?28:55;}
+const MISSIONS={
+  drop:{from:'plug',title:'The Pickup',offerAt:532,offer:"got a job. package at the bike racks, take it to Shae at the back tables. dont get caught holding it",pay:40,rep:15,
+    steps:[{text:'Grab the package at the bike racks',pt:[25.5,14.6],act:'Grab the package',done:()=>{FREE.carry='package';}},
+      {text:'Take the package to Shae at the back tables',npc:'Shae',act:'Hand Shae the package',done:()=>{FREE.carry=null;}}],
+    win:"shae's happy. that's $40. u might be useful",fail:'they took the package?? ur lucky i like u'},
+  heist:{from:'kai',title:'Exam Heist',offerAt:592,until:668,offer:"okafor keeps the exam answers in her office safe. lift her keys, crack it, we both pass",pay:30,rep:20,
+    steps:[{text:"Lift Principal Okafor's keys (hold E behind her)",cond:()=>FREE.keys,mark:()=>{const t=teachers.find(q=>q.type==='principal');return t&&[t.x,t.y];}},
+      {text:"Crack the safe in the principal's office",cond:()=>FREE.safeDone,pt:[28.5,41.5]}],
+    win:'LEGEND. press 3 in the exam',fail:'exam started. too late bro'},
+  paint:{from:'mia',title:'Paint the Town',offerAt:672,offer:"wanna be in the yearbook? tag the gym, the canteen and okafor's office",pay:35,rep:15,needs:'spray',
+    steps:[{text:'Tag the outside of the gym',cond:()=>tagNear(63.5,45,5),pt:[63.5,44]},{text:'Tag a wall in the canteen',cond:()=>tagNear(41,31,7),pt:[41,31]},{text:"Tag near the principal's office",cond:()=>tagNear(27,38,4.5),pt:[27,37]}],
+    win:'ur famous 📸 everyone is posting it'},
+  bet:{from:'jacko',title:'The Footy Bet',offerAt:717,offer:"$20 says u cant kick 4 goals. oval. now",stake:20,pay:60,rep:10,
+    steps:[{text:'Kick 4 goals in one go (kick spot on the oval)',cond:()=>FREE.lastKick!=null&&FREE.lastKick>=4,failIf:()=>FREE.lastKick!=null&&FREE.lastKick<4,pt:[40.5,51.5]}],
+    win:'...fine. $60. dont tell anyone',fail:'pay up loser 😂'},
+  calc:{from:'priya',title:'Payback',offerAt:772,offer:"brayden stole my graphing calculator. get it back and i'll make it worth it",pay:0,rep:15,give:{cheat:2,hw:1},
+    steps:[{text:'Get the calculator off Brayden (pickpocket him or win a fight)',cond:()=>FREE.calc,mark:()=>{const n=npcByName('Brayden');return n&&[n.x,n.y];}},
+      {text:'Give the calculator back to Priya',npc:'Priya',act:'Give Priya her calculator',done:()=>{FREE.calc=false;}}],
+    win:"ur a hero. 2 cheat sheets and a finished essay, on me"},
+  init:{from:'shae',title:'Initiation',after:'drop',offer:"wanna be a hazer? wheelie past coach. 3 seconds, close enough that he sees",pay:30,rep:20,
+    steps:[{text:'Hold a 3-second wheelie within 8m of Coach Briggs',cond:()=>FREE.coachWheelie,mark:()=>{const t=teachers.find(q=>q.type==='coach');return t&&[t.x,t.y];}}],
+    win:"ur a hazer now. we got ur back. tag whatever u want",reward:()=>{prog.hazer=1;}},
+  milk:{from:'mum',title:'Milk',offerAt:842,offer:"Can you grab milk from the servo after school? Thanks love x",pay:15,rep:0,
+    steps:[{text:'Buy milk at the servo across the road',cond:()=>P.inv.milk>0,pt:[55.5,5]}],
+    win:'Thank you! Pocket money is on the bench.'},
+};
+function missionTick(){
+  // offers
+  if(!FREE.mission){for(const [id,M] of Object.entries(MISSIONS)){if(FREE.mOffered[id]||FREE.mDone[id])continue;
+    const ready=M.after?FREE.mDone[M.after]&&FREE.clock>=(FREE.mDoneAt[M.after]||0)+8:FREE.clock>=M.offerAt;if(!ready||(M.until&&FREE.clock>M.until-20))continue;
+    FREE.mOffered[id]=FREE.clock;PH.offer[M.from]=id;textIn(M.from,M.offer+(M.stake?` (stake $${M.stake})`:''),0.5);break;}}
+  for(const [k,id] of Object.entries(PH.offer)){if(id&&FREE.clock-(FREE.mOffered[id]||0)>30){PH.offer[k]=null;}}
+  const m=FREE.mission;if(!m)return;const M=MISSIONS[m.id],st=M.steps[m.step];
+  if(M.until&&FREE.clock>M.until){missionEnd(false);return;}
+  if(st.failIf&&st.failIf()){missionEnd(false);return;}
+  if(st.cond&&st.cond())missionAdvance();}
+function missionAccept(id){const M=MISSIONS[id];PH.offer[M.from]=null;if(M.stake){if(prog.cash<M.stake){textIn(M.from,'u dont even have $'+M.stake+' lol',1.2);return;}addCash(-M.stake);}
+  FREE.mission={id,step:0};if(id==='bet')FREE.lastKick=null;sendText(M.from,"i'm in");banner(M.title.toUpperCase());toast(`<b>${M.title}</b> · ${M.steps[0].text}`,4);Sound.play('click');
+  if(M.needs==='spray'&&!(P.inv.spray>0))textIn(M.from,'u need a spray can. dazza or the servo',2);if(PH.open)togglePhone(false);}
+function missionAdvance(){const m=FREE.mission,M=MISSIONS[m.id];m.step++;Sound.play('cash');
+  if(m.step>=M.steps.length){missionEnd(true);return;}toast(`<b>${M.title}</b> · ${M.steps[m.step].text}`,3.5);}
+function missionEnd(win){const m=FREE.mission;if(!m)return;const M=MISSIONS[m.id];FREE.mission=null;FREE.carry=null;
+  if(win){FREE.mDone[m.id]=true;FREE.mDoneAt[m.id]=FREE.clock;if(M.pay)addCash(M.pay);prog.rep+=M.rep||0;if(M.give)for(const g in M.give)P.inv[g]=(P.inv[g]||0)+M.give[g];if(M.reward)M.reward();saveProg();
+    banner('MISSION PASSED');Sound.play('win');toast(`<b>MISSION PASSED</b> · ${M.title}${M.pay?' · +$'+M.pay:''}${M.rep?' · +'+M.rep+' rep':''}`,4);if(M.win)textIn(M.from,M.win,1.5);}
+  else{FREE.mDone[m.id]=true;banner('MISSION FAILED');Sound.play('bust');toast(`<b>MISSION FAILED</b> · ${M.title}`,3);if(M.fail)textIn(M.from,M.fail,1.2);}}
+function missionTarget(){const m=FREE.mission;if(!m)return null;const st=MISSIONS[m.id].steps[m.step];
+  if(st.npc){const n=npcByName(st.npc);return n?{x:n.x,y:n.y,label:st.npc}:null;}if(st.mark){const p=st.mark();return p?{x:p[0],y:p[1],label:'Target'}:null;}if(st.pt)return{x:st.pt[0],y:st.pt[1],label:MISSIONS[m.id].title};return null;}
+function missionContext(){const m=FREE.mission;if(!m)return null;const st=MISSIONS[m.id].steps[m.step];if(!st.act)return null;
+  let near=false;if(st.npc){const n=npcByName(st.npc);near=n&&Math.hypot(n.x-P.x,n.y-P.y)<1.6;}else if(st.pt)near=Math.hypot(st.pt[0]-P.x,st.pt[1]-P.y)<1.4;
+  return near?{k:'mission',label:st.act,run:()=>{st.done&&st.done();missionAdvance();}}:null;}
+
+/* PA announcements */
+function pa(text,key){if(!MODE.free||state==='title')return;if(key){if(FREE.paDone[key])return;FREE.paDone[key]=1;}
+  if(FREE.paT>gameT){FREE.paQ.push(text);return;}FREE.paT=gameT+7.5;Sound.play('chime');const el=$('paBar');el.innerHTML=`<b>📢 OKAFOR</b>${text}`;el.hidden=false;}
+function paTick(){if(FREE.paT&&gameT>FREE.paT){$('paBar').hidden=true;FREE.paT=0;if(FREE.paQ.length)pa(FREE.paQ.shift());}}
+
+/* daily events */
+function rollDay(){const day=prog.days+1;const r=(n)=>{const x=Math.sin(day*12.9898+n*78.233)*43758.5453;return x-Math.floor(x);};
+  const ev={relief:r(1)<0.55?pick(['vance','grummond','pham','kowalski']):null,drill:r(2)<0.6?Math.round(600+r(3)*210):null,bag:r(4)<0.5?pick([3,6,7]):null,food:r(5)<0.55};
+  if(day===1){ev.relief=null;ev.drill=null;ev.bag=null;ev.food=true;}return ev;}
+function eventsTick(){const E=FREE.events,c=FREE.clock;
+  if(E.drill&&!FREE.drillDone&&c>=E.drill){FREE.drillDone=true;FREE.drill={until:c+10};Sound.play('bell',2.2);banner('FIRE DRILL');pa('This is a fire drill. Everyone to the oval. Walk, do not run.');
+    for(const n of FREE.npcs){if(n.follow||n.ko>0||n.state==='fight')continue;n.seat=null;n.state='idle';n.timer=0;n.path=[];}
+    for(const t of teachers){if(t.type==='principal')continue;t.wps=[{x:rand(15,40),y:rand(47,55),wait:999,look:-Math.PI/2}];t.wi=0;if(t.state!=='chase'){setPath(t,t.wps[0].x,t.wps[0].y);t.state='patrol';}}
+    if(P.seated)standUp();toast('<b>Fire drill.</b> The whole school is on the oval. Okafor is sweeping the halls. Empty school for ten minutes…',5);}
+  if(FREE.drill&&c>=FREE.drill.until){FREE.drill=null;pa('Fire drill over. Back to class.');setPeriod(FREE.per,true);}
+  if(E.bag!=null&&FREE.per===E.bag&&!FREE.bagDone){FREE.bagDone=true;FREE.bag={until:PERIODS[FREE.per].t1};pa('Random bag checks this period. Have your bags open, please.');toast('<b>Bag checks.</b> Any teacher who stops you will search you. Stash anything dodgy in your locker (#217, outside Room 103).',5);}
+  if(FREE.bag&&c>=FREE.bag.until)FREE.bag=null;
+  if(E.food&&!FREE.foodDone&&c>=677&&c<712){FREE.foodDone=true;FREE.foodFight={until:c+7};banner('FOOD FIGHT');pa('There is a FOOD FIGHT in the canteen. All staff to the canteen. Now.');
+    for(const t of teachers){if(t.state!=='chase')investigate(t,41.5,31.5,'food',0);}}
+  if(FREE.foodFight){if(c>=FREE.foodFight.until)FREE.foodFight=null;else if(Math.random()<0.35){const x=rand(35,48),y=rand(30,33.5);particles.push({x,y,tx:rand(35,48),ty:rand(29.5,33.5),h0:1,h1:rand(1.4,2.2),t:0,life:0.8,r:7,food:true});
+      if(roomAt(P.x,P.y)==='canteen'&&Math.random()<0.04){popup(P.x+Math.cos(P.yaw)*0.6,P.y+Math.sin(P.yaw)*0.6,pick(['SPLAT','*pie to the face*','GRAVY']),'#e8962e');shake=0.15;}}}}
+function bagCheck(t){t.bagChecked=true;const bad=['green','lsd','salvia','stink','smoke','cracker','spray'].filter(k=>P.inv[k]>0);P.down=Math.max(P.down,0.01);
+  say(t,'Bag check. Open it up.',2);
+  setTimeout(()=>{if(!MODE.free||state!=='play')return;if(bad.length){for(const k of bad)P.inv[k]=0;FREE.wanted=Math.min(5,FREE.wanted+1);say(t,pick(['And what is THIS?','Confiscated. All of it.','I am calling your mother.']),2.5);
+    toast(`Confiscated: ${bad.map(k=>ITEMS.find(i=>i.id===k).name).join(', ')}. Should have used your locker.`,4);Sound.play('bust');buildHotbar();}else{say(t,'...Fine. Off you go.',2);toast('Bag check: clean. Nice.',2);}},1200);}
+
+/* your locker */
+function lockerMenu(box){const inv=P.inv,lk=prog.locker||(prog.locker={});const movable=ITEMS.filter(it=>it.id!=='gleek'&&it.id!=='yart');
+  const bag=movable.filter(it=>inv[it.id]>0),stored=movable.filter(it=>lk[it.id]>0);
+  return `<div class="head"><span>Locker #217</span><span>Yours. Bag checks can't touch it.</span></div><p class="mini" style="text-align:left">Stuff in here stays between days.</p>
+  <div class="phone-grid"><div><b class="ph">In your bag</b>${bag.map(it=>`<div class="job"><i class="dot" style="background:${it.color}"></i>${it.name} ×${inv[it.id]} <button class="mini-btn" data-put="${it.id}">Stash</button></div>`).join('')||'<div class="job">Nothing to stash</div>'}</div>
+  <div><b class="ph">In your locker</b>${stored.map(it=>`<div class="job"><i class="dot" style="background:${it.color}"></i>${it.name} ×${lk[it.id]} <button class="mini-btn" data-take="${it.id}">Take</button></div>`).join('')||'<div class="job">Empty</div>'}</div></div>`;}
+function lockerMove(id,toLocker){const lk=prog.locker||(prog.locker={});if(toLocker){lk[id]=(lk[id]||0)+(P.inv[id]||0);P.inv[id]=0;}else{P.inv[id]=(P.inv[id]||0)+(lk[id]||0);lk[id]=0;}saveProg();buildHotbar();Sound.play('latch');}
+
+/* the start-of-day card */
+function dayCard(){const E=FREE.events,tier=repTier();const lines=[];
+  if(E.relief)lines.push(`Relief teacher: <b>Mr. Dunn</b> is covering for ${TYPES[E.relief].name}. He barely notices anything.`);
+  if(E.drill)lines.push('There is a <b>fire drill</b> today. Nobody knows when.');
+  if(E.bag!=null)lines.push(`Rumour: <b>bag checks</b> in ${PERIODS[E.bag].name}. Use your locker (#217, outside Room 103).`);
+  if(E.food)lines.push('Rumour: <b>food fight</b> at lunch.');
+  if(!lines.length)lines.push('A normal day. Suspiciously normal.');
+  return `<div class="head"><span>Hazeport High</span><span>Day ${prog.days+1}</span></div><h2>${pick(['Rise and grind','Another day, another detention','Mum dropped you at the gate','You are already late'])}</h2>
+  <ul class="goals">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>
+  <div class="field"><span>Cash</span><span class="hand">$${prog.cash}</span></div><div class="field"><span>Rep</span><span class="hand">${prog.rep} · ${REP_TIERS[tier][1]}</span></div>
+  <p class="mini" style="text-align:left">${REP_TIERS[tier][2]}${tier<3?` Next: ${REP_TIERS[tier+1][1]} at ${REP_TIERS[tier+1][0]} rep.`:''} Missions come in over Telegrom (Tab). Jobs are on your phone.</p>`;}
 
 /* =========================================================
    RENDERING — first-person Three.js world, held-item viewmodel,
@@ -1851,6 +2005,7 @@ function build3D(){
   const bc=new THREE.Mesh(new THREE.OctahedronGeometry(0.16),new THREE.MeshBasicMaterial({color:0xffe68a}));world.add(bc);fx3.beacon=bc;
   const halo=new THREE.Mesh(new THREE.RingGeometry(0.35,0.45,32),new THREE.MeshBasicMaterial({color:0xffe68a,transparent:true,opacity:0.6,depthWrite:false}));halo.rotation.x=-Math.PI/2;world.add(halo);fx3.halo=halo;
   if(MODE.free)buildFree3D();
+  try{renderer.compile(scene,camera);}catch(e){}
   for(const t of rtFB){renderer.setRenderTarget(t);renderer.clear();}renderer.setRenderTarget(null);
 }
 
@@ -2036,8 +2191,8 @@ function draw3D(dt){
   for(const s of stalls.values()){if(!s.hinge)continue;const closed=P&&P.hidden&&P.stall===s;const tgt=closed?0:s.openAng;s.cur=lerp(s.cur,tgt,Math.min(1,dt*12));s.hinge.rotation.y=s.cur;
     s.ind.material.color.set(closed?0xff4d5e:0x43c27a);s.smokeSprite.material.opacity=Math.min(0.75,s.smoke*0.8);s.smokeSprite.position.y=1.7+Math.sin(gameT+s.x)*0.05;}
   for(const c of clouds)syncCloud(c);
-  if(MODE.free&&FREE.npcs)drawFree3D(dt);
-  drawTricks3D();
+  if(MODE.free&&FREE.npcs)safe(()=>drawFree3D(dt),'free3D');
+  safe(drawTricks3D,'tricks3D');
   for(const v of vents){if(v.mat)v.mat.emissiveIntensity=P&&P.holding?0.5+0.35*Math.sin(gameT*6):0.06;}
   if(goalTile&&goalTile.mat){const ready=buzz>=L.goal&&state!=='title';goalTile.mat.emissiveIntensity=ready?0.25+0.2*Math.sin(gameT*5):0;goalTile.light.intensity=ready?1.4:0;}
   for(const d of detectors){if(!d.led)continue;d.led.material.color.set((alarm>0?Math.sin(gameT*20)>0:Math.sin(gameT*3)>0.7)?0xff2a3a:0x501018);d.ring.material.opacity=alarm>0?0.7:0.28;}
@@ -2046,7 +2201,7 @@ function draw3D(dt){
   hemi.color.set(alarm>0&&Math.sin(gameT*14)>0?0xffb0b0:0xfff6e6);
   fx3.rings.forEach((r,i)=>{const n=noises[noises.length-1-i];if(!n){r.visible=false;return;}const kk=n.t/0.9;r.visible=true;const R=Math.min(n.r,12)*kk+0.01;r.scale.set(R,R,1);r.position.x=n.x;r.position.z=n.y;
     r.material.color.set(n.kind==='cough'||n.kind==='alarm'||n.kind==='groan'?0xff4d5e:n.kind==='whistle'?0xffe68a:0xffffff);r.material.opacity=(1-kk)*0.8;});
-  fx3.wisps.forEach((s,i)=>{const p=particles[i];if(!p){s.visible=false;return;}const kk=p.t/p.life,e=kk*kk;s.visible=true;s.position.set(lerp(p.x,p.tx,e),lerp(p.h0||1.1,p.h1||1.8,e),lerp(p.y,p.ty,e));const sz=p.r/TS*1.6*(1-kk*0.5);s.scale.set(sz,sz,1);s.material.opacity=(1-kk)*0.85;s.material.color.set(p.water?0x8ec5ff:p.spark?0xffd166:p.smoke?0x707070:0xe7ddff);});
+  fx3.wisps.forEach((s,i)=>{const p=particles[i];if(!p){s.visible=false;return;}const kk=p.t/p.life,e=kk*kk;s.visible=true;s.position.set(lerp(p.x,p.tx,e),lerp(p.h0||1.1,p.h1||1.8,e),lerp(p.y,p.ty,e));const sz=p.r/TS*1.6*(1-kk*0.5);s.scale.set(sz,sz,1);s.material.opacity=(1-kk)*0.85;s.material.color.set(p.water?0x8ec5ff:p.spark?0xffd166:p.smoke?0x707070:p.food?0xd99a4e:0xe7ddff);});
   const tg=state==='play'&&P?objective():null;fx3.beacon.visible=fx3.halo.visible=!!tg;
   if(tg){fx3.beacon.position.set(tg.x,1.6+Math.sin(gameT*4)*0.1,tg.y);fx3.beacon.rotation.y=gameT*2;fx3.halo.position.set(tg.x,0.03,tg.y);const s=1+0.15*Math.sin(gameT*4);fx3.halo.scale.set(s,s,1);
     const col=buzz>=L.goal?0xffe68a:0x9fd6c2;fx3.beacon.material.color.set(col);fx3.halo.material.color.set(col);}
@@ -2062,7 +2217,7 @@ function draw3D(dt){
 
 /* ---------- overlay (screen-space UI) ---------- */
 function draw(dt){
-  draw3D(dt);
+  safe(()=>draw3D(dt),'draw3D');
   const g=ctx;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);
   if(!map||!renderer||state==='title')return;
   g.setTransform(DPR,0,0,DPR,0,0);const sw=VW,sh=VH;
@@ -2076,7 +2231,7 @@ function draw(dt){
     let frac,col;if(P.inhaling){frac=P.lungs;col=P.lungs>=1?'#ff4d5e':P.lungs>0.85?'#ffb347':ITEMS[P.hitItem].color;}else{frac=P.breath/P.breathMax;col=frac<0.35?'#ff4d5e':frac<0.6?'#ffb347':'#9fd6c2';}
     g.strokeStyle=col;g.beginPath();g.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+Math.PI*2*frac);g.stroke();
     g.font='900 10px Rubik, sans-serif';g.textAlign='center';g.fillStyle='#fff';g.fillText(P.inhaling?(P.lungs>0.85?'LET GO':'INHALE'):'HOLD IT',cx,cy+R+16);g.textAlign='left';}
-  if(MODE.free&&FREE.npcs)drawFreeOverlay(g,cx,cy,sw,sh);
+  if(MODE.free&&FREE.npcs)safe(()=>drawFreeOverlay(g,cx,cy,sw,sh),'freeOverlay');
   if(P.stam<0.98&&!P.hidden){const w=60;g.fillStyle='rgba(20,22,29,0.6)';g.fillRect(cx-w/2,cy+52,w,4);g.fillStyle='#ffe68a';g.fillRect(cx-w/2,cy+52,w*P.stam,4);}
   if(P.down>0){g.font='34px "Permanent Marker", cursive';g.textAlign='center';g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=6;const txt={green:'GREENED OUT',salvia:'YOU ARE THE FLOOR NOW',ko:'KNOCKED OUT',crash:'STACKED IT'}[P.downWhy]||'OOF';g.strokeText(txt,cx,cy-40);g.fillText(txt,cx,cy-40);
     g.font='700 13px Rubik, sans-serif';g.fillText('get up… get up…',cx,cy-12);g.textAlign='left';}
@@ -2102,7 +2257,7 @@ function draw(dt){
   if(P.bubble){bubble(g,cx,sh*0.72,P.bubble);}
 }
 const max0=v=>Math.max(4,v);let hudBottom=90;
-function objective(){if(MODE.free){if(state!=='play'||!FREE.per&&FREE.per!==0)return null;const p=curPer();if(isClassTime()&&!inPlaceForClass()){const r=ROOMS[p.room];return p.room==='oval'?{x:40.5,y:51.5,label:'Oval'}:{x:r.x+r.w/2,y:r.y+r.h/2,label:r.name.split(' ·')[0]};}if(p.kind==='home')return{x:31.5,y:9.6,label:'Front gate'};if(FREE.drops&&FREE.drops.length){const d=FREE.drops[0];return{x:d.x,y:d.y,label:'Drop'};}return null;}
+function objective(){if(MODE.free){if(state!=='play'||!FREE.per&&FREE.per!==0)return null;const mt=missionTarget();if(mt)return mt;const p=curPer();if(isClassTime()&&!inPlaceForClass()){const r=ROOMS[p.room];return p.room==='oval'?{x:40.5,y:51.5,label:'Oval'}:{x:r.x+r.w/2,y:r.y+r.h/2,label:r.name.split(' ·')[0]};}if(p.kind==='home')return{x:31.5,y:9.6,label:'Front gate'};if(FREE.drops&&FREE.drops.length){const d=FREE.drops[0];return{x:d.x,y:d.y,label:'Drop'};}return null;}
   if(!goalTile)return null;if(buzz>=L.goal){const f=faceDir(goalTile.x,goalTile.y)||[0,1];return{x:goalTile.x+0.5+f[0]*0.6,y:goalTile.y+0.5+f[1]*0.6};}
   const here=tile(Math.floor(P.x),Math.floor(P.y));if(isBathFloor(here)||here==='D')return null;
   let best=null,bd=1e9;for(const d of doors){if(!d.bath)continue;const dd=Math.hypot(d.x+0.5-P.x,d.y+0.5-P.y);if(dd<bd){bd=dd;best=d;}}return best?{x:best.x+0.5,y:best.y+0.5}:null;}
@@ -2207,6 +2362,7 @@ function buildFree3D(){
   const fm=new THREE.InstancedMesh(new THREE.SphereGeometry(0.5,10,8),new THREE.MeshLambertMaterial({color:0xffffff}),240);fm.count=0;fm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);world.add(fm);FREE.foamMesh=fm;
   FREE.foamSeeds=[];for(let i=0;i<120;i++)FREE.foamSeeds.push([rand(-1,1),rand(-1,1),rand(0.6,1.4),rand(0,6)]);
   for(const t of FREE.tags)makeTagMesh(t);
+  if(FREE.myLocker){const st=new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.2),new THREE.MeshBasicMaterial({map:texSignText('#217 · YOURS','#ffd166','#14161d',256,96,'bold 34px Rubik, sans-serif')}));st.position.set(FREE.myLocker.x+0.27,1.55,FREE.myLocker.y+1.012);world.add(st);}
 }
 function makeTagMesh(t){let nx=t.nx,ny=t.ny;if(nx&&ny)ny=0;const tx=Math.floor(t.x),ty=Math.floor(t.y);
   const m=new THREE.Mesh(new THREE.PlaneGeometry(1.25,0.47),new THREE.MeshBasicMaterial({map:texTagCanvas(t.text,t.col),transparent:true,depthWrite:false}));
@@ -2273,23 +2429,26 @@ function drawFreeOverlay(g,cx,cy,sw,sh){
    LOOP
    ========================================================= */
 let last=performance.now(),hudT=0;
-function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;logic(dt);draw(dt);requestAnimationFrame(frame);}
+const ERRS=[];function safe(fn,tag){try{fn();}catch(e){if(ERRS.length<60)ERRS.push(tag+': '+e.message+' @ '+String(e.stack||'').split('\n')[1]);if(!safe.n){safe.n=1;console.error('[tap the yart]',tag,e);}}}
+function frame(now){requestAnimationFrame(frame);let dt=(now-last)/1000;last=now;dt=dt>0&&dt<1?Math.min(0.05,dt):0.016;safe(()=>logic(dt),'logic');safe(()=>draw(dt),'draw');}
 function logic(dt){if(MODE.free&&(state==='play'||state==='menu'))phoneTick();
   if(state==='play'){readKeys();gameT+=dt;timeLeft-=dt;
     if(timeLeft<=30&&!warnBell){warnBell=true;Sound.play('bell',0.5);toast('30 seconds until the bell!',2);}
     if(timeLeft<=0){timeLeft=0;Sound.play('bell',1.8);bust(null,'tardy');}
-    else{updatePlayer(dt);inp.tapPress=false;if(state==='play'){for(const t of teachers){updateTeacher(t,dt,false);if(state!=='play')break;}if(state==='play')updateWorld(dt);if(state==='play'&&MODE.free)freeUpdate(dt);}}
+    else{safe(()=>updatePlayer(dt),'player');inp.tapPress=false;if(state==='play'){for(const t of teachers){safe(()=>updateTeacher(t,dt,false),'teacher');if(state!=='play')break;}if(state==='play')safe(()=>updateWorld(dt),'world');if(state==='play'&&MODE.free)safe(()=>freeUpdate(dt),'free');if(state==='play')safe(unstick,'unstick');}}
     if(MODE.free){if(!P.car)Sound.engine(0);else Sound.engOn=true;if(!P.ride)Sound.ride(0);}
     heat=Math.max(0,...teachers.map(t=>t.sus));Sound.warp=FX.lsd+FX.sal;if(Sound.mf)Sound.mf.frequency.setTargetAtTime(18000-Math.min(1,FX.green)*15500,Sound.ctx.currentTime,0.3);Sound.heat=lerp(Sound.heat,Math.max(heat,alarm>0?0.7:0,teachers.some(t=>t.state==='chase')?0.9:0),dt*2);
     cam.x=lerp(cam.x,P.x+P.face.x*1.2,dt*5);cam.y=lerp(cam.y,P.y+P.face.y*1.0,dt*5);
     toastT-=dt;if(toastT<=0)$('toast').classList.remove('on');
-    hudT-=dt;if(hudT<=0){hudT=0.05;updateHUD();}
-  }else if(state==='title'){gameT+=dt;for(const t of teachers)updateTeacher(t,dt,true);updateWorld(dt);if(MODE.free&&FREE.npcs)for(const n of FREE.npcs)npcUpdate(n,dt);}
-  else if(state==='menu'){toastT-=dt;if(toastT<=0)$('toast').classList.remove('on');if(MODE.free)Sound.engine(0),Sound.ride(0);}
+    hudT-=dt;if(hudT<=0){hudT=0.05;safe(updateHUD,'hud');}
+  }else if(state==='title'){gameT+=dt;for(const t of teachers)safe(()=>updateTeacher(t,dt,true),'teacher');safe(()=>updateWorld(dt),'world');if(MODE.free&&FREE.npcs)for(const n of FREE.npcs)safe(()=>npcUpdate(n,dt),'npc');}
+  else if(state==='menu'){toastT-=dt;if(toastT<=0)$('toast').classList.remove('on');if(MODE.free)Sound.engine(0),Sound.ride(0),Sound.crowd(0);if(MODE.free&&FREE.paT)paTick();}
   else if(state==='busted'||state==='won'){gameT+=dt;updateWorld(dt);for(const t of teachers)if(t.bubble){t.bubble.t-=dt*0.2;}}
   shake=Math.max(0,shake-dt*1.5);}
 function updateHUD(){const cl=$('hClock');
-  if(MODE.free){const p=curPer();cl.textContent=fmtClock(FREE.clock);cl.classList.toggle('late',isClassTime()&&!inPlaceForClass());$('hLvl').textContent=p.name+(p.subj?' · '+p.subj:'')+(P.y<9?' · OFF CAMPUS':'');
+  if(MODE.free){const ob=$('hObj');const mm=FREE.mission?MISSIONS[FREE.mission.id]:null;const otext=mm?mm.title+': '+mm.steps[FREE.mission.step].text:FREE.drill?'Fire drill. Get to the oval (or don\'t)':isClassTime()&&!inPlaceForClass()?`${curPer().subj} in ${ROOMS[curPer().room].name.split(' ·')[0].split(' (')[0]}`:curPer().kind==='home'?'Leave through the front gate':'';if(ob.textContent!==otext)ob.textContent=otext;ob.hidden=!otext;
+    {const tr=repTier();$('hRep').textContent=`REP ${prog.rep} · ${REP_TIERS[tr][1]}`;if((prog.tierSeen||0)<tr){prog.tierSeen=tr;saveProg();banner('REP UP: '+REP_TIERS[tr][1].toUpperCase());toast(`<b>${REP_TIERS[tr][1]}.</b> ${REP_TIERS[tr][2]}`,5);Sound.play('win');}}
+    const p=curPer();cl.textContent=fmtClock(FREE.clock);cl.classList.toggle('late',isClassTime()&&!inPlaceForClass());$('hLvl').textContent=p.name+(p.subj?' · '+p.subj:'')+(P.y<9?' · OFF CAMPUS':'');
     $('hCash').textContent='$'+prog.cash;const wv=Math.ceil(FREE.wanted-0.05);$('hWanted').textContent='★'.repeat(wv)+'☆'.repeat(5-wv);$('hHp').textContent='♥'.repeat(P.hp)+'♡'.repeat(Math.max(0,P.maxHp-P.hp));renderClassPanel();}
   else{const m=Math.floor(Math.max(0,timeLeft)/60),s=Math.floor(Math.max(0,timeLeft)%60);cl.textContent=`${m}:${String(s).padStart(2,'0')}`;cl.classList.toggle('late',timeLeft<30);
   if(timeLeft<10&&Math.floor(timeLeft)!==lastClockSec){lastClockSec=Math.floor(timeLeft);Sound.play('tick');}}
@@ -2323,10 +2482,10 @@ function renderClassPanel(){const el=$('classPanel');const show=MODE.free&&P.sea
   const eye=$('cpEye');eye.textContent=watching?`👁 ${te.def.name} is watching`:`${te?te.def.name:'Teacher'} isn't looking`;eye.className='cp-eye '+(watching?'on':'off');}
 
 /* boot */
-function boot(){init3D();resize();buildLevelGrid();loadLevel('free',true);$('freeInfo').textContent=prog.days?`Day ${prog.days+1} · $${prog.cash}`:'Start with a Gleek Bar and $20. Unlock the rest.';showScreen('sTitle');$('hud').hidden=true;requestAnimationFrame(frame);}
+function boot(){init3D();if(renderer){const gc=$('gl');gc.addEventListener('webglcontextlost',e=>{e.preventDefault();if(state==='play')pauseGame();},false);gc.addEventListener('webglcontextrestored',()=>{try{if(map)build3D();sizePost();}catch(e){}},false);}resize();buildLevelGrid();loadLevel('free',true);$('freeInfo').textContent=prog.days?`Day ${prog.days+1} · $${prog.cash}`:'Start with a Gleek Bar and $20. Unlock the rest.';showScreen('sTitle');$('hud').hidden=true;requestAnimationFrame(frame);}
 if(document.fonts&&document.fonts.ready){Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]).then(()=>{boot();});}else boot();
 // font arrives late → re-render the static map so graffiti uses the marker face
-window.__tty={TR,logic,keys,inp,PH,togglePhone,openApp,plugOrder,get renderer(){return renderer},get scene(){return scene},updatePlayer,updateTeacher,freeUpdate,draw,MODE,get state(){return state},get P(){return P},get teachers(){return teachers},LEVELS,loadLevel,startLevel,startFree,findPath,FREE,prog,ROOMS,FREEDESKS:()=>FREEDESKS,setPeriod,openMenu,closeMenu,get map(){return map},get buzz(){return buzz},set buzz(v){buzz=v}};
+window.__tty={ERRS,TR,logic,keys,inp,PH,togglePhone,openApp,plugOrder,get renderer(){return renderer},get scene(){return scene},updatePlayer,updateTeacher,freeUpdate,draw,MODE,get state(){return state},get P(){return P},get teachers(){return teachers},LEVELS,loadLevel,startLevel,startFree,findPath,FREE,prog,ROOMS,FREEDESKS:()=>FREEDESKS,setPeriod,openMenu,closeMenu,get map(){return map},get buzz(){return buzz},set buzz(v){buzz=v}};
 </script>
 </body>
 </html>

@@ -23,6 +23,6 @@ A GTA-style phone that slides up bottom-right (Tab, or the 📱 button). The gam
 | Mum | Texts you at lunch and when the school calls about detention. |
 | HZP yr10 | Year-group chat that reacts to what you do: tags, cars on the oval, floods, foam, fights, the till. |
 
-Incoming texts show as a notification even when the phone is away.
+Incoming texts show as a notification even when the phone is away. Shae, Jacko and Priya also text you, and contacts send **mission offers** you accept with a quick reply (see [Missions and Daily Events](missions-and-events.md)).
 
 Related: [Freeplay — Hazeport High](freeplay.md), [The Stash](stash.md)
