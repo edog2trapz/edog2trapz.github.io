@@ -51,4 +51,4 @@ Hazeport Legend (chaos 25+), Model Student (great grades), Ghost (no classes att
 
 Not in the game on purpose: guns, knives and hard drugs.
 
-Related: [The Stash](stash.md), [The Phone](phone.md), [Vape Tricks](tricks.md), [Stealth Rules](stealth-rules.md), [Teachers](teachers.md)
+Related: [Missions and Daily Events](missions-and-events.md), [The Stash](stash.md), [The Phone](phone.md), [Vape Tricks](tricks.md), [Stealth Rules](stealth-rules.md), [Teachers](teachers.md)

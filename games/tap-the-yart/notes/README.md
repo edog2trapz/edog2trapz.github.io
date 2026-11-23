@@ -8,6 +8,7 @@ tags: [game, index]
 A first-person 3D game set at Hazeport High. Freeplay is a whole school day you spend however you like; the four story periods are the original stealth levels. The more you take, the more fried you get. The game is one file: [index.html](../index.html).
 
 - [Freeplay — Hazeport High](freeplay.md): the school day, wanted stars, money, unlocks, vehicles, gangs and everything else to do.
+- [Missions and Daily Events](missions-and-events.md): Telegrom missions, fire drills, bag checks, your locker, rep levels, blending into crowds.
 - [The Phone](phone.md): the GTA-style phone and Telegrom, texting the plug and your friends.
 - [Vape Tricks](tricks.md): O's, ghosts, French inhales and jellyfish.
 - [Core Loop](core-loop.md): the hit → hold → ghost cycle and how buzz, breath and clouds work.

@@ -18,6 +18,7 @@ tags: [game, tech]
 - **Freeplay map** is built from rectangles on a tile grid with a separate floor layer, so props (desks, benches, shelves, counters, tables, fences) keep the floor under them. Props are drawn with `InstancedMesh` batches; the ceiling is only over indoor tiles; outdoor walls get a brick texture.
 - **Performance.** Students and props don't cast shadows, the shadow map only re-renders every 6 frames in freeplay, and distant characters are hidden. Character spheres are capped at 11 segments.
 - **Testing.** `window.__tty.logic(dt)` steps the game without rendering, so automated tests can't drop key presses on slow machines.
+- **No freezes.** The next frame is scheduled before anything else runs, and every system (player, each teacher, each student, world, freeplay, HUD, 3D, overlay) runs inside its own error guard, so one bad frame can't stop the game. `angDiff` uses a modulo instead of loops. The player is automatically pushed out if they ever end up inside a wall or desk, and every mode (car, minigame, crafting, class) has a way out.
 - **Saves.** Stars, cash, unlocks, days and mute are stored in `localStorage` (`tty_prog`); the game works without it.
 
 Related: [Levels](levels.md), [Stealth Rules](stealth-rules.md), [The Stash](stash.md)
