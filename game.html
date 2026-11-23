@@ -49,6 +49,16 @@
 .btn.glass{color:#fff;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 4px 14px rgba(0,0,0,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .btn.glass:hover{background:rgba(255,255,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 0 0 2px #fff,0 6px 20px rgba(0,0,0,.25)}
 .btn.glass[aria-pressed="true"]{background:linear-gradient(180deg,#ff7a5c,#e5301b);border-color:#ffb3a3}
+.gboard{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.gboard li{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;background:var(--glass2);border:1px solid var(--line);font-weight:700}
+.gboard li.me{border-color:var(--o2,#ff8a00);box-shadow:0 0 0 2px rgba(255,138,0,.25)}
+.gboard .n{width:24px;text-align:center;font-family:var(--display);font-style:italic;font-weight:900;color:var(--o-text)}
+.gboard li:nth-child(1) .n{color:#e6a700}.gboard li:nth-child(2) .n{color:#9aa4b1}.gboard li:nth-child(3) .n{color:#c07a3a}
+.gboard b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gboard b small{color:var(--ink3)}
+.gboard .sc{font-family:var(--display);font-weight:900;font-style:italic}
+.lb-rooms{display:grid;gap:8px}
+.lb-rooms .room{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:var(--glass2)}
+.lb-rooms .rt{flex:1}.lb-rooms .rt b{display:block}.lb-rooms .rt small{color:var(--ink3);font-weight:700}
 @media (max-width:640px){
   .banner{padding:24px 20px;min-height:520px;border-radius:20px}
   .banner.cv::before{background:linear-gradient(0deg,rgba(5,6,10,.92) 0%,rgba(5,6,10,.6) 55%,rgba(5,6,10,.1) 100%)}
@@ -138,6 +148,8 @@
     <div id="write"></div>
   </div>
 
+  <div id="liveSec"></div>
+
   <div class="sec"><h2>Player reviews</h2><span class="rule"></span></div>
   ${rs.length ? `<div class="rv-list">${rs.map(x => reviewCard(x, { showGame:false })).join('')}</div>` :
     `<div class="panel empty"><div class="big">💬</div><h3>No reviews yet</h3><p>Played ${esc(g.title)}? Your review could be the first.</p></div>`}
@@ -146,7 +158,28 @@
   <div class="shelf">${more.map(card).join('')}</div>`;
     mountReviewForm($('#write'), { game:g.slug, onDone: paint });
     TZ.reveal(root);
+    liveBits();
   }
+  /* leaderboard for this game + its open rooms (needs accounts / the live layer) */
+  function liveBits(){
+    const L = window.TZLive, box = $('#liveSec'); if (!L || !box) return;
+    const hasBoard = !!L.BOARDS[g.slug];
+    if (!hasBoard && !g.online) return;
+    box.innerHTML = `<div class="cols lv-cols" style="margin-top:24px">
+      ${hasBoard ? `<section class="panel box"><h3>🏆 Leaderboard</h3><p class="muted" style="margin:-4px 0 10px;font-size:14px">${esc(L.BOARDS[g.slug].label)} · your best is sent automatically when you set it</p><ol class="gboard" id="gboard"><li class="muted">Loading…</li></ol></section>` : ''}
+      ${g.online ? `<section class="panel box"><h3>🟢 Open rooms</h3><p class="muted" style="margin:-4px 0 10px;font-size:14px">Join a room someone is hosting right now, or open the game and press Play together to host your own.</p><div id="grooms" class="lb-rooms"><p class="muted">Looking…</p></div></section>` : ''}
+    </div>`;
+    if (hasBoard) L.board(g.slug, 15).then(list => {
+      const mine = L.id;
+      $('#gboard').innerHTML = list.length ? list.map((x, i) => `<li class="${x.id === mine ? 'me' : ''}"><span class="n">${i + 1}</span><span class="ava">${esc(x.avatar || '🎮')}</span><b>${esc(x.tag)}${x.id === mine ? ' <small>(you)</small>' : ''}</b><span class="sc">${esc(x.shown || String(x.score))}</span></li>`).join('')
+        : '<li class="muted">No scores yet. Play it and yours is first.</li>';
+    }).catch(() => { $('#gboard').innerHTML = '<li class="muted">Could not load the leaderboard.</li>'; });
+    if (g.online) L.rooms(g.slug).then(list => {
+      $('#grooms').innerHTML = list.length ? list.map(r => `<div class="room"><span class="rt"><b>${esc(r.host)}'s room</b><small>${r.players}/${r.max} players · code ${esc(r.code)}</small></span><a class="btn sm" href="${L.joinHref(r)}">Join</a></div>`).join('')
+        : '<p class="muted" style="margin:0">No open rooms right now.</p>';
+    }).catch(() => {});
+  }
+  document.addEventListener('tz:live', liveBits);
   paint();
   document.addEventListener('tz:reviews', paint);
 

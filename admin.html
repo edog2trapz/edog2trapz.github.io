@@ -36,7 +36,23 @@
 .lamps i{width:10px;height:10px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84}
 .lamps i.w{background:#ffb000;box-shadow:0 0 8px #ffb000;animation:blink 1.2s steps(1) infinite}
 @keyframes blink{50%{opacity:.25}}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:18px}
+.ops-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.ops-card{padding:16px 18px}
+.ops-card h3{margin:0 0 4px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase}
+.ops-card .sub{margin:0 0 12px;color:var(--ink3);font-size:13.5px;font-weight:700}
+.livegame{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.livegame:first-of-type{border-top:0}
+.livegame .ti{width:54px;height:34px;border-radius:8px;flex:none;display:grid;place-items:center;font-size:18px;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.livegame b{flex:1;min-width:0}.livegame b small{display:block;color:var(--ink3);font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.livegame .cnt{font-family:var(--display);font-weight:900;font-style:italic;font-size:22px;color:var(--o-text)}
+.ops-card textarea,.ops-card select{width:100%;box-sizing:border-box}
+.ops-card textarea{min-height:76px;resize:vertical}
+.ops-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.bl{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.bl li{display:grid;grid-template-columns:28px 26px minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:6px 10px;border-radius:10px;background:var(--glass2);border:1px solid var(--line);font-weight:700}
+.bl .n{font-family:var(--display);font-style:italic;font-weight:900;color:var(--o-text);text-align:center}
+.bl b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kpis div{padding:18px;text-align:center}
 .kpis b{display:block;font-family:var(--display);font-weight:900;font-style:italic;font-size:40px;line-height:1;color:var(--o-text)}
 .kpis small{font-weight:900;letter-spacing:.12em;font-size:12px;color:var(--ink3)}
@@ -58,7 +74,7 @@
   <section class="ops-hero">
     <div class="kicker">Restricted · Creator only</div>
     <h1>Ops <span>console</span></h1>
-    <p>Approve, hide or delete reviews before they go public.</p>
+    <p>See who's playing, run the lobby, post announcements, moderate leaderboards and approve reviews.</p>
     <div class="lamps" id="lamps"></div>
   </section>
   <div id="ops"></div>
@@ -86,10 +102,27 @@
     if (account.loading) return gate('⏳', 'Connecting…', 'Linking up to the 2trapz Network.');
     if (!u) return gate('🔐', 'Sign in first', 'Sign in with the admin account (listed in ACCOUNTS.admins in assets/data.js).', '<a class="btn" href="account.html?next=admin.html">Sign in</a>');
     if (!admin) return gate('⛔', 'Access denied', 'This account isn\'t on the admin list. Admins sign in with a verified email listed in ACCOUNTS.admins and in firestore.rules.');
-    root.innerHTML = `<section class="kpis"><div class="panel"><b id="kP">…</b><small>WAITING</small></div><div class="panel"><b id="kA">…</b><small>LIVE REVIEWS</small></div><div class="panel"><b id="kU">…</b><small>RANKED PLAYERS</small></div></section>
+    root.innerHTML = `<section class="kpis"><div class="panel"><b id="kO">…</b><small>ONLINE NOW</small></div><div class="panel"><b id="kR">…</b><small>OPEN ROOMS</small></div><div class="panel"><b id="kP">…</b><small>WAITING</small></div><div class="panel"><b id="kA">…</b><small>LIVE REVIEWS</small></div><div class="panel"><b id="kU">…</b><small>RANKED PLAYERS</small></div></section>
+      <div class="sec"><h2>Live</h2><span class="rule"></span><button class="btn sm ghost" id="liveRe">↻ Refresh</button></div>
+      <div class="ops-grid">
+        <section class="panel ops-card"><h3>🟢 Who's on</h3><p class="sub">Everyone with 2trapz open in the last 4 minutes, by game</p><div id="liveList">Loading…</div></section>
+        <section class="panel ops-card"><h3>🎮 Open rooms</h3><p class="sub">Play Together and Orb Four rooms in the public lobby</p><div id="roomList">Loading…</div></section>
+      </div>
+      <div class="sec"><h2>Site controls</h2><span class="rule"></span></div>
+      <div class="ops-grid">
+        <section class="panel ops-card"><h3>📣 Announcement</h3><p class="sub">A banner at the top of every page</p>
+          <textarea class="input" id="annText" maxlength="200" placeholder="New game drops Friday! Tournament in Hoop Brawl at 7pm…"></textarea>
+          <div class="ops-row"><label style="display:flex;gap:8px;align-items:center;font-weight:800"><input type="checkbox" id="annOn"> Show it</label><button class="btn sm" id="annSave">Save</button><span class="muted" id="annMsg"></span></div></section>
+        <section class="panel ops-card"><h3>⭐ Game of the Day</h3><p class="sub">Pin a game on the homepage, or let it pick a new one each day</p>
+          <select class="input" id="gotdSel"><option value="">Auto (a new game every day)</option>${TZ.GAMES.map(g => `<option value="${esc(g.slug)}">${esc(g.title)}</option>`).join('')}</select>
+          <div class="ops-row"><button class="btn sm" id="gotdSave">Save</button><span class="muted" id="gotdMsg"></span></div></section>
+        <section class="panel ops-card"><h3>🏆 Leaderboards</h3><p class="sub">Remove a fake or rude entry</p>
+          <select class="input" id="lbSel"></select><ol class="bl" id="lbList"></ol></section>
+      </div>
       <div class="sec"><h2>Waiting for approval</h2><span class="rule"></span><button class="btn sm ghost" id="reload">↻ Refresh</button></div><div class="queue" id="pend"></div>
       <div class="sec"><h2>Live reviews</h2><span class="rule"></span></div><div class="queue" id="live"></div>`;
     $('#reload').addEventListener('click', load);
+    liveAdmin();
     try {
       const [pend, live, users] = await Promise.all([account.pendingReviews(), account.approvedReviews(), account.leaderboard(200)]);
       $('#kP').textContent = pend.length; $('#kA').textContent = live.length; $('#kU').textContent = users.length;
@@ -99,7 +132,53 @@
       root.insertAdjacentHTML('afterbegin', `<section class="panel gate"><h2>Couldn't load</h2><p>${esc(account.errorText(e))}</p></section>`);
     }
   }
+  /* ---------- live + site controls (assets/live.js for reads, accounts for admin writes) ---------- */
+  let liveTimer = 0;
+  function liveAdmin(){
+    const L = window.TZLive;
+    if (!L){ document.addEventListener('tz:live', liveAdmin, { once:true }); return; }
+    const refresh = () => {
+      if (!$('#liveList')) return;
+      L.presence().then(list => {
+        $('#kO').textContent = list.length;
+        const by = {};
+        for (const p of list){ const k = p.game || ('page:' + p.page); (by[k] = by[k] || []).push(p); }
+        const rows = Object.entries(by).sort((a, b) => b[1].length - a[1].length).map(([k, ps]) => {
+          const g = k.startsWith('page:') ? null : TZ.bySlug(k);
+          const PAGES = { home: 'Homepage', games: 'Games list', game: 'Game details pages', ranks: 'Ranks', friends: 'Friends', reviews: 'Reviews', admin: 'Admin console', account: 'Account', news: 'News', about: 'About', contact: 'Contact', achievements: 'Trophy room', faq: 'FAQ' };
+          const name = g ? g.title : k.startsWith('page:') ? 'On the site · ' + (PAGES[k.slice(5)] || k.slice(5)) : k;
+          return `<div class="livegame">${g ? TZ.thumb(g) : '<span class="ti" style="--c1:#444;--c2:#777">🌐</span>'}<b>${esc(name)}<small>${ps.map(p => esc(p.tag)).join(', ')}</small></b><span class="cnt">${ps.length}</span></div>`;
+        });
+        $('#liveList').innerHTML = rows.join('') || '<p class="muted">Nobody right now (besides you).</p>';
+      }).catch(err => { $('#liveList').innerHTML = `<p class="muted">Could not load: ${esc(err.message)}. Did you publish the latest firestore.rules?</p>`; });
+      L.rooms().then(list => {
+        $('#kR').textContent = list.length;
+        $('#roomList').innerHTML = list.length ? list.map(r => { const g = TZ.bySlug(r.game) || { title: r.title, icon: '🎮', colors: ['#333', '#777'] };
+          return `<div class="livegame">${TZ.thumb(g)}<b>${esc(g.title)}<small>${esc(r.host)} · ${r.players}/${r.max} · code ${esc(r.code)}</small></b><button class="btn sm ghost" data-close-room="${esc(r.game)}|${esc(r.code)}">Close</button></div>`; }).join('')
+          : '<p class="muted">No open rooms right now.</p>';
+      }).catch(() => { $('#roomList').innerHTML = '<p class="muted">Could not load rooms.</p>'; });
+    };
+    refresh(); clearInterval(liveTimer); liveTimer = setInterval(() => { if (!document.hidden) refresh(); }, 20000);
+    $('#liveRe').onclick = refresh;
+    L.site(true).then(cfg => { $('#annText').value = cfg.announce || ''; $('#annOn').checked = !!cfg.on; $('#gotdSel').value = cfg.gotd || ''; });
+    const save = async (data, msg) => { msg.textContent = 'Saving…'; try { await account.setSite(data); try { sessionStorage.removeItem('tz.siteCfg'); } catch (e) {} msg.textContent = 'Saved ✔'; TZ.sfx('ok'); } catch (err){ msg.textContent = account.errorText(err); } };
+    $('#annSave').onclick = () => save({ announce: $('#annText').value.trim().slice(0, 200), on: $('#annOn').checked }, $('#annMsg'));
+    $('#gotdSave').onclick = () => save({ gotd: $('#gotdSel').value }, $('#gotdMsg'));
+    const games = Object.keys(L.BOARDS).map(TZ.bySlug).filter(Boolean);
+    $('#lbSel').innerHTML = games.map(g => `<option value="${esc(g.slug)}">${esc(g.title)}</option>`).join('');
+    const board = () => { const slug = $('#lbSel').value; $('#lbList').innerHTML = '<li class="muted">Loading…</li>';
+      L.board(slug, 25).then(list => { $('#lbList').innerHTML = list.length ? list.map((x, i) => `<li><span class="n">${i + 1}</span><span>${esc(x.avatar || '🎮')}</span><b>${esc(x.tag)}</b><span>${esc(x.shown || String(x.score))}</span><button class="btn sm ghost" data-rm-score="${esc(slug)}|${esc(x.id)}">Remove</button></li>`).join('') : '<li class="muted">No scores yet.</li>'; })
+        .catch(() => { $('#lbList').innerHTML = '<li class="muted">Could not load.</li>'; }); };
+    $('#lbSel').onchange = board; board();
+  }
   root.addEventListener('click', async e => {
+    const cr = e.target.closest('[data-close-room]');
+    if (cr){ const [game, code] = cr.dataset.closeRoom.split('|'); cr.disabled = true;
+      const c = await TZLive.config(); await fetch(`https://firestore.googleapis.com/v1/projects/${c.project}/databases/(default)/documents/rooms/${encodeURIComponent((game + '-' + code).replace(/[^a-zA-Z0-9-]/g, ''))}?key=${c.key}`, { method: 'DELETE' }).catch(() => {});
+      cr.closest('.livegame').remove(); TZ.sfx('ok'); return; }
+    const rm = e.target.closest('[data-rm-score]');
+    if (rm){ const [game, pid] = rm.dataset.rmScore.split('|'); if (!confirm('Remove this score from the leaderboard?')) return; rm.disabled = true;
+      try { await account.removeScore(game, pid); rm.closest('li').remove(); TZ.sfx('ok'); } catch (err){ rm.disabled = false; TZ.toast({ icon:'⚠️', small:'Error', big:esc(account.errorText(err)) }); } return; }
     const b = e.target.closest('[data-act]'); if (!b) return;
     const card = b.closest('[data-id]'), id = card.dataset.id, act = b.dataset.act;
     if (act === 'delete' && !confirm('Delete this review for good?')) return;

@@ -146,6 +146,18 @@
 .gtile small{color:rgba(255,255,255,.72);font-weight:700;font-size:12.5px}
 
 /* ---- style showcase ---- */
+.lobby{padding:14px 16px;margin-bottom:16px}
+.lb-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.lb-head .dot{width:10px;height:10px;border-radius:50%;background:#2bd47d;box-shadow:0 0 0 4px rgba(43,212,125,.2)}
+.lb-head b{font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase}
+.lb-head small{color:var(--ink3);font-weight:700}
+.lb-head .btn{margin-left:auto}
+.lb-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.room{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:var(--glass2)}
+.room .ti{width:64px;height:40px;border-radius:9px;flex:none;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.room .rt{min-width:0;flex:1}.room .rt b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.room .rt small{color:var(--ink3);font-weight:700;font-size:12.5px}
+.lb-empty{color:var(--ink2);font-size:14.5px;margin:0}
 .pt-intro{display:flex;gap:16px;align-items:center;padding:16px 20px;margin-bottom:16px}
 .pt-intro .pt-ico{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;font-weight:900;color:#06140c;background:linear-gradient(180deg,#9dffc6,#2bd47d);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 14px rgba(30,200,110,.35)}
 .pt-intro b{font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
@@ -214,6 +226,10 @@
   <section id="friendsSec">
     <div class="sec"><h2>Play with friends</h2><span class="rule"></span><a class="more" href="games.html?online=1">See all ›</a></div>
     <div class="pt-intro panel reveal"><span class="pt-ico" aria-hidden="true">⇄</span><div><b>Play Together</b><p>Open one of these games, press <kbd>Play together</kbd> and send the room code. Your friend joins from any browser, on the same Wi-Fi or across the internet. No account needed.</p></div></div>
+    <div class="lobby panel reveal" id="lobby" hidden>
+      <div class="lb-head"><span class="dot" aria-hidden="true"></span><b>Open rooms right now</b><small id="lobbyN"></small><button class="btn sm ghost" id="lobbyRe" title="Refresh">↻</button></div>
+      <div class="lb-list" id="lobbyList"></div>
+    </div>
     <div class="shelf" id="friends"></div>
   </section>
 
@@ -309,10 +325,26 @@
 
   /* stats */
   /* game of the day: same pick for everyone on a given date */
-  { const d = TZ.today(); let h = 0; for (const c of d) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-    const g = GAMES[h % GAMES.length], el = $('#daily');
+  function setDaily(g){ const el = $('#daily');
     el.href = playHref(g); el.dataset.play = g.slug; el.setAttribute('aria-label', 'Game of the day: ' + g.title);
     $('#dThumb').innerHTML = TZ.thumb(g); $('#dTitle').textContent = g.title; $('#dSub').textContent = g.genre + ' · ' + (g.players || 'Free to play'); }
+  { const d = TZ.today(); let h = 0; for (const c of d) h = (h * 31 + c.charCodeAt(0)) >>> 0; setDaily(GAMES[h % GAMES.length]); }
+  /* the admin can pin a Game of the Day from admin.html */
+  document.addEventListener('tz:site', e => { const g = e.detail && e.detail.gotd && TZ.bySlug(e.detail.gotd); if (g) setDaily(g); });
+
+  /* live lobby: open Play Together and Orb Four rooms anyone can join */
+  function lobby(){
+    const L = window.TZLive; if (!L || document.hidden) return;
+    L.rooms().then(list => {
+      $('#lobby').hidden = false;
+      $('#lobbyN').textContent = list.length ? `${list.length} open` : '';
+      $('#lobbyList').innerHTML = list.length ? list.map(r => { const g = TZ.bySlug(r.game) || { title: r.title, icon: '🎮', colors: ['#333', '#777'], slug: r.game };
+        return `<div class="room">${TZ.thumb(g)}<span class="rt"><b>${esc(g.title)}</b><small>${esc(r.host)} · ${r.players}/${r.max} players</small></span><a class="btn sm" href="${L.joinHref(r)}">Join</a></div>`; }).join('')
+        : '<p class="lb-empty">No open rooms right now. Open any game with an <b>Online</b> badge and press <b>Play together</b>: your room shows up here for everyone.</p>';
+    }).catch(() => {});
+  }
+  const startLobby = () => { lobby(); setInterval(lobby, 20000); $('#lobbyRe').addEventListener('click', lobby); };
+  if (window.TZLive) startLobby(); else document.addEventListener('tz:live', startLobby, { once:true });
   $('#stGames').dataset.count = GAMES.length;
   $('#stGenres').dataset.count = genres.length;
   if ('IntersectionObserver' in window){

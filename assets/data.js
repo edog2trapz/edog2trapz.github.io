@@ -150,6 +150,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-23', tag:'Site', title:'Live on 2trapz: leaderboards, open rooms and who is online',
+    text:'The top bar now shows how many players are on right now. The homepage has a live lobby: every Play Together and Orb Four room someone opens shows up there with a Join button, so you can play with anyone, not just friends with a code. And 13 games have their own leaderboards, on each game page and on the Ranks page. Set a new best and it goes up automatically.' },
   { date:'2026-11-17', tag:'Update', title:'Tap the Yart: a whole day at Hazeport High', game:'tap-the-yart',
     text:'Tap the Yart now has Freeplay: a full school day at the new, much bigger Hazeport High. Go to class or skip it, cheat on the maths exam (copy a nerd, ask AI on your phone, or crack the principal\'s safe for the answers), and get your essays done by AI if you think Mrs. Kowalski won\'t notice. Your phone has Telegrom: text Dazza the plug for drops around campus, or get Kai and Mia to keep watch and distract teachers. Blow O\'s, snatch back ghosts and pull jellyfish. Ride e-scooters and e-bikes through the halls (hold Shift for a wheelie), hotwire a car and do donuts on the oval, tag the walls, smash lockers and flood the toilets, rob the canteen, fight the Hazers and the Oval Boys, make stink bombs and elephant toothpaste in the lab, kick goals at lunch, and skip school to hit the servo or drop out to TAFE. You start with a Gleek Bar and $20; everything else unlocks as you go.' },
   { date:'2026-11-16', tag:'New game', title:'Tap the Yart: don\'t get caught in the bathroom', game:'tap-the-yart',

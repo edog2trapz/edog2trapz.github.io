@@ -326,6 +326,7 @@
 <header class="tz-top"><div class="wrap">
   <a class="logo" href="${BASE}index.html" aria-label="${esc(SITE)} home"><span class="orb" id="tzOrb"><b>2t</b></span>${wordmark}</a>
   <nav class="blades" aria-label="Main">${NAV.map(n => `<a class="blade" href="${BASE}${n.href}"${(page === n.id || (page === 'game' && n.id === 'games')) ? ' aria-current="page"' : ''}><span class="bi" aria-hidden="true">${n.icon}</span><span class="bl">${n.label}</span>${n.id === 'friends' ? '<span class="nbadge" id="friendBadge" hidden></span>' : ''}</a>`).join('')}</nav>
+  <a class="live-chip" id="liveChip" href="${BASE}index.html#friendsSec" title="Players on 2trapz games right now" hidden><i></i><b id="liveN">1</b><span> online</span></a>
   <button class="style-btn" id="styleBtn" aria-haspopup="true" aria-expanded="false" aria-controls="stylePop" title="Change the DORFic style"><i></i><span class="sr">Change style</span></button>
   <div class="style-pop panel" id="stylePop" role="dialog" aria-label="DORFic style"><h3>Pick your <span>DORFic</span> style</h3>${stylesHTML('')}</div>
   <button class="guide-btn" id="guideBtn" aria-haspopup="dialog" aria-controls="guide" title="Open the Guide (G)"><span class="ava" id="gbAva"></span><span class="gt"><b id="gbTag"></b><small id="gbScore"></small></span></button>
@@ -773,6 +774,28 @@
     paintBadge(); if (guideOpen) paintGuide();
     if (account.user()) startSocial(); else { stopSocial.forEach(f => f()); stopSocial = []; socialFor = ''; const b = $('#friendBadge'); if (b) b.hidden = true; }
   });
+  /* ---------- live layer: players online, admin announcement ---------- */
+  if (accountsOn){
+    const sc = document.createElement('script'); sc.src = BASE + 'assets/live.js'; sc.async = true; document.head.appendChild(sc);
+    const liveUI = () => {
+      const L = window.TZLive; if (!L) return;
+      const tickOnline = () => { if (document.hidden) return; L.online().then(n => { const c = $('#liveChip'); if (!c) return; c.hidden = false; $('#liveN').textContent = n; }).catch(() => {}); };
+      tickOnline(); setInterval(tickOnline, 60000);
+      L.site().then(cfg => {
+        document.dispatchEvent(new CustomEvent('tz:site', { detail: cfg }));
+        const text = cfg && cfg.on && String(cfg.announce || '').trim();
+        if (!text) return;
+        let gone = ''; try { gone = sessionStorage.getItem('tz.annGone') || ''; } catch (e) {}
+        if (gone === text) return;
+        const top = $('.tz-top');
+        const bar = document.createElement('div'); bar.className = 'announce'; bar.setAttribute('role', 'status');
+        bar.innerHTML = `<div class="wrap"><span class="ai" aria-hidden="true">📣</span><span class="at">${esc(text)}</span><button class="ax" aria-label="Dismiss">×</button></div>`;
+        top.insertAdjacentElement('afterend', bar);
+        bar.querySelector('.ax').addEventListener('click', () => { bar.remove(); try { sessionStorage.setItem('tz.annGone', text); } catch (e) {} });
+      });
+    };
+    if (window.TZLive) liveUI(); else document.addEventListener('tz:live', liveUI, { once:true });
+  }
   if (accountsOn){
     import(BASE + 'assets/accounts.js').then(m => m.start(window.TZ, ACC)).then(api => {
       Object.assign(account, api, { loading:false });

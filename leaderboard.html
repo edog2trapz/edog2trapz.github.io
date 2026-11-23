@@ -65,6 +65,23 @@
 .note h3{margin:0 0 6px;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase}
 .note p{margin:0 auto 14px;max-width:520px;color:var(--ink2)}
 </style>
+<style>
+.gb-tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:thin}
+.gb-tab{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--glass2);cursor:pointer;font-weight:800;font-size:13.5px;color:var(--ink)}
+.gb-tab .ti{width:40px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:15px;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.gb-tab[aria-selected="true"]{border-color:var(--o2,#ff8a00);box-shadow:var(--glow)}
+.gb-panel{padding:16px 18px;margin-top:8px}
+.gb-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.gb-head b{font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;font-size:20px}
+.gb-head small{color:var(--ink3);font-weight:700}.gb-head .btn{margin-left:auto}
+.gb-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.gb-list li{display:grid;grid-template-columns:34px 30px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:var(--glass2);border:1px solid var(--line);font-weight:700}
+.gb-list li.me{border-color:var(--o2,#ff8a00);box-shadow:0 0 0 2px rgba(255,138,0,.25)}
+.gb-list .n{font-family:var(--display);font-style:italic;font-weight:900;font-size:18px;color:var(--o-text);text-align:center}
+.gb-list li:nth-child(1) .n{color:#e6a700}.gb-list li:nth-child(2) .n{color:#9aa4b1}.gb-list li:nth-child(3) .n{color:#c07a3a}
+.gb-list .ava{font-size:20px;text-align:center}.gb-list b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gb-list .sc{font-family:var(--display);font-style:italic;font-weight:900;font-size:17px}
+</style>
 </head>
 <body data-page="ranks">
 <main id="main">
@@ -80,6 +97,11 @@
   <div id="podium" class="podium" aria-label="Top 3 players"></div>
   <div id="cta"></div>
   <section class="panel board" id="board" aria-label="Leaderboard"></section>
+  <div id="gameBoards" hidden>
+    <div class="sec"><h2>Game leaderboards</h2><span class="rule"></span></div>
+    <div class="gb-tabs" id="gbTabs" role="tablist" aria-label="Pick a game"></div>
+    <section class="panel gb-panel"><div class="gb-head" id="gbHead"></div><ol class="gb-list" id="gbList"></ol></section>
+  </div>
   <div class="sec"><h2>How to earn TZ</h2><span class="rule"></span><a class="more" href="achievements.html">Trophy room ›</a></div>
   <div class="how" id="how"></div>
 </div>
@@ -136,6 +158,26 @@
   }
   document.addEventListener('tz:auth', render);
   render();
+  /* per-game leaderboards (live layer) */
+  let gbSel = null;
+  function gameBoards(){
+    const L = window.TZLive; if (!L) return;
+    const games = Object.keys(L.BOARDS).map(TZ.bySlug).filter(Boolean);
+    if (!games.length) return;
+    $('#gameBoards').hidden = false;
+    if (!gbSel) gbSel = (location.hash.slice(1) && L.BOARDS[location.hash.slice(1)]) ? location.hash.slice(1) : games[0].slug;
+    $('#gbTabs').innerHTML = games.map(g => `<button class="gb-tab" role="tab" data-gb="${esc(g.slug)}" aria-selected="${g.slug === gbSel}">${TZ.thumb(g)}${esc(g.title)}</button>`).join('');
+    const g = TZ.bySlug(gbSel);
+    $('#gbHead').innerHTML = `<b>${esc(g.title)}</b><small>${esc(L.BOARDS[g.slug].label)}</small><a class="btn sm" href="${TZ.playHref(g)}" data-play="${esc(g.slug)}">▶ Play</a>`;
+    $('#gbList').innerHTML = '<li class="muted" style="display:block">Loading…</li>';
+    L.board(g.slug, 25).then(list => {
+      if (gbSel !== g.slug) return;
+      $('#gbList').innerHTML = list.length ? list.map((x, i) => `<li class="${x.id === L.id ? 'me' : ''}"><span class="n">${i + 1}</span><span class="ava">${esc(x.avatar || '🎮')}</span><b>${esc(x.tag)}${x.id === L.id ? ' <small class="muted">(you)</small>' : ''}</b><span class="sc">${esc(x.shown || String(x.score))}</span></li>`).join('')
+        : `<li class="muted" style="display:block">No scores yet. Play ${esc(g.title)} and yours is first.</li>`;
+    }).catch(() => { $('#gbList').innerHTML = '<li class="muted" style="display:block">Could not load this leaderboard.</li>'; });
+  }
+  document.addEventListener('click', e => { const t = e.target.closest('[data-gb]'); if (t){ gbSel = t.dataset.gb; history.replaceState(null, '', '#' + gbSel); gameBoards(); } });
+  if (window.TZLive) gameBoards(); else document.addEventListener('tz:live', gameBoards, { once:true });
 })();
 </script>
 </body>

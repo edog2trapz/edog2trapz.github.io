@@ -47,6 +47,18 @@
   }
   const idOf = (c) => 'tz2trapz-' + cfg.slug + '-' + c.toUpperCase();
   function makeCode() { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; let s = ''; for (let i = 0; i < 4; i++) s += A[Math.floor(Math.random() * A.length)]; return s; }
+  /* public lobby (assets/live.js): hosted rooms are listed on the site so anyone can join */
+  let listed = true;
+  try { listed = localStorage.getItem('tz.ptPublic') !== '0'; } catch (e) { /* storage blocked */ }
+  const L = () => window.TZLive;
+  let ptOpen = false;
+  function lobbySync() {
+    const T = L(); if (!T) return;
+    if (role === 'host' && listed) {
+      if (ptOpen) T.updateRoom({ players: guests.length + 1 });
+      else { T.openRoom({ game: cfg.slug, code, title: cfg.title, players: guests.length + 1, max: cfg.slots.length + 1, kind: 'pt' }); ptOpen = true; }
+    } else if (ptOpen) { T.closeRoom(); ptOpen = false; }
+  }
   function canvasEl() { return typeof cfg.canvas === 'function' ? cfg.canvas() : document.querySelector(cfg.canvas); }
   const WHY = { 'peer-unavailable': 'No room with that code. Check it with the host.', network: 'Could not reach the matchmaking service. Check your connection.', 'server-error': 'The matchmaking service is having trouble. Try again in a minute.', 'browser-incompatible': 'This browser cannot do peer to peer play.', lib: 'Could not load the connection library.' };
 
@@ -90,7 +102,7 @@
     guests.splice(i, 1);
     for (const idx of g.held) inject(cfg.slots[g.slot].keys[idx], false);
     try { if (g.call) g.call.close(); } catch (e) { /* already closed */ }
-    paint();
+    paint(); lobbySync();
   }
   function getStream() {
     if (stream) return stream;
@@ -105,7 +117,7 @@
     let tries = 0;
     const open = () => {
       code = makeCode(); peer = new window.Peer(idOf(code), peerOpts());
-      peer.on('open', () => { role = 'host'; busy(false); paint(); });
+      peer.on('open', () => { role = 'host'; busy(false); paint(); lobbySync(); });
       peer.on('error', (e) => { if (e.type === 'unavailable-id' && tries++ < 5) { try { peer.destroy(); } catch (x) { /* ignore */ } open(); } else if (e.type !== 'peer-unavailable') { busy(false); setErr(WHY[e.type] || 'Could not open a room.'); } });
       peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { /* ignore */ } });
       peer.on('connection', (c) => {
@@ -121,7 +133,7 @@
             g.call.on('error', () => {});
             setTimeout(() => { try { const snd = g.call.peerConnection.getSenders().find((s) => s.track && s.track.kind === 'video'); const p = snd.getParameters(); p.encodings = p.encodings && p.encodings.length ? p.encodings : [{}]; p.encodings[0].maxBitrate = 3500000; p.encodings[0].maxFramerate = 30; p.degradationPreference = 'maintain-framerate'; snd.setParameters(p); } catch (e) { /* bitrate tuning is best effort */ } }, 800);
           } catch (e) { c.send({ t: 'err', m: String(e.message || e) }); }
-          paint();
+          paint(); lobbySync();
         });
         c.on('data', (d) => {
           if (!d || d.t !== 'k') return;
@@ -137,7 +149,7 @@
   function stopAll() {
     for (const g of guests.slice()) drop(g);
     try { if (peer) peer.destroy(); } catch (e) { /* ignore */ }
-    peer = null; role = null; code = ''; conn = null; mySlot = null; paint();
+    peer = null; role = null; code = ''; conn = null; mySlot = null; lobbySync(); paint();
   }
 
   /* -------------------------------------------------------------- guest */
@@ -224,7 +236,10 @@
         <div class="pt-row"><button class="pt-btn alt" data-a="copy" data-keep="1">Copy invite link</button><button class="pt-btn alt" data-a="close" data-keep="1">Back to the game</button></div>
         <ul class="pt-list"><li><span>Player 1</span><b>you (host)</b></li>${cfg.slots.map((s, i) => { const g = guests.find((q) => q.slot === i); return `<li><span>${esc(s.name)}</span>${g ? '<b>connected</b>' : '<span style="color:#8a93a6">waiting…</span>'}</li>`; }).join('')}</ul>
         <p class="pt-small">Pick a mode with ${max > 2 ? 'enough players' : 'two players'} in the game's own menu: your friends control the extra players. They see your game live but do not hear it. Works over the internet or the same Wi-Fi.</p>
+        ${L() ? `<label class="pt-small" style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" data-a="public" ${listed ? 'checked' : ''}> Show my room in the public lobby on 2trapz games, so anyone can join</label>` : ''}
         <div class="pt-row"><button class="pt-btn alt" data-a="stop" data-keep="1">Close the room</button></div><div class="pt-err"></div>`;
+      const pub = panel.querySelector('[data-a="public"]');
+      if (pub) pub.onchange = () => { listed = pub.checked; try { localStorage.setItem('tz.ptPublic', listed ? '1' : '0'); } catch (e) { /* storage blocked */ } lobbySync(); };
       panel.querySelector('[data-a="copy"]').onclick = (e) => { const done = () => { e.target.textContent = 'Link copied'; }; if (navigator.clipboard) navigator.clipboard.writeText(link).then(done, () => prompt('Copy this link', link)); else prompt('Copy this link', link); };
       panel.querySelector('[data-a="close"]').onclick = closePanel;
       panel.querySelector('[data-a="stop"]').onclick = () => { stopAll(); };
@@ -233,7 +248,14 @@
         <div class="pt-row"><button class="pt-btn" data-a="host">Host a room</button></div>
         <p style="margin:16px 0 6px;color:#eef1f7;font-weight:700">Or join a friend's room</p>
         <input class="pt-in" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false">
-        <div class="pt-row"><button class="pt-btn alt" data-a="join">Join</button><button class="pt-btn alt" data-a="close" data-keep="1">Cancel</button></div><div class="pt-err"></div>`;
+        <div class="pt-row"><button class="pt-btn alt" data-a="join">Join</button><button class="pt-btn alt" data-a="close" data-keep="1">Cancel</button></div><div class="pt-err"></div>
+        ${L() ? '<p style="margin:16px 0 6px;color:#eef1f7;font-weight:700">Open rooms right now</p><div class="pt-rooms"><p class="pt-small">Looking…</p></div>' : ''}`;
+      const rl = panel.querySelector('.pt-rooms');
+      if (rl) L().rooms(cfg.slug).then((list) => {
+        rl.innerHTML = list.length ? list.map((r) => `<div class="pt-row" style="align-items:center;margin-top:6px"><span style="flex:1;color:#eef1f7;font-weight:700">${esc(r.host)} <span class="pt-small">· ${r.players}/${r.max}</span></span><button class="pt-btn alt" data-room="${esc(r.code)}">Join</button></div>`).join('')
+          : '<p class="pt-small">No open rooms for this game right now. Host one and it shows up for everyone.</p>';
+        rl.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => join(b.dataset.room); });
+      }).catch(() => { rl.innerHTML = ''; });
       const inp = panel.querySelector('.pt-in');
       panel.querySelector('[data-a="host"]').onclick = host;
       panel.querySelector('[data-a="join"]').onclick = () => join(inp.value);

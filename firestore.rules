@@ -83,6 +83,53 @@ service cloud.firestore {
       allow delete: if signedIn() && request.auth.uid in resource.data.players;
     }
 
+    // ---------- live layer (assets/live.js): open to guests too, so every write is shape-checked ----------
+    function fresh(t) { return t is timestamp && t > request.time - duration.value(10, 'm') && t < request.time + duration.value(10, 'm'); }
+    function str(s, n) { return s is string && s.size() <= n; }
+
+    // who is online right now (one heartbeat doc per device)
+    match /presence/{id} {
+      allow read: if true;
+      allow create, update: if id.size() >= 8 && id.size() <= 40
+        && request.resource.data.keys().hasOnly(['t', 'page', 'game', 'tag'])
+        && fresh(request.resource.data.t)
+        && str(request.resource.data.page, 24) && str(request.resource.data.game, 40) && str(request.resource.data.tag, 24);
+      allow delete: if isAdmin();
+    }
+
+    // the public lobby: open Play Together and Orb Four rooms
+    match /rooms/{id} {
+      allow read: if true;
+      allow create, update: if id.size() <= 60
+        && request.resource.data.keys().hasOnly(['game', 'code', 'host', 'players', 'max', 't', 'open', 'title', 'kind'])
+        && fresh(request.resource.data.t)
+        && str(request.resource.data.game, 40) && str(request.resource.data.host, 24) && str(request.resource.data.title, 60) && str(request.resource.data.kind, 12)
+        && request.resource.data.code is string && request.resource.data.code.size() >= 4 && request.resource.data.code.size() <= 8
+        && request.resource.data.players is int && request.resource.data.players >= 0 && request.resource.data.players <= 16
+        && request.resource.data.max is int && request.resource.data.max >= 1 && request.resource.data.max <= 16
+        && request.resource.data.open is bool;
+      allow delete: if true;
+    }
+
+    // per-game leaderboards: one best score per device, and it can only go up
+    match /boards/{game}/scores/{pid} {
+      allow read: if true;
+      allow create, update: if game.size() <= 40 && pid.size() >= 8 && pid.size() <= 40
+        && request.resource.data.keys().hasOnly(['tag', 'avatar', 'score', 'shown', 't'])
+        && request.resource.data.score is number && request.resource.data.score > -1000000000 && request.resource.data.score < 1000000000000
+        && request.resource.data.tag is string && request.resource.data.tag.size() > 0 && request.resource.data.tag.size() <= 24
+        && str(request.resource.data.avatar, 8) && str(request.resource.data.shown, 40)
+        && fresh(request.resource.data.t)
+        && (resource == null || request.resource.data.score > resource.data.score);
+      allow delete: if isAdmin();
+    }
+
+    // site settings the admin sets in admin.html: announcement banner, Game of the Day
+    match /site/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // ---------- reviews: start 'pending', only an admin can approve (admin.html) ----------
     match /reviews/{id} {
       allow read: if resource.data.status == 'approved'

@@ -351,7 +351,13 @@
       <div class="row" style="justify-content:center;margin-top:12px"><button class="btn sm" data-room-host>Create room</button></div>
       <div class="row" style="justify-content:center;margin-top:10px;gap:8px"><input class="input" id="roomCode" maxlength="4" placeholder="CODE" autocomplete="off" style="width:110px;text-align:center;text-transform:uppercase;letter-spacing:.2em;font-weight:800"><button class="btn sm ghost" data-room-join>Join</button></div>
       ${accountsOn ? '<div style="margin-top:10px;font-size:13px">Signed in? You can also challenge friends from your <a href="../../friends.html" style="color:var(--o-text);font-weight:800">Friends</a> list.</div>' : ''}
-      <div id="roomErr" style="margin-top:8px;color:#ff6b5a;font-weight:800;font-size:13px">${err ? esc(err) : ''}</div>`, true);
+      <div id="roomErr" style="margin-top:8px;color:#ff6b5a;font-weight:800;font-size:13px">${err ? esc(err) : ''}</div>
+      ${window.TZLive ? '<div style="margin-top:14px;font-weight:800">Open rooms right now</div><div id="orbRooms" style="margin-top:6px;display:grid;gap:6px"><span class="muted" style="font-size:13px">Looking…</span></div>' : ''}`, true);
+    if (window.TZLive) TZLive.rooms('orb-four').then(list => {
+      const box = $('#orbRooms'); if (!box) return;
+      box.innerHTML = list.length ? list.map(r => `<div class="row" style="justify-content:center;gap:8px;align-items:center"><span style="font-weight:800">${esc(r.host)}</span><button class="btn sm ghost" data-room-code="${esc(r.code)}">Join</button></div>`).join('')
+        : '<span class="muted" style="font-size:13px">None yet. Create one and it shows up for everyone on 2trapz games.</span>';
+    }).catch(() => {});
   }
   function roomErr(m){ const e = $('#roomErr'); if (e) e.textContent = m; else roomPanel(m); }
   function roomSend(d){ try { if (room && room.conn && room.conn.open) room.conn.send(d); } catch (e) {} }
@@ -362,6 +368,7 @@
       if (d.t === 'hello' || d.t === 'hi'){
         room.them = { tag: String(d.tag || 'Friend').slice(0, 24), ava: String(d.ava || '🎮').slice(0, 4) };
         if (d.t === 'hello') roomSend({ t: 'hi', tag: prof().tag, ava: prof().avatar });
+        if (window.TZLive && room.role === 'host') TZLive.closeRoom(); /* full now: take it off the lobby */
         room.ready = true; mode = 'room'; setModeChips(); $('#wait').classList.remove('on'); wins = { a:0, b:0 }; reset(); extras(); TZ.sfx('ok');
         TZ.toast({ icon:'🟠', small:'Room ' + room.code, big: esc(room.them.tag) + ' joined. ' + (room.me === 'a' ? 'You go first.' : 'They go first.') });
       } else if (d.t === 'move'){
@@ -385,6 +392,7 @@
       const peer = new window.Peer(roomId(code), peerOpts());
       room = { role: 'host', me: 'a', peer, conn: null, code, ready: false, them: null, games: 0 };
       peer.on('open', () => {
+        if (window.TZLive) TZLive.openRoom({ game: 'orb-four', code, title: 'Orb Four', players: 1, max: 2, kind: 'orb' });
         const link = location.origin + location.pathname + '?room=' + code;
         waitMsg('Room ' + code, `Send your friend this code, or the link. They open Orb Four, press Online and type it.<div style="font:900 44px var(--display);letter-spacing:.18em;margin:10px 0;color:var(--o-text)">${code}</div><div class="row" style="justify-content:center;gap:8px"><button class="btn sm" data-room-copy="${esc(link)}">Copy invite link</button><button class="btn sm ghost" data-room-leave>Cancel</button></div>`);
       });
@@ -409,7 +417,7 @@
       roomWire(c);
     });
   }
-  function roomClose(){ if (!room) return; const r = room; room = null; try { if (r.conn) r.conn.close(); } catch (e) {} try { r.peer.destroy(); } catch (e) {} }
+  function roomClose(){ if (window.TZLive) TZLive.closeRoom(); if (!room) return; const r = room; room = null; try { if (r.conn) r.conn.close(); } catch (e) {} try { r.peer.destroy(); } catch (e) {} }
   function roomRematch(mine){
     if (!room) return;
     if (mine) roomSend({ t: 'again' });
@@ -441,6 +449,7 @@
       mode = m; TZ.set('tz.orb.mode', m); setModeChips(); $('#wait').classList.remove('on'); extras(); reset(); return;
     }
     if (t.closest('[data-room-host]')){ roomHost(); return; }
+    const rc = t.closest('[data-room-code]'); if (rc){ roomJoin(rc.dataset.roomCode); return; }
     if (t.closest('[data-room-join]')){ roomJoin(($('#roomCode') || {}).value); return; }
     if (t.closest('[data-room-again]')){ roomRematch(true); return; }
     if (t.closest('[data-room-leave]')){ roomClose(); mode = 'online'; setModeChips(); reset(); extras(); roomPanel(); return; }
@@ -470,5 +479,6 @@
   else if (mode === 'online') online();
 })();
 </script>
+<script src="../../assets/live.js" defer></script>
 </body>
 </html>

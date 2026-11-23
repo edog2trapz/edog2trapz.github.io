@@ -1323,5 +1323,6 @@ requestAnimationFrame(loop);
 window.__eel={get state(){return state;},get player(){return player;},get eels(){return eels;},startGame,useAb:()=>player&&useAbility(player),admin,dbgKill:()=>player&&player.alive&&kill(player,eels.find(e=>!e.isPlayer)),setXp:v=>player&&player.addXp(v),get surge(){return surge;},forceSurge:id=>{const keep=SURGES.slice();SURGES.splice(0,SURGES.length,...keep.filter(x=>x.id===id));lastSurge="";startSurge();SURGES.splice(0,SURGES.length,...keep);}};
 })();
 </script>
+<script src="../../assets/live.js" defer></script>
 </body>
 </html>

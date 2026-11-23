@@ -134,6 +134,8 @@ Firebase's free plan is plenty for a small site. (If the site gets really big, F
 8. Open **Build → Firestore Database → Create database**. Pick a location near you, choose **production mode**, and create it. Then open the **Rules** tab, delete everything there, paste in everything from this repo's `firestore.rules` file, and click **Publish**. (Whenever `firestore.rules` changes in this repo, paste it in and publish again.)
 9. Upload the changed `assets/data.js` to GitHub and wait a minute. Accounts are live.
 
+**Leaderboards for more games:** open `assets/live.js` and add a line to the `BOARDS` list with the game's folder name, the localStorage key where the game saves its best score, and (if the save is an object) the path to the number, like `path: 'stats.best'`.
+
 **Becoming the admin (to approve reviews):** on the site's Account page, open "Use an email address instead", choose **Create account**, and sign up with **realbug1243@gmail.com**. Click the link in the verification email Firebase sends you, then sign out and back in. Your account page now shows an **Admin console** button (`admin.html`). Players must sign in to post reviews; you get an email for each one, then click **Approve**, **Hide** or **Delete** in the console.
 
 **Forgotten username passwords:** username accounts have no email, so they can't reset their own password. If a player asks, open Firebase → Authentication → Users, find `theirusername@player.edog2trapz.github.io`, and delete it so they can sign up again (they can restore progress from a Memory Card save).
@@ -169,6 +171,8 @@ Your AdSense code (`ca-pub-4591809197740975`) is in the `<head>` of every page e
 - **Memory Card** (account page): save progress to a file or code and load it on another device. Works without accounts.
 - **Friends + Orb Four** (once accounts are on): add friends, see who's online, send game invites, and play live Orb Four matches. Orb Four also has vs-CPU (4 difficulties), 2-players-on-one-screen and online rooms with a four-letter code, which work for everyone without accounts.
 - **Play Together:** several games (the ones with an Online badge) let a friend join from their own device with a room code, over the internet or the same Wi-Fi. No account needed.
+- **Live layer** (once accounts are on): a green "N online" counter in the top bar, a public lobby on the homepage listing every open Play Together and Orb Four room with a Join button, and per-game leaderboards for 13 games (on each game's page and on the Ranks page). Scores are sent automatically when a player sets a new best.
+- **Admin console** (`admin.html`): see who's online and what they're playing, close rooms, post an announcement banner on every page, pin the homepage Game of the Day, remove fake leaderboard scores, and approve reviews.
 - **Controllers:** many games work with a gamepad. A game can add support by loading `assets/padmap.js`, which handles the controller and lets the d-pad and A button drive any menu.
 - **Shortcuts:** **/** search, **R** random game, **S** switch style, **G** Guide, **Esc** close.
 - **Secret:** there is a classic cheat code. On a phone, tap the orange 2t logo 7 times on the homepage.

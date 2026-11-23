@@ -445,4 +445,5 @@ if(g.mt>0){X.globalAlpha=Math.min(1,g.mt);X.fillStyle='#000a';X.font='bold 17px 
 if(p.dead>0){X.fillStyle='#000a';X.fillRect(0,H/2-34,W,68);X.fillStyle='#e8552d';X.font='900 30px Impact,sans-serif';X.textAlign='center';X.fillText('REDEPLOYING IN '+Math.ceil(p.dead),W/2,H/2)}
 for(const st of[tch.L,tch.R]){if(!st||!tch.on)continue;X.strokeStyle='#e8e4cf66';X.lineWidth=2;X.beginPath();X.arc(st.sx,st.sy,44,0,TAU);X.stroke();const x=st.x-st.sx,y=st.y-st.sy,l=Math.hypot(x,y)||1,m=Math.min(44,l);X.fillStyle=st===tch.R?'#e8552daa':'#e8e4cf88';X.beginPath();X.arc(st.sx+x/l*m,st.sy+y/l*m,18,0,TAU);X.fill()}
 X.textBaseline='alphabetic'}
-</script></body></html>
+</script><script src="../../assets/live.js" defer></script>
+</body></html>

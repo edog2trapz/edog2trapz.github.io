@@ -341,6 +341,9 @@ export async function start(TZ, cfg){
     },
     setReviewStatus: (id, status) => F.updateDoc(F.doc(db, 'reviews', id), { status }),
     removeReview: id => F.deleteDoc(F.doc(db, 'reviews', id)),
+    /* admin: site-wide settings (announcement banner, Game of the Day) and leaderboard moderation */
+    setSite: data => F.setDoc(F.doc(db, 'site', 'config'), { ...data, t: F.serverTimestamp() }, { merge: true }),
+    removeScore: (game, pid) => F.deleteDoc(F.doc(db, 'boards', game, 'scores', pid)),
   };
   function pick(d){ return { game: d.game, name: d.name, stars: d.stars, text: d.text, date: d.date, avatar: d.avatar, uid: d.uid, status: d.status }; }
   function shapeFriendship(id, x){
