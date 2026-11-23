@@ -58,6 +58,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'dino-dynasty', title:'Dino Dynasty', icon:'🦖', genre:'Tycoon', colors:['#0b2526', '#ffc23d'], players:'1 player', isNew:true,
+    desc:'Open fossil packs, collect 36 hand-animated dinosaurs and grow a tiny island into a six-zone dino park. Level cards with spares, complete sets, trade with museum collectors, hire rangers, catch the Golden Pteranodon and call down the meteor to rebuild stronger.' },
   { slug:'tap-the-yart', title:'Tap the Yart: Hazeport High', icon:'💨', genre:'Stealth', colors:['#14161d', '#c9b8ff'], players:'1 player', isNew:true, featured:true,
     desc:'A first-person school day at Hazeport High. Skip class, cheat on the exam with AI, text the plug on Telegrom, blow O\'s and ghosts, wheelie e-scooters through the halls, steal a car, tag gang turf and rob the canteen, all without getting detention. Seven GTA-style missions come in over your phone, and every day rolls its own fire drill, bag checks, relief teacher or food fight. Start with a Gleek Bar and $20 and unlock the rest. The four original story periods are still there.' },
   { slug:'rhyme-cipher', title:'Rhyme Cipher', icon:'🎤', genre:'Rhythm', colors:['#120d1d', '#ffb547'], players:'1 player', isNew:true, featured:true,
@@ -150,6 +152,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-23', tag:'New game', title:'Dino Dynasty: build a dinosaur park, one fossil pack at a time', game:'dino-dynasty',
+    text:'Dino Dynasty is out. Rip open fossil packs, find 36 dinosaurs from Compsognathus to the Mythic Magmafang Rex, and place them in pens across six island zones that earn while you are away. Spare cards level dinos up, full sets double a zone, and the Extinction Event lets you restart with Amber for a permanent boost. It has its own leaderboard for best park income.' },
   { date:'2026-11-23', tag:'Site', title:'Live on 2trapz: leaderboards, open rooms and who is online',
     text:'The top bar now shows how many players are on right now. The homepage has a live lobby: every Play Together and Orb Four room someone opens shows up there with a Join button, so you can play with anyone, not just friends with a code. And 13 games have their own leaderboards, on each game page and on the Ranks page. Set a new best and it goes up automatically.' },
   { date:'2026-11-23', tag:'Update', title:'Tap the Yart: missions, fire drills and no more freezes', game:'tap-the-yart',

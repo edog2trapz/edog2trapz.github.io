@@ -147,6 +147,7 @@
     'stick-storm-showdown': { key: 'stickstorm.save.v1', path: 'bestScore', label: 'Best score' },
     'sack-lewis-2': { key: 'sackLewis2.meta.v1', path: 'bestDenarii', label: 'Best denarii' },
     'bucket-splash': { key: 'bucketSplashPC.v1', path: 'best.war', label: 'Water War best' },
+    'dino-dynasty': { key: 'dinoDynasty.save.v1', path: 'board', label: 'Best park income', scale: (x) => Math.round(Math.log10(1 + x) * 1000), shown: (x) => { const u = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc']; let i = 0; while (x >= 1000 && i < u.length - 1) { x /= 1000; i++; } return (i ? x.toFixed(x < 10 ? 2 : x < 100 ? 1 : 0) : Math.floor(x)) + u[i] + ' coins/s'; } },
     'vector-terminal': { key: 'vterm.progress', path: 'best', label: 'Best season return', scale: (x) => Math.round(x * 10000) / 100, shown: (x) => pct(x) },
   };
   function readBest(slug) {
