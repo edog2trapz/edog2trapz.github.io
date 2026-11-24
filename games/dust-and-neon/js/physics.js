@@ -6,13 +6,13 @@
 
   // ------------------------------------------------------------ surfaces & tyres
   const SURF = {
-    tarmac: { mu: 1.0, peak: 0.13, slide: 0.74, rr: 0.014, rough: 0.0 },
-    gravel: { mu: 0.74, peak: 0.21, slide: 0.88, rr: 0.03, rough: 0.35 },
-    dirt:   { mu: 0.72, peak: 0.22, slide: 0.88, rr: 0.032, rough: 0.4 },
-    snow:   { mu: 0.5, peak: 0.24, slide: 0.92, rr: 0.035, rough: 0.25 },
-    grass:  { mu: 0.58, peak: 0.2, slide: 0.85, rr: 0.06, rough: 0.5 },
-    sand:   { mu: 0.52, peak: 0.25, slide: 0.86, rr: 0.11, rough: 0.6 },
-    curb:   { mu: 0.9, peak: 0.13, slide: 0.75, rr: 0.02, rough: 0.8 }
+    tarmac: { mu: 1.24, peak: 0.13, slide: 0.78, rr: 0.014, rough: 0.0 },
+    gravel: { mu: 0.88, peak: 0.2, slide: 0.9, rr: 0.03, rough: 0.35 },
+    dirt:   { mu: 0.86, peak: 0.21, slide: 0.9, rr: 0.032, rough: 0.4 },
+    snow:   { mu: 0.62, peak: 0.23, slide: 0.93, rr: 0.035, rough: 0.25 },
+    grass:  { mu: 0.66, peak: 0.2, slide: 0.86, rr: 0.06, rough: 0.5 },
+    sand:   { mu: 0.6, peak: 0.24, slide: 0.88, rr: 0.11, rough: 0.6 },
+    curb:   { mu: 1.1, peak: 0.13, slide: 0.78, rr: 0.02, rough: 0.8 }
   };
   const TIRE = {
     street: { tarmac: 1.0, gravel: 0.9, dirt: 0.9, snow: 0.78, grass: 0.92, sand: 0.9, curb: 1, slide: 0 },
@@ -386,14 +386,16 @@
       const vv = Math.max(speed, 1);
       const looseS = sname !== 'tarmac' && sname !== 'curb';
       const kb = !inp.wheel && !inp.analogSteer;
-      const gripAngle = Math.atan(st.wb * mu * G * 1.05 / (vv * vv)) + peak * (looseS ? (kb ? 1.25 : 1.45) : (kb ? 0.9 : 1.15));
+      const gripAngle = Math.atan(st.wb * mu * G * 1.05 / (vv * vv)) + peak * (looseS ? (kb ? 1.3 : 1.45) : (kb ? 1.0 : 1.15));
       const lockNow = inp.wheel ? st.steerLock : Math.min(st.steerLock, Math.max(gripAngle * (inp.analogSteer ? 1.15 : 1), st.steerLock * 0.1));
       this.lockNow = lockNow;
       let target = steerIn * lockNow;
       // countersteer assist
       const slipAngleCar = speed > 3 ? Math.atan2(vLat, Math.abs(vLong)) : 0;
-      if (inp.counterAssist && speed > 6 && Math.abs(slipAngleCar) > 0.12 && !inp.wheel) {
-        target += U.clamp(slipAngleCar * 0.65, -st.steerLock, st.steerLock) * (1 - Math.abs(steerIn) * 0.5);
+      if (inp.counterAssist && speed > 6 && Math.abs(slipAngleCar) > 0.2 && !inp.wheel) {
+        // countersteer = steer toward the slide (same sign as body slip); never fight a turn the player is holding
+        const helping = Math.abs(steerIn) < 0.25 || Math.sign(steerIn) === Math.sign(slipAngleCar);
+        if (helping) target += U.clamp((slipAngleCar - Math.sign(slipAngleCar) * 0.15) * 0.7, -st.steerLock, st.steerLock);
       }
       target = U.clamp(target, -st.steerLock, st.steerLock);
       this.steerAng = inp.wheel ? target : U.damp(this.steerAng, target, 14, dt);
@@ -416,7 +418,7 @@
       let Fyf = latCurve(alphaF) * Math.max(capF, maxF * 0.12) * (1 - lowK * 0.9);
       // rear tyres are stiffer (toe-in / wider) -> mild understeer for stability; power & handbrake still break them loose
       const loose = sname !== 'tarmac' && sname !== 'curb';
-      const stab = (this.assist === 'off' ? 1.06 : 1.12) * (loose ? 1.08 : 1);
+      const stab = (this.assist === 'off' ? 1.0 : this.assist === 'full' ? 1.1 : 1.05) * (loose ? 1.12 : 1);
       let Fyr = latCurve(alphaR, peak * 0.92) * Math.max(capR * stab, maxR * 0.08) * (1 - lowK * 0.9);
       this.slipF = Math.abs(alphaF) / peak; this.slipR = Math.abs(alphaR) / (peak * 0.92); this.FyrPrev = Fyr; this.FyfPrev = Fyf;
       // stability assist
@@ -431,15 +433,24 @@
       const cosd = Math.cos(delta), sind = Math.sin(delta);
       const FlongBody = Ff_long * cosd - Fyf * sind + Fr_long - resist * U.sign(vLong) * (Math.abs(vLong) / Math.max(speed, 0.01));
       const FlatBody = Ff_long * sind + Fyf * cosd + Fyr - resist * (vLat / Math.max(speed, 0.01)) * 0;
-      const Iz = mass * (st.L * st.L + st.W * st.W) / 12 * 1.15;
+      const Iz = mass * (st.L * st.L + st.W * st.W) / 12 * 1.0;
       let torque = a * (Ff_long * sind + Fyf * cosd) - b * Fyr;
       // stability control: leaves normal cornering alone, only catches the car as the body slip angle heads for a spin
       if (contact && speed > 5 && this.assist !== 'off') {
         const full = this.assist === 'full';
         const power = throttle > 0.45;
-        const b0 = full ? 0.08 : power ? 0.3 : 0.15, b1 = full ? 0.3 : power ? 0.75 : 0.5;
+        const lz = loose && power ? 0.06 : 0; const b0 = (full ? 0.1 : power ? 0.4 : 0.26) + lz, b1 = (full ? 0.35 : power ? 0.95 : 0.65) + lz;
         const f = U.smooth(b0, b1, Math.abs(slipAngleCar)) * (hb ? 0.25 : 1) * (inp.wheel && !full ? 0.6 : 1);
         if (f > 0) { const pathW = this.alat / Math.max(speed, 1); torque += f * Iz * (slipAngleCar * 5 - (this.w - pathW) * 3.5); }
+      }
+      // turn helper (keyboard / pad on Light or Full assist): yaw follows the steering intent, capped near the grip limit
+      if (contact && speed > 4 && !inp.wheel && this.assist !== 'off' && !hb && Math.abs(slipAngleCar) < 0.4) {
+        const dCmd = steerIn * lockNow;
+        let wT = vLong * Math.tan(dCmd) / st.wb;
+        const wCap = mu * G * (looseS ? 0.9 : 0.97) / Math.max(speed, 1);
+        wT = U.clamp(wT, -wCap, wCap);
+        const gain = (this.assist === 'full' ? 3.2 : 2.4) * U.smooth(4, 9, speed) * (1 - U.smooth(0.12, 0.3, Math.abs(slipAngleCar)));
+        if (Math.abs(steerIn) > 0.05 || Math.abs(this.w) > Math.abs(wT)) torque += Iz * gain * (wT - this.w);
       }
       // gravity on slopes and banked corners
       let gLong = 0, gLat = 0;

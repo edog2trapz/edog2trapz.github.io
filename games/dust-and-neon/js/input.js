@@ -59,10 +59,10 @@
     const target = (kr ? 1 : 0) - (kl ? 1 : 0);
     const sens = DN.settings ? DN.settings.steerSens : 1;
     // keyboard steering ramps in gently at speed and snaps back quickly (centre / reversal)
-    const spdK = Math.max(0.4, 1.3 / (1 + (speed || 0) / 38));
+    const spdK = Math.max(0.55, 1.3 / (1 + (speed || 0) / 45));
     const reversing = target !== 0 && Math.sign(target) !== Math.sign(I._ks || 0) && Math.abs(I._ks || 0) > 0.05;
-    const rate = (reversing ? 8 : 3.6 * spdK) * sens;
-    I._ks = target === 0 ? U.approach(I._ks || 0, 0, dt * 7) : U.approach(I._ks || 0, target, dt * rate);
+    const rate = (reversing ? 9 : 5.4 * spdK) * sens;
+    I._ks = target === 0 ? U.approach(I._ks || 0, 0, dt * 8) : U.approach(I._ks || 0, target, dt * rate);
     let steer = I._ks, thr = any(KEYMAP.throttle) ? 1 : 0, brk = any(KEYMAP.brake) ? 1 : 0;
     let hb = any(KEYMAP.handbrake), nos = any(KEYMAP.nitro), clutch = any(KEYMAP.clutch) ? 1 : 0;
     if (I.edges.shiftUp) I.shiftUp = true;

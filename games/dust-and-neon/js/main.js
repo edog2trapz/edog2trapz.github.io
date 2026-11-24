@@ -39,9 +39,18 @@
       this.loop();
     },
 
+    // dynamic resolution: keep the frame rate up so steering stays responsive on slower machines
+    autoScale(dt) {
+      this.ft = this.ft == null ? dt : this.ft * 0.95 + dt * 0.05;
+      this.dynT = (this.dynT || 0) + dt;
+      this.dyn = this.dyn || 1;
+      if (this.dynT < 1.5) return;
+      if (this.ft > 1 / 42 && this.dyn > 0.55) { this.dyn = Math.max(0.55, this.dyn - 0.1); this.dynT = 0; this.resize(); }
+      else if (this.ft < 1 / 58 && this.dyn < 1 && this.dynT > 4) { this.dyn = Math.min(1, this.dyn + 0.1); this.dynT = 0; this.resize(); }
+    },
     resize() {
       const w = window.innerWidth, h = window.innerHeight;
-      const pr = Math.min(window.devicePixelRatio || 1, 2) * (DN.settings.scale || 1) * (DN.settings.quality === 0 ? 0.75 : 1);
+      const pr = Math.min(window.devicePixelRatio || 1, 2) * (DN.settings.scale || 1) * (DN.settings.quality === 0 ? 0.75 : 1) * (this.state === 'drive' ? (this.dyn || 1) : 1);
       this.renderer.setPixelRatio(pr);
       this.renderer.setSize(w, h);
       this.post.setSize(w * pr, h * pr);
@@ -197,7 +206,9 @@
     // ------------------------------------------------------------ main loop
     loop() {
       requestAnimationFrame(() => this.loop());
-      const dt = Math.min(this.clock.getDelta(), 0.05);
+      const rawDt = this.clock.getDelta();
+      const dt = Math.min(rawDt, 0.1);
+      if (this.state === 'drive') this.autoScale(rawDt);
       this.t += dt;
       if (this.state === 'menu' || this.state === 'title') this.updateGarage(dt);
       else if (this.state === 'drive') this.updateDrive(dt);
@@ -264,12 +275,12 @@
       // physics
       this.acc += dt;
       let n = 0; const evs = this.frameEvents; evs.length = 0;
-      while (this.acc >= STEP && n < 10) {
+      while (this.acc >= STEP && n < 14) {
         v.update(STEP, inp); for (const e of v.events) evs.push(e);
         inp.shiftUp = inp.shiftDown = false;
         this.acc -= STEP; n++;
       }
-      if (n >= 10) this.acc = 0;
+      if (n >= 14) this.acc = 0;
       v.events = evs.slice();
       // extra state for model / cockpit
       v.steerInput = I.steer; v.wheelInput = I.wheel; v.afr = v.throttle > 0.5 ? 11.8 + Math.random() * 0.4 : 14.2 + Math.random() * 0.6; v.knock = 0;

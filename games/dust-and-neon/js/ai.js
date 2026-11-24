@@ -52,7 +52,7 @@
     }
     profile() {
       const r = this.route, n = r.n, st = this.st;
-      const mu = 1.05 * st.grip * (this.world.kind === 'rally' && this.world.def.surface !== 'tarmac' ? 0.78 : 1);
+      const mu = 1.24 * st.grip * (this.world.kind === 'rally' && this.world.def.surface !== 'tarmac' ? (this.world.def.surface === 'snow' ? 0.55 : 0.74) : 1);
       const top = st.top / 3.6 * 0.98;
       const vp = new Float32Array(n);
       for (let i = 0; i < n; i++) {

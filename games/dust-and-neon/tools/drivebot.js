@@ -57,10 +57,10 @@ function run(carId, worldSpec, mode, aLat, opts = {}) {
       let target = 0;
       if (want - ks > 0.08) target = 1; else if (ks - want > 0.08) target = want < -0.05 ? -1 : 0;
       if (target === 0 && want > 0.05 && ks < want) target = 1;
-      const spdK = Math.max(0.4, 1.3 / (1 + sp / 38));
+      const spdK = Math.max(0.55, 1.3 / (1 + sp / 45));
       const reversing = target !== 0 && Math.sign(target) !== Math.sign(ks) && Math.abs(ks) > 0.05;
-      const rate = reversing ? 8 : 3.6 * spdK;
-      ks = target === 0 ? U.approach(ks, 0, dt * 7) : U.approach(ks, target, dt * rate);
+      const rate = reversing ? 9 : 5.4 * spdK;
+      ks = target === 0 ? U.approach(ks, 0, dt * 8) : U.approach(ks, target, dt * rate);
       inp.steer = ks;
     } else inp.steer = want;
     const tv = Math.min(vp[nr.i], vp[r.idx(nr.i + Math.ceil(sp * 0.3 / 2))]);
