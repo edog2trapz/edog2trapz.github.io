@@ -108,8 +108,8 @@ const GAMES = [
     desc:'Seize a nation, wage real-time wars on a living world map, hunt down your nemesis, then conquer the stars until the universe runs dry.' },
   { slug:'vector-terminal', title:'Vector Terminal', icon:'📈', genre:'Strategy', colors:['#02110a', '#39ff8a'], players:'1 player',
     desc:'AI Trading Arena, remastered. Out-trade six AI bots across 40 days of news-driven markets, then hack your way to the top before the SEC catches on. Trade earnings days, set stops and targets, and survive bubbles and bear markets.' },
-  { slug:'stick-brawl', title:'Stick Brawl', icon:'🥋', genre:'Fighting', colors:['#7f1d1d', '#f97316'], players:'', online:true,
-    desc:'Stick-figure fighting with flashy special moves and full Bankai-style transformations.' },
+  { slug:'stick-brawl', title:'Stick Brawl', icon:'🥋', genre:'Fighting', colors:['#7f1d1d', '#f97316'], players:'1-4 players', online:true,
+    desc:'Stick-figure fighting with flashy special moves and full Bankai-style transformations. Play online 1v1 or 2v2 with up to 4 friends, each on their own device.' },
   { slug:'eelectric', title:'Eelectric.io', icon:'⚡', genre:'Arcade', colors:['#0b3a5a', '#5ee6ff'], players:'',
     desc:'You are an electric eel. Eat, grow, and fry everything in the water. Every minute a surge hits the arena: feeding frenzy, thunderstorm, bounty or whirlpool.' },
   { slug:'bucket-splash', title:'Bucket Splash', icon:'🪣', genre:'Party', colors:['#0d5c8a', '#7fe0ff'], players:'',
@@ -152,6 +152,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-24', tag:'Update', title:'Stick Brawl: real online 1v1 and 2v2 for up to 4 players', game:'stick-brawl',
+    text:'Stick Brawl has proper online play now. Press the green Online button, host a room and send friends the code or invite link. Everyone controls their own fighter: 1v1, or 2v2 with a leader and an ally on each team. Empty seats are filled by CPUs, and anyone extra can watch. Pick Blue or Red in the lobby, set a nickname, and fuse with a human ally when you both press FUSE. Your room also shows up in the live lobby on the homepage.' },
   { date:'2026-11-23', tag:'New game', title:'Dino Dynasty: build a dinosaur park, one fossil pack at a time', game:'dino-dynasty',
     text:'Dino Dynasty is out. Rip open fossil packs, find 36 dinosaurs from Compsognathus to the Mythic Magmafang Rex, and place them in pens across six island zones that earn while you are away. Spare cards level dinos up, full sets double a zone, and the Extinction Event lets you restart with Amber for a permanent boost. It has its own leaderboard for best park income.' },
   { date:'2026-11-23', tag:'Site', title:'Live on 2trapz: leaderboards, open rooms and who is online',

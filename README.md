@@ -194,7 +194,7 @@ That's it: every change you make goes live with two clicks.
 
 - Saved games, gamertags, achievements and favorites live in each player's own browser, so every visitor gets their own progress.
 - Power Hungry downloads its world map from the internet when it starts, so it needs a connection.
-- Stick Brawl's online room mode only works inside Claude. Everything else works anywhere.
+- Stick Brawl's online rooms (1v1 and 2v2, up to 4 players, each on their own device) run peer to peer through PeerJS on the site, and through Claude's rooms when the game is opened inside Claude. The game page does not use Play Together.
 - Breachline plays against bots right on the site. Its online and LAN mode needs the separate Breachline server (`node server.js`), which GitHub Pages can't run.
 - Besieged plays against bots anywhere, but its online matches only work inside Claude. It loads its 3D engine from the internet when it starts, so it needs a connection.
 - Dead Rude and Dachy also load their 3D engine from the internet when they start, so they need a connection.

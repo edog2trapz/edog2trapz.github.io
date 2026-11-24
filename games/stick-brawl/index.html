@@ -63,11 +63,11 @@ canvas{width:100%;height:100%;display:block}
 </style>
 <div id="w"><canvas id="c"></canvas>
 <div id="tc"><div><button data-k="l">◀</button><button data-k="r">▶</button></div><div><button data-k="j">▲</button><button data-k="a">⚔</button><button data-k="s">✦</button><button data-k="p">🛡</button><button data-k="e">⇢</button><button data-k="u">★</button><button data-k="f">✚</button></div></div>
-<div id="menu" class="ov"><h1>STICK BRAWL</h1><p id="mh"></p><div class="mplay"><button class="b big" id="b1">▶ Play vs CPU</button><button class="b big alt" id="b2">👥 2 Players</button></div>
-<div class="mgrid"><button class="mc" id="bmap"></button><button class="mc" id="bgm"></button><button class="mc" id="bmu"></button><button class="mc" id="bwp"></button><button class="mc" id="bdf"></button><button class="mc" id="bnet"><small>ONLINE</small><b>🌐 2 devices</b><i>Invite a friend with a code</i></button><button class="mc" id="bbs" style="display:none"></button></div>
+<div id="menu" class="ov"><h1>STICK BRAWL</h1><p id="mh"></p><div class="mplay"><button class="b big" id="b1">▶ Play vs CPU</button><button class="b big alt" id="b2">👥 Local 2P</button><button class="b big ol" id="b3">🌐 Online</button></div>
+<div class="mgrid"><button class="mc" id="bmap"></button><button class="mc" id="bgm"></button><button class="mc" id="bmu"></button><button class="mc" id="bwp"></button><button class="mc" id="bdf"></button><button class="mc" id="bnet"><small>ONLINE</small><b>🌐 1v1 or 2v2</b><i>2-4 players, each on their own device</i></button><button class="mc" id="bbs" style="display:none"></button></div>
 <p class="hint">P1: A/D move, W jump (twice), S fast-fall, F attack, G ability, H parry, E dodge, Q ultimate (fill the meter) · P2: arrows, K attack, L ability, J parry, I dodge, O ultimate · P pause · M music · Esc menu · Combos are rhythm-based: after a hit, attack in the GREEN timing zone for PERFECT hits; mashing breaks your chain; at x4 a Combo Finisher fires automatically and hurls them toward the edge (see Guide). 2v2 mode: C (P1) / U (P2) fuses with your ally when the FUSE bar is full. Training: R reset, T swap weapon. Type enoch for the admin panel (then ` or F2 toggles it).</p></div>
 <div id="over" class="ov hide"><h1 id="ot"></h1><p id="os"></p><p id="ob" style="font-size:clamp(14px,2.6vw,22px);opacity:1;font-weight:700"></p><p id="ou"></p><p id="ost"></p><div><button class="b" id="br">Rematch</button> <button class="b" id="bw">Weapons</button> <button class="b" id="bm">Menu</button></div></div>
-<div id="adm" class="hide"></div><div id="toast"></div><div id="net" class="ov hide"></div><button id="admb" type="button">⚡ ENOCH</button><div id="sel" class="ov hide"><div id="pk"><div id="ptabs"></div><div id="pbody"><div id="pl"></div><div id="pd"></div></div><div id="pfoot"></div></div></div>
+<div id="adm" class="hide"></div><div id="toast"></div><div id="net" class="ov hide"></div><button id="admb" type="button">⚡ ENOCH</button><button id="olx" type="button">✕ Leave match</button><div id="sel" class="ov hide"><div id="pk"><div id="ptabs"></div><div id="pbody"><div id="pl"></div><div id="pd"></div></div><div id="pfoot"></div></div></div>
 </div>
 <button id="rst" type="button">Reset Progress</button>
 <script>
@@ -535,7 +535,7 @@ function step(dt){if(mut==='turbo'&&state==='play')dt*=1.3;simT+=dt;
  musTick(dt);dk=Math.max(0,dk-dt*2.5);shake=Math.max(0,shake-dt*1.8);
  parts.forEach(p=>{p.l-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(!p.t||p.gr)p.vy+=(p.gr?1100:700)*dt;if(p.rg)p.rg+=dt*600});parts=parts.filter(p=>p.l>0);
  F.forEach(f=>f.dp+=(f.pct-f.dp)*(1-Math.exp(-8*dt)));F.forEach(f=>{if(f.arena)f.adp+=(f.ahp-f.adp)*(1-Math.exp(-6*dt))});
- const a=F[0],b=F[1],dist=Math.hypot(a.x-b.x,(a.y-b.y)*1.5),k=1-Math.exp(-5*dt);
+ const [a,b]=typeof camAB==='function'?camAB():[F[0],F[1]],dist=Math.hypot(a.x-b.x,(a.y-b.y)*1.5),k=1-Math.exp(-5*dt);
  const tg=cin&&cin.f!=null?F[cin.f]:(gm==='horde'?F[0]:null);cam.x+=((tg?tg.x:(a.x+b.x)/2)-cam.x)*k;cam.y+=((tg?tg.y-40:(a.y+b.y)/2-30)-cam.y)*k;cam.z+=((cin?cin.z:gm==='horde'?1.15:Math.max(W/WW,Math.min(1.25,1.45-dist/(700*WW/W))))-cam.z)*k;camShot(dt);
  if(cin){cin.t+=dt;if(ucin.t>0)ucin.t-=dt;flash=Math.max(0,flash-dt*1.5);cin.steps.forEach(s=>{if(!s.done&&cin&&cin.t>=s.t){s.done=1;s.fn()}});if(cin&&cin.t>=cin.d)cin=null;return}
  if(dcl){clashStep(dt);return}if(hs>0){hs-=dt;return}
@@ -920,11 +920,11 @@ function hud(){
   ctx.fillStyle='#0008';ctx.fillRect(x-2,14,264,18);
   ctx.fillStyle='#ffe9a8';i?ctx.fillRect(x+260-dw,16,dw,14):ctx.fillRect(x,16,dw,14);
   ctx.fillStyle=f.col;i?ctx.fillRect(x+260-bw,16,bw,14):ctx.fillRect(x,16,bw,14);
-  ctx.fillStyle='#fff';ctx.textAlign=i?'right':'left';ctx.fillText((mode==='cpu'&&i?'CPU':'P'+(i+1))+' · '+f.w.n+(f.w.id==='sam'?(f.tm?' [STEALTHY]':' [SKIN-STEAL]'):f.w.id==='gb'?(f.tm?' [WOO]':' [FRANCIS]'):f.w.id==='tome'?[' [FIRE]',' [ICE]',' [BOLT]'][f.tm||0]:''),i?x+260:x,48);ctx.font='bold 26px system-ui,sans-serif';ctx.fillStyle='hsl('+Math.max(0,50-f.dp/3)+',95%,68%)';ctx.fillText((f.arena?Math.round(Math.max(0,f.ahp))+' HP':Math.round(f.dp)+'%'),i?x+260:x,102);ctx.fillStyle='#0008';ctx.fillRect(x,108,260,5);ctx.fillStyle=f.mt>=100?'#fff':'#f59e0b';ctx.fillRect(i?x+260-2.6*f.mt:x,108,2.6*f.mt,5);ctx.font='bold 13px system-ui,sans-serif';
+  ctx.fillStyle='#fff';ctx.textAlign=i?'right':'left';ctx.fillText((mode==='cpu'&&i?'CPU':netOn&&NET&&NET.v2&&f.nm?f.nm:netOn&&f.olcpu?'CPU':'P'+(i+1))+' · '+f.w.n+(f.w.id==='sam'?(f.tm?' [STEALTHY]':' [SKIN-STEAL]'):f.w.id==='gb'?(f.tm?' [WOO]':' [FRANCIS]'):f.w.id==='tome'?[' [FIRE]',' [ICE]',' [BOLT]'][f.tm||0]:''),i?x+260:x,48);ctx.font='bold 26px system-ui,sans-serif';ctx.fillStyle='hsl('+Math.max(0,50-f.dp/3)+',95%,68%)';ctx.fillText((f.arena?Math.round(Math.max(0,f.ahp))+' HP':Math.round(f.dp)+'%'),i?x+260:x,102);ctx.fillStyle='#0008';ctx.fillRect(x,108,260,5);ctx.fillStyle=f.mt>=100?'#fff':'#f59e0b';ctx.fillRect(i?x+260-2.6*f.mt:x,108,2.6*f.mt,5);ctx.font='bold 13px system-ui,sans-serif';
   const cd=1-f.scd/f.w.acd;ctx.fillStyle='#0008';ctx.fillRect(x,54,260,5);ctx.fillStyle=cd>=1?'#7CFC9A':'#aaa';i?ctx.fillRect(x+260-260*cd,54,260*cd,5):ctx.fillRect(x,54,260*cd,5);
   for(let l=0;l<3;l++){ctx.fillStyle=l<f.lives?f.col:'#fff3';ctx.beginPath();ctx.arc(i?x+8+l*16:x+252-l*16,72,5,0,6.3);ctx.fill()}});
  ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 14px system-ui,sans-serif';
- ctx.fillText(gm==='train'?'TRAINING \u00b7 DMG '+Math.round(tdmg)+' \u00b7 R reset \u00b7 T swap weapon \u00b7 Y dummy mode \u00b7 Esc menu':gm==='arena'?'ARENA \u00b7 REDUCE THEIR HP TO ZERO':gm==='horde'?'ZOMBIE HORDE \u00b7 WAVE '+wave+' \u00b7 SCORE '+score:gm==='boss'?'BOSS FIGHT \u00b7 SCORE '+score:gm==='koth'||gm==='coin'?Math.floor(F[0].pts)+' - '+Math.floor(F[1].pts)+(gm==='koth'?' / 30':' / 25')+' · '+Math.ceil(mtm)+'s':gm==='surv'&&mode==='cpu'?'WAVE '+wave+' · SCORE '+score:mode==='cpu'?'SCORE '+score:'2 PLAYERS',W/2,28);ctx.font='12px system-ui,sans-serif';ctx.globalAlpha=.8;ctx.fillText('BEST '+save.hi,W/2,46);ctx.globalAlpha=1;
+ ctx.fillText(gm==='train'?'TRAINING \u00b7 DMG '+Math.round(tdmg)+' \u00b7 R reset \u00b7 T swap weapon \u00b7 Y dummy mode \u00b7 Esc menu':gm==='arena'?'ARENA \u00b7 REDUCE THEIR HP TO ZERO':gm==='horde'?'ZOMBIE HORDE \u00b7 WAVE '+wave+' \u00b7 SCORE '+score:gm==='boss'?'BOSS FIGHT \u00b7 SCORE '+score:gm==='koth'||gm==='coin'?Math.floor(F[0].pts)+' - '+Math.floor(F[1].pts)+(gm==='koth'?' / 30':' / 25')+' · '+Math.ceil(mtm)+'s':gm==='surv'&&mode==='cpu'?'WAVE '+wave+' · SCORE '+score:mode==='cpu'?'SCORE '+score:netOn?'ONLINE '+(gm==='tag'?'2v2':'1v1'):'2 PLAYERS',W/2,28);ctx.font='12px system-ui,sans-serif';ctx.globalAlpha=.8;if(!netOn)ctx.fillText('BEST '+save.hi,W/2,46);ctx.globalAlpha=1;
  if(ev.b>0){ctx.globalAlpha=Math.min(1,ev.b);ctx.fillStyle='#fde047';ctx.font='bold 30px system-ui,sans-serif';ctx.fillText(ev.n+'!',W/2,150);ctx.globalAlpha=1}
  if(ev.t>0&&ev.k!=='drop'){ctx.fillStyle='#fde047';ctx.font='bold 12px system-ui,sans-serif';ctx.fillText(ev.n+' '+Math.ceil(ev.t)+'s',W/2,64)}
  F.forEach((f,i)=>{if(!(f.chT>0)||f.ch<2)return;const n=f.ch,pop=1+f.cpop*3,sh=Math.min(14,n*.7),x=i?W-150:150,y=H/2-10+(Math.random()-.5)*sh,hue=(T/4)%360,rk=n>=26?'SSS':n>=19?'SS':n>=13?'S':n>=9?'A':n>=6?'B':n>=4?'C':'D',wd=n>=26?'UNREAL!!!':n>=19?'GODLIKE!!':n>=13?'SAVAGE!':n>=9?'AWESOME!':n>=6?'GREAT!':n>=4?'NICE!':'COMBO',sz=(54+Math.min(70,n*5))*pop;
@@ -939,9 +939,9 @@ function hud(){
   F.forEach((f,i)=>{const p=PT[i],x=i?W-280:20,fx=i?x+260:x;ctx.textAlign=i?'right':'left';ctx.font='bold 11px system-ui,sans-serif';ctx.fillStyle='#fff';
    ctx.fillText('ALLY '+(p?p.w.n:'-')+(p?(f.fz2>0?' [FUSED '+Math.ceil(f.fz2)+'s]':p.ko>0?' [KO '+Math.ceil(p.ko)+'s]':' '+Math.round(p.pct)+'%'):''),fx,124);
    ctx.fillStyle='#0008';ctx.fillRect(x,128,260,5);const fw=2.6*Math.min(100,f.fz2>0?f.fz2/15*100:(f.fz||0));ctx.fillStyle=(f.fz||0)>=100?'#f0abfc':'#a855f7';ctx.fillRect(i?x+260-fw:x,128,fw,5);
-   if((f.fz||0)>=100&&!(f.fz2>0)){ctx.fillStyle='#f0abfc';ctx.fillText(f.ai?'FUSION READY':'FUSION READY - press '+(i?'U':'C'),fx,146)}})}
+   if((f.fz||0)>=100&&!(f.fz2>0)){ctx.fillStyle='#f0abfc';ctx.fillText(f.ai?'FUSION READY':netOn?(p&&p.hum?'FUSION READY - leader + ally both press FUSE (C)':'FUSION READY - press FUSE (C)'):'FUSION READY - press '+(i?'U':'C'),fx,146)}})}
  F.forEach((f,i)=>{if(f.w&&f.w.id==='bgnp'){const s=f.ssj||0;ctx.textAlign=i?'right':'left';ctx.font='bold 13px Impact,system-ui';ctx.fillStyle=s?SSA[s]:'#9ca3af';ctx.fillText(SSN[s]+(s<6?'  \u00b7  ult = next stage':'  \u00b7  AUTO-PARRY '+(f.uicd>0?Math.ceil(f.uicd)+'s':'READY')),i?W-20:20,164)}});
- if(netOn&&NET){ctx.textAlign='center';ctx.font='bold 11px system-ui';ctx.fillStyle='#7dd3fc';ctx.fillText('ONLINE \u00b7 you are P'+(NET.me+1)+(NET.ping!=null?' \u00b7 ping '+NET.ping+'ms':''),W/2,H-40);if(NET.desync){ctx.fillStyle='#f87171';ctx.fillText('Out of sync with opponent (are you on different browsers?) - try a rematch',W/2,H-26)}if(NET.wait>.4){ctx.fillStyle='#0009';ctx.fillRect(W/2-150,H/2-24,300,40);ctx.fillStyle='#fff';ctx.font='bold 16px system-ui';ctx.fillText('Waiting for opponent...',W/2,H/2+2)}}
+ if(netOn&&NET){ctx.textAlign='center';ctx.font='bold 11px system-ui';ctx.fillStyle='#7dd3fc';ctx.fillText(NET.v2?olHudTxt():'ONLINE \u00b7 you are P'+(NET.me+1)+(NET.ping!=null?' \u00b7 ping '+NET.ping+'ms':''),W/2,H-40);if(NET.desync){ctx.fillStyle='#f87171';ctx.fillText('Out of sync with opponent (are you on different browsers?) - try a rematch',W/2,H-26)}if(NET.wait>.4){ctx.fillStyle='#0009';ctx.fillRect(W/2-190,H/2-24,380,40);ctx.fillStyle='#fff';ctx.font='bold 16px system-ui';ctx.fillText(NET.v2?olWaitTxt():'Waiting for opponent...',W/2,H/2+2)}}
  if(gm==='spar'){ctx.textAlign='center';ctx.font='bold 13px system-ui';ctx.fillStyle='#fca5a5';ctx.fillText('SPARRING \u00b7 DMG '+Math.round(tdmg)+' \u00b7 it counters, parries 25% and clashes your domain \u00b7 R reset \u00b7 T swap',W/2,62)}
  if(cin){const lb=Math.min(1,cin.t/.2)*58;ctx.fillStyle='#000';ctx.fillRect(0,0,W,lb);ctx.fillRect(0,H-lb,W,lb)}
  if(gm==='boss'&&F[1].boss){const b=F[1];ctx.fillStyle='#0009';ctx.fillRect(160,86,480,16);ctx.fillStyle=b.en?'#f97316':'#ef4444';ctx.fillRect(162,88,476*Math.max(0,b.bhp/b.bmax),12);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 12px system-ui,sans-serif';ctx.fillText(b.boss.n.toUpperCase(),W/2,99)}
@@ -1552,7 +1552,7 @@ const NKEYS=['l','r','j','a','s','d','p','e','u','f'],NMODES=['stock','koth','co
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function encIn(){return encIn33()}
 function decIn(b){const r={};NKEYS.forEach((k,i)=>r[k]=(b>>i)&1);return r}
-{const _i=inp;inp=function(f){if(netOn&&!f.ai)return decIn(NI[f.id]||0);return _i(f)}}
+{const _i=inp;inp=function(f){if(netOn&&!f.ai)return decIn(NI[f.pt?2+f.id:f.id]||0);return _i(f)}}
 function netRun(fn){const R=Math.random;Math.random=NET.rng;try{return fn()}finally{Math.random=R}}
 function netHash(){let h=0;const a=F.map(f=>(f.x*100|0)+'|'+(f.y*100|0)+'|'+(f.pct*10|0)+'|'+f.lives).join(',')+arrows.length;for(let i=0;i<a.length;i++)h=Math.imul(h^a.charCodeAt(i),16777619);return h>>>0}
 function netSend(m){try{if(NET&&NET.ch&&NET.ch.readyState==='open')NET.ch.send(JSON.stringify(m))}catch(e){}}
@@ -5890,7 +5890,7 @@ function titleSmash(){const h=document.querySelector('#menu h1');if(!h||ts40.bus
 try{const h=document.querySelector('#menu h1');if(h){h.style.cursor='pointer';h.style.userSelect='none';h.addEventListener('click',()=>{if(ts40.busy)return;const now=performance.now();if(now-ts40.t>4000)ts40.n=0;ts40.t=now;ts40.n++;snd(300+ts40.n*60,.05,'square',.04);h.style.transition='transform .08s';h.style.transform='scale(1.08) rotate('+((ts40.n%2?1:-1)*ts40.n*.4)+'deg)';setTimeout(()=>{h.style.transform=''},90);if(ts40.n>=10){ts40.n=0;eggFound('title');setTimeout(titleSmash,120)}})}}catch(e){}
 
 /* ==== p41: game version, update history, and three more easter eggs ==== */
-const GV40='2.8';
+const GV40='2.9';
 const UPD40=[
  ['0.1','Stage 1','The first brawl','A 2D stickman platform fighter: weapons with a main attack and an ability, vs CPU and 2-player, screen shake, particles, synth sounds and saved high scores.'],
  ['0.2','Stage 2','Named weapons','Weapon select screen plus the first custom weapons: Enoch Death Ray, Mateo Tazer, Bao Bendy Ruler, Edison Calculator and Thomas Cart. Smash-style flimsy physics.'],
@@ -5919,7 +5919,8 @@ const UPD40=[
  ['2.5','','Moon and lightning','Plague Doctor domain, Moon Warlord, Lightning Avenger and Starfall.'],
  ['2.6','Stage 16','Remaster','30+ weapons redrawn, new ability effects, Wood Dragon, a balance pass, full-costume cut-ins and the VS intro.'],
  ['2.7','Stage 17','Easter eggs','Lucky Slots, Math Blitz, Shrimp Catch, the credits, four toggles and the Easter Eggs tab.'],
- ['2.8','Stage 18','Thank you','Update history and version number in the credits, plus three more easter eggs.']];
+ ['2.8','Stage 18','Thank you','Update history and version number in the credits, plus three more easter eggs.'],
+ ['2.9','Stage 19','Online for real','Online rooms for 2 to 4 players: 1v1 or 2v2 where everyone controls their own fighter, team picking, nicknames, CPU fill-ins, co-pilot fusion, name tags and ping-based input delay.']];
 /* new eggs */
 EGGS.push(
  {id:'edog',ic:'\u{1F387}',n:'The Prompt Master',ty:'SECRET',c:'#facc15',code:'Equip edog2trapz, then type  edog',hint:'One fighter is named after the person behind all of this.',d:'A fireworks show and a golden plaque thanking edog2trapz for the prompts that built Stick Brawl. Click or press SPACE to launch more fireworks.',play:()=>e40Open(G40.edog)},
@@ -5958,7 +5959,7 @@ function grapeDraw(){GR41.g.forEach(q=>{ctx.save();ctx.translate(q.x,q.y-10);ctx
 {const _dr41=draw;draw=function(){const r=_dr41.apply(this,arguments);try{if(ET40().slow&&state==='play'&&!(window.FPS3&&window.FPS3.on)){ctx.save();ctx.setTransform(cv.width/W,0,0,cv.height/H,0,0);const g=ctx.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.95);g.addColorStop(0,'rgba(56,189,248,0)');g.addColorStop(1,'rgba(30,64,175,.32)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
  const x=W-40,y=H-40;ctx.globalAlpha=.6;ctx.strokeStyle='#bae6fd';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,13,0,6.3);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(T/600)*9,y+Math.sin(T/600)*9);ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(T/7200)*6,y+Math.sin(T/7200)*6);ctx.stroke();ctx.font='bold 9px system-ui';ctx.textAlign='right';ctx.fillStyle='#bae6fd';ctx.fillText('BULLET TIME 0.6x',x-20,y+3);ctx.restore()}}catch(e){}return r}}
 /* version on the menu, ribbon, guide entry */
-try{const d=document.getElementById('fu');if(d)d.textContent='✨ VERSION '+GV40+' ✨  Remaster · Wood Dragon · balance pass · new cutscenes & VS intro · '+EGGS.length+' easter eggs to find · full update history in the credits'}catch(e){}
+try{const d=document.getElementById('fu');if(d)d.textContent='✨ VERSION '+GV40+' ✨  NEW: 🌐 Online 1v1 + 2v2 for up to 4 players · Remaster · Wood Dragon · VS intro · '+EGGS.length+' easter eggs to find · full update history in the credits'}catch(e){}
 {const _rf41=refresh;refresh=function(){const r=_rf41.apply(this,arguments);try{const m=$('mh');if(m&&!/ v\d/.test(m.textContent))m.textContent+=' · v'+GV40}catch(e){}return r}}
 try{GUIDE.push(['Update history','Version '+GV40,UPD40.map(u=>'v'+u[0]+(u[1]?' ('+u[1]+')':'')+' '+u[2]+': '+u[3].replace(/\.$/,'').replace(/\. /g,', ')).join('. ')])}catch(e){}
 try{refresh()}catch(e){}
@@ -5969,7 +5970,296 @@ try{refresh()}catch(e){}
 {const _sg39=startGame;startGame=function(){WDR.length=0;try{if(typeof FX39!=='undefined')FX39.length=0}catch(e){}return _sg39.apply(this,arguments)}}
 
 </script>
-<script src="../../assets/playtogether.js"></script>
-<script>PlayTogether.init({"slug": "stick-brawl", "title": "Stick Brawl", "canvas": "#c", "hint": "The host picks 2 Players.", "pos": "tl", "slots": [{"name": "Player 2", "keys": [["Left", "ArrowLeft", "ArrowLeft", 37, "KeyA"], ["Right", "ArrowRight", "ArrowRight", 39, "KeyD"], ["Jump", "ArrowUp", "ArrowUp", 38, "KeyW"], ["Down", "ArrowDown", "ArrowDown", 40, "KeyS"], ["Attack", "k", "KeyK", 75, "KeyF"], ["Ability", "l", "KeyL", 76, "KeyG"], ["Parry", "j", "KeyJ", 74, "KeyH"], ["Dodge", "i", "KeyI", 73, "KeyE"], ["Ultimate", "o", "KeyO", 79, "KeyQ"]]}]});</script>
+<style>
+.mplay{flex-wrap:wrap;justify-content:center}.big.ol{background:#16a34a}
+#olx{position:absolute;left:6px;top:6px;z-index:5;font:inherit;font-size:11px;font-weight:700;padding:4px 9px;border-radius:8px;border:1px solid #f87171;background:#000a;color:#fca5a5;cursor:pointer;display:none;transition:background .15s}
+#olx.arm{background:#b91c1c;color:#fff}
+.olbox{width:min(640px,96%)}
+.olbox .b.olbig{font-size:clamp(14px,2.4vw,19px);padding:.65em 1.3em;background:#16a34a}.olbox .b.oljoin{background:#2563eb}
+.olsub{margin-top:10px;padding-top:8px;border-top:1px solid #1e293b}
+.olcodein{font:900 28px ui-monospace,monospace!important;letter-spacing:6px;text-transform:uppercase;text-align:center;margin:6px 0}
+.olhd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.olhd h2{margin:0;flex:1}
+.olcode{font:900 clamp(22px,4vw,32px) ui-monospace,monospace;letter-spacing:6px;color:#fde047;background:#020617;border-radius:8px;padding:2px 10px;user-select:text;-webkit-user-select:text}
+.b.olsm{font-size:clamp(10px,1.5vw,13px);padding:.4em .8em}
+.olmode{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}.olmode p{margin:0}
+.olseg{display:inline-flex;border-radius:9px;overflow:hidden;border:1px solid #334155}
+.olsb{font:inherit;font-weight:800;font-size:clamp(11px,1.7vw,14px);padding:.35em 1em;border:0;background:#0f172a;color:#cbd5e1;cursor:pointer;transition:background .15s}.olsb:hover{background:#1e293b}.olsb.on{background:#f0abfc;color:#3b0764}
+.olteams{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.olcol{background:#ffffff0a;border-radius:10px;padding:7px;border-top:3px solid var(--c);display:flex;flex-direction:column;gap:5px;min-width:0}
+.oltn{color:var(--c);font-size:clamp(11px,1.7vw,14px);letter-spacing:.06em;text-transform:uppercase;filter:brightness(1.3)}
+.olrow{display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:8px;background:#0006;min-height:36px}
+.olrow.me{outline:2px solid #fde047}.olrow.cpu{opacity:.5}
+.olrl{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--c);filter:brightness(1.35);min-width:2.8em}
+.olnm{flex:1;min-width:0}.olnm b,.olnm i{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.olnm b{font-size:clamp(11px,1.7vw,14px)}.olnm i{font-style:normal;font-size:clamp(9px,1.3vw,11px);opacity:.7}
+.olrow em{font-style:normal;font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;flex:none}.olyou{background:#fde047;color:#111}.olhost{background:#334155;color:#e2e8f0}
+.olping{font-size:10px;opacity:.6;font-variant-numeric:tabular-nums;flex:none}
+.olcol .b.oljb{background:var(--c);margin-top:auto}
+.olme{display:flex;gap:6px;align-items:center;margin:6px 0}.olnick{flex:1;min-width:0;font:14px system-ui,sans-serif!important;padding:7px!important}
+.ollob .b:disabled{opacity:.45;cursor:default;transform:none;filter:none}
+.b.olstart{background:#16a34a;font-size:clamp(14px,2.4vw,18px)}
+@media (max-width:520px){.olteams{grid-template-columns:1fr}}
+.olme .b{background:#374151}
+</style>
+<script>
+/* ---------- v2.9 online rooms: 2-4 players, 1v1 or 2v2, every player drives their OWN fighter ----------
+   Lockstep over Claude room presence: each player publishes a rolling window of their own inputs,
+   everyone simulates the same frames with the same seed. Seats: 0 Blue leader, 1 Red leader,
+   2 Blue ally, 3 Red ally. Empty seats are CPUs. Extra people in the room watch. */
+var OLW=240,OLD=8;
+const OLA='0123456789abcdefghijklmnopqrstuv',OLT=['Blue','Red'],OLC=['#3b82f6','#ef4444'];
+NI.length=4;NI[2]=NI[3]=0;
+function olE(b){return OLA[b&31]+OLA[(b>>5)&31]}
+function olId(){let s='u';try{const r=new Uint8Array(7);crypto.getRandomValues(r);r.forEach(x=>s+=OLA[x&31])}catch(e){for(let i=0;i<7;i++)s+=OLA[Math.random()*32|0]}return s}
+function olClean(s){return String(s==null?'':s).replace(/[\u0000-\u001f\u007f-\u009f­​-‏‪-‮⁠-⁯﻿]/g,'').trim().slice(0,14)}
+function olNickGet(){if(NET&&NET.nick!=null)return NET.nick;try{return olClean(localStorage.getItem('sb_nick')||'')}catch(e){return ''}}
+function olNickSet(v){v=olClean(v);if(NET)NET.nick=v;try{localStorage.setItem('sb_nick',v)}catch(e){}}
+function olMode(){return NMODES.includes(gm)?gm:'stock'}
+function olGN(g){return(GMS.find(z=>z[1]===g)||GMS[0])[0]}
+function olWN(id){const w=typeof id==='string'?WP.find(q=>q.id===id):null;return w?w.n:'Random fighter'}
+function olNm(x,s){const n=x?(x.me?olNickGet():olClean(x.pr.nm)):'';return n||(s>=0?'P'+(s+1):'Player')}
+/* my own presence: lobby info + (in a match) my input window */
+function olMine(){const N=NET,pk=netOn&&N.bak?N.bak.pick:pick,sv=netOn&&N.bak?N.bak.save:save;
+ return{sb:N.rc,v:2,u:N.uid,host:N.host?1:0,nm:olNickGet()||null,w:pk[0]?pk[0].id:null,pp:(sv.pp||[])[0]||'none',ptn:(sv.ptn||[])[0]||null,tm:N.tm==null?-1:N.tm,hid:document.hidden?1:0,rtm:Math.round(N.rtm||0),pq:N.pq||0,pa:N.pa&&N.pa.length?N.pa:null}}
+function olList(){const N=NET;if(!N||!N.R)return[];const out=[{u:N.uid,pr:olMine(),me:1}];let ps=[];try{ps=N.R.peers()||[]}catch(e){}
+ for(const p of ps){if(p.sameTab)continue;const pr=p.presence;if(!pr||pr.sb!==N.rc||pr.v!==2||typeof pr.u!=='string'||pr.u===N.uid||out.some(x=>x.u===pr.u))continue;out.push({u:pr.u,pr,me:0})}return out}
+/* host: who sits where (team picks honoured, then balanced, in join order) */
+function olPlan(L){const N=NET,tag=olMode()==='tag',cap=tag?2:1,A=[],B=[],ov=[];
+ const S=L.slice().sort((a,b)=>(N.seen.has(a.u)?N.seen.get(a.u):1e9)-(N.seen.has(b.u)?N.seen.get(b.u):1e9));
+ for(const x of S){const t=x.pr.tm;if(t===0&&A.length<cap)A.push(x.u);else if(t===1&&B.length<cap)B.push(x.u);else ov.push(x.u)}
+ const bench=[];for(const u of ov){if(A.length<cap&&(A.length<=B.length||B.length>=cap))A.push(u);else if(B.length<cap)B.push(u);else bench.push(u)}
+ const o=u=>N.seen.has(u)?N.seen.get(u):1e9;A.sort((a,b)=>o(a)-o(b));B.sort((a,b)=>o(a)-o(b));
+ return{seats:[A[0]||null,B[0]||null,tag?A[1]||null:null,tag?B[1]||null:null],bench:bench.slice(0,8)}}
+function olLob(){const N=NET,P=olPlan(olList());N.plan=P;return{gm:olMode(),mi,mut:mut||'',ms:P.seats,bn:P.bench,live:netOn?1:0}}
+function olPush(force){const N=NET;if(!N||!N.R)return;const now=performance.now();if(!force&&now-(N.lpT||0)<30)return;
+ const o=olMine();o.lob=N.host?olLob():null;o.cfg=N.host&&netOn&&N.cfg?N.cfg:null;
+ if(netOn&&N.inp){o.mi=N.mid;o.hh=N.hl.slice();if(N.seat>=0&&N.top>=0){const f0=Math.max(0,N.top-OLW+1),I=N.inp[N.seat];let s='';for(let fr=f0;fr<=N.top;fr++)s+=olE(I[fr]||0);o.f0=f0;o.ib=s}else{o.f0=null;o.ib=null}}
+ else{o.mi=null;o.f0=null;o.ib=null;o.hh=null}
+ const js=JSON.stringify(o);if(js===N.lpS&&!force)return;N.lpS=js;N.lpT=now;try{N.R.presence(o).catch(()=>{})}catch(e){}}
+/* read everyone's input windows + desync checkpoints */
+function olPull(){const N=NET;let ps;try{ps=N.R.peers()}catch(e){return}if(!ps||ps===N.pSnap)return;N.pSnap=ps;const c=N.cfg;if(!c||!c.seats)return;
+ for(const p of ps){if(p.sameTab)continue;const pr=p.presence;if(!pr||pr.sb!==N.rc||pr.u===N.uid||pr.mi!==N.mid)continue;const s=c.seats.indexOf(pr.u);
+  if(s>=0&&s!==N.seat&&typeof pr.ib==='string'&&Number.isInteger(pr.f0)){const ib=pr.ib,f0=pr.f0,L=ib.length>>1,I=N.inp[s];if(f0>N.f&&I[N.f]===undefined)N.lost=1;
+   for(let k=Math.max(0,N.f-f0);k<L;k++){const fr=f0+k;if(I[fr]!==undefined)continue;const a=OLA.indexOf(ib[2*k]),b=OLA.indexOf(ib[2*k+1]);if(a<0||b<0)break;I[fr]=a|(b<<5)}}
+  if(Array.isArray(pr.hh))for(const e of pr.hh){if(!Array.isArray(e)||!Number.isInteger(e[0]))continue;const fr=e[0],h=e[1];if(N.hs[fr]!=null){if(N.hs[fr]!==h)N.desync=1}else N.ph[fr]=h}}}
+/* untrusted config from the host: keep only sane values */
+function olSan(c){const str=(v,n)=>typeof v==='string'?v.slice(0,n||24):null,arr=(v,n)=>Array.isArray(v)?v.slice(0,n):[];
+ const seats=[0,1,2,3].map(i=>str(arr(c.seats,4)[i],12));
+ return{v:2,D:Math.max(3,Math.min(20,c.D|0||OLD)),crt:arr(c.crt,64).filter(Number.isInteger),crOff:!!c.crOff,seed:c.seed|0,mid:c.mid|0,gm:NMODES.includes(c.gm)?c.gm:'stock',mi:Number.isInteger(c.mi)&&MAPS[c.mi]?c.mi:0,mut:str(c.mut,16)||'',df:typeof c.df==='number'&&c.df>=.3&&c.df<=3?c.df:1,
+  seats,spec:arr(c.spec,8).map(u=>str(u,12)).filter(Boolean),w:[0,1,2,3].map(i=>str(arr(c.w,4)[i],24)),pp:[0,1].map(i=>str(arr(c.pp,2)[i],24)||'none'),ptn:[0,1].map(i=>str(arr(c.ptn,2)[i],24)),nm:[0,1,2,3].map(i=>olClean(arr(c.nm,4)[i]))}}
+/* ---- core: start / advance (shared with the direct-link 1v1 path) ---- */
+netStart=function(cfg){const N=NET;if(!N)return;if(!N.bak)N.bak={save,gm,mi,mut,df,pick:pick.slice()};
+ netOn=1;N.cfg=cfg;const v2=!!cfg.seats;N.seat=v2?cfg.seats.indexOf(N.uid):N.me;N.hum=[];if(v2)cfg.seats.forEach((u,i)=>{if(u)N.hum.push(i)});else N.hum=[0,1];if(v2)N.me=N.seat>=0?N.seat%2:0;
+ save=Object.assign({},N.bak.save,{wins:999,crt:cfg.crt||[],crOff:!!cfg.crOff,pp:cfg.pp,ptn:cfg.ptn,bgn:0,cheat:0});ADM.ts=1;['god','ohk','inf','ncd','frz','big','hitb'].forEach(k=>ADM[k]=0);$('adm').classList.add('hide');
+ gm=cfg.gm;mut=cfg.mut;df=cfg.df;setMap(cfg.mi);pick=cfg.w.slice(0,2).map(id=>WP.find(w=>w.id===id)||null);
+ N.mid=cfg.mid;N.lastMid=Math.max(N.lastMid||0,cfg.mid);N.hs={};N.ph={};N.hl=[];N.desync=0;N.rng=mulberry(cfg.seed);N.f=0;N.top=-1;N.D=cfg.D||4;N.acc=0;N.wait=0;N.waitS=-1;N.miss={};N.lost=0;N.pSnap=null;N.inp=[{},{},{},{}];
+ for(const s of N.hum)for(let i=0;i<N.D;i++)N.inp[s][i]=0;if(N.seat>=0)N.top=N.D-1;
+ simT=0;paused=false;NI[0]=NI[1]=NI[2]=NI[3]=0;
+ ['net','sel','over','menu'].forEach(id=>$(id).classList.add('hide'));olOverReset();
+ netRun(()=>{startGame('2p');if(v2)olSetup(cfg)});if(N.room)olPush(1);olX()}
+function olSetup(c){for(let i=0;i<2;i++){const f=F[i];if(!f)continue;f.nm=c.nm[i]||'';if(!c.seats[i]){f.ai=true;f.olcpu=1}}
+ if(gm==='tag')for(let i=0;i<2;i++){const p=PT[i];if(!p)continue;p.nm=c.nm[2+i]||'';if(c.seats[2+i]){p.ai=false;p.hum=1}}}
+netAdvance=function(dt,mx){const N=NET;if(!N||!N.inp)return;if(N.room)olPull();
+ N.acc=Math.min(mx?1.5:.25,N.acc+dt);let n=0,st=0;const lim=mx||5;
+ while(N.acc>=1/60&&n<lim){const f=N.f;
+  if(N.seat>=0&&N.inp[N.seat][f+N.D]===undefined){const b=encIn();N.inp[N.seat][f+N.D]=b;N.top=f+N.D;if(!N.room)netSend({t:'i',m:N.mid,f:f+N.D,b})}
+  let ms=-1;for(const s of N.hum){if(N.inp[s][f]===undefined){ms=s;break}}
+  if(ms>=0){st=1;N.waitS=ms;break}
+  for(let s=0;s<4;s++)NI[s]=N.inp[s][f]||0;
+  netRun(()=>step(1/60));
+  for(const s of N.hum)if(s!==N.seat)delete N.inp[s][f];if(N.seat>=0)delete N.inp[N.seat][f-OLW];
+  N.f++;if(N.f%120===0){const h=netHash();N.hs[N.f]=h;N.hl.push([N.f,h]);if(N.hl.length>4)N.hl.shift();if(!N.room)netSend({t:'h',m:N.mid,f:N.f,h});if(N.ph[N.f]!=null&&N.ph[N.f]!==h)N.desync=1}
+  N.acc-=1/60;n++;if(state!=='play'&&state!=='ending')break}
+ if(st)N.wait+=dt;else N.wait=0;if(N.room)olPush()}
+netHash=function(){let h=0;const a=F.concat(PT).map(f=>f?(f.x*100|0)+'|'+(f.y*100|0)+'|'+(f.pct*10|0)+'|'+f.lives:'-').join(',')+arrows.length;for(let i=0;i<a.length;i++)h=Math.imul(h^a.charCodeAt(i),16777619);return h>>>0};
+{const _nm=netMsg;netMsg=function(m){const N=NET;if(N&&m&&m.t==='i'){if(m.m===N.mid&&N.inp&&Number.isInteger(m.f))N.inp[1-N.me][m.f]=m.b|0;return}return _nm.apply(this,arguments)}}
+{const _nh=netHostStart;netHostStart=function(){if(NET&&NET.v2)return olHostStart();return _nh.apply(this,arguments)}}
+{const _nhe=netHello;netHello=function(){if(NET&&NET.v2){olPush(1);return}return _nhe.apply(this,arguments)}}
+/* ---- room lifecycle ---- */
+roomStart=async function(host,code){netClose();code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+ if(!host&&code.length<4){NET={v2:1,room:1,host:false,me:1,status:'Type the room code from the host (5 letters).'};return netUI('rjoin')}
+ const N={v2:1,room:1,host,me:host?0:1,rc:code,uid:olId(),open:0,status:host?'Opening room '+code+'…':'Joining room '+code+'…',seen:new Map(),sn:0,lastMid:0,mid:0,tm:-1,rtt:{},rq:{},pqT:{},pa:[],t0:performance.now()};
+ NET=N;netUI(host?'rhost':'rjoin');
+ const R0=await roomGet();if(NET!==N)return;
+ if(!R0){N.failed=1;N.status=OLSITE?'This browser can’t connect peer to peer. Try Chrome, Edge, Firefox or Safari.':'Online rooms need this game open inside Claude while you are signed in (a downloaded copy or a public link can’t connect). Try “Direct link” on the Online screen instead.';return netUI(host?'rhost':'rjoin')}
+ let R=R0,lobby=true;try{R=await R0.join('sb-'+code.toLowerCase(),host);lobby=false}catch(e){if(R0.p2p){if(NET!==N)return;if(host&&e&&e.type==='unavailable-id'&&(olRetry=(olRetry||0)+1)<4)return roomStart(true,rcode());N.failed=1;N.status=(e&&e.message)||'Could not connect.';return netUI(host?'rhost':'rjoin')}}
+ olRetry=0;OLW=R.p2p?120:240;
+ if(NET!==N){if(!lobby)try{R.leave().catch(()=>{})}catch(e){}return}
+ N.nick=null;N.nick=olNickGet();N.R=R;N.lobby=lobby;N.open=1;N.status='';N.t0=performance.now();N.seen.set(N.uid,N.sn++);
+ try{N.unsub=R.onPeers(()=>{if(NET===N)olPeers()},e=>{if(NET===N)netLeave('Lost the connection to the room'+(e&&e.code?' ('+e.code+')':'')+'.')})}catch(e){}
+ N.tick=setInterval(()=>{if(NET===N)olTick()},250);olPush(1);netUI('rlobby')};
+function olPeers(){const N=NET;if(!N||!N.R)return;const L=olList(),now=performance.now();let ch=0;
+ for(const x of L){if(x.me)continue;if(!N.seen.has(x.u))N.seen.set(x.u,N.sn++);
+  if(Number.isInteger(x.pr.pq)){const e=N.pa.find(q=>q[0]===x.u);if(!e){N.pa.push([x.u,x.pr.pq]);ch=1}else if(e[1]!==x.pr.pq){e[1]=x.pr.pq;ch=1}}
+  if(Array.isArray(x.pr.pa)){const e=x.pr.pa.find(q=>Array.isArray(q)&&q[0]===N.uid);if(e&&Number.isInteger(e[1])&&N.rq[x.u]!==e[1]&&N.pqT[e[1]]){N.rq[x.u]=e[1];const r=now-N.pqT[e[1]];N.rtt[x.u]=N.rtt[x.u]?N.rtt[x.u]*.7+r*.3:r}}}
+ N.pa=N.pa.filter(q=>L.some(x=>x.u===q[0]));for(const u of [...N.seen.keys()])if(u!==N.uid&&!L.some(x=>x.u===u))N.seen.delete(u);
+ let m=0;for(const x of L)if(!x.me&&N.rtt[x.u])m=Math.max(m,N.rtt[x.u]);N.rtm=m;N.ping=m?Math.round(m):null;
+ const h=L.find(x=>x.pr.host===1&&!x.me);if(h)N.hostSeen=1;
+ if(!N.host&&h){const c=h.pr.cfg;if(c&&typeof c==='object'&&Array.isArray(c.seats)&&(c.mid|0)>(N.lastMid||0)){if(c.seats.includes(N.uid)||(Array.isArray(c.spec)&&c.spec.includes(N.uid)))netStart(olSan(c));else N.lastMid=c.mid|0}}
+ if(ch)olPush(1);else if(N.host&&!netOn)olPush();
+ if(!N.uq){N.uq=1;requestAnimationFrame(()=>{N.uq=0;if(NET===N&&!netOn)olLobbyUpd()})}}
+function olTick(){const N=NET;if(!N||!N.R)return;const now=performance.now();
+ if(now-(N.pqLast||0)>1000){N.pqLast=now;N.pq=(N.pq||0)+1;N.pqT[N.pq]=now;delete N.pqT[N.pq-12];olPush(1)}
+ const L=olList(),h=L.find(x=>x.pr.host===1&&!x.me);
+ if(!N.host){if(h){N.hostSeen=1;N.hostMiss=0;if(N.noHost){N.noHost=0;N.status=''}}else if(N.hostSeen){N.hostMiss=N.hostMiss||now;if(now-N.hostMiss>3500){netLeave('The host left, so the room closed.');return}}
+  else if(now-N.t0>7000&&!N.status){N.noHost=1;N.status='No host found for room '+N.rc+' yet. Check the code, and make sure the host is on the room screen.';olLobbyUpd()}}
+ if(netOn&&N.cfg&&N.cfg.seats&&(state==='play'||state==='ending')){for(const s of N.hum){const u=N.cfg.seats[s];if(u===N.uid)continue;if(L.some(x=>x.u===u))delete N.miss[u];else{N.miss[u]=N.miss[u]||now;if(now-N.miss[u]>3500){olToLobby((N.cfg.nm[s]||'P'+(s+1))+' left the match.');return}}}
+  if(N.lost&&N.seat<0){olToLobby('You fell behind the match. You will join the next one.');return}
+  if(document.hidden&&(state==='play'||state==='ending')){const d=Math.min(1.5,(now-(N.hT||now))/1000);netAdvance(d,90)}}
+ N.hT=now;if(!netOn)olLobbyUpd();olX();olPub()}
+function olCancel(){const N=NET;if(N&&N.v2&&N.R)return netLeave();NET=null;netUI('home')}
+function olToLobby(msg){const N=NET;if(!N||!N.v2)return;if(N.bak){save=N.bak.save;gm=N.bak.gm;mut=N.bak.mut;df=N.bak.df;pick=N.bak.pick;setMap(N.bak.mi);N.bak=null}
+ netOn=0;state='menu';F=[];PT=[null,null];dom=null;dcl=null;cin=null;paused=false;N.inp=null;N.cfg=null;N.wait=0;
+ $('over').classList.add('hide');olOverReset();refresh();olPush(1);netUI('rlobby');if(msg){N.status=msg;olLobbyUpd();setTimeout(()=>{if(NET===N&&N.status===msg){N.status='';olLobbyUpd()}},6000)}olX()}
+{const _nl=netLeave;netLeave=function(msg){const N=NET;if(!N||!N.v2)return _nl.apply(this,arguments);
+ NET=null;clearInterval(N.tick);try{N.unsub&&N.unsub()}catch(e){}try{if(N.pub&&window.TZLive)TZLive.closeRoom()}catch(e){}
+ try{if(N.R){if(N.lobby){const z={};['sb','v','u','host','nm','w','pp','ptn','tm','hid','rtm','pq','pa','lob','cfg','mi','f0','ib','hh'].forEach(k=>z[k]=null);N.R.presence(z).catch(()=>{})}else N.R.leave().catch(()=>{})}}catch(e){}
+ if(N.bak){save=N.bak.save;gm=N.bak.gm;mut=N.bak.mut;df=N.bak.df;pick=N.bak.pick;setMap(N.bak.mi)}netOn=0;state='menu';F=[];PT=[null,null];dom=null;dcl=null;cin=null;paused=false;
+ $('over').classList.add('hide');$('sel').classList.add('hide');olOverReset();refresh();olX();
+ if(msg){NET={status:msg};netUI('home');NET=null}else{$('net').classList.add('hide');$('menu').classList.remove('hide')}}}
+function olHostStart(){const N=NET;if(!N||!N.host||!N.R)return;const L=olList();if(L.length<2){toastMsg('Waiting for at least one friend to join the room');return}
+ const g=olMode(),tag=g==='tag',P=olPlan(L),byU=new Map(L.map(x=>[x.u,x])),inf=s=>P.seats[s]?byU.get(P.seats[s]):null,okW=id=>typeof id==='string'&&WP.some(q=>q.id===id);
+ const w=[0,1,2,3].map(s=>{const x=inf(s);return x&&okW(x.pr.w)?x.pr.w:null});
+ const pp=[0,1].map(s=>{const x=inf(s);return x&&typeof x.pr.pp==='string'?x.pr.pp:'none'});
+ const ptn=[0,1].map(t=>{if(tag&&P.seats[t+2])return w[t+2];const x=inf(t);return x&&okW(x.pr.ptn)?x.pr.ptn:null});
+ const nm=[0,1,2,3].map(s=>{const x=inf(s);return x?olNm(x,s):''});
+ let rt=N.rtm||0;for(let s=0;s<4;s++){const x=inf(s);if(x&&!x.me&&typeof x.pr.rtm==='number')rt=Math.max(rt,x.pr.rtm)}
+ const D=rt>0?Math.max(5,Math.min(14,Math.ceil(rt/2/16.7)+2)):OLD;
+ const cfg={v:2,D,crt:(save.crt||[]).slice(0,64),crOff:!!save.crOff,seed:(Math.random()*2147483647)|0,mid:Math.max(N.mid||0,N.lastMid||0)+1,gm:g,mi:g==='arena'?ARENA:mi,mut:mut==='ruler'?'':(mut||''),df,seats:P.seats,spec:P.bench,w,pp,ptn,nm};
+ netStart(olSan(cfg))}
+/* ---- 2v2 with a human ally: both press FUSE to fuse; while fused the ally is the co-pilot ---- */
+{const _tf=tryFuse;tryFuse=function(f,force){const p=PT[f.id];if(netOn&&p&&p.hum&&!force){if(gm!=='tag'||p.ko>0||f.dead||f.fz2>0||(f.fz||0)<100||cin||state!=='play')return;
+  f.fzq=simT;if(simT-(p.fzq??-9)<2.5){p.fzq=-9;f.fzq=-9;return _tf.call(this,f)}ftxt(f.x,f.y-100,'FUSE? your ally presses FUSE too','#f0abfc');return}return _tf.apply(this,arguments)}}
+{const _ts=tagStep;tagStep=function(dt){_ts.apply(this,arguments);if(!netOn||gm!=='tag'||state!=='play')return;
+ for(let i=0;i<2;i++){const p=PT[i],f=F[i];if(!p||!p.hum||!f||f.dead)continue;const b=NI[2+i]||0,z=(b>>9)&1,a=(b>>3)&1;
+  if(z&&!p.zq2){p.fzq=simT;if((f.fz||0)>=100&&!(f.fz2>0)&&p.ko<=0){if(simT-(f.fzq??-9)<2.5){f.fzq=-9;p.fzq=-9;tryFuse(f,true)}else ftxt(p.x,p.y-100,'FUSE? your leader presses FUSE too','#f0abfc')}}p.zq2=z;
+  if(f.cpcd>0)f.cpcd-=dt;
+  if(f.fz2>0&&p.hid&&f.pwp&&a&&!p.aq2&&!(f.cpcd>0)&&f.stun<=0){const wk=f.w,ac=f.acd;f.w=f.pwp;try{attack(f)}catch(e){}f.cpcd=Math.max(.25,f.acd);f.w=wk;f.acd=ac;burst(f.x,f.y-40,6,p.col,160)}p.aq2=a}}}
+/* ---- camera frames all four fighters in 2v2 ---- */
+function camAB(){if(gm!=='tag'||(!PT[0]&&!PT[1]))return[F[0],F[1]];const L=F.concat(PT).filter(q=>q&&!q.dead&&!q.hid&&!(q.pt&&q.ko>0)&&q.y>-150&&q.y<H+40&&q.x>-100&&q.x<WW+100);if(L.length<2)return[F[0],F[1]];
+ let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(const q of L){x0=Math.min(x0,q.x);x1=Math.max(x1,q.x);y0=Math.min(y0,q.y);y1=Math.max(y1,q.y)}return[{x:x0,y:y0},{x:x1,y:y1}]}
+/* ---- name tags: who is who, and a big YOU over your own fighter ---- */
+function olTags(){const N=NET;if(!(netOn&&N&&N.v2&&N.cfg))return;const c=N.cfg;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 11px system-ui,sans-serif';
+ for(const s of [0,1,2,3].filter(q=>q!==N.seat).concat(N.seat>=0?[N.seat]:[])){let f=s<2?F[s]:PT[s-2];if(!f)continue;const t=s%2,mine=s===N.seat;let co=0;
+  if(f.pt&&f.hid&&F[t]&&F[t].fz2>0){if(!mine)continue;f=F[t];co=1}
+  if(f.dead||(f.pt&&f.ko>0&&!co)||f.hid&&!co)continue;const hum=!!c.seats[s];if(!hum&&s>=2)continue;
+  const tx=mine?(co?'YOU · co-pilot (attack!)':'YOU'):hum?(c.nm[s]||'P'+(s+1)):'CPU',y=f.y-(f.sz||1)*88-(co?16:0),w=ctx.measureText(tx).width+14;
+  ctx.globalAlpha=mine?.95:.82;ctx.fillStyle=mine?'#fde047':hum?OLC[t]:'#4b5563';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(f.x-w/2,y-8,w,16,8);else ctx.rect(f.x-w/2,y-8,w,16);ctx.fill();
+  ctx.globalAlpha=1;ctx.fillStyle=mine?'#111827':'#fff';ctx.fillText(tx,f.x,y+.5);
+  if(mine){const b=Math.sin(performance.now()/120)*2.5;ctx.fillStyle='#fde047';ctx.beginPath();ctx.moveTo(f.x-6,y+10+b);ctx.lineTo(f.x+6,y+10+b);ctx.lineTo(f.x,y+17+b);ctx.fill()}}
+ ctx.restore()}
+{const _dfx=drawFX;drawFX=function(){_dfx.apply(this,arguments);try{olTags()}catch(e){}}}
+function olHudTxt(){const N=NET,c=N.cfg;if(!c||!c.seats)return'ONLINE';const tag=c.gm==='tag';if(N.seat<0)return'ONLINE · watching'+(N.ping?' · ping '+N.ping+'ms':'');
+ return'ONLINE · you are '+(c.nm[N.seat]||'P'+(N.seat+1))+' ('+OLT[N.seat%2]+(tag?(N.seat<2?' leader':' ally'):'')+')'+(N.ping?' · ping '+N.ping+'ms':'')+' · delay '+N.D+'f'}
+function olWaitTxt(){const N=NET,c=N.cfg,s=N.waitS;if(!c||!c.seats||s<0)return'Waiting for the other players...';const u=c.seats[s],x=olList().find(q=>q.u===u);return'Waiting for '+(c.nm[s]||'P'+(s+1))+(x&&x.pr.hid?' (game in background)':'')+'...'}
+/* ---- game over screen for online ---- */
+function olOverReset(){const br=$('br'),bw=$('bw'),bm=$('bm');if(br){br.textContent='Rematch';br.style.display=''}if(bw)bw.style.display='';if(bm)bm.textContent='Menu'}
+function olOver(){const N=NET;if(!(netOn&&N&&N.v2&&N.cfg)){olOverReset();return}const c=N.cfg,my=N.seat>=0?N.seat%2:-1,tag=c.gm==='tag',w=win===1?1:0;
+ const names=[w,w+2].filter(s=>s<(tag?4:2)&&c.seats[s]).map(s=>c.nm[s]||'P'+(s+1));
+ $('ot').textContent=my<0?OLT[w]+' team wins!':w===my?'VICTORY!':'DEFEAT';
+ $('os').textContent='Online '+(tag?'2v2':'1v1')+' · '+OLT[w]+' team wins'+(names.length?' ('+names.join(' + ')+')':' (CPU)');
+ $('ob').textContent=N.host?'You are the host: start a rematch or head back to the lobby.':'Waiting for the host to start a rematch...';$('ou').textContent='';
+ $('br').style.display=N.host?'':'none';$('bw').style.display='none';$('bm').textContent='Lobby'}
+{const _so=showOver;showOver=function(){const r=_so.apply(this,arguments);try{olOver()}catch(e){}return r}}
+{const _bm=$('bm').onclick;$('bm').onclick=function(){if(netOn&&NET&&NET.v2){olToLobby();return}return _bm.apply(this,arguments)}}
+/* leave button while an online match runs */
+function olX(){const b=$('olx');if(!b)return;const on=!!(netOn&&NET&&NET.v2);b.style.display=on?'block':'none';if(!on){b.classList.remove('arm');b.textContent='✕ Leave match'}}
+{const b=$('olx');if(b)b.onclick=()=>{if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again to leave';clearTimeout(b._t);b._t=setTimeout(()=>{b.classList.remove('arm');b.textContent='✕ Leave match'},2500);return}b.classList.remove('arm');netLeave()}}
+/* ---- screens ---- */
+function olView(v){const p=$('net');p.replaceChildren();p.dataset.v=v;p.classList.remove('hide');$('menu').classList.add('hide');return el('div','nbox olbox',null,p)}
+function olHome(){const N=NET||{},b=olView('home');el('h2','','\u{1F310} Online',b);if(N.status)el('p','nst',N.status,b);
+ el('p','nh','Play friends on their own phone, tablet or laptop. Everyone controls their OWN fighter: 1v1, or 2v2 with up to 4 people. Empty seats are filled by CPUs.',b);
+ const r=el('div','acts',null,b);abtn(r,'Host a room',()=>roomStart(true,rcode())).classList.add('olbig');abtn(r,'Join with code',()=>{NET={v2:1,room:1,host:false,me:1,status:''};netUI('rjoin')}).classList.add('olbig','oljoin');
+ el('p','nh',OLSITE?'Works on any phone, tablet or computer with a browser, on the same Wi-Fi or across the internet. No account needed.':'Everyone needs this game open in Claude and signed in. To bring friends in, use the Share menu and invite them (a public link can’t join rooms).',b);
+ const d=el('div','olsub',null,b);el('b','','Rooms not connecting?',d);el('p','nh','Use a direct link instead: swap two codes through any chat app (1v1 only).',d);abtn(el('div','acts',null,d),'Direct link',olDirect,'s');
+ abtn(el('div','acts',null,b),'Back',()=>{NET=null;$('net').classList.add('hide');$('menu').classList.remove('hide');refresh()},'s')}
+function olDirect(){NET=null;OLNU('home');const b=$('net').querySelector('.nbox');if(!b)return;[...b.children].forEach(d=>{if(d.style&&d.style.borderTop)d.remove()})}
+function olConn(v){const N=NET||{},b=olView(v);el('h2','',v==='rhost'?'\u{1F310} Opening a room':'\u{1F310} Join a room',b);if(N.status)el('p','nst',N.status,b);
+ if(v==='rjoin'&&(!N.rc||N.failed)){el('p','nh','Type the 5-letter code the host sees on their screen.',b);const t=el('input','nta olcodein',null,b);t.placeholder='ROOM CODE';t.maxLength=8;t.spellcheck=false;t.autocomplete='off';t.setAttribute('autocapitalize','characters');
+  if(N.rc)t.value=N.rc;const go=()=>roomStart(false,t.value);t.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')go()});t.addEventListener('input',()=>{t.value=t.value.toUpperCase()});abtn(el('div','acts',null,b),'Join',go);setTimeout(()=>{try{t.focus()}catch(e){}},60)}
+ abtn(el('div','acts',null,b),N.R||!N.rc||N.failed?'Back':'Cancel',olCancel,'s')}
+function olLobby(){const N=NET;if(!N||!N.v2||!N.R)return olConn(N&&N.host?'rhost':'rjoin');const p=$('net');$('sel').classList.add('hide');p.classList.remove('hide');$('menu').classList.add('hide');
+ if(p.dataset.v!=='rlobby'||!N.ui||!p.contains(N.ui.box)){const b=olView('rlobby');b.classList.add('ollob');const U=N.ui={box:b,sig:''};
+  const hd=el('div','olhd',null,b);el('h2','','\u{1F310} Online room',hd);el('div','olcode',N.rc,hd);
+  const link=OLSITE&&/^https?:/.test(location.protocol)?location.origin+location.pathname+'?join='+N.rc:'';
+  const cp=abtn(hd,link?'Copy invite link':'Copy code',()=>{const v=link||N.rc;try{navigator.clipboard.writeText(v).then(()=>{cp.textContent='Copied ✓'},()=>{cp.textContent=N.rc})}catch(e){cp.textContent=N.rc}},'s');cp.classList.add('olsm');
+  U.st=el('p','nst',null,b);el('p','nh',OLSITE?'Friends open Stick Brawl on 2trapz games → \u{1F310} Online → Join with code → '+N.rc+' (or just send them the invite link).':'Friends join from this same game in Claude: \u{1F310} Online → Join with code → '+N.rc+'.',b);
+  U.mode=el('div','olmode',null,b);U.teams=el('div','olteams',null,b);U.bench=el('p','nh',null,b);
+  const me=el('div','olme',null,b);const nk=el('input','nta olnick',null,me);nk.placeholder='Your name (optional)';nk.maxLength=14;nk.value=olNickGet();nk.spellcheck=false;nk.autocomplete='off';
+  nk.addEventListener('keydown',e=>e.stopPropagation());nk.oninput=()=>{olNickSet(nk.value);olPush(1);olLobbyUpd()};
+  abtn(me,'Change my fighter',()=>openPick('w'),'s olsm');U.act=el('div','acts',null,b)}
+ olLobbyUpd()}
+function olLobbyUpd(){const N=NET;if(!N||!N.v2||!N.ui||$('net').dataset.v!=='rlobby'||netOn)return;const U=N.ui,L=olList(),byU=new Map(L.map(x=>[x.u,x]));
+ const H=N.host?{pr:{lob:olLob()}}:L.find(x=>x.pr.host===1&&!x.me),lob=H&&H.pr.lob&&typeof H.pr.lob==='object'?H.pr.lob:null;
+ const g=lob&&NMODES.includes(lob.gm)?lob.gm:'stock',tag=g==='tag',mi2=lob&&Number.isInteger(lob.mi)&&MAPS[lob.mi]?lob.mi:0,seats=lob&&Array.isArray(lob.ms)?lob.ms.slice(0,4):[null,null,null,null],bn=lob&&Array.isArray(lob.bn)?lob.bn:[];
+ U.st.textContent=N.status||(!lob?'Looking for the host…':lob.live?'A match is running. You’ll be in the next one.':L.length<2?'Waiting for friends to join…':N.host?'Pick 1v1 or 2v2, then start when everyone is in.':'Waiting for the host to start…');
+ const sig=JSON.stringify([N.host,g,mi2,lob&&lob.mut,seats,bn,N.tm,L.map(x=>[x.u,x.me?olNickGet():x.pr.nm,x.pr.w,x.pr.host]),L.length]);
+ if(sig!==U.sig){U.sig=sig;
+  U.mode.replaceChildren();const mp=(MAPS[g==='arena'?ARENA:mi2]||MAPS[0]).n;
+  if(N.host){const seg=el('div','olseg',null,U.mode);[['1v1','stock'],['2v2','tag']].forEach(([t,v])=>{const bb=el('button','olsb'+((v==='tag')===tag?' on':''),t,seg);bb.onclick=()=>{gm=v==='tag'?'tag':(gm==='tag'||!NMODES.includes(gm)?'stock':gm);olPush(1);olLobbyUpd()}});
+   abtn(U.mode,(tag?'2v2 Team Battle':olGN(g)),()=>openPick('g'),'s olsm');abtn(U.mode,'Map: '+mp,()=>openPick('m'),'s olsm')}
+  else el('p','nh olmi',(tag?'2v2 Team Battle':'1v1 · '+olGN(g))+' · '+mp,U.mode);
+  U.teams.replaceChildren();U.pings={};
+  for(let t=0;t<2;t++){const col=el('div','olcol',null,U.teams);col.style.setProperty('--c',OLC[t]);el('b','oltn',OLT[t]+' team',col);
+   (tag?[t,t+2]:[t]).forEach((s,k)=>{const u=seats[s],x=u?byU.get(u):null,row=el('div','olrow'+(x&&x.me?' me':'')+(x?'':' cpu'),null,col);
+    el('span','olrl',tag?(k?'ALLY':'LEAD'):'P'+(s+1),row);const tx=el('span','olnm',null,row);el('b','',x?olNm(x,s):'CPU',tx);el('i','',x?olWN(x.pr.w):'fills the seat',tx);
+    if(x&&x.me)el('em','olyou','YOU',row);if(x&&x.pr.host===1)el('em','olhost','HOST',row);if(x&&!x.me)U.pings[x.u]=el('span','olping','',row)});
+   const jb=el('button','b s olsm oljb',N.tm===t?'✔ On '+OLT[t]:'Join '+OLT[t],col);jb.onclick=()=>{N.tm=N.tm===t?-1:t;olPush(1);olLobbyUpd()}}
+  const bx=bn.map(u=>byU.get(u)).filter(Boolean);U.bench.textContent=bx.length?'\u{1F440} Watching: '+bx.map(x=>olNm(x,-1)+(x.me?' (you)':'')).join(', ')+(tag?' (room for 4 players max)':' · switch to 2v2 so up to 4 can play'):'';
+  U.act.replaceChildren();if(N.host){const sb=abtn(U.act,'▶ Start match',olHostStart);sb.classList.add('olstart');if(L.length<2){sb.disabled=true}}else el('p','nh','The host starts the match. Use “Join Blue / Join Red” to pick a side.',U.act);abtn(U.act,'Leave room',()=>netLeave(),'s')}
+ for(const u in U.pings){const r=N.rtt[u];U.pings[u].textContent=r?Math.round(r)+' ms':''}}
+var OLNU=netUI;netUI=function(v){if(NET&&NET.v2&&v==='lobby')v='rlobby';if(v==='home')return olHome();if(v==='rhost'||v==='rjoin')return(NET&&NET.R)?olLobby():olConn(v);if(v==='rlobby')return olLobby();return OLNU.apply(this,arguments)};
+{const _cp=closePick;closePick=function(){if(NET&&NET.v2&&NET.R&&!netOn){$('sel').classList.add('hide');olPush(1);netUI('rlobby');return}return _cp.apply(this,arguments)}}
+/* ---- main menu: Online is a big button now; local 2P says it's one device ---- */
+{const b3=$('b3');if(b3)b3.onclick=()=>$('bnet').onclick();const b2=$('b2'),o2=b2.onclick;let shown=0;b2.onclick=function(){if(!shown){shown=1;toastMsg('Local 2P = one device (P1 WASD, P2 arrows). Friends on their own devices? Use \u{1F310} Online.')}return o2.apply(this,arguments)}}
+document.addEventListener('visibilitychange',()=>{try{if(NET&&NET.v2&&NET.R){NET.hT=performance.now();olPush(1)}}catch(e){}});
+{const _op=openPick;openPick=function(){if(NET&&NET.v2&&NET.R&&!netOn)$('net').classList.add('hide');return _op.apply(this,arguments)}}
+/* ---- outside Claude (2trapz games): the same room calls over PeerJS; the host's browser is the hub ---- */
+var OLSITE=!(window.claude&&window.claude.use),olRetry=0;
+const OLPJ=['../../assets/vendor/peerjs.min.js','https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'];
+function olLib(){return new Promise((res,rej)=>{if(window.Peer)return res();let i=0;const nx=()=>{if(i>=OLPJ.length)return rej(Object.assign(new Error(OLWHY.lib),{type:'lib'}));const s=document.createElement('script');s.src=OLPJ[i++];s.onload=()=>window.Peer?res():nx();s.onerror=nx;document.head.appendChild(s)};nx()})}
+function olPOpts(){let h=null;try{h=new URLSearchParams(location.search).get('pthost')||localStorage.getItem('tz.pthost')}catch(e){}if(h){const[host,port]=h.split(':');return{host,port:+port||9000,path:'/',secure:false,debug:0}}return{debug:0}}
+const OLWHY={'peer-unavailable':'No room with that code. Check it with the host.','unavailable-id':'That room code is busy. Try hosting again.',network:'Could not reach the matchmaking service. Check your connection.','server-error':'The matchmaking service is having trouble. Try again in a minute.','browser-incompatible':'This browser cannot do peer-to-peer play.',lib:'Could not load the connection library.',timeout:'That room did not answer. Is the code right?'};
+function olP2PRoot(){return{p2p:1,join:(name,host)=>olP2PJoin(name,host)}}
+function olP2PJoin(name,host){return olLib().then(()=>new Promise((res,rej)=>{
+ const id='tz2trapz-stick-brawl-'+name,cl=new Map();let peer,done=0,hubConn=null,me='',pres={},others=new Map(),snap=Object.freeze([]),hs=[],last={},sendT=0,pend=null,lastRx=Date.now(),alive=1,ka=0,chq=0;
+ const fail=e=>{if(done)return;done=1;clearInterval(ka);try{peer&&peer.destroy()}catch(x){}const t=e&&e.type||'network';rej(Object.assign(new Error(OLWHY[t]||'Could not connect.'),{type:t}))};
+ const tmo=setTimeout(()=>fail({type:'timeout'}),15000);
+ function rebuild(){const a=[Object.freeze({peer:me,by:null,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:Object.freeze(Object.assign({},pres)),updatedAt:Date.now()})];for(const v of others.values())a.push(v);snap=Object.freeze(a);
+  if(!chq){chq=1;Promise.resolve().then(()=>{chq=0;const c={peers:snap,joined:[],left:[],updated:[]};for(const h of hs.slice()){try{h(c)}catch(e){}}})}}
+ function setP(pid,patch,fresh){if(pid===me||typeof pid!=='string')return;const o=others.get(pid),b=fresh||!o?{}:Object.assign({},o.presence);for(const k in patch){if(patch[k]===null)delete b[k];else b[k]=patch[k]}
+  others.set(pid,Object.freeze({peer:pid,by:null,isMe:false,sameTab:false,kind:'viewer',guest:false,presence:Object.freeze(b),updatedAt:Date.now()}));rebuild()}
+ function drop(pid){if(others.delete(pid))rebuild()}
+ function tx(c,m){try{if(c&&c.open)c.send(m)}catch(e){}}
+ function bcast(m,ex){for(const[k,c]of cl)if(k!==ex)tx(c.conn,m)}
+ function flush(){pend=null;const d={};let n=0;for(const k in pres){const js=JSON.stringify(pres[k]);if(last[k]!==js){d[k]=pres[k];last[k]=js;n++}}for(const k in last)if(!(k in pres)){d[k]=null;delete last[k];n++}
+  if(!n)return;sendT=performance.now();if(hubConn)tx(hubConn,{t:'p',d});else bcast({t:'p',id:me,d})}
+ const R={name,p2p:1,
+  presence(patch){if(!alive)return Promise.reject({code:'upstream_error'});for(const k in patch){if(patch[k]===null)delete pres[k];else pres[k]=patch[k]}rebuild();if(!pend)pend=setTimeout(flush,Math.max(0,33-(performance.now()-sendT)));return Promise.resolve()},
+  peers(){return snap},
+  onPeers(fn){hs.push(fn);Promise.resolve().then(()=>{try{fn({peers:snap,joined:snap,left:[],updated:[]})}catch(e){}});return()=>{hs=hs.filter(x=>x!==fn)}},
+  emit(){return Promise.resolve()},on(){return()=>{}},connected(){return alive===1},onConnection(fn){Promise.resolve().then(()=>fn(alive===1));return()=>{}},
+  leave(){alive=0;clearInterval(ka);clearTimeout(pend);try{peer&&peer.destroy()}catch(e){}others.clear();hs=[];return Promise.resolve()}};
+ const opened=()=>{if(done)return;done=1;clearTimeout(tmo);rebuild();res(R)};
+ ka=setInterval(()=>{if(!alive)return;const now=Date.now();if(hubConn){tx(hubConn,{t:'k'});if(now-lastRx>7000&&others.size){others.clear();rebuild()}}
+  else for(const[k,c]of cl){tx(c.conn,{t:'k'});if(now-c.rx>7000){cl.delete(k);try{c.conn.close()}catch(e){}drop(k);bcast({t:'x',id:k})}}},1000);
+ if(host){peer=new Peer(id,olPOpts());
+  peer.on('open',pid=>{me=pid;opened()});
+  peer.on('connection',conn=>{conn.on('open',()=>{cl.set(conn.peer,{conn,rx:Date.now()});const all=[[me,pres]];for(const[k,v]of others)all.push([k,v.presence]);tx(conn,{t:'all',peers:all})});
+   conn.on('data',m=>{const c=cl.get(conn.peer);if(!c)return;c.rx=Date.now();if(m&&m.t==='p'&&m.d&&typeof m.d==='object'){setP(conn.peer,m.d);bcast({t:'p',id:conn.peer,d:m.d},conn.peer)}});
+   const gone=()=>{if(cl.delete(conn.peer)){drop(conn.peer);bcast({t:'x',id:conn.peer})}};conn.on('close',gone);conn.on('error',gone)});
+  peer.on('error',e=>{if(!done)fail(e)});peer.on('disconnected',()=>{try{if(alive&&!peer.destroyed)peer.reconnect()}catch(e){}})}
+ else{peer=new Peer(olPOpts());
+  peer.on('open',pid=>{me=pid;const c=peer.connect(id,{reliable:true});hubConn=c;
+   c.on('open',()=>{lastRx=Date.now();last={};flush();opened()});
+   c.on('data',m=>{lastRx=Date.now();if(!m||typeof m!=='object')return;if(m.t==='all'&&Array.isArray(m.peers)){others.clear();for(const e of m.peers)if(Array.isArray(e)&&e[1]&&typeof e[1]==='object')setP(e[0],e[1],1);rebuild()}
+    else if(m.t==='p'&&m.d&&typeof m.d==='object')setP(m.id,m.d);else if(m.t==='x')drop(m.id)});
+   const gone=()=>{if(!done)return fail({type:'peer-unavailable'});others.clear();rebuild()};c.on('close',gone);c.on('error',gone)});
+  peer.on('error',e=>{if(!done)fail(e)})}}))}
+{const _rg=roomGet;roomGet=async function(){const r=await _rg();if(r)return r;if(OLSITE&&typeof RTCPeerConnection==='function')return olP2PRoot();return null}}
+/* site: list the room in the public lobby and accept ?join=CODE links */
+function olPub(){const N=NET,T=window.TZLive;if(!T||!T.openRoom||!N||!N.host||!N.R||!N.R.p2p)return;let on=true;try{on=localStorage.getItem('tz.ptPublic')!=='0'}catch(e){}
+ const n=olList().length,mx=olMode()==='tag'?4:2;try{if(!on){if(N.pub){T.closeRoom();N.pub=0}return}if(!N.pub){T.openRoom({game:'stick-brawl',code:N.rc,title:'Stick Brawl',players:n,max:mx,kind:'pt'});N.pub=1;N.pubN=n;N.pubM=mx}else if(n!==N.pubN||mx!==N.pubM){T.updateRoom({players:n,max:mx});N.pubN=n;N.pubM=mx}}catch(e){}}
+if(OLSITE)setTimeout(()=>{try{const j=new URLSearchParams(location.search).get('join');if(j&&!NET&&state==='menu'){const t=$('tutp');if(t)t.classList.add('hide');roomStart(false,j)}}catch(e){}},400);
+</script>
 <script src="../../assets/live.js" defer></script>
 </body></html>
