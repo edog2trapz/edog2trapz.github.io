@@ -58,6 +58,8 @@ const ABOUT = {
 };
 
 const GAMES = [
+  { slug:'dust-and-neon', title:'Dust & Neon', icon:'🏁', genre:'Racing', colors:['#120d18', '#e8a64a'], players:'1-2 players', isNew:true, featured:true, online:true,
+    desc:'First-person rally and neon street racing. In rally a friend is your co-driver on another phone, tab or screen: you get no map, they read the stage and call the pace notes. A six-chapter street story against gangs and rivals, from the Port Vesper docks to a Japanese touge, with pink slips. Build any of 18 cars with turbos, superchargers, cold air and headlight intakes, nitrous, engine swaps, body kits, neon and LEDs, then flash the ECU on the laptop in the cabin. Keyboard, gamepad or racing wheel.' },
   { slug:'dino-dynasty', title:'Dino Dynasty', icon:'🦖', genre:'Tycoon', colors:['#0b2526', '#ffc23d'], players:'1 player', isNew:true,
     desc:'Open fossil packs, collect 36 hand-animated dinosaurs and grow a tiny island into a six-zone dino park. Level cards with spares, complete sets, trade with museum collectors, hire rangers, catch the Golden Pteranodon and call down the meteor to rebuild stronger.' },
   { slug:'tap-the-yart', title:'Tap the Yart: Hazeport High', icon:'💨', genre:'Stealth', colors:['#14161d', '#c9b8ff'], players:'1 player', isNew:true, featured:true,
@@ -152,6 +154,8 @@ const REVIEWS = [
    game (optional) links the post to a game.
    ===================================================================== */
 const NEWS = [
+  { date:'2026-11-24', tag:'New game', title:'Dust & Neon: rally with a co-driver, street racing with gangs', game:'dust-and-neon',
+    text:'Dust & Neon is out. In rally you drive with no map while a friend co-drives from their own phone or screen with the stage map and a pace-note book, calling every corner. The story takes you from the Port Vesper docks through the Vipers, the Iron Saints, an underground rally series and the Kitsune-kai mountain pass to a pink-slip final against a hypercar. Tune any of 18 cars on the garage laptop, swap engines, fit turbos, blowers and nitrous, and drive it from a full first-person cockpit with keyboard, pad or a racing wheel.' },
   { date:'2026-11-24', tag:'Update', title:'Stick Brawl: real online 1v1 and 2v2 for up to 4 players', game:'stick-brawl',
     text:'Stick Brawl has proper online play now. Press the green Online button, host a room and send friends the code or invite link. Everyone controls their own fighter: 1v1, or 2v2 with a leader and an ally on each team. Empty seats are filled by CPUs, and anyone extra can watch. Pick Blue or Red in the lobby, set a nickname, and fuse with a human ally when you both press FUSE. Your room also shows up in the live lobby on the homepage.' },
   { date:'2026-11-23', tag:'New game', title:'Dino Dynasty: build a dinosaur park, one fossil pack at a time', game:'dino-dynasty',
